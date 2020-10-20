@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.Inputter &mdash; OpenNMT-tf 2.12.1 documentation</title>
+  <title>opennmt.inputters.Inputter &mdash; OpenNMT-tf 2.13.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.12
+                2.13
               </div>
             
           
@@ -220,6 +220,18 @@
 <li><p><a class="reference internal" href="opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter" title="opennmt.inputters.TextInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.TextInputter</span></code></a></p></li>
 </ul>
 <dl class="method">
+<dt id="opennmt.inputters.Inputter.asset_prefix">
+<em class="property">property </em><code class="sig-name descname">asset_prefix</code><a class="headerlink" href="#opennmt.inputters.Inputter.asset_prefix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The asset prefix is used to differentiate resources of parallel inputters.
+The most basic examples are the “<a href="#id1"><span class="problematic" id="id2">source_</span></a>” and “<a href="#id3"><span class="problematic" id="id4">target_</span></a>” prefixes.</p>
+<ul class="simple">
+<li><p>When reading the data configuration, the inputter will read fields that
+start with this prefix (e.g. “source_vocabulary”).</p></li>
+<li><p>Assets exported by this inputter start with this prefix.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="method">
 <dt id="opennmt.inputters.Inputter.num_outputs">
 <em class="property">property </em><code class="sig-name descname">num_outputs</code><a class="headerlink" href="#opennmt.inputters.Inputter.num_outputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of parallel outputs produced by this inputter.</p>
@@ -227,29 +239,23 @@
 
 <dl class="method">
 <dt id="opennmt.inputters.Inputter.initialize">
-<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param">data_config</em>, <em class="sig-param">asset_prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param">data_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the inputter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data_config</strong> – A dictionary containing the data configuration set
-by the user.</p></li>
-<li><p><strong>asset_prefix</strong> – The prefix to attach to assets filename.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>data_config</strong> – A dictionary containing the data configuration set
+by the user.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="opennmt.inputters.Inputter.export_assets">
-<code class="sig-name descname">export_assets</code><span class="sig-paren">(</span><em class="sig-param">asset_dir</em>, <em class="sig-param">asset_prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.export_assets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.export_assets" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">export_assets</code><span class="sig-paren">(</span><em class="sig-param">asset_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.export_assets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.export_assets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exports assets used by this tokenizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>asset_dir</strong> – The directory where assets can be written.</p></li>
-<li><p><strong>asset_prefix</strong> – The prefix to attach to assets filename.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>asset_dir</strong> – The directory where assets can be written.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A dictionary containing additional assets used by the inputter.</p>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.Encoder &mdash; OpenNMT-tf 2.12.1 documentation</title>
+  <title>opennmt.encoders.Encoder &mdash; OpenNMT-tf 2.13.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.12
+                2.13
               </div>
             
           
@@ -243,6 +243,28 @@
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.encoders.Encoder.__call__">
+<code class="sig-name descname">__call__</code><span class="sig-paren">(</span><em class="sig-param">inputs</em>, <em class="sig-param">sequence_length=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/encoders/encoder.html#Encoder.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.encoders.Encoder.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encodes an input sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – A 3D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or <code class="docutils literal notranslate"><span class="pre">tf.RaggedTensor</span></code>.</p></li>
+<li><p><strong>sequence_length</strong> – A 1D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> (optional if <code class="xref py py-obj docutils literal notranslate"><span class="pre">inputs</span></code> is a
+<code class="docutils literal notranslate"><span class="pre">tf.RaggedTensor</span></code>).</p></li>
+<li><p><strong>training</strong> – Run the encoder in training mode.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>If <code class="xref py py-obj docutils literal notranslate"><span class="pre">inputs</span></code> is a <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>, the encoder returns a tuple
+<code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state,</span> <span class="pre">sequence_length)</span></code>. If <code class="xref py py-obj docutils literal notranslate"><span class="pre">inputs</span></code> is a
+<code class="docutils literal notranslate"><span class="pre">tf.RaggedTensor</span></code>, the encoder returns a tuple <code class="docutils literal notranslate"><span class="pre">(outputs,</span> <span class="pre">state)</span></code>,
+where <code class="docutils literal notranslate"><span class="pre">outputs</span></code> is a <code class="docutils literal notranslate"><span class="pre">tf.RaggedTensor</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>

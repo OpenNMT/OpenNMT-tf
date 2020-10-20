@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.Runner &mdash; OpenNMT-tf 2.12.1 documentation</title>
+  <title>opennmt.Runner &mdash; OpenNMT-tf 2.13.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.12
+                2.13
               </div>
             
           
@@ -235,7 +235,7 @@ returns such instance.</p></li>
 
 <dl class="method">
 <dt id="opennmt.Runner.train">
-<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param">num_devices=1</em>, <em class="sig-param">with_eval=False</em>, <em class="sig-param">checkpoint_path=None</em>, <em class="sig-param">hvd=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.train" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param">num_devices=1</em>, <em class="sig-param">with_eval=False</em>, <em class="sig-param">checkpoint_path=None</em>, <em class="sig-param">hvd=None</em>, <em class="sig-param">return_summary=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.Runner.train" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs the training loop.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -244,10 +244,12 @@ returns such instance.</p></li>
 <li><p><strong>with_eval</strong> – Enable evaluation during training.</p></li>
 <li><p><strong>checkpoint_path</strong> – The checkpoint path to load the model weights from it.</p></li>
 <li><p><strong>hvd</strong> – Optional Horovod module.</p></li>
+<li><p><strong>return_summary</strong> – Return a summary of the training from this function.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The path to the final model directory.</p>
+<dd class="field-even"><p>The path to the final model directory and, if <code class="xref py py-obj docutils literal notranslate"><span class="pre">return_summary</span></code> is set,
+a dictionary with various training statistics.</p>
 </dd>
 </dl>
 </dd></dl>

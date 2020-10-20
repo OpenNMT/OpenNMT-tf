@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.encoder &mdash; OpenNMT-tf 2.12.1 documentation</title>
+  <title>opennmt.encoders.encoder &mdash; OpenNMT-tf 2.13.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.12
+                2.13
               </div>
             
           
@@ -210,7 +210,35 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      A tuple ``(outputs, state, sequence_length)``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Encoder.__call__"><a class="viewcode-back" href="../../../package/opennmt.encoders.Encoder.html#opennmt.encoders.Encoder.__call__">[docs]</a>  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
+    <span class="sd">&quot;&quot;&quot;Encodes an input sequence.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      inputs: A 3D ``tf.Tensor`` or ``tf.RaggedTensor``.</span>
+<span class="sd">      sequence_length: A 1D ``tf.Tensor`` (optional if :obj:`inputs` is a</span>
+<span class="sd">        ``tf.RaggedTensor``).</span>
+<span class="sd">      training: Run the encoder in training mode.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      If :obj:`inputs` is a ``tf.Tensor``, the encoder returns a tuple</span>
+<span class="sd">      ``(outputs, state, sequence_length)``. If :obj:`inputs` is a</span>
+<span class="sd">      ``tf.RaggedTensor``, the encoder returns a tuple ``(outputs, state)``,</span>
+<span class="sd">      where ``outputs`` is a ``tf.RaggedTensor``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="p">):</span>
+      <span class="n">is_ragged</span> <span class="o">=</span> <span class="kc">True</span>
+      <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(),</span> <span class="n">inputs</span><span class="o">.</span><span class="n">row_lengths</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">is_ragged</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_ragged</span><span class="p">:</span>
+      <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">lengths</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">sequence_length</span></div></div>
 
 
 <div class="viewcode-block" id="SequentialEncoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.SequentialEncoder.html#opennmt.encoders.SequentialEncoder">[docs]</a><span class="k">class</span> <span class="nc">SequentialEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>

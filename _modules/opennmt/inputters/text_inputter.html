@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 2.12.1 documentation</title>
+  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 2.13.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.12
+                2.13
               </div>
             
           
@@ -194,7 +194,7 @@
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">constants</span><span class="p">,</span> <span class="n">tokenizers</span>
 <span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="kn">import</span> <span class="n">dataset</span> <span class="k">as</span> <span class="n">dataset_util</span>
 <span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="kn">import</span> <span class="n">text</span>
-<span class="kn">from</span> <span class="nn">opennmt.data.vocab</span> <span class="kn">import</span> <span class="n">Vocab</span>
+<span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="kn">import</span> <span class="n">vocab</span>
 <span class="kn">from</span> <span class="nn">opennmt.inputters.inputter</span> <span class="kn">import</span> <span class="n">Inputter</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="kn">import</span> <span class="n">common</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
@@ -381,44 +381,6 @@
 
   <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">length</span></div>
 
-<span class="k">def</span> <span class="nf">_get_field</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-  <span class="k">if</span> <span class="n">prefix</span><span class="p">:</span>
-    <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
-  <span class="n">value</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">required</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing field &#39;</span><span class="si">%s</span><span class="s2">&#39; in the data configuration&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">value</span>
-
-<span class="k">def</span> <span class="nf">_create_vocabulary_tables</span><span class="p">(</span><span class="n">vocabulary_file</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="p">,</span> <span class="n">as_asset</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-  <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">Vocab</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">vocabulary_file</span><span class="p">)</span>
-  <span class="n">vocabulary_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vocabulary</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">as_asset</span><span class="p">:</span>
-    <span class="n">tokens_to_ids_initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileInitializer</span><span class="p">(</span>
-        <span class="n">vocabulary_file</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileIndex</span><span class="o">.</span><span class="n">WHOLE_LINE</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileIndex</span><span class="o">.</span><span class="n">LINE_NUMBER</span><span class="p">,</span>
-        <span class="n">vocab_size</span><span class="o">=</span><span class="n">vocabulary_size</span><span class="p">)</span>
-    <span class="n">ids_to_tokens_initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileInitializer</span><span class="p">(</span>
-        <span class="n">vocabulary_file</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileIndex</span><span class="o">.</span><span class="n">LINE_NUMBER</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileIndex</span><span class="o">.</span><span class="n">WHOLE_LINE</span><span class="p">,</span>
-        <span class="n">vocab_size</span><span class="o">=</span><span class="n">vocabulary_size</span><span class="p">)</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">words</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
-    <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">vocabulary_size</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-    <span class="n">tokens_to_ids_initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">KeyValueTensorInitializer</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
-    <span class="n">ids_to_tokens_initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">KeyValueTensorInitializer</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">tokens</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">num_oov_buckets</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-    <span class="n">tokens_to_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">StaticVocabularyTable</span><span class="p">(</span><span class="n">tokens_to_ids_initializer</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="p">)</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="n">tokens_to_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">StaticHashTable</span><span class="p">(</span><span class="n">tokens_to_ids_initializer</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-  <span class="n">ids_to_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">StaticHashTable</span><span class="p">(</span><span class="n">ids_to_tokens_initializer</span><span class="p">,</span> <span class="n">constants</span><span class="o">.</span><span class="n">UNKNOWN_TOKEN</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">vocabulary_size</span> <span class="o">+</span> <span class="n">num_oov_buckets</span><span class="p">,</span> <span class="n">tokens_to_ids</span><span class="p">,</span> <span class="n">ids_to_tokens</span>
-
 
 <div class="viewcode-block" id="TextInputter"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter">[docs]</a><span class="k">class</span> <span class="nc">TextInputter</span><span class="p">(</span><span class="n">Inputter</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;An abstract inputter that processes text.&quot;&quot;&quot;</span>
@@ -429,15 +391,19 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">in_place_noise</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">noise_probability</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tokens_to_ids</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ids_to_tokens</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="TextInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span> <span class="o">=</span> <span class="n">_get_field</span><span class="p">(</span>
-        <span class="n">data_config</span><span class="p">,</span> <span class="s2">&quot;vocabulary&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens_to_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_to_tokens</span> <span class="o">=</span> <span class="n">_create_vocabulary_tables</span><span class="p">(</span>
+<div class="viewcode-block" id="TextInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span> <span class="o">=</span> <span class="n">data_config</span><span class="p">[</span><span class="s2">&quot;vocabulary&quot;</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens_to_ids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids_to_tokens</span> <span class="o">=</span> <span class="n">vocab</span><span class="o">.</span><span class="n">create_lookup_tables</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_oov_buckets</span><span class="p">,</span>
         <span class="n">as_asset</span><span class="o">=</span><span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;export_vocabulary_assets&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
-    <span class="n">tokenizer_config</span> <span class="o">=</span> <span class="n">_get_field</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="s2">&quot;tokenization&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span>
+    <span class="n">tokenizer_config</span> <span class="o">=</span> <span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tokenization&quot;</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizers</span><span class="o">.</span><span class="n">make_tokenizer</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TextInputter.set_noise"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.set_noise">[docs]</a>  <span class="k">def</span> <span class="nf">set_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noiser</span><span class="p">,</span> <span class="n">in_place</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">probability</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -460,8 +426,9 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">in_place_noise</span> <span class="o">=</span> <span class="n">in_place</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">noise_probability</span> <span class="o">=</span> <span class="n">probability</span></div>
 
-<div class="viewcode-block" id="TextInputter.export_assets"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.export_assets">[docs]</a>  <span class="k">def</span> <span class="nf">export_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">export_assets</span><span class="p">(</span><span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span></div>
+<div class="viewcode-block" id="TextInputter.export_assets"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.export_assets">[docs]</a>  <span class="k">def</span> <span class="nf">export_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_assert_is_initialized</span><span class="p">()</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">export_assets</span><span class="p">(</span><span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">asset_prefix</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TextInputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.make_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">dataset_util</span><span class="o">.</span><span class="n">make_datasets</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TextLineDataset</span><span class="p">,</span> <span class="n">data_file</span><span class="p">)</span></div>
@@ -473,6 +440,7 @@
 
 <div class="viewcode-block" id="TextInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.make_features">[docs]</a>  <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Tokenizes raw text.&quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_assert_is_initialized</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">features</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="s2">&quot;tokens&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
@@ -503,6 +471,7 @@
     <span class="k">return</span> <span class="n">features</span></div>
 
 <div class="viewcode-block" id="TextInputter.input_signature"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.input_signature">[docs]</a>  <span class="k">def</span> <span class="nf">input_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_assert_is_initialized</span><span class="p">()</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">in_graph</span><span class="p">:</span>
       <span class="k">return</span> <span class="p">{</span>
           <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorSpec</span><span class="p">([</span><span class="kc">None</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
@@ -511,7 +480,12 @@
       <span class="k">return</span> <span class="p">{</span>
           <span class="s2">&quot;tokens&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorSpec</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">),</span>
           <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorSpec</span><span class="p">([</span><span class="kc">None</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-      <span class="p">}</span></div></div>
+      <span class="p">}</span></div>
+
+  <span class="k">def</span> <span class="nf">_assert_is_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The input layer is not initialized. You should initialize &quot;</span>
+                         <span class="s2">&quot;the model by calling model.initialize(data_config).&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WordEmbedder"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder">[docs]</a><span class="k">class</span> <span class="nc">WordEmbedder</span><span class="p">(</span><span class="n">TextInputter</span><span class="p">):</span>
@@ -563,9 +537,9 @@
       <span class="n">length</span> <span class="o">-=</span> <span class="n">num_special_tokens</span>
     <span class="k">return</span> <span class="n">length</span></div>
 
-<div class="viewcode-block" id="WordEmbedder.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">WordEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span>
-    <span class="n">embedding</span> <span class="o">=</span> <span class="n">_get_field</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="s2">&quot;embedding&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span>
+<div class="viewcode-block" id="WordEmbedder.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">WordEmbedder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">)</span>
+    <span class="n">embedding</span> <span class="o">=</span> <span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;embedding&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">embedding</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;embedding_size must be set&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">embedding</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -573,7 +547,7 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">trainable</span> <span class="o">=</span> <span class="n">embedding</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;trainable&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">embedding_file_with_header</span> <span class="o">=</span> <span class="n">embedding</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;with_header&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">case_insensitive_embeddings</span> <span class="o">=</span> <span class="n">embedding</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;case_insensitive&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-    <span class="n">sequence_controls</span> <span class="o">=</span> <span class="n">_get_field</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="s2">&quot;sequence_controls&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span>
+    <span class="n">sequence_controls</span> <span class="o">=</span> <span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sequence_controls&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sequence_controls</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">mark_start</span> <span class="o">=</span> <span class="n">sequence_controls</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">mark_end</span> <span class="o">=</span> <span class="n">sequence_controls</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span></div>

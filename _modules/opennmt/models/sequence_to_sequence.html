@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.12.1 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.13.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.12
+                2.13
               </div>
             
           
@@ -606,8 +606,8 @@
     <span class="n">labels_inputter</span><span class="o">.</span><span class="n">set_decoder_mode</span><span class="p">(</span><span class="n">mark_start</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mark_end</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="SequenceToSequenceInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequenceInputter.html#opennmt.models.SequenceToSequenceInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequenceInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span>
+<div class="viewcode-block" id="SequenceToSequenceInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequenceInputter.html#opennmt.models.SequenceToSequenceInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">SequenceToSequenceInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">alignment_file</span> <span class="o">=</span> <span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;train_alignments&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SequenceToSequenceInputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequenceInputter.html#opennmt.models.SequenceToSequenceInputter.make_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

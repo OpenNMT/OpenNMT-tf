@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.optimizers module &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.data.create_lookup_tables &mdash; OpenNMT-tf 2.13.0 documentation</title>
   
 
   
@@ -39,8 +39,8 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.optimizers.make_optimizer" href="opennmt.optimizers.make_optimizer.html" />
-    <link rel="prev" title="opennmt.models.register_model_in_catalog" href="opennmt.models.register_model_in_catalog.html" /> 
+    <link rel="next" title="opennmt.data.filter_examples_by_length" href="opennmt.data.filter_examples_by_length.html" />
+    <link rel="prev" title="opennmt.data.batch_sequence_dataset" href="opennmt.data.batch_sequence_dataset.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -119,16 +119,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../api_examples.html">API examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="opennmt.data.html#classes">Classes</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.data.html#functions">Functions</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">opennmt.optimizers module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a></li>
@@ -186,7 +187,9 @@
         
           <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
         
-      <li>opennmt.optimizers module</li>
+          <li><a href="opennmt.data.html">opennmt.data module</a> &raquo;</li>
+        
+      <li>opennmt.data.create_lookup_tables</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -203,18 +206,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-opennmt.optimizers">
-<span id="opennmt-optimizers-module"></span><h1>opennmt.optimizers module<a class="headerlink" href="#module-opennmt.optimizers" title="Permalink to this headline">¶</a></h1>
-<p>Module defining custom optimizers.</p>
-<div class="section" id="functions">
-<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="opennmt.optimizers.make_optimizer.html">opennmt.optimizers.make_optimizer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="opennmt.optimizers.register_optimizer.html">opennmt.optimizers.register_optimizer</a></li>
+  <div class="section" id="opennmt-data-create-lookup-tables">
+<h1>opennmt.data.create_lookup_tables<a class="headerlink" href="#opennmt-data-create-lookup-tables" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="opennmt.data.create_lookup_tables">
+<code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">create_lookup_tables</code><span class="sig-paren">(</span><em class="sig-param">vocabulary_path</em>, <em class="sig-param">num_oov_buckets=1</em>, <em class="sig-param">as_asset=True</em>, <em class="sig-param">unk_token=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/vocab.html#create_lookup_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.create_lookup_tables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates TensorFlow lookup tables from a vocabulary file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vocabulary_path</strong> – Path to the vocabulary file.</p></li>
+<li><p><strong>num_oov_buckets</strong> – Number of out-of-vocabulary buckets.</p></li>
+<li><p><strong>as_asset</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the vocabulary file will be added as a graph asset.
+Otherwise, the content of the vocabulary will be embedded in the graph.</p></li>
+<li><p><strong>unk_token</strong> – The out-of-vocabulary token. Defaults to <code class="docutils literal notranslate"><span class="pre">&lt;unk&gt;</span></code>.</p></li>
 </ul>
-</div>
-</div>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>A tuple containing,</p>
+<ul class="simple">
+<li><p>The final vocabulary size.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">tf.lookup</span></code> table mapping tokens to ids.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">tf.lookup</span></code> table mapping ids to tokens.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
@@ -225,10 +244,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.optimizers.make_optimizer.html" class="btn btn-neutral float-right" title="opennmt.optimizers.make_optimizer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.data.filter_examples_by_length.html" class="btn btn-neutral float-right" title="opennmt.data.filter_examples_by_length" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="opennmt.models.register_model_in_catalog.html" class="btn btn-neutral float-left" title="opennmt.models.register_model_in_catalog" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="opennmt.data.batch_sequence_dataset.html" class="btn btn-neutral float-left" title="opennmt.data.batch_sequence_dataset" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

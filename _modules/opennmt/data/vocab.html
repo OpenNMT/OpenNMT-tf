@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.vocab &mdash; OpenNMT-tf 2.12.1 documentation</title>
+  <title>opennmt.data.vocab &mdash; OpenNMT-tf 2.13.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.12
+                2.13
               </div>
             
           
@@ -183,6 +183,8 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">constants</span>
 
 
 <div class="viewcode-block" id="Vocab"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab">[docs]</a><span class="k">class</span> <span class="nc">Vocab</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -400,6 +402,54 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;averyunlikelytoken</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
       <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span></div></div>
 
+
+<div class="viewcode-block" id="create_lookup_tables"><a class="viewcode-back" href="../../../package/opennmt.data.create_lookup_tables.html#opennmt.data.create_lookup_tables">[docs]</a><span class="k">def</span> <span class="nf">create_lookup_tables</span><span class="p">(</span><span class="n">vocabulary_path</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">as_asset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unk_token</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Creates TensorFlow lookup tables from a vocabulary file.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    vocabulary_path: Path to the vocabulary file.</span>
+<span class="sd">    num_oov_buckets: Number of out-of-vocabulary buckets.</span>
+<span class="sd">    as_asset: If ``True``, the vocabulary file will be added as a graph asset.</span>
+<span class="sd">      Otherwise, the content of the vocabulary will be embedded in the graph.</span>
+<span class="sd">    unk_token: The out-of-vocabulary token. Defaults to ``&lt;unk&gt;``.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A tuple containing,</span>
+
+<span class="sd">    - The final vocabulary size.</span>
+<span class="sd">    - The ``tf.lookup`` table mapping tokens to ids.</span>
+<span class="sd">    - The ``tf.lookup`` table mapping ids to tokens.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">unk_token</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">unk_token</span> <span class="o">=</span> <span class="n">constants</span><span class="o">.</span><span class="n">UNKNOWN_TOKEN</span>
+  <span class="n">vocabulary</span> <span class="o">=</span> <span class="n">Vocab</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">vocabulary_path</span><span class="p">)</span>
+  <span class="n">vocabulary_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">vocabulary</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">as_asset</span><span class="p">:</span>
+    <span class="n">tokens_to_ids_initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileInitializer</span><span class="p">(</span>
+        <span class="n">vocabulary_path</span><span class="p">,</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileIndex</span><span class="o">.</span><span class="n">WHOLE_LINE</span><span class="p">,</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileIndex</span><span class="o">.</span><span class="n">LINE_NUMBER</span><span class="p">,</span>
+        <span class="n">vocab_size</span><span class="o">=</span><span class="n">vocabulary_size</span><span class="p">)</span>
+    <span class="n">ids_to_tokens_initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileInitializer</span><span class="p">(</span>
+        <span class="n">vocabulary_path</span><span class="p">,</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileIndex</span><span class="o">.</span><span class="n">LINE_NUMBER</span><span class="p">,</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">TextFileIndex</span><span class="o">.</span><span class="n">WHOLE_LINE</span><span class="p">,</span>
+        <span class="n">vocab_size</span><span class="o">=</span><span class="n">vocabulary_size</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">vocabulary</span><span class="o">.</span><span class="n">words</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">vocabulary_size</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">tokens_to_ids_initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">KeyValueTensorInitializer</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
+    <span class="n">ids_to_tokens_initializer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">KeyValueTensorInitializer</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">tokens</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">num_oov_buckets</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">tokens_to_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">StaticVocabularyTable</span><span class="p">(</span><span class="n">tokens_to_ids_initializer</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">tokens_to_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">StaticHashTable</span><span class="p">(</span><span class="n">tokens_to_ids_initializer</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="n">ids_to_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">lookup</span><span class="o">.</span><span class="n">StaticHashTable</span><span class="p">(</span><span class="n">ids_to_tokens_initializer</span><span class="p">,</span> <span class="n">unk_token</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">vocabulary_size</span> <span class="o">+</span> <span class="n">num_oov_buckets</span><span class="p">,</span> <span class="n">tokens_to_ids</span><span class="p">,</span> <span class="n">ids_to_tokens</span></div>
 
 <span class="k">def</span> <span class="nf">get_mapping</span><span class="p">(</span><span class="n">current_vocab_path</span><span class="p">,</span> <span class="n">new_vocab_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Maps vocabulary new indices to old ones. -1 means that the entry is new.&quot;&quot;&quot;</span>

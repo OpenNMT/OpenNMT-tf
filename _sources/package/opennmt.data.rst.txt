@@ -25,6 +25,7 @@ Functions
    opennmt.data.alignment_matrix_from_pharaoh
    opennmt.data.batch_dataset
    opennmt.data.batch_sequence_dataset
+   opennmt.data.create_lookup_tables
    opennmt.data.filter_examples_by_length
    opennmt.data.filter_irregular_batches
    opennmt.data.get_dataset_size

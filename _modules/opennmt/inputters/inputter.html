@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 2.12.1 documentation</title>
+  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 2.13.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.12
+                2.13
               </div>
             
           
@@ -196,37 +196,49 @@
 
   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">Inputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">asset_prefix</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_asset_prefix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">asset_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The asset prefix is used to differentiate resources of parallel inputters.</span>
+<span class="sd">    The most basic examples are the &quot;source_&quot; and &quot;target_&quot; prefixes.</span>
+
+<span class="sd">    - When reading the data configuration, the inputter will read fields that</span>
+<span class="sd">      start with this prefix (e.g. &quot;source_vocabulary&quot;).</span>
+<span class="sd">    - Assets exported by this inputter start with this prefix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_asset_prefix</span>
+
+  <span class="nd">@asset_prefix</span><span class="o">.</span><span class="n">setter</span>
+  <span class="k">def</span> <span class="nf">asset_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets the asset prefix for this inputter.&quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_asset_prefix</span> <span class="o">=</span> <span class="n">asset_prefix</span>
 
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">num_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The number of parallel outputs produced by this inputter.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mi">1</span>
 
-<div class="viewcode-block" id="Inputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Inputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initializes the inputter.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      data_config: A dictionary containing the data configuration set</span>
 <span class="sd">        by the user.</span>
-<span class="sd">      asset_prefix: The prefix to attach to assets filename.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_</span> <span class="o">=</span> <span class="n">data_config</span>
-    <span class="n">_</span> <span class="o">=</span> <span class="n">asset_prefix</span>
     <span class="k">return</span></div>
 
-<div class="viewcode-block" id="Inputter.export_assets"><a class="viewcode-back" href="../../../package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.export_assets">[docs]</a>  <span class="k">def</span> <span class="nf">export_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Inputter.export_assets"><a class="viewcode-back" href="../../../package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.export_assets">[docs]</a>  <span class="k">def</span> <span class="nf">export_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Exports assets used by this tokenizer.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      asset_dir: The directory where assets can be written.</span>
-<span class="sd">      asset_prefix: The prefix to attach to assets filename.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A dictionary containing additional assets used by the inputter.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_</span> <span class="o">=</span> <span class="n">asset_dir</span>
-    <span class="n">_</span> <span class="o">=</span> <span class="n">asset_prefix</span>
     <span class="k">return</span> <span class="p">{}</span></div>
 
 <div class="viewcode-block" id="Inputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.make_dataset">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -411,6 +423,13 @@
     <span class="nb">super</span><span class="p">(</span><span class="n">MultiInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span> <span class="o">=</span> <span class="n">inputters</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span> <span class="o">=</span> <span class="n">reducer</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">asset_prefix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># Generate the default prefix for sub-inputters.</span>
+
+  <span class="nd">@Inputter</span><span class="o">.</span><span class="n">asset_prefix</span><span class="o">.</span><span class="n">setter</span>
+  <span class="k">def</span> <span class="nf">asset_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_asset_prefix</span> <span class="o">=</span> <span class="n">asset_prefix</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
+      <span class="n">inputter</span><span class="o">.</span><span class="n">asset_prefix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%d</span><span class="s2">_&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">asset_prefix</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">num_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -434,16 +453,15 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MultiInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MultiInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
-      <span class="n">inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span>
-          <span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="n">_get_asset_prefix</span><span class="p">(</span><span class="n">asset_prefix</span><span class="p">,</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span></div>
+<div class="viewcode-block" id="MultiInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">:</span>
+      <span class="n">inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">misc</span><span class="o">.</span><span class="n">RelativeConfig</span><span class="p">(</span>
+          <span class="n">data_config</span><span class="p">,</span> <span class="n">inputter</span><span class="o">.</span><span class="n">asset_prefix</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="MultiInputter.export_assets"><a class="viewcode-back" href="../../../package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.export_assets">[docs]</a>  <span class="k">def</span> <span class="nf">export_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiInputter.export_assets"><a class="viewcode-back" href="../../../package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.export_assets">[docs]</a>  <span class="k">def</span> <span class="nf">export_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">):</span>
     <span class="n">assets</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">):</span>
-      <span class="n">assets</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">export_assets</span><span class="p">(</span>
-          <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="n">_get_asset_prefix</span><span class="p">(</span><span class="n">asset_prefix</span><span class="p">,</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">i</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">:</span>
+      <span class="n">assets</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">export_assets</span><span class="p">(</span><span class="n">asset_dir</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">assets</span></div>
 
 <div class="viewcode-block" id="MultiInputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.make_dataset">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
@@ -460,10 +478,6 @@
 <div class="viewcode-block" id="MultiInputter.visualize"><a class="viewcode-back" href="../../../package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.visualize">[docs]</a>  <span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_root</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">:</span>
       <span class="n">inputter</span><span class="o">.</span><span class="n">visualize</span><span class="p">(</span><span class="n">model_root</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">)</span></div></div>
-
-
-<span class="k">def</span> <span class="nf">_get_asset_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-  <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">_&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">inputter</span><span class="o">.</span><span class="n">asset_prefix</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="ParallelInputter"><a class="viewcode-back" href="../../../package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter">[docs]</a><span class="k">class</span> <span class="nc">ParallelInputter</span><span class="p">(</span><span class="n">MultiInputter</span><span class="p">):</span>
@@ -869,13 +883,14 @@
 <span class="sd">      share_parameters: Share the inputters parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span> <span class="o">=</span> <span class="n">features_inputter</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">asset_prefix</span> <span class="o">=</span> <span class="s2">&quot;source&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span> <span class="o">=</span> <span class="n">labels_inputter</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">asset_prefix</span> <span class="o">=</span> <span class="s2">&quot;target&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">ExampleInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="p">],</span>
         <span class="n">share_parameters</span><span class="o">=</span><span class="n">share_parameters</span><span class="p">,</span>
-        <span class="n">combine_features</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+        <span class="n">combine_features</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># Set a meaningful prefix for source and target.</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">asset_prefix</span> <span class="o">=</span> <span class="s2">&quot;source_&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">asset_prefix</span> <span class="o">=</span> <span class="s2">&quot;target_&quot;</span></div>
 
 <div class="viewcode-block" id="ExampleInputter.make_inference_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.make_inference_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_inference_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                              <span class="n">features_file</span><span class="p">,</span>

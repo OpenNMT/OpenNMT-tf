@@ -1,0 +1,4 @@
+opennmt.data.create_lookup_tables
+=================================
+
+.. autofunction:: opennmt.data.create_lookup_tables

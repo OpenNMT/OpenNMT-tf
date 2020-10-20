@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.language_model &mdash; OpenNMT-tf 2.12.1 documentation</title>
+  <title>opennmt.models.language_model &mdash; OpenNMT-tf 2.13.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.12
+                2.13
               </div>
             
           
@@ -321,8 +321,8 @@
 <span class="sd">  input sequence.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="LanguageModelInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">LanguageModelInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="n">asset_prefix</span><span class="p">)</span>
+<div class="viewcode-block" id="LanguageModelInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">LanguageModelInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">)</span>
     <span class="c1"># Set default sequence controls for backward compatibility.</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mark_start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">mark_start</span> <span class="o">=</span> <span class="kc">False</span>

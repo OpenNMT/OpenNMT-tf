@@ -62,6 +62,7 @@
 ./_sources/package/opennmt.data.alignment_matrix_from_pharaoh.rst.txt
 ./_sources/package/opennmt.data.batch_dataset.rst.txt
 ./_sources/package/opennmt.data.batch_sequence_dataset.rst.txt
+./_sources/package/opennmt.data.create_lookup_tables.rst.txt
 ./_sources/package/opennmt.data.filter_examples_by_length.rst.txt
 ./_sources/package/opennmt.data.filter_irregular_batches.rst.txt
 ./_sources/package/opennmt.data.get_dataset_size.rst.txt
@@ -301,6 +302,7 @@
 ./package/opennmt.data.alignment_matrix_from_pharaoh.html
 ./package/opennmt.data.batch_dataset.html
 ./package/opennmt.data.batch_sequence_dataset.html
+./package/opennmt.data.create_lookup_tables.html
 ./package/opennmt.data.filter_examples_by_length.html
 ./package/opennmt.data.filter_irregular_batches.html
 ./package/opennmt.data.get_dataset_size.html
