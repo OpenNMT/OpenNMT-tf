@@ -13,6 +13,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### New features
 
+### Fixes and improvements
+
+## [2.13.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.13.0) (2020-10-20)
+
+### New features
+
 * [API] `opennmt.Encoder` now accepts `tf.RaggedTensor` as input
 * [API] `opennmt.Runner.train` can return a summary of the training (e.g. average loss, last step, etc.)
 * [API] Add function `opennmt.data.create_lookup_tables` to create `tf.lookup` tables from a vocabulary file
