@@ -108,18 +108,24 @@ class Trainer:
             moving_average.update()
 
         step = iterations.numpy()
+        reset_throughput = False
         self._training_stats.update_on_step(step, loss.numpy())
         if step % report_steps == 0:
           self._training_stats.log(self._is_master)
+          reset_throughput = True
         if step == 1 or (save_steps is not None and step % save_steps == 0):
           self._save_checkpoint(step, moving_average=moving_average)
+          reset_throughput = True
         if eval_steps is not None and step % eval_steps == 0:
           early_stop = self._evaluate(evaluator, step, moving_average=moving_average)
+          reset_throughput = True
           if early_stop:
             tf.get_logger().warning("Early stopping conditions are met. Exiting.")
             break
         if step == max_step:
           break
+        if reset_throughput:
+          self._training_stats.reset_throughput()
 
       if step is None:
         raise RuntimeError("No training steps were executed. This usually means the "
@@ -519,7 +525,7 @@ class TrainingStats:
     self._average_loss = (self._average_loss * self._num_updates + loss) / (self._num_updates + 1)
 
     if self._num_updates < self._warmup_steps:
-      self._reset_accumulation()
+      self.reset_throughput()
     self._num_updates += 1
 
   def get_last_summary(self):
@@ -563,7 +569,6 @@ class TrainingStats:
     # Only the master should log the training statistics but we build the
     # summary on all workers since it may reduce distributed values.
     summary = self.get_last_summary()
-    self._reset_accumulation()
 
     if not is_master:
       return
@@ -589,7 +594,7 @@ class TrainingStats:
     tf.summary.scalar("loss", summary["loss"], description="Training loss")
     tf.summary.scalar("optim/learning_rate", summary["learning_rate"], description="Learning rate")
 
-  def _reset_accumulation(self):
+  def reset_throughput(self):
     """Resets the accumulated values since the last log."""
     self._reset_words_counters()
     self._last_logged_step = self._last_step
