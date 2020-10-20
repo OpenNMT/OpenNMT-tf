@@ -450,3 +450,36 @@ class ClassRegistry(object):
     in the registry.
     """
     return self._registry.get(name)
+
+class RelativeConfig(collections.abc.Mapping):
+  """Helper class to lookup keys relative to a prefix."""
+
+  def __init__(self, config, prefix=None, config_name=None):
+    """Initializes the relative configuration.
+
+    Args:
+      config: The configuration.
+      prefix: The prefix. Keys will be looked up relative to this prefix.
+      config_name: The name of the configuration, mostly used to make error
+        messages more explicit.
+    """
+    self._config = config
+    self._prefix = prefix or ""
+    self._config_name = config_name
+
+  def __getitem__(self, relative_key):
+    absolute_key = "%s%s" % (self._prefix, relative_key)
+    value = self._config.get(absolute_key)
+    if value is not None:
+      return value
+    value = self._config.get(relative_key)
+    if value is not None:
+      return value
+    raise KeyError("Missing field '%s' in the %sconfiguration" % (
+        absolute_key, self._config_name + " " if self._config_name else ""))
+
+  def __len__(self):
+    return len(self._config)
+
+  def __iter__(self):
+    return iter(self._config)

@@ -506,6 +506,9 @@ class InputterTest(tf.test.TestCase):
         "source_tokenization": {"mode": "conservative"}
     })
     self.assertIsInstance(source_inputter.tokenizer, tokenizers.OpenNMTTokenizer)
+    asset_dir = self.get_temp_dir()
+    example_inputter.export_assets(asset_dir)
+    self.assertIn("source_tokenizer_config.yml", set(os.listdir(asset_dir)))
 
   def testMixedInputter(self):
     vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])

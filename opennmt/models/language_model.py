@@ -140,8 +140,8 @@ class LanguageModelInputter(inputters.WordEmbedder, inputters.ExampleInputterAda
   input sequence.
   """
 
-  def initialize(self, data_config, asset_prefix=""):
-    super(LanguageModelInputter, self).initialize(data_config, asset_prefix=asset_prefix)
+  def initialize(self, data_config):
+    super(LanguageModelInputter, self).initialize(data_config)
     # Set default sequence controls for backward compatibility.
     if self.mark_start is None:
       self.mark_start = False
