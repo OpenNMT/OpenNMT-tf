@@ -19,7 +19,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 ### Fixes and improvements
 
 * Raise errors (not warnings) when starting the training but end conditions are met
-* Ignore training initialization time when reporting the first throughput values in the training log
+* Ignore non training time when computing training throughput: ignore initialization, evaluation, and checkpoint saving
 * Print OpenNMT-tf version in the training logs
 
 ## [2.12.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.12.1) (2020-09-16)

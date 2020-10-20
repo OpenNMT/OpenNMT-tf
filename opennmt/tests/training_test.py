@@ -98,8 +98,8 @@ class TrainingTest(tf.test.TestCase):
     self.assertNotEqual(summary["words_per_sec"]["target"], 0)
 
     stats.log()
+    stats.reset_throughput()
 
-    # log() should reset accumulated values.
     summary = stats.get_last_summary()
     self.assertEqual(summary["steps_per_sec"], 0)
     self.assertEqual(summary["words_per_sec"]["source"], 0)
