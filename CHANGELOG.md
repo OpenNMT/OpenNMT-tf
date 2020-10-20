@@ -15,12 +15,14 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * [API] `opennmt.Encoder` now accepts `tf.RaggedTensor` as input
 * [API] `opennmt.Runner.train` can return a summary of the training (e.g. average loss, last step, etc.)
+* [API] Add function `opennmt.data.create_lookup_tables` to create `tf.lookup` tables from a vocabulary file
 
 ### Fixes and improvements
 
 * Raise errors (not warnings) when starting the training but end conditions are met
 * Ignore non training time when computing training throughput: ignore initialization, evaluation, and checkpoint saving
 * Print OpenNMT-tf version in the training logs
+* Improve error message when `model.initialize()` is not called
 
 ## [2.12.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.12.1) (2020-09-16)
 
