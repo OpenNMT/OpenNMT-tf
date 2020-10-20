@@ -425,8 +425,8 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
     labels_inputter.set_decoder_mode(mark_start=True, mark_end=True)
     self.alignment_file = None
 
-  def initialize(self, data_config, asset_prefix=""):
-    super(SequenceToSequenceInputter, self).initialize(data_config, asset_prefix=asset_prefix)
+  def initialize(self, data_config):
+    super(SequenceToSequenceInputter, self).initialize(data_config)
     self.alignment_file = data_config.get("train_alignments")
 
   def make_dataset(self, data_file, training=None):

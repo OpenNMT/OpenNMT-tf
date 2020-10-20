@@ -200,14 +200,6 @@ def add_sequence_controls(ids, length, start_id=None, end_id=None):
 
   return ids, length
 
-def _get_field(config, key, prefix=None, default=None, required=False):
-  if prefix:
-    key = "%s%s" % (prefix, key)
-  value = config.get(key, default)
-  if value is None and required:
-    raise ValueError("Missing field '%s' in the data configuration" % key)
-  return value
-
 
 class TextInputter(Inputter):
   """An abstract inputter that processes text."""
@@ -224,14 +216,13 @@ class TextInputter(Inputter):
     self.ids_to_tokens = None
     self.tokenizer = None
 
-  def initialize(self, data_config, asset_prefix=""):
-    self.vocabulary_file = _get_field(
-        data_config, "vocabulary", prefix=asset_prefix, required=True)
+  def initialize(self, data_config):
+    self.vocabulary_file = data_config["vocabulary"]
     self.vocabulary_size, self.tokens_to_ids, self.ids_to_tokens = vocab.create_lookup_tables(
         self.vocabulary_file,
         self.num_oov_buckets,
         as_asset=data_config.get("export_vocabulary_assets", True))
-    tokenizer_config = _get_field(data_config, "tokenization", prefix=asset_prefix)
+    tokenizer_config = data_config.get("tokenization")
     self.tokenizer = tokenizers.make_tokenizer(tokenizer_config)
 
   def set_noise(self, noiser, in_place=True, probability=None):
@@ -254,9 +245,9 @@ class TextInputter(Inputter):
     self.in_place_noise = in_place
     self.noise_probability = probability
 
-  def export_assets(self, asset_dir, asset_prefix=""):
+  def export_assets(self, asset_dir):
     self._assert_is_initialized()
-    return self.tokenizer.export_assets(asset_dir, asset_prefix=asset_prefix)
+    return self.tokenizer.export_assets(asset_dir, asset_prefix=self.asset_prefix)
 
   def make_dataset(self, data_file, training=None):
     return dataset_util.make_datasets(tf.data.TextLineDataset, data_file)
@@ -365,9 +356,9 @@ class WordEmbedder(TextInputter):
       length -= num_special_tokens
     return length
 
-  def initialize(self, data_config, asset_prefix=""):
-    super(WordEmbedder, self).initialize(data_config, asset_prefix=asset_prefix)
-    embedding = _get_field(data_config, "embedding", prefix=asset_prefix)
+  def initialize(self, data_config):
+    super(WordEmbedder, self).initialize(data_config)
+    embedding = data_config.get("embedding")
     if embedding is None and self.embedding_size is None:
       raise ValueError("embedding_size must be set")
     if embedding is not None:
@@ -375,7 +366,7 @@ class WordEmbedder(TextInputter):
       self.trainable = embedding.get("trainable", True)
       self.embedding_file_with_header = embedding.get("with_header", True)
       self.case_insensitive_embeddings = embedding.get("case_insensitive", True)
-    sequence_controls = _get_field(data_config, "sequence_controls", prefix=asset_prefix)
+    sequence_controls = data_config.get("sequence_controls")
     if sequence_controls:
       self.mark_start = sequence_controls["start"]
       self.mark_end = sequence_controls["end"]

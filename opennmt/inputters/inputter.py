@@ -15,37 +15,49 @@ class Inputter(tf.keras.layers.Layer):
 
   def __init__(self, **kwargs):
     super(Inputter, self).__init__(**kwargs)
-    self.asset_prefix = None
+    self._asset_prefix = ""
+
+  @property
+  def asset_prefix(self):
+    """The asset prefix is used to differentiate resources of parallel inputters.
+    The most basic examples are the "source_" and "target_" prefixes.
+
+    - When reading the data configuration, the inputter will read fields that
+      start with this prefix (e.g. "source_vocabulary").
+    - Assets exported by this inputter start with this prefix.
+    """
+    return self._asset_prefix
+
+  @asset_prefix.setter
+  def asset_prefix(self, asset_prefix):
+    """Sets the asset prefix for this inputter."""
+    self._asset_prefix = asset_prefix
 
   @property
   def num_outputs(self):
     """The number of parallel outputs produced by this inputter."""
     return 1
 
-  def initialize(self, data_config, asset_prefix=""):
+  def initialize(self, data_config):
     """Initializes the inputter.
 
     Args:
       data_config: A dictionary containing the data configuration set
         by the user.
-      asset_prefix: The prefix to attach to assets filename.
     """
     _ = data_config
-    _ = asset_prefix
     return
 
-  def export_assets(self, asset_dir, asset_prefix=""):
+  def export_assets(self, asset_dir):
     """Exports assets used by this tokenizer.
 
     Args:
       asset_dir: The directory where assets can be written.
-      asset_prefix: The prefix to attach to assets filename.
 
     Returns:
       A dictionary containing additional assets used by the inputter.
     """
     _ = asset_dir
-    _ = asset_prefix
     return {}
 
   @abc.abstractmethod
@@ -230,6 +242,13 @@ class MultiInputter(Inputter):
     super(MultiInputter, self).__init__(dtype=dtype)
     self.inputters = inputters
     self.reducer = reducer
+    self.asset_prefix = ""  # Generate the default prefix for sub-inputters.
+
+  @Inputter.asset_prefix.setter
+  def asset_prefix(self, asset_prefix):
+    self._asset_prefix = asset_prefix
+    for i, inputter in enumerate(self.inputters):
+      inputter.asset_prefix = "%s%d_" % (asset_prefix, i + 1)
 
   @property
   def num_outputs(self):
@@ -253,16 +272,15 @@ class MultiInputter(Inputter):
     else:
       return super(MultiInputter, self).__getattribute__(name)
 
-  def initialize(self, data_config, asset_prefix=""):
-    for i, inputter in enumerate(self.inputters):
-      inputter.initialize(
-          data_config, asset_prefix=_get_asset_prefix(asset_prefix, inputter, i))
+  def initialize(self, data_config):
+    for inputter in self.inputters:
+      inputter.initialize(misc.RelativeConfig(
+          data_config, inputter.asset_prefix, config_name="data"))
 
-  def export_assets(self, asset_dir, asset_prefix=""):
+  def export_assets(self, asset_dir):
     assets = {}
-    for i, inputter in enumerate(self.inputters):
-      assets.update(inputter.export_assets(
-          asset_dir, asset_prefix=_get_asset_prefix(asset_prefix, inputter, i)))
+    for inputter in self.inputters:
+      assets.update(inputter.export_assets(asset_dir))
     return assets
 
   @abc.abstractmethod
@@ -279,10 +297,6 @@ class MultiInputter(Inputter):
   def visualize(self, model_root, log_dir):
     for inputter in self.inputters:
       inputter.visualize(model_root, log_dir)
-
-
-def _get_asset_prefix(prefix, inputter, i):
-  return "%s%s_" % (prefix, inputter.asset_prefix or str(i + 1))
 
 
 class ParallelInputter(MultiInputter):
@@ -688,13 +702,14 @@ class ExampleInputter(ParallelInputter, ExampleInputterAdapter):
       share_parameters: Share the inputters parameters.
     """
     self.features_inputter = features_inputter
-    self.features_inputter.asset_prefix = "source"
     self.labels_inputter = labels_inputter
-    self.labels_inputter.asset_prefix = "target"
     super(ExampleInputter, self).__init__(
         [self.features_inputter, self.labels_inputter],
         share_parameters=share_parameters,
         combine_features=False)
+    # Set a meaningful prefix for source and target.
+    self.features_inputter.asset_prefix = "source_"
+    self.labels_inputter.asset_prefix = "target_"
 
   def make_inference_dataset(self,
                              features_file,

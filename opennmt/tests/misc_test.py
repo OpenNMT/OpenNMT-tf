@@ -140,6 +140,13 @@ class MiscTest(tf.test.TestCase):
     with self.assertRaises(TypeError):
       registry.register(misc.ClassRegistry)
 
+  def testRelativeConfig(self):
+    config = misc.RelativeConfig({"a_1": 1, "1": 2, "2": 3}, prefix="a_")
+    self.assertEqual(config["1"], 1)
+    self.assertEqual(config["2"], 3)
+    with self.assertRaisesRegex(KeyError, "a_3"):
+      _ = config["3"]
+
 
 if __name__ == "__main__":
   tf.test.main()
