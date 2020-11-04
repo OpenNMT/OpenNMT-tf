@@ -239,7 +239,7 @@ def average_checkpoints_into_layer(checkpoints, layer, layer_prefix):
     variable.assign(tf.zeros_like(variable))
 
   # Get a map from variable names in the checkpoint to variables in the layer.
-  _, names_to_variables = misc.get_variables_name_mapping(layer, root_key=layer_prefix)
+  names_to_variables = misc.get_variables_name_mapping(layer, root_key=layer_prefix)
 
   num_checkpoints = len(checkpoints)
   tf.get_logger().info("Averaging %d checkpoints...", num_checkpoints)

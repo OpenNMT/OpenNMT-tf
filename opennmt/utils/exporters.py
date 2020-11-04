@@ -97,7 +97,7 @@ class CTranslate2Exporter(Exporter):
       raise ValueError("The model does not define an equivalent CTranslate2 model specification")
     if not model.built:
       model.create_variables()
-    _, variables = misc.get_variables_name_mapping(model, root_key="model")
+    variables = misc.get_variables_name_mapping(model, root_key="model")
     variables = {
         name.replace("/.ATTRIBUTES/VARIABLE_VALUE", ""):value.numpy()
         for name, value in variables.items()}

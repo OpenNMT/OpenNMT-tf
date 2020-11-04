@@ -1,3 +1,5 @@
+from parameterized import parameterized
+
 import tensorflow as tf
 import numpy as np
 
@@ -7,27 +9,43 @@ from opennmt.utils import misc
 
 class MiscTest(tf.test.TestCase):
 
-  def testGetVariableName(self):
+  @parameterized.expand([
+      (False, "float32"),
+      (True, "float32"),
+      (False, "mixed_float16"),
+  ])
+  def testGetVariableName(self, distributed_variables, dtype_policy):
+    tf.keras.mixed_precision.experimental.set_policy(dtype_policy)
+    if distributed_variables:
+      devices = tf.config.list_logical_devices(device_type="CPU")
+      strategy = tf.distribute.MirroredStrategy(devices=devices)
+    else:
+      strategy = None
 
-    class Layer(tf.Module):
+    class Layer(tf.keras.layers.Layer):
       def __init__(self):
         super(Layer, self).__init__()
-        self.variable = tf.Variable(0)
+        self.variable = self.add_weight("variable", [42])
 
-    class Model(tf.Module):
+    class Model(tf.keras.layers.Layer):
       def __init__(self):
         super(Model, self).__init__()
         self.layers = [Layer()]
 
-    model = Model()
+    if strategy is not None:
+      with strategy.scope():
+        model = Model()
+    else:
+        model = Model()
+
     variable = model.layers[0].variable
     expected_name = "model/layers/0/variable/.ATTRIBUTES/VARIABLE_VALUE"
     variable_name = misc.get_variable_name(variable, model)
     self.assertEqual(variable_name, expected_name)
 
-    variables_to_names, names_to_variables = misc.get_variables_name_mapping(model, root_key="model")
-    self.assertDictEqual(variables_to_names, {variable.ref(): expected_name})
-    self.assertDictEqual(names_to_variables, {expected_name: variable})
+    variables = misc.get_variables_name_mapping(model, root_key="model")
+    self.assertIs(variables[expected_name], variable)
+    tf.keras.mixed_precision.experimental.set_policy("float32")
 
   def testSetDropout(self):
 
