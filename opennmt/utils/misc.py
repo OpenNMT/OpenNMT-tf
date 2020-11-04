@@ -45,30 +45,32 @@ def get_variables_name_mapping(root, root_key=None):
     root_key: Key that was used to save :obj:`root`, if any.
 
   Returns:
-    A dict mapping variables ref to names and a dict mapping variables name to
-    variables.
+    A dict mapping names to variables.
   """
   # TODO: find a way to implement this function using public APIs.
-  named_variables, _, _ = graph_view.ObjectGraphView(root).serialize_object_graph()
-  variables_to_names = {}
   names_to_variables = {}
-  for saveable_object in named_variables:
-    variable = saveable_object.op
-    if not hasattr(variable, "ref"):  # Ignore non Tensor-like objects.
+  _, path_to_root = graph_view.ObjectGraphView(root)._breadth_first_traversal()  # pylint: disable=protected-access
+  for path in path_to_root.values():
+    if not path:
       continue
-    name = saveable_object.name
+    variable = path[-1].ref
+    if not isinstance(variable, tf.Variable):
+      continue
+    name = "%s/%s" % (
+        "/".join(field.name for field in path),
+        ".ATTRIBUTES/VARIABLE_VALUE")
     if root_key is not None:
       name = "%s/%s" % (root_key, name)
-    variables_to_names[variable.ref()] = name
     names_to_variables[name] = variable
-  return variables_to_names, names_to_variables
+  return names_to_variables
 
 def get_variable_name(variable, root, model_key="model"):
   """Gets the variable name in the object-based representation."""
-  variables_to_names, _ = get_variables_name_mapping(root, root_key=model_key)
-  # In case of a MirroredVariable, look up the primary variable
-  variable = get_primary_variable(variable)
-  return variables_to_names.get(variable.ref())
+  names_to_variables = get_variables_name_mapping(root, root_key=model_key)
+  for name, var in names_to_variables.items():
+    if var is variable:
+      return name
+  return None
 
 def get_primary_variable(variable):
   """If :obj:`variable` is distributed, returns the primary component."""
