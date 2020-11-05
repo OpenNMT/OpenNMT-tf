@@ -27,6 +27,7 @@ class TrainingTest(tf.test.TestCase):
     step = tf.Variable(0, trainable=False, dtype=tf.int64)
     variables = [tf.Variable(1.0), tf.Variable(2.0)]
     moving_average = training.MovingAverage(variables, step)
+    moving_average.update()
     variables[0].assign(3.0)
     variables[1].assign(4.0)
     moving_average.update()
