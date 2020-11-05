@@ -72,13 +72,6 @@ def get_variable_name(variable, root, model_key="model"):
       return name
   return None
 
-def get_primary_variable(variable):
-  """If :obj:`variable` is distributed, returns the primary component."""
-  # TODO: use a public API to get the primary variable.
-  if isinstance(variable, tf.distribute.DistributedValues):
-    return variable._primary  # pylint: disable=protected-access
-  return variable
-
 def print_as_bytes(text, stream=None):
   """Prints a string as bytes to non rely on :obj:`stream` default encoding.
 
