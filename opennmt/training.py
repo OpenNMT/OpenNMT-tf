@@ -7,7 +7,6 @@ import time
 import tensorflow as tf
 
 from opennmt.optimizers import utils as optimizer_util
-from opennmt.utils import misc
 
 
 class Trainer:
@@ -104,8 +103,7 @@ class Trainer:
                 self._model.trainable_variables,
                 iterations,
                 decay=moving_average_decay)
-          else:
-            moving_average.update()
+          self._update_moving_average(moving_average)
 
         step = iterations.numpy()
         reset_throughput = False
@@ -319,6 +317,10 @@ class Trainer:
         scale=self._gradient_accumulator.step)
     self._gradient_accumulator.reset()
 
+  def _update_moving_average(self, moving_average):
+    """Updates the moving average of variables."""
+    moving_average.update()
+
   def _broadcast_variables(self):
     """Broadcasts variables to other replicas, if required."""
     return
@@ -412,6 +414,10 @@ class MirroredStrategyTrainer(Trainer):
   def _step(self):
     self._strategy.run(super()._step)
 
+  def _update_moving_average(self, moving_average):
+    with self._strategy.scope():
+      super()._update_moving_average(moving_average)
+
 
 def _summarize_gradients(gradients, should_record):
   # Only compute the gradients global norm when the value is actually recorded.
@@ -450,12 +456,11 @@ class MovingAverage(object):
                               "formula and recommended decay values.")
     self._ema = tf.train.ExponentialMovingAverage(decay, num_updates=step)
     self._variables = variables
-    self.update()
 
   @tf.function
   def update(self):
     """Updates the moving average of the variables."""
-    self._ema.apply(var_list=list(map(misc.get_primary_variable, self._variables)))
+    self._ema.apply(self._variables)
 
   @contextlib.contextmanager
   def shadow_variables(self):
@@ -468,7 +473,7 @@ class MovingAverage(object):
     previous_values = []
     for variable in self._variables:
       previous_values.append(variable.value())
-      variable.assign(self._ema.average(misc.get_primary_variable(variable)))
+      variable.assign(self._ema.average(variable))
     yield
     for previous_value, variable in zip(previous_values, self._variables):
       variable.assign(previous_value)
