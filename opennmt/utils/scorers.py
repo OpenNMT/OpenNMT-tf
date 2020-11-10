@@ -1,15 +1,14 @@
 """Hypotheses file scoring."""
 
 import abc
+import sacrebleu
 
 import tensorflow as tf
 
 from rouge import FilesRouge
-from sacrebleu import corpus_bleu
 
 from opennmt.utils import misc
 from opennmt.utils.fmeasure import fmeasure
-from opennmt.utils.ter import ter
 from opennmt.utils.wer import wer
 
 
@@ -81,7 +80,7 @@ class BLEUScorer(Scorer):
 
   def __call__(self, ref_path, hyp_path):
     with tf.io.gfile.GFile(ref_path) as ref_stream, tf.io.gfile.GFile(hyp_path) as sys_stream:
-      bleu = corpus_bleu(sys_stream, [ref_stream], force=True)
+      bleu = sacrebleu.corpus_bleu(sys_stream, [ref_stream], force=True)
       return bleu.score
 
 
@@ -109,8 +108,9 @@ class TERScorer(Scorer):
     super(TERScorer, self).__init__("ter")
 
   def __call__(self, ref_path, hyp_path):
-    ter_score = ter(ref_path, hyp_path)
-    return ter_score
+    with tf.io.gfile.GFile(ref_path) as ref_stream, tf.io.gfile.GFile(hyp_path) as sys_stream:
+      ter = sacrebleu.corpus_ter(sys_stream, [ref_stream])
+      return ter.score
 
   def lower_is_better(self):
     """ Since the score shall be the lower the better """
