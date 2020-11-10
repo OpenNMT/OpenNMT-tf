@@ -1,6 +1,5 @@
 """Hypotheses file scoring."""
 import numpy
-import pyter
 
 def wer(ref_path, hyp_path):
   """ Compute Word Error Rate between two files """
@@ -10,8 +9,7 @@ def wer(ref_path, hyp_path):
     wer_score = 0.0
     line_cpt = 0.0
     while ref_line and hyp_line:
-      wer_score = wer_score+(pyter.edit_distance(ref_line.strip().split(), \
-                  hyp_line.strip().split())/len(ref_line.strip().split()))
+      wer_score += sentence_wer(ref_line.strip().split(), hyp_line.strip().split())
       line_cpt = line_cpt+1
       ref_line = ref_fp.readline()
       hyp_line = hyp_fp.readline()
