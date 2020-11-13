@@ -195,7 +195,7 @@ class Trainer:
       for i in itertools.count():
         try:
           loss = _forward_and_step()
-        except tf.errors.OutOfRangeError:  # Dataset iterator exhausted.
+        except (StopIteration, tf.errors.OutOfRangeError):  # Dataset iterator exhausted.
           break
         if i == 0:
           self._broadcast_variables()
@@ -218,7 +218,7 @@ class Trainer:
       for i in itertools.count():
         try:
           loss = _forward()
-        except tf.errors.OutOfRangeError:  # Dataset iterator exhausted.
+        except (StopIteration, tf.errors.OutOfRangeError):  # Dataset iterator exhausted.
           break
         if i == 0 or (i + 1) % accum_steps == 0:
           _step()

@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 tests_require = [
     "pylint==2.4.*",
     "parameterized",
-    "nose2"
+    "pytest-cov"
 ]
 
 def get_long_description():
@@ -57,7 +57,6 @@ setup(
         "tests": tests_require,
     },
     tests_require=tests_require,
-    test_suite="nose2.collector.collector",
     packages=find_packages(exclude=["bin", "*.tests"]),
     entry_points={
         "console_scripts": [

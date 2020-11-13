@@ -58,7 +58,7 @@ jobs:
 
       - name: Run tests
         run: |
-          nose2
+          pytest --cov=opennmt --cov-report xml opennmt/tests
 
       - name: Upload coverage report
         if: matrix.tensorflow == '2.3'
