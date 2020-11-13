@@ -46,24 +46,10 @@ We recommend installing the project in editable mode with the tests dependencies
 pip install -e .[tests]
 ```
 
-Tests are located in the `opennmt/tests` directory.
-
-* To run all tests:
+Tests are located in the `opennmt/tests` directory and can be executed with [`pytest`](https://docs.pytest.org/en/stable/):
 
 ```bash
-nose2
-```
-
-* To run a single test file:
-
-```bash
-python -m opennmt.tests.model_test
-```
-
-* To run a single test case:
-
-```bash
-python -m opennmt.tests.model_test ModelTest.testCreateVariables
+pytest opennmt/tests
 ```
 
 ## Helping others

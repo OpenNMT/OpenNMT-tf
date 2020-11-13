@@ -12,7 +12,7 @@ from opennmt.utils import scorers
 
 # Define some dummy components to simply return the loss and metrics we want to test.
 
-class TestMetric(object):
+class _TestMetric(object):
   def __init__(self, result_history):
     self.result_history = result_history
 
@@ -21,7 +21,7 @@ class TestMetric(object):
     self.result_history.pop(0)
     return result
 
-class TestInputter(inputters.Inputter):
+class _TestInputter(inputters.Inputter):
   def make_dataset(self, data_file, training=None):
     return tf.data.TextLineDataset(data_file)
 
@@ -31,10 +31,10 @@ class TestInputter(inputters.Inputter):
   def make_features(self, element=None, features=None, training=None):
     return tf.strings.to_number(element)
 
-class TestModel(models.Model):
+class _TestModel(models.Model):
   def __init__(self, metrics_history=None):
-    example_inputter = inputters.ExampleInputter(TestInputter(), TestInputter())
-    super(TestModel, self).__init__(example_inputter)
+    example_inputter = inputters.ExampleInputter(_TestInputter(), _TestInputter())
+    super().__init__(example_inputter)
     if metrics_history is None:
       metrics_history = {}
     self.metrics_history = metrics_history
@@ -44,7 +44,7 @@ class TestModel(models.Model):
     return features, None
 
   def get_metrics(self):
-    return {name:TestMetric(history) for name, history in self.metrics_history.items()}
+    return {name:_TestMetric(history) for name, history in self.metrics_history.items()}
 
   def compute_loss(self, outputs, labels, training=True):
     return self.next_loss
@@ -69,7 +69,7 @@ class EvaluationTest(tf.test.TestCase):
     with open(features_file, "w") as features, open(labels_file, "w") as labels:
       features.write("1\n2\n")
       labels.write("1\n2\n")
-    model = TestModel({"a": [2, 5, 8], "b": [3, 6, 9]})
+    model = _TestModel({"a": [2, 5, 8], "b": [3, 6, 9]})
     early_stopping = evaluation.EarlyStopping(metric="loss", min_improvement=0, steps=1)
     evaluator = evaluation.Evaluator(
         model,
@@ -128,7 +128,7 @@ class EvaluationTest(tf.test.TestCase):
     with open(features_file, "w") as features, open(labels_file, "w") as labels:
       features.write("1\n2\n")
       labels.write("1\n2\n")
-    model = TestModel()
+    model = _TestModel()
     evaluator = evaluation.Evaluator(
         model,
         features_file,
@@ -148,7 +148,7 @@ class EvaluationTest(tf.test.TestCase):
     with open(features_file, "w") as features, open(labels_file, "w") as labels:
       features.write("1\n2\n")
       labels.write("1\n2\n")
-    model = TestModel()
+    model = _TestModel()
     exporter = TestExporter()
     evaluator = evaluation.Evaluator(
         model,
