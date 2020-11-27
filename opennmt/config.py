@@ -101,28 +101,19 @@ def load_model(model_dir,
   """
   if model_file and model_name:
     raise ValueError("only one of model_file and model_name should be set")
-  model_name_or_path = model_file or model_name
   model_description_path = os.path.join(model_dir, "model_description.py")
 
-  if model_name_or_path:
-    if tf.train.latest_checkpoint(model_dir) is not None:
-      tf.get_logger().warning(
-          "You provided a model configuration but a checkpoint already exists. "
-          "The model configuration must define the same model as the one used for "
-          "the initial training. However, you can change non structural values like "
-          "dropout.")
-
-    if model_file:
-      model = load_model_from_file(model_file, as_builder=as_builder)
-      if serialize_model:
-        tf.io.gfile.copy(model_file, model_description_path, overwrite=True)
-    elif model_name:
-      model = load_model_from_catalog(model_name, as_builder=as_builder)
-      if serialize_model:
-        with tf.io.gfile.GFile(model_description_path, mode="w") as model_description_file:
-          model_description_file.write(
-              "from opennmt import models\n"
-              "model = lambda: models.get_model_from_catalog(\"%s\")\n" % model_name)
+  if model_file:
+    model = load_model_from_file(model_file, as_builder=as_builder)
+    if serialize_model:
+      tf.io.gfile.copy(model_file, model_description_path, overwrite=True)
+  elif model_name:
+    model = load_model_from_catalog(model_name, as_builder=as_builder)
+    if serialize_model:
+      with tf.io.gfile.GFile(model_description_path, mode="w") as model_description_file:
+        model_description_file.write(
+            "from opennmt import models\n"
+            "model = lambda: models.get_model_from_catalog(\"%s\")\n" % model_name)
   elif tf.io.gfile.exists(model_description_path):
     tf.get_logger().info("Loading model description from %s", model_description_path)
     model = load_model_from_file(model_description_path, as_builder=as_builder)
