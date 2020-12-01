@@ -4,14 +4,14 @@ import tensorflow as tf
 
 
 def _smooth_one_hot_labels(logits, labels, label_smoothing):
-  label_smoothing = tf.constant(label_smoothing, dtype=logits.dtype)
-  num_classes = tf.shape(logits)[-1]
+  num_classes = logits.shape[-1]
+  on_value = 1.0 - label_smoothing
+  off_value = label_smoothing / (num_classes - 1)
   return tf.one_hot(
-      tf.cast(labels, tf.int32),
+      labels,
       num_classes,
-      on_value=1.0 - label_smoothing,
-      off_value=label_smoothing / tf.cast(num_classes - 1, label_smoothing.dtype),
-      dtype=logits.dtype)
+      on_value=tf.cast(on_value, logits.dtype),
+      off_value=tf.cast(off_value, logits.dtype))
 
 def _softmax_cross_entropy(logits, labels, label_smoothing, training):
   # Computes the softmax in full precision.
