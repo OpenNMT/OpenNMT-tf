@@ -157,6 +157,8 @@ params:
   decay_params:
     model_dim: 512
     warmup_steps: 4000
+  # (optional) The number of training steps that make 1 decay step (default: 1).
+  decay_step_duration: 1
   # (optional) After how many steps to start the decay (default: 0).
   start_decay_steps: 50000
 

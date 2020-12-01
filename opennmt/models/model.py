@@ -218,6 +218,7 @@ class Model(tf.keras.layers.Layer):
           learning_rate,
           params["decay_type"],
           schedule_params=schedule_params,
+          schedule_step_duration=params.get("decay_step_duration", 1),
           start_step=params.get("start_decay_steps", 0),
           minimum_learning_rate=params.get("minimum_learning_rate", 0))
     optimizer_params = params.get("optimizer_params")
