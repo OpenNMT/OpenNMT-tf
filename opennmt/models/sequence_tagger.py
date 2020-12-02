@@ -23,7 +23,7 @@ class SequenceTagger(Model):
       crf_decoding: If ``True``, add a CRF layer after the encoder.
     """
     example_inputter = inputters.ExampleInputter(inputter, TagsInputter())
-    super(SequenceTagger, self).__init__(example_inputter)
+    super().__init__(example_inputter)
     self.encoder = encoder
     self.crf_decoding = crf_decoding
     self.tagging_scheme = None
@@ -33,10 +33,10 @@ class SequenceTagger(Model):
     self.tagging_scheme = data_config.get("tagging_scheme")
     if self.tagging_scheme:
       self.tagging_scheme = self.tagging_scheme.lower()
-    super(SequenceTagger, self).initialize(data_config, params=params)
+    super().initialize(data_config, params=params)
 
   def build(self, input_shape):
-    super(SequenceTagger, self).build(input_shape)
+    super().build(input_shape)
     num_tags = self.labels_inputter.vocabulary_size
     self.output_layer = tf.keras.layers.Dense(num_tags)
     if self.crf_decoding:
@@ -120,10 +120,10 @@ class TagsInputter(inputters.TextInputter):
   """Reading space-separated tags."""
 
   def __init__(self):
-    super(TagsInputter, self).__init__(num_oov_buckets=0)
+    super().__init__(num_oov_buckets=0)
 
   def make_features(self, element=None, features=None, training=None):
-    features = super(TagsInputter, self).make_features(
+    features = super().make_features(
         element=element, features=features, training=training)
     return {
         "length": features["length"],
@@ -141,7 +141,7 @@ class F1(tf.keras.metrics.Metric):
     Args:
       **kwargs: Base class arguments.
     """
-    super(F1, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.precision = tf.keras.metrics.Precision()
     self.recall = tf.keras.metrics.Recall()
 

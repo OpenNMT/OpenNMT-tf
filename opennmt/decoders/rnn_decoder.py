@@ -37,7 +37,7 @@ class RNNDecoder(decoder.Decoder):
         output.
       **kwargs: Additional layer arguments.
     """
-    super(RNNDecoder, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.dropout = dropout
     self.cell = rnn.make_rnn_cell(
         num_layers,
@@ -101,7 +101,7 @@ class AttentionalRNNDecoder(RNNDecoder):
         https://arxiv.org/abs/1508.04025).
       **kwargs: Additional layer arguments.
     """
-    super(AttentionalRNNDecoder, self).__init__(
+    super().__init__(
         num_layers,
         num_units,
         bridge_class=bridge_class,
@@ -173,7 +173,7 @@ class AttentionalRNNDecoder(RNNDecoder):
         or not isinstance(self.attention_mechanism, tfa.seq2seq.LuongAttention)):
       raise ValueError("Can only map V1 weights for RNN decoder with Luong attention "
                        "on the last layer")
-    m = super(AttentionalRNNDecoder, self).map_v1_weights(weights)
+    m = super().map_v1_weights(weights)
     m += common.Dense.map_v1_weights(
         self.attention_mechanism.memory_layer, weights["memory_layer"])
     weights = weights["decoder"]["attention_wrapper"]
@@ -207,7 +207,7 @@ class RNMTPlusDecoder(decoder.Decoder):
         argument and returning a cell. Defaults to a layer normalized LSTM cell.
       **kwargs: Additional layer arguments.
     """
-    super(RNMTPlusDecoder, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     if cell_class is None:
       cell_class = tfa.rnn.LayerNormLSTMCell
     self.num_heads = num_heads

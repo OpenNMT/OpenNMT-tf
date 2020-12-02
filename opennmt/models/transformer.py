@@ -108,7 +108,7 @@ class Transformer(SequenceToSequence):
         and ((self._with_relative_position and position_encoder_class is None)
              or (not self._with_relative_position
                  and position_encoder_class == SinusoidalPositionEncoder)))
-    super(Transformer, self).__init__(
+    super().__init__(
         source_inputter,
         target_inputter,
         encoder,
@@ -126,7 +126,7 @@ class Transformer(SequenceToSequence):
         with_relative_position=self._with_relative_position)
 
   def auto_config(self, num_replicas=1):
-    config = super(Transformer, self).auto_config(num_replicas=num_replicas)
+    config = super().auto_config(num_replicas=num_replicas)
     return merge_dict(config, {
         "params": {
             "average_loss_in_time": True,
@@ -156,4 +156,4 @@ class Transformer(SequenceToSequence):
 
   def map_v1_weights(self, weights):
     weights["seq2seq"] = weights.pop("transformer")
-    return super(Transformer, self).map_v1_weights(weights)
+    return super().map_v1_weights(weights)

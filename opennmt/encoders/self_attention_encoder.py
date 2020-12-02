@@ -47,7 +47,7 @@ class SelfAttentionEncoder(Encoder):
         (from https://arxiv.org/abs/1803.02155).
       **kwargs: Additional layer arguments.
     """
-    super(SelfAttentionEncoder, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.num_units = num_units
     self.dropout = dropout
     self.position_encoder = None

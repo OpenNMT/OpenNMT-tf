@@ -26,7 +26,7 @@ class RNNCellWrapper(common.LayerWrapper):
         compatible).
       kwargs: Additional layer arguments.
     """
-    super(RNNCellWrapper, self).__init__(
+    super().__init__(
         cell,
         input_dropout=input_dropout,
         output_dropout=output_dropout,
@@ -98,7 +98,7 @@ class _RNNWrapper(tf.keras.layers.Layer):
         bidirectional states and outputs.
       **kwargs: Additional layer arguments.
     """
-    super(_RNNWrapper, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.rnn = rnn
     self.reducer = reducer
     self.bidirectional = bidirectional
@@ -150,7 +150,7 @@ class RNN(_RNNWrapper):
       :func:`opennmt.layers.make_rnn_cell`
     """
     rnn = tf.keras.layers.RNN(cell, return_sequences=True, return_state=True)
-    super(RNN, self).__init__(rnn, bidirectional=bidirectional, reducer=reducer, **kwargs)
+    super().__init__(rnn, bidirectional=bidirectional, reducer=reducer, **kwargs)
 
   def map_v1_weights(self, weights):
     m = []
@@ -197,7 +197,7 @@ class LSTM(tf.keras.layers.Layer):
         output.
       **kwargs: Additional layer arguments.
     """
-    super(LSTM, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     rnn_layers = [
         _RNNWrapper(
             tf.keras.layers.LSTM(num_units, return_sequences=True, return_state=True),

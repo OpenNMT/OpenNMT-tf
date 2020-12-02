@@ -31,7 +31,7 @@ class ConvEncoder(Encoder):
         class to use for position encoding (or a callable that returns an
         instance).
     """
-    super(ConvEncoder, self).__init__()
+    super().__init__()
     self.dropout = dropout
     self.position_encoder = None
     if position_encoder_class is not None:

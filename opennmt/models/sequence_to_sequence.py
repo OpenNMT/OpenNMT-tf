@@ -91,13 +91,13 @@ class SequenceToSequence(model.SequenceGenerator):
         source_inputter,
         target_inputter,
         share_parameters=EmbeddingsSharingLevel.share_input_embeddings(share_embeddings))
-    super(SequenceToSequence, self).__init__(examples_inputter)
+    super().__init__(examples_inputter)
     self.encoder = encoder
     self.decoder = decoder
     self.share_embeddings = share_embeddings
 
   def auto_config(self, num_replicas=1):
-    config = super(SequenceToSequence, self).auto_config(num_replicas=num_replicas)
+    config = super().auto_config(num_replicas=num_replicas)
     return misc.merge_dict(config, {
         "params": {
             "beam_width": 4
@@ -127,7 +127,7 @@ class SequenceToSequence(model.SequenceGenerator):
     return m
 
   def initialize(self, data_config, params=None):
-    super(SequenceToSequence, self).initialize(data_config, params=params)
+    super().initialize(data_config, params=params)
     self.decoder.initialize(vocab_size=self.labels_inputter.vocabulary_size)
     if self.params.get("contrastive_learning"):
       # Use the simplest and most effective CL_one from the paper.
@@ -139,7 +139,7 @@ class SequenceToSequence(model.SequenceGenerator):
       self.labels_inputter.set_noise(noiser, in_place=False)
 
   def build(self, input_shape):
-    super(SequenceToSequence, self).build(input_shape)
+    super().build(input_shape)
     if EmbeddingsSharingLevel.share_target_embeddings(self.share_embeddings):
       self.decoder.reuse_embeddings(self.labels_inputter.embedding)
 
@@ -404,7 +404,7 @@ class SequenceToSequence(model.SequenceGenerator):
             model.decoder.output_layer.kernel,
             model.decoder.output_layer.bias], [0, 1, 0]))
 
-    return super(SequenceToSequence, self).transfer_weights(
+    return super().transfer_weights(
         new_model,
         new_optimizer=new_optimizer,
         optimizer=optimizer,
@@ -420,17 +420,17 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
                features_inputter,
                labels_inputter,
                share_parameters=False):
-    super(SequenceToSequenceInputter, self).__init__(
+    super().__init__(
         features_inputter, labels_inputter, share_parameters=share_parameters)
     labels_inputter.set_decoder_mode(mark_start=True, mark_end=True)
     self.alignment_file = None
 
   def initialize(self, data_config):
-    super(SequenceToSequenceInputter, self).initialize(data_config)
+    super().initialize(data_config)
     self.alignment_file = data_config.get("train_alignments")
 
   def make_dataset(self, data_file, training=None):
-    dataset = super(SequenceToSequenceInputter, self).make_dataset(
+    dataset = super().make_dataset(
         data_file, training=training)
     if self.alignment_file is None or not training:
       return dataset
@@ -452,7 +452,7 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
       element, alignment = element
     else:
       alignment = None
-    features, labels = super(SequenceToSequenceInputter, self).make_features(
+    features, labels = super().make_features(
         element=element, features=features, training=training)
     if alignment is not None:
       labels["alignment"] = text.alignment_matrix_from_pharaoh(

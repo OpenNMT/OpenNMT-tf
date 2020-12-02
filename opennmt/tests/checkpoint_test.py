@@ -10,12 +10,12 @@ class _CustomDense(tf.keras.layers.Dense):
   def add_weight(self, name, *args, **kwargs):
     # This is to test the case where the variable name is different than the attribute name.
     name += "_1"
-    return super(_CustomDense, self).add_weight(name, *args, **kwargs)
+    return super().add_weight(name, *args, **kwargs)
 
 class _DummyModel(tf.keras.layers.Layer):
 
   def __init__(self):
-    super(_DummyModel, self).__init__()
+    super().__init__()
     self.layers = [tf.keras.layers.Dense(20), _CustomDense(20)]
 
   def call(self, x):

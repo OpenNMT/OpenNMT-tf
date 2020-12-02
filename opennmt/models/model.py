@@ -15,7 +15,7 @@ class Model(tf.keras.layers.Layer):
   """Base class for models."""
 
   def __init__(self, examples_inputter):
-    super(Model, self).__init__()
+    super().__init__()
     self.examples_inputter = examples_inputter
     self.params = {}
 

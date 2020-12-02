@@ -19,7 +19,7 @@ class _RNNEncoderBase(Encoder):
       rnn_layer: The RNN layer used to encode the inputs.
       **kwargs: Additional layer arguments.
     """
-    super(_RNNEncoderBase, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.rnn = rnn_layer
 
   def call(self, inputs, sequence_length=None, training=None):
@@ -62,7 +62,7 @@ class RNNEncoder(_RNNEncoderBase):
         residual_connections=residual_connections,
         cell_class=cell_class)
     rnn_layer = rnn.RNN(cell, bidirectional=bidirectional, reducer=reducer)
-    super(RNNEncoder, self).__init__(rnn_layer, **kwargs)
+    super().__init__(rnn_layer, **kwargs)
 
   def map_v1_weights(self, weights):
     return self.rnn.map_v1_weights(weights)
@@ -104,7 +104,7 @@ class LSTMEncoder(_RNNEncoderBase):
         reducer=reducer,
         dropout=dropout,
         residual_connections=residual_connections)
-    super(LSTMEncoder, self).__init__(lstm_layer, **kwargs)
+    super().__init__(lstm_layer, **kwargs)
 
 
 class GNMTEncoder(SequentialEncoder):
@@ -135,7 +135,7 @@ class GNMTEncoder(SequentialEncoder):
         num_units,
         dropout=dropout,
         residual_connections=True)
-    super(GNMTEncoder, self).__init__([bidirectional, unidirectional])
+    super().__init__([bidirectional, unidirectional])
 
 
 class RNMTPlusEncoder(SequentialEncoder):
@@ -168,13 +168,13 @@ class RNMTPlusEncoder(SequentialEncoder):
     layers = [
         common.LayerWrapper(layer, output_dropout=dropout, residual_connection=True)
         for layer in layers]
-    super(RNMTPlusEncoder, self).__init__(layers)
+    super().__init__(layers)
     self.dropout = dropout
     self.projection = tf.keras.layers.Dense(num_units)
 
   def call(self, inputs, sequence_length=None, training=None):
     inputs = common.dropout(inputs, self.dropout, training=training)
-    outputs, state, sequence_length = super(RNMTPlusEncoder, self).call(
+    outputs, state, sequence_length = super().call(
         inputs, sequence_length=sequence_length, training=training)
     projected = self.projection(outputs)
     return (projected, state, sequence_length)
@@ -199,7 +199,7 @@ class PyramidalRNNEncoder(Encoder):
         argument and returning a cell. Defaults to a LSTM cell.
       dropout: The probability to drop units in each layer output.
     """
-    super(PyramidalRNNEncoder, self).__init__()
+    super().__init__()
     self.reduction_factor = reduction_factor
     self.state_reducer = JoinReducer()
     self.layers = [

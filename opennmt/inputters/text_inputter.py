@@ -205,7 +205,7 @@ class TextInputter(Inputter):
   """An abstract inputter that processes text."""
 
   def __init__(self, num_oov_buckets=1, **kwargs):
-    super(TextInputter, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.num_oov_buckets = num_oov_buckets
     self.noiser = None
     self.in_place_noise = False
@@ -319,7 +319,7 @@ class WordEmbedder(TextInputter):
       dropout: The probability to drop units in the embedding.
       **kwargs: Additional layer keyword arguments.
     """
-    super(WordEmbedder, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.embedding_size = embedding_size
     self.embedding_file = None
     self.dropout = dropout
@@ -357,7 +357,7 @@ class WordEmbedder(TextInputter):
     return length
 
   def initialize(self, data_config):
-    super(WordEmbedder, self).initialize(data_config)
+    super().initialize(data_config)
     embedding = data_config.get("embedding")
     if embedding is None and self.embedding_size is None:
       raise ValueError("embedding_size must be set")
@@ -373,7 +373,7 @@ class WordEmbedder(TextInputter):
 
   def make_features(self, element=None, features=None, training=None):
     """Converts words tokens to ids."""
-    features = super(WordEmbedder, self).make_features(
+    features = super().make_features(
         element=element, features=features, training=training)
     if "ids" not in features:
       features["ids"] = self.tokens_to_ids.lookup(features["tokens"])
@@ -406,7 +406,7 @@ class WordEmbedder(TextInputter):
         [self.vocabulary_size, self.embedding_size],
         initializer=initializer,
         trainable=self.trainable)
-    super(WordEmbedder, self).build(input_shape)
+    super().build(input_shape)
 
   def call(self, features, training=None):
     outputs = tf.nn.embedding_lookup(self.embedding, features["ids"])
@@ -435,7 +435,7 @@ class CharEmbedder(TextInputter):
       dropout: The probability to drop units in the embedding.
       **kwargs: Additional layer keyword arguments.
     """
-    super(CharEmbedder, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.embedding_size = embedding_size
     self.embedding = None
     self.dropout = dropout
@@ -449,7 +449,7 @@ class CharEmbedder(TextInputter):
     if "chars" in features:
       chars = features["chars"]
     else:
-      features = super(CharEmbedder, self).make_features(
+      features = super().make_features(
           element=element, features=features, training=training)
       chars = text.tokens_to_chars(features["tokens"])
       chars = chars.to_tensor(default_value=constants.PADDING_TOKEN)
@@ -459,7 +459,7 @@ class CharEmbedder(TextInputter):
   def build(self, input_shape):
     self.embedding = self.add_weight(
         "char_embedding", [self.vocabulary_size, self.embedding_size])
-    super(CharEmbedder, self).build(input_shape)
+    super().build(input_shape)
 
   @abc.abstractmethod
   def call(self, features, training=None):
@@ -499,7 +499,7 @@ class CharConvEmbedder(CharEmbedder):
       dropout: The probability to drop units in the embedding.
       **kwargs: Additional layer keyword arguments.
     """
-    super(CharConvEmbedder, self).__init__(
+    super().__init__(
         embedding_size,
         dropout=dropout,
         **kwargs)
@@ -543,7 +543,7 @@ class CharRNNEmbedder(CharEmbedder):
     Raises:
       ValueError: if :obj:`encoding` is invalid.
     """
-    super(CharRNNEmbedder, self).__init__(
+    super().__init__(
         embedding_size,
         dropout=dropout,
         **kwargs)

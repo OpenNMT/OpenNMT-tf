@@ -9,7 +9,7 @@ from opennmt.layers import reducer
 class DenseEncoder(encoders.Encoder):
 
   def __init__(self, num_layers, num_units):
-    super(DenseEncoder, self).__init__()
+    super().__init__()
     self.layers = [tf.keras.layers.Dense(num_units) for _ in range(num_layers)]
 
   def call(self, inputs, sequence_length=None, training=None):

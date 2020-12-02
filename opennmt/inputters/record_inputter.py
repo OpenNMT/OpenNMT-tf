@@ -22,7 +22,7 @@ class SequenceRecordInputter(Inputter):
       input_depth: The depth dimension of the input vectors.
       **kwargs: Additional layer keyword arguments.
     """
-    super(SequenceRecordInputter, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.input_depth = input_depth
 
   def make_dataset(self, data_file, training=None):
