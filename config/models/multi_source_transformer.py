@@ -23,7 +23,7 @@ from opennmt.utils import misc
 class DualSourceTransformer(onmt.models.Transformer):
 
   def __init__(self):
-    super(DualSourceTransformer, self).__init__(
+    super().__init__(
       source_inputter=onmt.inputters.ParallelInputter([
           onmt.inputters.WordEmbedder(embedding_size=512),
           onmt.inputters.WordEmbedder(embedding_size=512)]),
@@ -38,7 +38,7 @@ class DualSourceTransformer(onmt.models.Transformer):
       share_encoders=True)
 
   def auto_config(self, num_replicas=1):
-    config = super(DualSourceTransformer, self).auto_config(num_replicas=num_replicas)
+    config = super().auto_config(num_replicas=num_replicas)
     max_length = config["train"]["maximum_features_length"]
     return misc.merge_dict(config, {
         "train": {

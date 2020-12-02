@@ -24,12 +24,12 @@ class MiscTest(tf.test.TestCase):
 
     class Layer(tf.keras.layers.Layer):
       def __init__(self):
-        super(Layer, self).__init__()
+        super().__init__()
         self.variable = self.add_weight("variable", [42])
 
     class Model(tf.keras.layers.Layer):
       def __init__(self):
-        super(Model, self).__init__()
+        super().__init__()
         self.layers = [Layer()]
 
     if strategy is not None:
@@ -52,14 +52,14 @@ class MiscTest(tf.test.TestCase):
     class Layer(tf.keras.layers.Layer):
 
       def __init__(self):
-        super(Layer, self).__init__()
+        super().__init__()
         self.dropout = 0.3
         self.x = tf.keras.layers.Dropout(0.2)
 
     class Model(tf.keras.layers.Layer):
 
       def __init__(self):
-        super(Model, self).__init__()
+        super().__init__()
         self.output_dropout = 0.1
         self.layer = Layer()
         self.layers = [Layer(), Layer()]

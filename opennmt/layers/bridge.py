@@ -44,7 +44,7 @@ class Bridge(tf.keras.layers.Layer):
     Returns:
       The decoder initial state.
     """
-    return super(Bridge, self).__call__([encoder_state, decoder_zero_state])
+    return super().__call__([encoder_state, decoder_zero_state])
 
   @abc.abstractmethod
   def call(self, states):  # pylint: disable=arguments-differ
@@ -81,7 +81,7 @@ class DenseBridge(Bridge):
       activation: Activation function (a callable).
         Set it to ``None`` to maintain a linear activation.
     """
-    super(DenseBridge, self).__init__()
+    super().__init__()
     self.activation = activation
     self.decoder_state_sizes = None
     self.linear = None

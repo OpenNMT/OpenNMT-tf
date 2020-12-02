@@ -51,7 +51,7 @@ class ListenAttendSpell(sequence_to_sequence.SequenceToSequence):
   in https://arxiv.org/abs/1508.01211.
   """
   def __init__(self):
-    super(ListenAttendSpell, self).__init__(
+    super().__init__(
         source_inputter=inputters.SequenceRecordInputter(input_depth=40),
         target_inputter=inputters.WordEmbedder(
             embedding_size=50),
@@ -71,7 +71,7 @@ class ListenAttendSpell(sequence_to_sequence.SequenceToSequence):
             first_layer_attention=True))
 
   def auto_config(self, num_replicas=1):
-    config = super(ListenAttendSpell, self).auto_config(num_replicas=num_replicas)
+    config = super().auto_config(num_replicas=num_replicas)
     return misc.merge_dict(config, {
         "params": {
             "optimizer": "SGD",
@@ -91,7 +91,7 @@ class _RNNBase(sequence_to_sequence.SequenceToSequence):
   """Base class for RNN based NMT models."""
 
   def auto_config(self, num_replicas=1):
-    config = super(_RNNBase, self).auto_config(num_replicas=num_replicas)
+    config = super().auto_config(num_replicas=num_replicas)
     return misc.merge_dict(config, {
         "params": {
             "optimizer": "Adam",
@@ -108,7 +108,7 @@ class _RNNBase(sequence_to_sequence.SequenceToSequence):
 class LuongAttention(_RNNBase):
   """Defines a LSTM encoder-decoder model as described in https://arxiv.org/abs/1508.04025."""
   def __init__(self):
-    super(LuongAttention, self).__init__(
+    super().__init__(
         source_inputter=inputters.WordEmbedder(
             embedding_size=512),
         target_inputter=inputters.WordEmbedder(
@@ -136,7 +136,7 @@ class NMTBigV1(_RNNBase):
     For compatibility with OpenNMT-tf v1.
   """
   def __init__(self):
-    super(NMTBigV1, self).__init__(
+    super().__init__(
         source_inputter=inputters.WordEmbedder(
             embedding_size=512),
         target_inputter=inputters.WordEmbedder(
@@ -167,7 +167,7 @@ class NMTMediumV1(_RNNBase):
     For compatibility with OpenNMT-tf v1.
   """
   def __init__(self):
-    super(NMTMediumV1, self).__init__(
+    super().__init__(
         source_inputter=inputters.WordEmbedder(
             embedding_size=512),
         target_inputter=inputters.WordEmbedder(
@@ -198,7 +198,7 @@ class NMTSmallV1(_RNNBase):
     For compatibility with OpenNMT-tf v1.
   """
   def __init__(self):
-    super(NMTSmallV1, self).__init__(
+    super().__init__(
         source_inputter=inputters.WordEmbedder(
             embedding_size=512),
         target_inputter=inputters.WordEmbedder(
@@ -224,7 +224,7 @@ class LstmCnnCrfTagger(sequence_tagger.SequenceTagger):
   """Defines a bidirectional LSTM-CNNs-CRF as described in https://arxiv.org/abs/1603.01354."""
   def __init__(self):
     # pylint: disable=bad-continuation
-    super(LstmCnnCrfTagger, self).__init__(
+    super().__init__(
         inputter=inputters.MixedInputter([
             inputters.WordEmbedder(
                 embedding_size=100),
@@ -245,7 +245,7 @@ class LstmCnnCrfTagger(sequence_tagger.SequenceTagger):
         crf_decoding=True)
 
   def auto_config(self, num_replicas=1):
-    config = super(LstmCnnCrfTagger, self).auto_config(num_replicas=num_replicas)
+    config = super().auto_config(num_replicas=num_replicas)
     return misc.merge_dict(config, {
         "params": {
             "optimizer": "Adam",
@@ -272,7 +272,7 @@ class _DefaultTransformer(transformer.Transformer):
     else:
       position_encoder_class = layers.SinusoidalPositionEncoder
       maximum_relative_position = None
-    super(_DefaultTransformer, self).__init__(
+    super().__init__(
         source_inputter=inputters.WordEmbedder(embedding_size=num_units),
         target_inputter=inputters.WordEmbedder(embedding_size=num_units),
         num_layers=6,
@@ -295,7 +295,7 @@ class TransformerBaseRelative(_DefaultTransformer):
   described in https://arxiv.org/abs/1803.02155.
   """
   def __init__(self):
-    super(TransformerRelative, self).__init__(relative=True)
+    super().__init__(relative=True)
 
 # Backward compatibility with model descriptions that directly accessed the catalog module.
 Transformer = TransformerBase
@@ -305,7 +305,7 @@ TransformerRelative = TransformerBaseRelative
 class TransformerBig(_DefaultTransformer):
   """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
   def __init__(self):
-    super(TransformerBig, self).__init__(big=True)
+    super().__init__(big=True)
 
 @register_model_in_catalog
 class TransformerBigRelative(_DefaultTransformer):
@@ -313,7 +313,7 @@ class TransformerBigRelative(_DefaultTransformer):
   described in https://arxiv.org/abs/1803.02155.
   """
   def __init__(self):
-    super(TransformerBigRelative, self).__init__(big=True, relative=True)
+    super().__init__(big=True, relative=True)
 
 @register_model_in_catalog
 class GPT2Small(language_model.LanguageModel):
@@ -323,7 +323,7 @@ class GPT2Small(language_model.LanguageModel):
   """
 
   def __init__(self):
-    super(GPT2Small, self).__init__(
+    super().__init__(
         decoder=decoders.SelfAttentionDecoder(
             num_layers=12,
             num_units=768,
@@ -335,7 +335,7 @@ class GPT2Small(language_model.LanguageModel):
         embedding_size=768)
 
   def auto_config(self, num_replicas=1):
-    config = super(GPT2Small, self).auto_config(num_replicas=num_replicas)
+    config = super().auto_config(num_replicas=num_replicas)
     return misc.merge_dict(config, {
         "params": {
             "average_loss_in_time": True,

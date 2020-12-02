@@ -47,7 +47,7 @@ class SelfAttentionDecoder(decoder.Decoder):
         (from https://arxiv.org/abs/1803.02155).
       **kwargs: Additional layer arguments.
     """
-    super(SelfAttentionDecoder, self).__init__(num_sources=num_sources, **kwargs)
+    super().__init__(num_sources=num_sources, **kwargs)
     self.num_units = num_units
     self.num_heads = num_heads
     self.dropout = dropout
@@ -81,7 +81,7 @@ class SelfAttentionDecoder(decoder.Decoder):
     return True
 
   def map_v1_weights(self, weights):
-    m = super(SelfAttentionDecoder, self).map_v1_weights(weights)
+    m = super().map_v1_weights(weights)
     m += self.layer_norm.map_v1_weights(weights["LayerNorm"])
     for i, layer in enumerate(self.layers):
       m += layer.map_v1_weights(weights["layer_%d" % i])

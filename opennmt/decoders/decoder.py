@@ -78,7 +78,7 @@ class Decoder(tf.keras.layers.Layer):
       raise ValueError("This decoder accepts between %d and %d source contexts, "
                        "but received %d" % (
                            self.minimum_sources, self.maximum_sources, num_sources))
-    super(Decoder, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.num_sources = num_sources
     self.output_layer = None
     self.memory = None

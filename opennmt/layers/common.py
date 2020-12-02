@@ -33,7 +33,7 @@ class Dense(tf.keras.layers.Dense):
       transpose: Whether :obj:`weight` should be transposed or not.
       kwargs: Additional layers arguments.
     """
-    super(Dense, self).__init__(units, **kwargs)
+    super().__init__(units, **kwargs)
     self.set_kernel(weight, transpose=transpose)
 
   def set_kernel(self, weight, transpose=False):
@@ -54,7 +54,7 @@ class Dense(tf.keras.layers.Dense):
   def add_weight(self, name, *args, **kwargs):  # pylint: disable=arguments-differ
     if self.weight is not None and name == "kernel":
       return self.weight
-    return super(Dense, self).add_weight(name, *args, **kwargs)
+    return super().add_weight(name, *args, **kwargs)
 
   def call(self, inputs):
     shape = shape_list(inputs)
@@ -112,7 +112,7 @@ class LayerWrapper(tf.keras.layers.Layer):
         compatible).
       kwargs: Additional layer arguments.
     """
-    super(LayerWrapper, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.layer = layer
     self.input_layer_norm = LayerNorm() if normalize_input else None
     self.output_layer_norm = LayerNorm() if normalize_output else None
@@ -158,7 +158,7 @@ class LayerWrapper(tf.keras.layers.Layer):
         "output_dropout": self.output_dropout,
         "residual_connection": self.residual_connection
     }
-    base_config = super(LayerWrapper, self).get_config()
+    base_config = super().get_config()
     return dict(list(base_config.items()) + list(config.items()))
 
   @classmethod

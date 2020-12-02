@@ -128,7 +128,7 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
         transformations.
       kwargs: Additional layer arguments.
     """
-    super(FeedForwardNetwork, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.inner = common.Dense(inner_dim, activation=activation)
     self.outer = common.Dense(output_dim)
     self.dropout = dropout
@@ -172,7 +172,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         (from https://arxiv.org/abs/1803.02155).
       kwargs: Additional layer arguments.
     """
-    super(MultiHeadAttention, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     if num_units % num_heads != 0:
       raise ValueError("Multi head attention requires that num_units is a"
                        " multiple of %s" % num_heads)
@@ -217,7 +217,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
           name="relative_position_keys", shape=relative_repr_shape)
       self.relative_position_values = self.add_weight(
           name="relative_position_values", shape=relative_repr_shape)
-    super(MultiHeadAttention, self).build(input_shape)
+    super().build(input_shape)
 
   def call(self, inputs, memory=None, mask=None, cache=None, training=None):  # pylint: disable=arguments-differ
     """Runs the layer.
@@ -322,7 +322,7 @@ class TransformerLayerWrapper(common.LayerWrapper):
       output_dropout: The dropout to apply on the layer output.
       **kwargs: Additional layer arguments.
     """
-    super(TransformerLayerWrapper, self).__init__(
+    super().__init__(
         layer,
         normalize_input=True,
         output_dropout=output_dropout,
@@ -366,7 +366,7 @@ class SelfAttentionEncoderLayer(tf.keras.layers.Layer):
         (from https://arxiv.org/abs/1803.02155).
       kwargs: Additional layer arguments.
     """
-    super(SelfAttentionEncoderLayer, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.self_attention = MultiHeadAttention(
         num_heads,
         num_units,
@@ -427,7 +427,7 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
         (from https://arxiv.org/abs/1803.02155).
       **kwargs: Additional layer arguments.
     """
-    super(SelfAttentionDecoderLayer, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.self_attention = MultiHeadAttention(
         num_heads,
         num_units,

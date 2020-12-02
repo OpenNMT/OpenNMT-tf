@@ -29,12 +29,12 @@ class LanguageModel(model.SequenceGenerator):
       ValueError: if the decoder type is invalid.
     """
     inputter = LanguageModelInputter(embedding_size=embedding_size)
-    super(LanguageModel, self).__init__(inputter)
+    super().__init__(inputter)
     self.decoder = decoder
     self.reuse_embedding = reuse_embedding
 
   def auto_config(self, num_replicas=1):
-    config = super(LanguageModel, self).auto_config(num_replicas=num_replicas)
+    config = super().auto_config(num_replicas=num_replicas)
     return misc.merge_dict(config, {
         "infer": {
             "length_bucket_width": 1  # To ensure fixed length in each batch.
@@ -42,11 +42,11 @@ class LanguageModel(model.SequenceGenerator):
     })
 
   def initialize(self, data_config, params=None):
-    super(LanguageModel, self).initialize(data_config, params=params)
+    super().initialize(data_config, params=params)
     self.decoder.initialize(vocab_size=self.examples_inputter.vocabulary_size)
 
   def build(self, input_shape):
-    super(LanguageModel, self).build(input_shape)
+    super().build(input_shape)
     if self.reuse_embedding:
       self.decoder.reuse_embeddings(self.examples_inputter.embedding)
 
@@ -141,7 +141,7 @@ class LanguageModelInputter(inputters.WordEmbedder, inputters.ExampleInputterAda
   """
 
   def initialize(self, data_config):
-    super(LanguageModelInputter, self).initialize(data_config)
+    super().initialize(data_config)
     # Set default sequence controls for backward compatibility.
     if self.mark_start is None:
       self.mark_start = False
@@ -155,12 +155,12 @@ class LanguageModelInputter(inputters.WordEmbedder, inputters.ExampleInputterAda
     # we should disable the end sequence control token.
     saved_mark_end = self.mark_end
     self.set_decoder_mode(enable=False, mark_end=False)
-    features = super(LanguageModelInputter, self).make_features(
+    features = super().make_features(
         element=element, features=base_features.copy(), training=training)
 
     # Labels define the decoder input/output sequences during training and evaluation.
     self.set_decoder_mode(enable=True, mark_end=saved_mark_end)
-    labels = super(LanguageModelInputter, self).make_features(
+    labels = super().make_features(
         element=element, features=base_features.copy(), training=training)
 
     return features, labels

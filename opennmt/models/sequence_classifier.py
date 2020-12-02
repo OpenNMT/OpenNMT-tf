@@ -23,11 +23,11 @@ class SequenceClassifier(Model):
       ValueError: if :obj:`encoding` is invalid.
     """
     example_inputter = inputters.ExampleInputter(inputter, ClassInputter())
-    super(SequenceClassifier, self).__init__(example_inputter)
+    super().__init__(example_inputter)
     self.encoder = encoder
 
   def build(self, input_shape):
-    super(SequenceClassifier, self).build(input_shape)
+    super().build(input_shape)
     self.output_layer = tf.keras.layers.Dense(self.labels_inputter.vocabulary_size)
 
   def call(self, features, labels=None, training=None, step=None):
@@ -79,7 +79,7 @@ class ClassInputter(inputters.TextInputter):
   """Reading class from a text file."""
 
   def __init__(self):
-    super(ClassInputter, self).__init__(num_oov_buckets=0)
+    super().__init__(num_oov_buckets=0)
 
   def make_features(self, element=None, features=None, training=None):
     if features is None:

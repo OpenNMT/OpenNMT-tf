@@ -14,7 +14,7 @@ class Inputter(tf.keras.layers.Layer):
   """Base class for inputters."""
 
   def __init__(self, **kwargs):
-    super(Inputter, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self._asset_prefix = ""
 
   @property
@@ -239,7 +239,7 @@ class MultiInputter(Inputter):
     for inputter in inputters:
       if inputter.dtype != dtype:
         raise TypeError("All inputters must have the same dtype")
-    super(MultiInputter, self).__init__(dtype=dtype)
+    super().__init__(dtype=dtype)
     self.inputters = inputters
     self.reducer = reducer
     self.asset_prefix = ""  # Generate the default prefix for sub-inputters.
@@ -270,7 +270,7 @@ class MultiInputter(Inputter):
     if name == "built":
       return all(inputter.built for inputter in self.inputters)
     else:
-      return super(MultiInputter, self).__getattribute__(name)
+      return super().__getattribute__(name)
 
   def initialize(self, data_config):
     for inputter in self.inputters:
@@ -322,7 +322,7 @@ class ParallelInputter(MultiInputter):
       ValueError: if :obj:`share_parameters` is set but the child inputters are
         not of the same type.
     """
-    super(ParallelInputter, self).__init__(inputters, reducer=reducer)
+    super().__init__(inputters, reducer=reducer)
     self.combine_features = combine_features
     self.share_parameters = share_parameters
     if self.share_parameters:
@@ -464,7 +464,7 @@ class ParallelInputter(MultiInputter):
     else:
       for inputter in self.inputters:
         inputter.build(input_shape)
-    super(ParallelInputter, self).build(input_shape)
+    super().build(input_shape)
 
   def call(self, features, training=None):
     transformed = [
@@ -491,7 +491,7 @@ class MixedInputter(MultiInputter):
       reducer: A :class:`opennmt.layers.Reducer` to merge all inputs.
       dropout: The probability to drop units in the merged inputs.
     """
-    super(MixedInputter, self).__init__(inputters, reducer=reducer)
+    super().__init__(inputters, reducer=reducer)
     self.dropout = dropout
 
   def make_dataset(self, data_file, training=None):
@@ -523,7 +523,7 @@ class MixedInputter(MultiInputter):
   def build(self, input_shape):
     for inputter in self.inputters:
       inputter.build(input_shape)
-    super(MixedInputter, self).build(input_shape)
+    super().build(input_shape)
 
   def call(self, features, training=None):
     transformed = []
@@ -703,7 +703,7 @@ class ExampleInputter(ParallelInputter, ExampleInputterAdapter):
     """
     self.features_inputter = features_inputter
     self.labels_inputter = labels_inputter
-    super(ExampleInputter, self).__init__(
+    super().__init__(
         [self.features_inputter, self.labels_inputter],
         share_parameters=share_parameters,
         combine_features=False)

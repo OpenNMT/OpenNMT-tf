@@ -59,7 +59,7 @@ class ROUGEScorer(Scorer):
   """ROUGE scorer based on https://github.com/pltrdy/rouge."""
 
   def __init__(self):
-    super(ROUGEScorer, self).__init__("rouge")
+    super().__init__("rouge")
 
   @property
   def scores_name(self):
@@ -76,7 +76,7 @@ class BLEUScorer(Scorer):
   """Scorer using sacreBLEU."""
 
   def __init__(self):
-    super(BLEUScorer, self).__init__("bleu")
+    super().__init__("bleu")
 
   def __call__(self, ref_path, hyp_path):
     with tf.io.gfile.GFile(ref_path) as ref_stream, tf.io.gfile.GFile(hyp_path) as sys_stream:
@@ -89,7 +89,7 @@ class WERScorer(Scorer):
   """Scorer for WER."""
 
   def __init__(self):
-    super(WERScorer, self).__init__("wer")
+    super().__init__("wer")
 
   def __call__(self, ref_path, hyp_path):
     wer_score = wer(ref_path, hyp_path)
@@ -105,7 +105,7 @@ class TERScorer(Scorer):
   """Scorer for TER."""
 
   def __init__(self):
-    super(TERScorer, self).__init__("ter")
+    super().__init__("ter")
 
   def __call__(self, ref_path, hyp_path):
     with tf.io.gfile.GFile(ref_path) as ref_stream, tf.io.gfile.GFile(hyp_path) as sys_stream:
@@ -122,7 +122,7 @@ class PRFScorer(Scorer):
   """Scorer for F-measure."""
 
   def __init__(self):
-    super(PRFScorer, self).__init__("prfmeasure")
+    super().__init__("prfmeasure")
 
   @property
   def scores_name(self):

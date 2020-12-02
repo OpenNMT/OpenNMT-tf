@@ -19,7 +19,7 @@ class PositionEncoder(tf.keras.layers.Layer):
         encodings. Defaults to :class:`opennmt.layers.SumReducer`.
       **kwargs: Additional layer keyword arguments.
     """
-    super(PositionEncoder, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     if reducer is None:
       reducer = SumReducer(dtype=kwargs.get("dtype"))
     self.reducer = reducer
@@ -70,14 +70,14 @@ class PositionEmbedder(PositionEncoder):
         encodings. Defaults to :class:`opennmt.layers.SumReducer`.
       **kwargs: Additional layer keyword arguments.
     """
-    super(PositionEmbedder, self).__init__(reducer=reducer, **kwargs)
+    super().__init__(reducer=reducer, **kwargs)
     self.maximum_position = maximum_position
     self.embedding = None
 
   def build(self, input_shape):
     shape = [self.maximum_position + 1, input_shape[-1]]
     self.embedding = self.add_weight("position_embedding", shape)
-    super(PositionEmbedder, self).build(input_shape)
+    super().build(input_shape)
 
   def _encode(self, positions, depth):
     positions = tf.minimum(positions, self.maximum_position)

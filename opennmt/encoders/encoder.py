@@ -88,7 +88,7 @@ class SequentialEncoder(Encoder):
       raise ValueError("The number of transition layers must match the number of encoder "
                        "transitions, expected %d layers but got %d."
                        % (len(encoders) - 1, len(transition_layer_fn)))
-    super(SequentialEncoder, self).__init__()
+    super().__init__()
     self.encoders = encoders
     self.states_reducer = states_reducer
     self.transition_layer_fn = transition_layer_fn
@@ -162,7 +162,7 @@ class ParallelEncoder(Encoder):
       raise ValueError("The number of output layers must match the number of encoders; "
                        "expected %d layers but got %d."
                        % (len(encoders), len(outputs_layer_fn)))
-    super(ParallelEncoder, self).__init__()
+    super().__init__()
     self.encoders = encoders
     self.outputs_reducer = outputs_reducer if outputs_reducer is not None else JoinReducer()
     self.states_reducer = states_reducer if states_reducer is not None else JoinReducer()
