@@ -42,11 +42,11 @@ def make_learning_rate_schedule(initial_learning_rate,
 
   Args:
     initial_learning_rate: The initial learning rate value or scale.
-    schedule_type: The type of decay. A function from
+    schedule_type: The type of learning rate schedule. A class name from
       ``tf.keras.optimizers.schedules``
       or :mod:`opennmt.schedules` as a string.
-    schedule_params: Additional parameters for the decay function.
-    schedule_step_duration: The number of training steps that make 1 decay step.
+    schedule_params: Additional parameters passed to the schedule constructor.
+    schedule_step_duration: The number of training steps that make 1 schedule step.
     start_step: Start the schedule after this many steps.
     minimum_learning_rate: Do not decay past this learning rate value.
 
