@@ -334,8 +334,10 @@ def disable_tfa_custom_ops(func):
   def _wrapper(*args, **kwargs):
     previous_value = tfa.options.TF_ADDONS_PY_OPS
     tfa.options.TF_ADDONS_PY_OPS = True
-    outputs = func(*args, **kwargs)
-    tfa.options.TF_ADDONS_PY_OPS = previous_value
+    try:
+      outputs = func(*args, **kwargs)
+    finally:
+      tfa.options.TF_ADDONS_PY_OPS = previous_value
     return outputs
 
   return _wrapper
