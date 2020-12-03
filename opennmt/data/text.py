@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Text manipulation."""
 
 import tensorflow as tf

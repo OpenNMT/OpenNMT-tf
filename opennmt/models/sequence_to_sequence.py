@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Standard sequence-to-sequence model."""
 
 import tensorflow as tf
