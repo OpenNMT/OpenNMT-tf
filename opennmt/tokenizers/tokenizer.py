@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Define base tokenizers."""
 
 import sys
