@@ -178,53 +178,39 @@ class Trainer:
     """
     dataset = self._finalize_dataset(dataset)
     iterator = iter(dataset)
+    with_accum = accum_steps > 1
 
-    # Wrap forward and step with tf.function.
-    # We get the next dataset element within the function for increased efficiency.
+    # We define 2 separate functions to support gradient accumulation:
+    #  * forward: compute and accumulate the gradients
+    #  * step: apply the gradients
+    # When gradient accumulation is disabled, the forward function also applies the gradients.
 
-    if accum_steps is None or accum_steps == 1:
+    def _forward():
+      # We get the next dataset element within the function for increased efficiency
+      # and avoid dealing with tf.function input signatures.
+      source, target = next(iterator)
+      record_summaries = self._should_record_summaries(report_steps, with_accum=with_accum)
+      forward_fn = self._forward if with_accum else self._forward_and_step
+      return forward_fn(source, target, record_summaries=record_summaries)
 
-      @tf.function
-      def _forward_and_step():
-        source, target = next(iterator)
-        return self._forward_and_step(
-            source,
-            target,
-            record_summaries=self._should_record_summaries(report_steps, with_accum=False))
+    def _step():
+      return self._step()
 
-      for i in itertools.count():
-        try:
-          loss = _forward_and_step()
-        except (StopIteration, tf.errors.OutOfRangeError):  # Dataset iterator exhausted.
-          break
+    # Wrap forward and step with tf.function to run in graph mode.
+    forward_fn = tf.function(_forward)
+    step_fn = tf.function(_step) if with_accum else lambda: None
+
+    for i in itertools.count():
+      try:
+        loss = forward_fn()
+      except (StopIteration, tf.errors.OutOfRangeError):  # Dataset iterator exhausted.
+        break
+
+      if i == 0 or (i + 1) % accum_steps == 0:
+        step_fn()
         if i == 0:
           self._broadcast_variables()
         yield loss
-
-    else:
-
-      @tf.function
-      def _forward():
-        source, target = next(iterator)
-        return self._forward(
-            source,
-            target,
-            record_summaries=self._should_record_summaries(report_steps, with_accum=True))
-
-      @tf.function
-      def _step():
-        return self._step()
-
-      for i in itertools.count():
-        try:
-          loss = _forward()
-        except (StopIteration, tf.errors.OutOfRangeError):  # Dataset iterator exhausted.
-          break
-        if i == 0 or (i + 1) % accum_steps == 0:
-          _step()
-          if i == 0:
-            self._broadcast_variables()
-          yield loss
 
   def _run_model(self, source, target):
     """Computes the loss of the given source and target pair.
