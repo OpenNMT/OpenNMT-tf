@@ -282,7 +282,7 @@ def make_tokenizer(config=None):
       else:
         try:
           config = json.loads(config)
-        except:
+        except json.JSONDecodeError:
           pass
     if isinstance(config, dict):
       tokenizer_type = config.get("type")
