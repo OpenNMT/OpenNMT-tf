@@ -55,6 +55,10 @@ def main():
   num_oov_buckets = 1
 
   if args.sentencepiece is not None:
+    if args.min_frequency > 1:
+      raise ValueError("--min_frequency option is not supported when training a SentencePiece "
+                       "model and vocabulary")
+
     import pyonmttok  # pylint: disable=import-outside-toplevel
 
     if args.size_multiple == 1:
