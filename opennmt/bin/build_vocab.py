@@ -36,7 +36,10 @@ def main():
       help="If set, do not add special sequence tokens (start, end) in the vocabulary.")
   parser.add_argument(
       "--tokenizer_config", default=None,
-      help="Tokenization configuration.")
+      help=("Tokenization configuration as a JSON string or a path to a YAML configuration. "
+            "When building a SentencePiece model and vocabulary, this is used as a "
+            "pre-tokenization. SentencePiece will receive tokens instead of sentences as "
+            "inputs."))
   parser.add_argument(
       "--sentencepiece", nargs="*", default=None,
       help=("Build a SentencePiece model and vocabulary. This option accepts additional "
@@ -53,18 +56,32 @@ def main():
 
   if args.sentencepiece is not None:
     import pyonmttok  # pylint: disable=import-outside-toplevel
+
     if args.size_multiple == 1:
       vocab_size = args.size
     else:
       # Round vocabulary size to the next multiple of args.size_multiple
       vocab_size = (
           args.size - (args.size + num_oov_buckets) % args.size_multiple + args.size_multiple)
+
+    if args.tokenizer_config:
+      tokenizer = tokenizers.make_tokenizer(args.tokenizer_config)
+      if not isinstance(tokenizer, tokenizers.OpenNMTTokenizer):
+        tokenizer_type = tokenizer.__class__.__name__
+        raise ValueError("Only tokenizer type 'OpenNMTTokenizer' can be used as a SentencePiece "
+                         "pre-tokenization, got tokenizer type '%s' instead." % tokenizer_type)
+      tokenizer = tokenizer.opennmt_tokenizer
+    else:
+      tokenizer = None
+
     sp_params = dict(map(lambda arg: tuple(arg.split("=")), args.sentencepiece))
     sp_trainer = pyonmttok.SentencePieceLearner(
-        keep_vocab=True, vocab_size=vocab_size, **sp_params)
+        tokenizer=tokenizer, keep_vocab=True, vocab_size=vocab_size, **sp_params)
+
     for data_file in args.data:
       sp_trainer.ingest_file(data_file)
     sp_trainer.learn(args.save_vocab, verbose=True)
+
     args.save_vocab = args.save_vocab + ".vocab"
     vocab.load(args.save_vocab, file_format="sentencepiece")
   else:

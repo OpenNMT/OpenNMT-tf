@@ -2,6 +2,7 @@
 
 import sys
 import abc
+import json
 import yaml
 
 import tensorflow as tf
@@ -274,9 +275,15 @@ def make_tokenizer(config=None):
     ValueError: if :obj:`config` is invalid.
   """
   if config:
-    if isinstance(config, str) and tf.io.gfile.exists(config):
-      with tf.io.gfile.GFile(config, mode="rb") as config_file:
-        config = yaml.load(config_file, Loader=yaml.UnsafeLoader)
+    if isinstance(config, str):
+      if tf.io.gfile.exists(config):
+        with tf.io.gfile.GFile(config, mode="rb") as config_file:
+          config = yaml.load(config_file, Loader=yaml.UnsafeLoader)
+      else:
+        try:
+          config = json.loads(config)
+        except:
+          pass
     if isinstance(config, dict):
       tokenizer_type = config.get("type")
       if tokenizer_type is None:
