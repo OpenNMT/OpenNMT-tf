@@ -266,7 +266,8 @@ def make_tokenizer(config=None):
   """Creates a tokenizer instance from the configuration.
 
   Args:
-    config: Path to a configuration file or the configuration dictionary.
+    config: Tokenization configuration as a Python dictionary, or a path to a
+      YAML configuration file, or a JSON string.
 
   Returns:
     A :class:`opennmt.tokenizers.Tokenizer` instance.

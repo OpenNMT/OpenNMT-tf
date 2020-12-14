@@ -36,7 +36,7 @@ def main():
       help="If set, do not add special sequence tokens (start, end) in the vocabulary.")
   parser.add_argument(
       "--tokenizer_config", default=None,
-      help=("Tokenization configuration as a JSON string or a path to a YAML configuration. "
+      help=("Tokenization configuration as a JSON string or a path to a YAML configuration file. "
             "When building a SentencePiece model and vocabulary, this is used as a "
             "pre-tokenization. SentencePiece will receive tokens instead of sentences as "
             "inputs."))
