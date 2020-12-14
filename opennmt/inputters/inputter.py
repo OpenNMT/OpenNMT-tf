@@ -287,13 +287,6 @@ class MultiInputter(Inputter):
   def make_dataset(self, data_file, training=None):
     raise NotImplementedError()
 
-  def get_dataset_size(self, data_file):
-    for inputter, data in zip(self.inputters, data_file):
-      size = inputter.get_dataset_size(data)
-      if size is not None:
-        return size
-    return None
-
   def visualize(self, model_root, log_dir):
     for inputter in self.inputters:
       inputter.visualize(model_root, log_dir)
@@ -374,6 +367,13 @@ class ParallelInputter(MultiInputter):
     if not training:
       raise ValueError("Only training data can be configured to multiple files")
     return parallel_datasets
+
+  def get_dataset_size(self, data_file):
+    for inputter, data in zip(self.inputters, data_file):
+      size = inputter.get_dataset_size(data)
+      if size is not None:
+        return size
+    return None
 
   def input_signature(self):
     if self.combine_features:
@@ -502,6 +502,13 @@ class MixedInputter(MultiInputter):
       if not isinstance(dataset, datasets[0].__class__):
         raise ValueError("All inputters should use the same dataset in a MixedInputter setting")
     return datasets[0]
+
+  def get_dataset_size(self, data_file):
+    for inputter in self.inputters:
+      size = inputter.get_dataset_size(data_file)
+      if size is not None:
+        return size
+    return None
 
   def input_signature(self):
     signature = {}
