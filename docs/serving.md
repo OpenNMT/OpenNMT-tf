@@ -44,10 +44,25 @@ TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such
 
 [CTranslate2](https://github.com/OpenNMT/CTranslate2) is an optimized inference engine for OpenNMT models that is typically faster, lighter, and more customizable than the TensorFlow runtime.
 
-Selected models can be exported to the CTranslate2 format directly from OpenNMT-tf. An additional `export_format` option should be configured to select this export type:
+Selected models can be exported to the CTranslate2 format directly from OpenNMT-tf by selecting the `ctranslate2` export format.
+
+**When using the `export` command line**, the `--export_format` option should be set:
 
 ```bash
 onmt-main [...] export --export_dir ~/my-models/ende --export_format ctranslate2
 ```
 
-The same option is available in the `eval` block of the YAML configuration when exporting models during the training.
+**When using the automatic model evaluation and export during the training**, the `export_format` option should be configured in the `eval` block of the YAML configuration:
+
+```yaml
+eval:
+  external_evaluators: bleu
+  export_on_best: bleu
+  export_format: ctranslate2
+```
+
+[Model quantization](https://github.com/OpenNMT/CTranslate2#quantization-and-reduced-precision) can also be enabled by replacing `ctranslate2` by one of the following export types:
+
+* `ctranslate2_int8`
+* `ctranslate2_int16`
+* `ctranslate2_float16`
