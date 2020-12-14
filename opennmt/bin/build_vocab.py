@@ -11,7 +11,7 @@ def main():
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
       "data", nargs="*",
-      help="Source text file.")
+      help="List of data files.")
   parser.add_argument(
       "--from_vocab", default=None,
       help="Build from a saved vocabulary (see also --from_format).")
