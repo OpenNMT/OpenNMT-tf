@@ -300,8 +300,9 @@ eval:
 
   # (optional) Export a model when a metric has the best value so far (default: null).
   export_on_best: bleu
-  # (optional) Format of the exported model (can be: "saved_model, "ctranslate2",
-  # "checkpoint", default: "saved_model").
+  # (optional) Format of the exported model (can be: "saved_model, "checkpoint",
+  # "ctranslate2", "ctranslate2_int8", "ctranslate2_int16", "ctranslate2_float16",
+  # default: "saved_model").
   export_format: saved_model
   # (optional) Maximum number of exports to keep on disk (default: 5).
   max_exports_to_keep: 5

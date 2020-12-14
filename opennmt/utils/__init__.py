@@ -14,6 +14,10 @@ from opennmt.utils.decoding import Sampler
 from opennmt.utils.decoding import dynamic_decode
 
 from opennmt.utils.exporters import CTranslate2Exporter
+from opennmt.utils.exporters import CTranslate2Float16Exporter
+from opennmt.utils.exporters import CTranslate2Int16Exporter
+from opennmt.utils.exporters import CTranslate2Int8Exporter
+from opennmt.utils.exporters import CheckpointExporter
 from opennmt.utils.exporters import Exporter
 from opennmt.utils.exporters import SavedModelExporter
 from opennmt.utils.exporters import register_exporter
