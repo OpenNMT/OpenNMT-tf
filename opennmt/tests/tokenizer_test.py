@@ -162,6 +162,9 @@ class TokenizerTest(tf.test.TestCase):
         tokenizers.make_tokenizer({"mode": "conservative"}),
         tokenizers.OpenNMTTokenizer)
     self.assertIsInstance(
+        tokenizers.make_tokenizer('{"mode": "conservative"}'),
+        tokenizers.OpenNMTTokenizer)
+    self.assertIsInstance(
         tokenizers.make_tokenizer({"type": "OpenNMTTokenizer", "params": {"mode": "conservative"}}),
         tokenizers.OpenNMTTokenizer)
     config_path = os.path.join(self.get_temp_dir(), "tok_config.yml")
