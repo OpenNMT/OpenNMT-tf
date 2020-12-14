@@ -345,14 +345,19 @@ class RunnerTest(tf.test.TestCase):
     tokens = result["tokens"][:result["length"]]
     self.assertAllEqual(tokens, [b"a", b"t", b"z", b"m", b"o", b"n"])
 
-  def testCTranslate2Export(self):
+  @parameterized.expand([
+    ("ctranslate2",),
+    ("ctranslate2_int8",),
+    ("ctranslate2_int16",),
+  ])
+  def testCTranslate2Export(self, variant):
     try:
       import ctranslate2
     except ImportError:
       self.skipTest("ctranslate2 module is not available")
     export_dir = os.path.join(self.get_temp_dir(), "export")
     runner = self._getTransliterationRunner()
-    runner.export(export_dir, exporter=exporters.make_exporter("ctranslate2"))
+    runner.export(export_dir, exporter=exporters.make_exporter(variant))
     self.assertTrue(ctranslate2.contains_model(export_dir))
     translator = ctranslate2.Translator(export_dir)
     output = translator.translate_batch([["آ" ,"ت" ,"ز" ,"م" ,"و" ,"ن"]])

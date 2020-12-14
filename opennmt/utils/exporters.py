@@ -85,10 +85,18 @@ class CTranslate2Exporter(Exporter):
 
     Args:
       quantization: Quantize model weights to this type when exporting the model.
-        Can be "int16" or "int8". Default is no quantization.
+        Can be "int8", "int16", or "float16". Default is no quantization.
+
+    Raises:
+      ImportError: if the CTranslate2 package is missing.
+      ValueError: if :obj:`quantization` is invalid.
     """
     # Fail now if ctranslate2 package is missing.
     import ctranslate2  # pylint: disable=import-outside-toplevel,unused-import
+    accepted_quantization = ("int8", "int16", "float16")
+    if quantization is not None and quantization not in accepted_quantization:
+      raise ValueError("Invalid quantization '%s' for CTranslate2, accepted values are: %s" % (
+          quantization, ", ".join(accepted_quantization)))
     self._quantization = quantization
 
   def _export_model(self, model, export_dir):
@@ -107,3 +115,24 @@ class CTranslate2Exporter(Exporter):
         tgt_vocab=model.labels_inputter.vocabulary_file,
         variables=variables)
     converter.convert(export_dir, model_spec, quantization=self._quantization, force=True)
+
+
+@register_exporter(name="ctranslate2_int8")
+class CTranslate2Int8Exporter(CTranslate2Exporter):
+  """CTranslate2 exporter with int8 quantization."""
+  def __init__(self):
+    super().__init__(quantization="int8")
+
+
+@register_exporter(name="ctranslate2_int16")
+class CTranslate2Int16Exporter(CTranslate2Exporter):
+  """CTranslate2 exporter with int16 quantization."""
+  def __init__(self):
+    super().__init__(quantization="int16")
+
+
+@register_exporter(name="ctranslate2_float16")
+class CTranslate2Float16Exporter(CTranslate2Exporter):
+  """CTranslate2 exporter with float16 quantization."""
+  def __init__(self):
+    super().__init__(quantization="float16")
