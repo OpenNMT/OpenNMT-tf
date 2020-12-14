@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tensorflow: [2.3]
+        tensorflow: [2.3, 2.4]
 
     steps:
       - uses: actions/checkout@v2
@@ -61,7 +61,7 @@ jobs:
           pytest --cov=opennmt --cov-report xml opennmt/tests
 
       - name: Upload coverage report
-        if: matrix.tensorflow == '2.3'
+        if: matrix.tensorflow == '2.4'
         run: |
           bash <(curl -s https://codecov.io/bash)
 
