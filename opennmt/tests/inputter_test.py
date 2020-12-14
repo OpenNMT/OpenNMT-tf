@@ -157,6 +157,7 @@ class InputterTest(tf.test.TestCase):
   def _makeDataset(self, inputter, data_file, data_config=None, dataset_size=1, shapes=None):
     if data_config is not None:
       inputter.initialize(data_config)
+    self.assertEqual(inputter.get_dataset_size(data_file), dataset_size)
     dataset = inputter.make_dataset(data_file)
     eager_features = inputter.make_features(iter(dataset).next(), training=True)
     eager_features = tf.nest.map_structure(lambda t: tf.expand_dims(t, 0), eager_features)
@@ -535,6 +536,7 @@ class InputterTest(tf.test.TestCase):
     features, transformed = self._makeDataset(
         inputter,
         record_file,
+        dataset_size=None,
         shapes={"tensor": [None, None, 2], "length": [None]})
 
     self.assertEqual([2], features["length"])
