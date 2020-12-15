@@ -2,7 +2,6 @@ import inspect
 import numbers
 import os
 import sys
-import six
 
 import opennmt
 
@@ -94,7 +93,7 @@ def document_module(module, module_path, module_map, output_dir):
       functions.append(symbol_path)
     elif inspect.ismodule(symbol):
       submodules.append((symbol_path, symbol))
-    elif isinstance(symbol, (numbers.Number, six.string_types)):
+    elif isinstance(symbol, (numbers.Number, str)):
       constants.append(symbol_path)
 
   with open(os.path.join(output_dir, "%s.rst" % module_path), "w") as doc:

@@ -4,6 +4,12 @@
 onmt-main train -h
 ```
 
+**Example:**
+
+```bash
+onmt-main --model_type Transformer --config data.yml --auto_config train --with_eval
+```
+
 ## Monitoring
 
 OpenNMT-tf uses [TensorBoard](https://www.tensorflow.org/tensorboard) to log information during the training. Simply start `tensorboard` by setting the active log directory, e.g.:

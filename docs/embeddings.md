@@ -15,7 +15,9 @@ data:
   # target_embedding: ...
 ```
 
-The format of the embedding file and the options are described in the [load_pretrained_embeddings](https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.load_pretrained_embeddings.html) function.
+The format of the embedding file and the options are described in the [`opennmt.inputters.load_pretrained_embeddings`](https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.load_pretrained_embeddings.html) function.
+
+Pretrained embeddings are only loaded when initializing the model weights. If you continue the training with from a checkpoint, this configuration is ignored and the embeddings values are loaded from the checkpoint.
 
 ## Sharing
 

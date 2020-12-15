@@ -4,6 +4,12 @@
 onmt-main infer -h
 ```
 
+**Example:**
+
+```bash
+onmt-main --config data.yml --auto_config infer --features_file src-test.txt
+```
+
 ## Checkpoints averaging
 
 The `average_checkpoints` run type can be used to average the parameters of several checkpoints, usually increasing the model performance. For example:

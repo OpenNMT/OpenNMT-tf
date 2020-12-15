@@ -19,8 +19,8 @@ class Inputter(tf.keras.layers.Layer):
 
   @property
   def asset_prefix(self):
-    """The asset prefix is used to differentiate resources of parallel inputters.
-    The most basic examples are the "source_" and "target_" prefixes.
+    r"""The asset prefix is used to differentiate resources of parallel inputters.
+    The most basic examples are the "source\_" and "target\_" prefixes.
 
     - When reading the data configuration, the inputter will read fields that
       start with this prefix (e.g. "source_vocabulary").
@@ -167,7 +167,7 @@ class Inputter(tf.keras.layers.Layer):
     Common transformation includes tokenization, parsing, vocabulary lookup,
     etc.
 
-    This method accept both a single :obj:`element` from the dataset or a
+    This method accepts both a single :obj:`element` from the dataset or a
     partially built dictionary of :obj:`features`.
 
     Args:

@@ -86,7 +86,7 @@ class BLEUScorer(Scorer):
 
 @register_scorer(name="wer")
 class WERScorer(Scorer):
-  """Scorer for WER."""
+  """WER scorer."""
 
   def __init__(self):
     super().__init__("wer")
@@ -96,13 +96,12 @@ class WERScorer(Scorer):
     return wer_score
 
   def lower_is_better(self):
-    """ Since the score shall be the lower the better """
     return True
 
 
 @register_scorer(name="ter")
 class TERScorer(Scorer):
-  """Scorer for TER."""
+  """TER scorer."""
 
   def __init__(self):
     super().__init__("ter")
@@ -113,13 +112,12 @@ class TERScorer(Scorer):
       return ter.score
 
   def lower_is_better(self):
-    """ Since the score shall be the lower the better """
     return True
 
 
 @register_scorer(name="prfmeasure", alias="prf")
 class PRFScorer(Scorer):
-  """Scorer for F-measure."""
+  """F-measure scorer."""
 
   def __init__(self):
     super().__init__("prfmeasure")
@@ -144,7 +142,7 @@ def make_scorers(names):
     names: A list of scorer names or a single name.
 
   Returns:
-    A list of :class:`opennmt.evaluation.Scorer` instances.
+    A list of :class:`opennmt.utils.Scorer` instances.
 
   Raises:
     ValueError: if a scorer name is invalid.
