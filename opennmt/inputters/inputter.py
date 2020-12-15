@@ -167,7 +167,7 @@ class Inputter(tf.keras.layers.Layer):
     Common transformation includes tokenization, parsing, vocabulary lookup,
     etc.
 
-    This method accept both a single :obj:`element` from the dataset or a
+    This method accepts both a single :obj:`element` from the dataset or a
     partially built dictionary of :obj:`features`.
 
     Args:
