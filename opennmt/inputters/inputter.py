@@ -19,7 +19,7 @@ class Inputter(tf.keras.layers.Layer):
 
   @property
   def asset_prefix(self):
-    """The asset prefix is used to differentiate resources of parallel inputters.
+    r"""The asset prefix is used to differentiate resources of parallel inputters.
     The most basic examples are the "source\_" and "target\_" prefixes.
 
     - When reading the data configuration, the inputter will read fields that
