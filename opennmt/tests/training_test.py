@@ -1,4 +1,5 @@
 import os
+import json
 
 import tensorflow as tf
 
@@ -84,10 +85,15 @@ class TrainingTest(tf.test.TestCase):
       stats.update_on_example(source_features, target_features)
       stats.update_on_step(step, loss)
 
+    def _is_json_serializable(summary):
+      json.dumps(summary)
+      return True
+
     _step(24, 23, 5, 9.8)
     _step(10, 8, 10, 9.6)
 
     summary = stats.get_last_summary()
+    self.assertTrue(_is_json_serializable(summary))
     self.assertEqual(summary["learning_rate"], 1.0)
     self.assertEqual(summary["step"], 10)
     self.assertEqual(summary["loss"], 9.6)
@@ -113,6 +119,7 @@ class TrainingTest(tf.test.TestCase):
     self.assertEqual(summary["words_per_sec"]["target"], 0)
 
     summary = stats.get_global_summary()
+    self.assertTrue(_is_json_serializable(summary))
     self.assertEqual(summary["last_learning_rate"], 1.0)
     self.assertEqual(summary["last_step"], 15)
     self.assertEqual(summary["last_loss"], 9.4)
