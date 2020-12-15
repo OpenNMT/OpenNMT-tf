@@ -19,7 +19,7 @@ def gelu(x):
   """
   gelu_fn = compat.tf_any("nn.gelu")
   if gelu_fn is not None:
-    return gelu_fn(x)
+    return gelu_fn(x, approximate=True)
   return 0.5 * x * (1 + tf.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * tf.pow(x, 3))))
 
 
