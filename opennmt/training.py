@@ -604,9 +604,7 @@ class TrainingStats:
     learning_rate = self._optimizer.learning_rate
     if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
       learning_rate = learning_rate(self._last_step)
-    elif isinstance(learning_rate, tf.Variable):
-      learning_rate = learning_rate.value()
-    return learning_rate
+    return float(learning_rate)
 
   def _update_words_counter(self, name, features):
     """Accumulates the number of source and target tokens to report throughput."""
