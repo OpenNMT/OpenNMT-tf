@@ -368,8 +368,8 @@ class WordEmbedder(TextInputter):
       self.case_insensitive_embeddings = embedding.get("case_insensitive", True)
     sequence_controls = data_config.get("sequence_controls")
     if sequence_controls:
-      self.mark_start = sequence_controls["start"]
-      self.mark_end = sequence_controls["end"]
+      self.mark_start = sequence_controls.get("start")
+      self.mark_end = sequence_controls.get("end")
 
   def make_features(self, element=None, features=None, training=None):
     """Converts words tokens to ids."""
