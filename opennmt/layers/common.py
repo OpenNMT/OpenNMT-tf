@@ -3,6 +3,7 @@
 import tensorflow as tf
 import numpy as np
 
+from opennmt.utils import compat
 from opennmt.utils.misc import shape_list
 
 
@@ -16,6 +17,9 @@ def gelu(x):
   """Gaussian Error Linear Unit activation function described in
   https://arxiv.org/abs/1606.08415.
   """
+  gelu_fn = compat.tf_any("nn.gelu")
+  if gelu_fn is not None:
+    return gelu_fn(x)
   return 0.5 * x * (1 + tf.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * tf.pow(x, 3))))
 
 
