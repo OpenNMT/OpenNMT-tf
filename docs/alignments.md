@@ -12,6 +12,7 @@ data:
 
 params:
   guided_alignment_type: ce
+  guided_alignment_weight: 1
 ```
 
 where `train-alignment.txt` is a text file that uses the "Pharaoh" alignment format, e.g.:
@@ -23,3 +24,7 @@ where `train-alignment.txt` is a text file that uses the "Pharaoh" alignment for
 ```
 
 where a pair `i-j` indicates that the `i`th word of the source sentence is aligned with the `j`th word of the target sentence (zero-indexed).
+
+## Alignments and Transformer models
+
+Since Transfomer models have multiple attention heads, training with guided alignment (see above) is required to get usable alignments. The current implementation will constrain and return **the first attention head of the last decoder layer**.

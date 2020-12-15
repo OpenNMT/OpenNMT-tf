@@ -9,3 +9,13 @@
 .wy-menu-vertical a {
     color: #fff;
 }
+
+.rst-content a code.literal {
+    color: #2980B9;
+}
+.rst-content a:hover code.literal {
+    color: #3091d1;
+}
+.rst-content a:visited code.literal {
+    color: #9B59B6;
+}
