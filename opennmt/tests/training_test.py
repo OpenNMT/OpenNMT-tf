@@ -73,10 +73,10 @@ class TrainingTest(tf.test.TestCase):
     stats = training.TrainingStats(model, optimizer, warmup_steps=2)
 
     def _step(source_length, target_length, step, loss):
-      source_features = {"length": source_length}
-      target_features = {"length": target_length}
+      source_features = {"length": tf.constant(source_length, dtype=tf.int32)}
+      target_features = {"length": tf.constant(target_length, dtype=tf.int32)}
       stats.update_on_example(source_features, target_features)
-      stats.update_on_step(step, loss)
+      stats.update_on_step(tf.constant(step, dtype=tf.int64), tf.constant(loss))
 
     def _is_json_serializable(summary):
       json.dumps(summary)
@@ -89,7 +89,7 @@ class TrainingTest(tf.test.TestCase):
     self.assertTrue(_is_json_serializable(summary))
     self.assertEqual(summary["learning_rate"], 1.0)
     self.assertEqual(summary["step"], 10)
-    self.assertEqual(summary["loss"], 9.6)
+    self.assertAllClose(summary["loss"], 9.6)
 
     # Throughput values are ignored in the 2 first steps.
     self.assertEqual(summary["steps_per_sec"], 0)
@@ -115,8 +115,8 @@ class TrainingTest(tf.test.TestCase):
     self.assertTrue(_is_json_serializable(summary))
     self.assertEqual(summary["last_learning_rate"], 1.0)
     self.assertEqual(summary["last_step"], 15)
-    self.assertEqual(summary["last_loss"], 9.4)
-    self.assertEqual(summary["average_loss"], 9.6)
+    self.assertAllClose(summary["last_loss"], 9.4)
+    self.assertAllClose(summary["average_loss"], 9.6)
     self.assertEqual(summary["num_steps"], 3)
 
 
