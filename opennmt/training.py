@@ -107,7 +107,7 @@ class Trainer:
 
         step = iterations.numpy()
         reset_throughput = False
-        self._training_stats.update_on_step(step, loss.numpy())
+        self._training_stats.update_on_step(step, loss)
         if step % report_steps == 0:
           self._training_stats.log(self._is_master)
           reset_throughput = True
@@ -511,6 +511,10 @@ class TrainingStats:
       step: The current training step.
       loss: The loss for this step.
     """
+    # Convert Numpy or Tensor values to Python.
+    step = int(step)
+    loss = float(loss)
+
     self._last_step = step
     self._last_loss = loss
     self._average_loss = (self._average_loss * self._num_updates + loss) / (self._num_updates + 1)
