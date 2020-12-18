@@ -15,6 +15,25 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.14.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.14.0) (2020-12-28)
+
+### New features
+
+* Support pre-tokenization when training a SentencePiece model and vocabulary with `onmt-build-vocab`
+* Add quantized CTranslate2 exporters: `ctranslate2_int8`, `ctranslate2_int16`, `ctranslate2_float16`
+* Re-add `decay_step_duration` training parameter from OpenNMT-tf V1 to delay the updates of learning rate schedules
+
+### Fixes and improvements
+
+* Fix error when training with multiple GPUs and TensorFlow 2.4
+* Fix error when setting a Keras mixed precision policy and using high-level APIs such as `Runner` or `Trainer`
+* Fix error when computing the dataset size and using a `MixedInputter`
+* Fix the Python wheel pushed to PyPI that declared Python 2 compatibility
+* Return the learning rate and the losses as a float values and not tensors in the training summary
+* Remove `pyter3` dependency and compute TER with SacreBleu
+* Remove unclear warning when setting `--model` or `--model_type` and a checkpoint already exists
+* Raise error when training a SentencePiece model and vocabulary with `onmt-build-vocab` and using `--min_frequency` which is incompatible
+
 ## [2.13.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.13.0) (2020-10-20)
 
 ### New features
