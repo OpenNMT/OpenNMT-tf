@@ -15,7 +15,7 @@ def get_long_description():
 
 setup(
     name="OpenNMT-tf",
-    version="2.13.0",
+    version="2.14.0",
     license="MIT",
     description="Neural machine translation and sequence learning using TensorFlow",
     long_description=get_long_description(),
