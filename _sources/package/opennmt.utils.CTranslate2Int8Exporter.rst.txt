@@ -1,0 +1,8 @@
+opennmt.utils.CTranslate2Int8Exporter
+=====================================
+
+.. autoclass:: opennmt.utils.CTranslate2Int8Exporter
+    :members:
+    :undoc-members:
+
+    **Inherits from:** :class:`opennmt.utils.CTranslate2Exporter`

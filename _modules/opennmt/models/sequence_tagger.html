@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_tagger &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.models.sequence_tagger &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -204,7 +204,7 @@
 <span class="sd">      crf_decoding: If ``True``, add a CRF layer after the encoder.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">example_inputter</span> <span class="o">=</span> <span class="n">inputters</span><span class="o">.</span><span class="n">ExampleInputter</span><span class="p">(</span><span class="n">inputter</span><span class="p">,</span> <span class="n">TagsInputter</span><span class="p">())</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">SequenceTagger</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">example_inputter</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">example_inputter</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">encoder</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span> <span class="o">=</span> <span class="n">crf_decoding</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="kc">None</span>
@@ -214,10 +214,10 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tagging_scheme&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">SequenceTagger</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span></div>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SequenceTagger.build"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">SequenceTagger</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
     <span class="n">num_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_size</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_tags</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span><span class="p">:</span>
@@ -301,10 +301,10 @@
   <span class="sd">&quot;&quot;&quot;Reading space-separated tags.&quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">TagsInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TagsInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.models.TagsInputter.html#opennmt.models.TagsInputter.make_features">[docs]</a>  <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">features</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">TagsInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
         <span class="n">element</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
@@ -322,7 +322,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">      **kwargs: Base class arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">F1</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Precision</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">recall</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Recall</span><span class="p">()</span>
 

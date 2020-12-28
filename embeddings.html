@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Embeddings &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>Embeddings &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -199,7 +199,8 @@
   <span class="c1"># target_embedding: ...</span>
 </pre></div>
 </div>
-<p>The format of the embedding file and the options are described in the <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.load_pretrained_embeddings.html">load_pretrained_embeddings</a> function.</p>
+<p>The format of the embedding file and the options are described in the <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.load_pretrained_embeddings.html"><code class="docutils literal notranslate"><span class="pre">opennmt.inputters.load_pretrained_embeddings</span></code></a> function.</p>
+<p>Pretrained embeddings are only loaded when initializing the model weights. If you continue the training with from a checkpoint, this configuration is ignored and the embeddings values are loaded from the checkpoint.</p>
 </div>
 <div class="section" id="sharing">
 <h2>Sharing<a class="headerlink" href="#sharing" title="Permalink to this headline">¶</a></h2>

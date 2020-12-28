@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -195,13 +195,13 @@
   <span class="sd">&quot;&quot;&quot;Base class for inputters.&quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">Inputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_asset_prefix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
   <span class="nd">@property</span>
   <span class="k">def</span> <span class="nf">asset_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The asset prefix is used to differentiate resources of parallel inputters.</span>
-<span class="sd">    The most basic examples are the &quot;source_&quot; and &quot;target_&quot; prefixes.</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;The asset prefix is used to differentiate resources of parallel inputters.</span>
+<span class="sd">    The most basic examples are the &quot;source\_&quot; and &quot;target\_&quot; prefixes.</span>
 
 <span class="sd">    - When reading the data configuration, the inputter will read fields that</span>
 <span class="sd">      start with this prefix (e.g. &quot;source_vocabulary&quot;).</span>
@@ -348,7 +348,7 @@
 <span class="sd">    Common transformation includes tokenization, parsing, vocabulary lookup,</span>
 <span class="sd">    etc.</span>
 
-<span class="sd">    This method accept both a single :obj:`element` from the dataset or a</span>
+<span class="sd">    This method accepts both a single :obj:`element` from the dataset or a</span>
 <span class="sd">    partially built dictionary of :obj:`features`.</span>
 
 <span class="sd">    Args:</span>
@@ -420,7 +420,7 @@
     <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="n">inputters</span><span class="p">:</span>
       <span class="k">if</span> <span class="n">inputter</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">dtype</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;All inputters must have the same dtype&quot;</span><span class="p">)</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">MultiInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span> <span class="o">=</span> <span class="n">inputters</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span> <span class="o">=</span> <span class="n">reducer</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">asset_prefix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># Generate the default prefix for sub-inputters.</span>
@@ -451,7 +451,7 @@
     <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;built&quot;</span><span class="p">:</span>
       <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">inputter</span><span class="o">.</span><span class="n">built</span> <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-      <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MultiInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+      <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MultiInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">:</span>
@@ -467,13 +467,6 @@
 <div class="viewcode-block" id="MultiInputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.make_dataset">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
   <span class="k">def</span> <span class="nf">make_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="MultiInputter.get_dataset_size"><a class="viewcode-back" href="../../../package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.get_dataset_size">[docs]</a>  <span class="k">def</span> <span class="nf">get_dataset_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">,</span> <span class="n">data_file</span><span class="p">):</span>
-      <span class="n">size</span> <span class="o">=</span> <span class="n">inputter</span><span class="o">.</span><span class="n">get_dataset_size</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">size</span>
-    <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="MultiInputter.visualize"><a class="viewcode-back" href="../../../package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.visualize">[docs]</a>  <span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_root</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">:</span>
@@ -503,7 +496,7 @@
 <span class="sd">      ValueError: if :obj:`share_parameters` is set but the child inputters are</span>
 <span class="sd">        not of the same type.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">ParallelInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">inputters</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">inputters</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">combine_features</span> <span class="o">=</span> <span class="n">combine_features</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">share_parameters</span> <span class="o">=</span> <span class="n">share_parameters</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">share_parameters</span><span class="p">:</span>
@@ -555,6 +548,13 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">training</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only training data can be configured to multiple files&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">parallel_datasets</span></div>
+
+<div class="viewcode-block" id="ParallelInputter.get_dataset_size"><a class="viewcode-back" href="../../../package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.get_dataset_size">[docs]</a>  <span class="k">def</span> <span class="nf">get_dataset_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">,</span> <span class="n">data_file</span><span class="p">):</span>
+      <span class="n">size</span> <span class="o">=</span> <span class="n">inputter</span><span class="o">.</span><span class="n">get_dataset_size</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">size</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="ParallelInputter.input_signature"><a class="viewcode-back" href="../../../package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.input_signature">[docs]</a>  <span class="k">def</span> <span class="nf">input_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_features</span><span class="p">:</span>
@@ -645,7 +645,7 @@
     <span class="k">else</span><span class="p">:</span>
       <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">:</span>
         <span class="n">inputter</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">ParallelInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ParallelInputter.call"><a class="viewcode-back" href="../../../package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">transformed</span> <span class="o">=</span> <span class="p">[</span>
@@ -672,7 +672,7 @@
 <span class="sd">      reducer: A :class:`opennmt.layers.Reducer` to merge all inputs.</span>
 <span class="sd">      dropout: The probability to drop units in the merged inputs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">MixedInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">inputters</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">inputters</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span></div>
 
 <div class="viewcode-block" id="MixedInputter.make_dataset"><a class="viewcode-back" href="../../../package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.make_dataset">[docs]</a>  <span class="k">def</span> <span class="nf">make_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -683,6 +683,13 @@
       <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;All inputters should use the same dataset in a MixedInputter setting&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MixedInputter.get_dataset_size"><a class="viewcode-back" href="../../../package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.get_dataset_size">[docs]</a>  <span class="k">def</span> <span class="nf">get_dataset_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">:</span>
+      <span class="n">size</span> <span class="o">=</span> <span class="n">inputter</span><span class="o">.</span><span class="n">get_dataset_size</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">size</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="MixedInputter.input_signature"><a class="viewcode-back" href="../../../package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.input_signature">[docs]</a>  <span class="k">def</span> <span class="nf">input_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">signature</span> <span class="o">=</span> <span class="p">{}</span>
@@ -704,7 +711,7 @@
 <div class="viewcode-block" id="MixedInputter.build"><a class="viewcode-back" href="../../../package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">:</span>
       <span class="n">inputter</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">MixedInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MixedInputter.call"><a class="viewcode-back" href="../../../package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">transformed</span> <span class="o">=</span> <span class="p">[]</span>
@@ -884,7 +891,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span> <span class="o">=</span> <span class="n">features_inputter</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span> <span class="o">=</span> <span class="n">labels_inputter</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">ExampleInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="p">],</span>
         <span class="n">share_parameters</span><span class="o">=</span><span class="n">share_parameters</span><span class="p">,</span>
         <span class="n">combine_features</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.tokenizers.opennmt_tokenizer &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.tokenizers.opennmt_tokenizer &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -202,6 +202,11 @@
     <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="s2">&quot;conservative&quot;</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">kwargs</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span> <span class="o">=</span> <span class="n">pyonmttok</span><span class="o">.</span><span class="n">Tokenizer</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+  <span class="nd">@property</span>
+  <span class="k">def</span> <span class="nf">opennmt_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The ``pyonmttok.Tokenizer`` instance.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span>
 
 <div class="viewcode-block" id="OpenNMTTokenizer.export_assets"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.OpenNMTTokenizer.html#opennmt.tokenizers.OpenNMTTokenizer.export_assets">[docs]</a>  <span class="k">def</span> <span class="nf">export_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="n">assets</span> <span class="o">=</span> <span class="p">{}</span>

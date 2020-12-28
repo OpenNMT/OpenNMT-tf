@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.language_model &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.models.language_model &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -210,12 +210,12 @@
 <span class="sd">      ValueError: if the decoder type is invalid.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">inputter</span> <span class="o">=</span> <span class="n">LanguageModelInputter</span><span class="p">(</span><span class="n">embedding_size</span><span class="o">=</span><span class="n">embedding_size</span><span class="p">)</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">LanguageModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">inputter</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">inputter</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span> <span class="o">=</span> <span class="n">decoder</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">reuse_embedding</span> <span class="o">=</span> <span class="n">reuse_embedding</span></div>
 
 <div class="viewcode-block" id="LanguageModel.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.auto_config">[docs]</a>  <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">LanguageModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">misc</span><span class="o">.</span><span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="p">{</span>
         <span class="s2">&quot;infer&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;length_bucket_width&quot;</span><span class="p">:</span> <span class="mi">1</span>  <span class="c1"># To ensure fixed length in each batch.</span>
@@ -223,11 +223,11 @@
     <span class="p">})</span></div>
 
 <div class="viewcode-block" id="LanguageModel.initialize"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">LanguageModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">vocab_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LanguageModel.build"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">LanguageModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reuse_embedding</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">reuse_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">)</span></div>
 
@@ -322,7 +322,7 @@
 <span class="sd">  &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="LanguageModelInputter.initialize"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">LanguageModelInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">)</span>
     <span class="c1"># Set default sequence controls for backward compatibility.</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mark_start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">mark_start</span> <span class="o">=</span> <span class="kc">False</span>
@@ -336,12 +336,12 @@
     <span class="c1"># we should disable the end sequence control token.</span>
     <span class="n">saved_mark_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mark_end</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">set_decoder_mode</span><span class="p">(</span><span class="n">enable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mark_end</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">features</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">LanguageModelInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
         <span class="n">element</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">base_features</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
 
     <span class="c1"># Labels define the decoder input/output sequences during training and evaluation.</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">set_decoder_mode</span><span class="p">(</span><span class="n">enable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mark_end</span><span class="o">=</span><span class="n">saved_mark_end</span><span class="p">)</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">LanguageModelInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
         <span class="n">element</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">base_features</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span></div></div>

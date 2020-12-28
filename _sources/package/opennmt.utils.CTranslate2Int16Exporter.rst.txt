@@ -1,0 +1,8 @@
+opennmt.utils.CTranslate2Int16Exporter
+======================================
+
+.. autoclass:: opennmt.utils.CTranslate2Int16Exporter
+    :members:
+    :undoc-members:
+
+    **Inherits from:** :class:`opennmt.utils.CTranslate2Exporter`

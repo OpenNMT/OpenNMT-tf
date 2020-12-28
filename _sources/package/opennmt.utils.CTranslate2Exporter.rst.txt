@@ -6,3 +6,9 @@ opennmt.utils.CTranslate2Exporter
     :undoc-members:
 
     **Inherits from:** :class:`opennmt.utils.Exporter`
+
+    **Extended by:**
+
+    - :class:`opennmt.utils.CTranslate2Float16Exporter`
+    - :class:`opennmt.utils.CTranslate2Int16Exporter`
+    - :class:`opennmt.utils.CTranslate2Int8Exporter`

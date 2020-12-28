@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Vocabulary &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>Vocabulary &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -103,9 +103,10 @@
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Vocabulary</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#building-vocabularies">Building vocabularies</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#from-tokenized-files">from tokenized files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#from-raw-files">from raw files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#from-sentencepiece-training">from SentencePiece training</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generate-a-vocabulary-from-tokenized-training-files">Generate a vocabulary from tokenized training files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generate-a-vocabulary-from-raw-training-files-with-on-the-fly-tokenization">Generate a vocabulary from raw training files with on-the-fly tokenization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#convert-a-sentencepiece-vocabulary-to-opennmt-tf">Convert a SentencePiece vocabulary to OpenNMT-tf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#train-a-sentencepiece-model-and-vocabulary-with-opennmt-tf">Train a SentencePiece model and vocabulary with OpenNMT-tf</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#configuring-vocabularies">Configuring vocabularies</a></li>
@@ -200,21 +201,28 @@
 <div class="section" id="building-vocabularies">
 <h2>Building vocabularies<a class="headerlink" href="#building-vocabularies" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> script can be used to generate vocabulary files in multiple ways:</p>
-<div class="section" id="from-tokenized-files">
-<h3>from tokenized files<a class="headerlink" href="#from-tokenized-files" title="Permalink to this headline">¶</a></h3>
-<p>The script can be run directly on tokenized files. For example the command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --size <span class="m">50000</span> --save_vocab vocab.txt train.txt.tok
+<div class="section" id="generate-a-vocabulary-from-tokenized-training-files">
+<h3>Generate a vocabulary from tokenized training files<a class="headerlink" href="#generate-a-vocabulary-from-tokenized-training-files" title="Permalink to this headline">¶</a></h3>
+<p>If your training data is already tokenized, you can build a vocabulary with the most frequent tokens. For example, the command below extracts the 50,000 most frequent tokens from the files <code class="docutils literal notranslate"><span class="pre">train.txt.tok</span></code> and <code class="docutils literal notranslate"><span class="pre">other.txt.tok</span></code> and saves them to <code class="docutils literal notranslate"><span class="pre">vocab.txt</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --save_vocab vocab.txt --size <span class="m">50000</span> train.txt.tok other.txt.tok
 </pre></div>
 </div>
-<p>extracts the 50,000 most frequent tokens from <code class="docutils literal notranslate"><span class="pre">train.txt.tok</span></code> and saves them to <code class="docutils literal notranslate"><span class="pre">vocab.txt</span></code>.</p>
+<p>Instead of defining a fixed size, you can also prune tokens that appear below a minimum frequency. See the <code class="docutils literal notranslate"><span class="pre">--min_frequency</span></code> option.</p>
 </div>
-<div class="section" id="from-raw-files">
-<h3>from raw files<a class="headerlink" href="#from-raw-files" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="generate-a-vocabulary-from-raw-training-files-with-on-the-fly-tokenization">
+<h3>Generate a vocabulary from raw training files with on-the-fly tokenization<a class="headerlink" href="#generate-a-vocabulary-from-raw-training-files-with-on-the-fly-tokenization" title="Permalink to this headline">¶</a></h3>
 <p>By default, <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> splits each line on spaces. It is possible to define a custom tokenization with the <code class="docutils literal notranslate"><span class="pre">--tokenizer_config</span></code> option. See <a class="reference internal" href="tokenization.html"><span class="doc">Tokenization</span></a> for more information.</p>
 </div>
-<div class="section" id="from-sentencepiece-training">
-<h3>from SentencePiece training<a class="headerlink" href="#from-sentencepiece-training" title="Permalink to this headline">¶</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> can also prepare a <a class="reference external" href="https://github.com/google/sentencepiece">SentencePiece</a> vocabulary and model from raw data. For example the command:</p>
+<div class="section" id="convert-a-sentencepiece-vocabulary-to-opennmt-tf">
+<h3>Convert a SentencePiece vocabulary to OpenNMT-tf<a class="headerlink" href="#convert-a-sentencepiece-vocabulary-to-opennmt-tf" title="Permalink to this headline">¶</a></h3>
+<p>If you trained a <a class="reference external" href="https://github.com/google/sentencepiece">SentencePiece</a> model, a vocabulary file was generated in the process. You can convert this vocabulary to work with OpenNMT-tf:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --from_vocab sp.vocab --from_format sentencepiece --save_vocab vocab.txt
+</pre></div>
+</div>
+</div>
+<div class="section" id="train-a-sentencepiece-model-and-vocabulary-with-opennmt-tf">
+<h3>Train a SentencePiece model and vocabulary with OpenNMT-tf<a class="headerlink" href="#train-a-sentencepiece-model-and-vocabulary-with-opennmt-tf" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> script can also train a new <a class="reference external" href="https://github.com/google/sentencepiece">SentencePiece</a> vocabulary and model from raw data. For example the command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --sentencepiece --size <span class="m">32000</span> --save_vocab sp train.txt.raw
 </pre></div>
 </div>
@@ -255,6 +263,7 @@
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
   <span class="nt">source_1_1_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_1_1_vocab.txt</span>
   <span class="nt">source_1_2_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_1_2_vocab.txt</span>
+  <span class="nt">source_2_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_2_vocab.txt</span>
 </pre></div>
 </div>
 <p><strong>Note:</strong> If you train a model with shared embeddings, you should still configure all vocabulary parameters but in this case they should simply point to the same vocabulary file.</p>

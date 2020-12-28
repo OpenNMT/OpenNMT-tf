@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parameters &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>Parameters &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -333,6 +333,8 @@
   <span class="nt">decay_params</span><span class="p">:</span>
     <span class="nt">model_dim</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">512</span>
     <span class="nt">warmup_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4000</span>
+  <span class="c1"># (optional) The number of training steps that make 1 decay step (default: 1).</span>
+  <span class="nt">decay_step_duration</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
   <span class="c1"># (optional) After how many steps to start the decay (default: 0).</span>
   <span class="nt">start_decay_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">50000</span>
 
@@ -472,8 +474,9 @@
 
   <span class="c1"># (optional) Export a model when a metric has the best value so far (default: null).</span>
   <span class="nt">export_on_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
-  <span class="c1"># (optional) Format of the exported model (can be: &quot;saved_model, &quot;ctranslate2&quot;,</span>
-  <span class="c1"># &quot;checkpoint&quot;, default: &quot;saved_model&quot;).</span>
+  <span class="c1"># (optional) Format of the exported model (can be: &quot;saved_model, &quot;checkpoint&quot;,</span>
+  <span class="c1"># &quot;ctranslate2&quot;, &quot;ctranslate2_int8&quot;, &quot;ctranslate2_int16&quot;, &quot;ctranslate2_float16&quot;,</span>
+  <span class="c1"># default: &quot;saved_model&quot;).</span>
   <span class="nt">export_format</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">saved_model</span>
   <span class="c1"># (optional) Maximum number of exports to keep on disk (default: 5).</span>
   <span class="nt">max_exports_to_keep</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>

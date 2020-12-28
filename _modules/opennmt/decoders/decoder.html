@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -259,7 +259,7 @@
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This decoder accepts between </span><span class="si">%d</span><span class="s2"> and </span><span class="si">%d</span><span class="s2"> source contexts, &quot;</span>
                        <span class="s2">&quot;but received </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
                            <span class="bp">self</span><span class="o">.</span><span class="n">minimum_sources</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_sources</span><span class="p">,</span> <span class="n">num_sources</span><span class="p">))</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">Decoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span> <span class="o">=</span> <span class="n">num_sources</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="kc">None</span>

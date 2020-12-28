@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.encoder &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.encoders.encoder &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -269,7 +269,7 @@
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of transition layers must match the number of encoder &quot;</span>
                        <span class="s2">&quot;transitions, expected </span><span class="si">%d</span><span class="s2"> layers but got </span><span class="si">%d</span><span class="s2">.&quot;</span>
                        <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">encoders</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">transition_layer_fn</span><span class="p">)))</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">SequentialEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">encoders</span> <span class="o">=</span> <span class="n">encoders</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">states_reducer</span> <span class="o">=</span> <span class="n">states_reducer</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">transition_layer_fn</span> <span class="o">=</span> <span class="n">transition_layer_fn</span></div>
@@ -343,7 +343,7 @@
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of output layers must match the number of encoders; &quot;</span>
                        <span class="s2">&quot;expected </span><span class="si">%d</span><span class="s2"> layers but got </span><span class="si">%d</span><span class="s2">.&quot;</span>
                        <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">encoders</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">outputs_layer_fn</span><span class="p">)))</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">ParallelEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">encoders</span> <span class="o">=</span> <span class="n">encoders</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">outputs_reducer</span> <span class="o">=</span> <span class="n">outputs_reducer</span> <span class="k">if</span> <span class="n">outputs_reducer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">JoinReducer</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">states_reducer</span> <span class="o">=</span> <span class="n">states_reducer</span> <span class="k">if</span> <span class="n">states_reducer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">JoinReducer</span><span class="p">()</span>

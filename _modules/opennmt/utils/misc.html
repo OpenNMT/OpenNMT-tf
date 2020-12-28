@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -226,37 +226,32 @@
 <span class="sd">    root_key: Key that was used to save :obj:`root`, if any.</span>
 
 <span class="sd">  Returns:</span>
-<span class="sd">    A dict mapping variables ref to names and a dict mapping variables name to</span>
-<span class="sd">    variables.</span>
+<span class="sd">    A dict mapping names to variables.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="c1"># TODO: find a way to implement this function using public APIs.</span>
-  <span class="n">named_variables</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">graph_view</span><span class="o">.</span><span class="n">ObjectGraphView</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">serialize_object_graph</span><span class="p">()</span>
-  <span class="n">variables_to_names</span> <span class="o">=</span> <span class="p">{}</span>
   <span class="n">names_to_variables</span> <span class="o">=</span> <span class="p">{}</span>
-  <span class="k">for</span> <span class="n">saveable_object</span> <span class="ow">in</span> <span class="n">named_variables</span><span class="p">:</span>
-    <span class="n">variable</span> <span class="o">=</span> <span class="n">saveable_object</span><span class="o">.</span><span class="n">op</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="s2">&quot;ref&quot;</span><span class="p">):</span>  <span class="c1"># Ignore non Tensor-like objects.</span>
+  <span class="n">_</span><span class="p">,</span> <span class="n">path_to_root</span> <span class="o">=</span> <span class="n">graph_view</span><span class="o">.</span><span class="n">ObjectGraphView</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">_breadth_first_traversal</span><span class="p">()</span>  <span class="c1"># pylint: disable=protected-access</span>
+  <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">path_to_root</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
       <span class="k">continue</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">saveable_object</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">variable</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ref</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">):</span>
+      <span class="k">continue</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">path</span><span class="p">),</span>
+        <span class="s2">&quot;.ATTRIBUTES/VARIABLE_VALUE&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">root_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">root_key</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-    <span class="n">variables_to_names</span><span class="p">[</span><span class="n">variable</span><span class="o">.</span><span class="n">ref</span><span class="p">()]</span> <span class="o">=</span> <span class="n">name</span>
     <span class="n">names_to_variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">variable</span>
-  <span class="k">return</span> <span class="n">variables_to_names</span><span class="p">,</span> <span class="n">names_to_variables</span>
+  <span class="k">return</span> <span class="n">names_to_variables</span>
 
 <span class="k">def</span> <span class="nf">get_variable_name</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">model_key</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Gets the variable name in the object-based representation.&quot;&quot;&quot;</span>
-  <span class="n">variables_to_names</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="n">model_key</span><span class="p">)</span>
-  <span class="c1"># In case of a MirroredVariable, look up the primary variable</span>
-  <span class="n">variable</span> <span class="o">=</span> <span class="n">get_primary_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">variables_to_names</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">ref</span><span class="p">())</span>
-
-<span class="k">def</span> <span class="nf">get_primary_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;If :obj:`variable` is distributed, returns the primary component.&quot;&quot;&quot;</span>
-  <span class="c1"># TODO: use a public API to get the primary variable.</span>
-  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">distribute</span><span class="o">.</span><span class="n">DistributedValues</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">variable</span><span class="o">.</span><span class="n">_primary</span>  <span class="c1"># pylint: disable=protected-access</span>
-  <span class="k">return</span> <span class="n">variable</span>
+  <span class="n">names_to_variables</span> <span class="o">=</span> <span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="n">model_key</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">names_to_variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">var</span> <span class="ow">is</span> <span class="n">variable</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">name</span>
+  <span class="k">return</span> <span class="kc">None</span>
 
 <span class="k">def</span> <span class="nf">print_as_bytes</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Prints a string as bytes to non rely on :obj:`stream` default encoding.</span>
@@ -520,8 +515,10 @@
   <span class="k">def</span> <span class="nf">_wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">previous_value</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">TF_ADDONS_PY_OPS</span>
     <span class="n">tfa</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">TF_ADDONS_PY_OPS</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="n">tfa</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">TF_ADDONS_PY_OPS</span> <span class="o">=</span> <span class="n">previous_value</span>
+    <span class="k">try</span><span class="p">:</span>
+      <span class="n">outputs</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+      <span class="n">tfa</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">TF_ADDONS_PY_OPS</span> <span class="o">=</span> <span class="n">previous_value</span>
     <span class="k">return</span> <span class="n">outputs</span>
 
   <span class="k">return</span> <span class="n">_wrapper</span>

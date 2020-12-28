@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.schedules.lr_schedules &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.schedules.lr_schedules &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -223,11 +223,11 @@
 
 <span class="sd">  Args:</span>
 <span class="sd">    initial_learning_rate: The initial learning rate value or scale.</span>
-<span class="sd">    schedule_type: The type of decay. A function from</span>
+<span class="sd">    schedule_type: The type of learning rate schedule. A class name from</span>
 <span class="sd">      ``tf.keras.optimizers.schedules``</span>
 <span class="sd">      or :mod:`opennmt.schedules` as a string.</span>
-<span class="sd">    schedule_params: Additional parameters for the decay function.</span>
-<span class="sd">    schedule_step_duration: The number of training steps that make 1 decay step.</span>
+<span class="sd">    schedule_params: Additional parameters passed to the schedule constructor.</span>
+<span class="sd">    schedule_step_duration: The number of training steps that make 1 schedule step.</span>
 <span class="sd">    start_step: Start the schedule after this many steps.</span>
 <span class="sd">    minimum_learning_rate: Do not decay past this learning rate value.</span>
 

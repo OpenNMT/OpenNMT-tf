@@ -1,0 +1,4 @@
+opennmt.utils.make_scorers
+==========================
+
+.. autofunction:: opennmt.utils.make_scorers

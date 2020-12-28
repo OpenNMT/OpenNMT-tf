@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Alignments &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>Alignments &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -104,7 +104,10 @@
 <li class="toctree-l1"><a class="reference internal" href="vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tokenization.html">Tokenization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Alignments</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Alignments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#alignments-and-transformer-models">Alignments and Transformer models</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
@@ -190,6 +193,7 @@
 
 <span class="nt">params</span><span class="p">:</span>
   <span class="nt">guided_alignment_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ce</span>
+  <span class="nt">guided_alignment_weight</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">train-alignment.txt</span></code> is a text file that uses the “Pharaoh” alignment format, e.g.:</p>
@@ -199,6 +203,10 @@
 </pre></div>
 </div>
 <p>where a pair <code class="docutils literal notranslate"><span class="pre">i-j</span></code> indicates that the <code class="docutils literal notranslate"><span class="pre">i</span></code>th word of the source sentence is aligned with the <code class="docutils literal notranslate"><span class="pre">j</span></code>th word of the target sentence (zero-indexed).</p>
+<div class="section" id="alignments-and-transformer-models">
+<h2>Alignments and Transformer models<a class="headerlink" href="#alignments-and-transformer-models" title="Permalink to this headline">¶</a></h2>
+<p>Since Transfomer models have multiple attention heads, training with guided alignment (see above) is required to get usable alignments. The current implementation will constrain and return <strong>the first attention head of the last decoder layer</strong>.</p>
+</div>
 </div>
 
 

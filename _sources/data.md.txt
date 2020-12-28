@@ -108,7 +108,7 @@ onmt.main [...] infer \
     --features_file test_source_1.records test_source_2.txt test_source_3.txt
 ```
 
-## Weighted inputs
+## Weighted dataset
 
 It is possible to configure multiple training data files and assign weights to each file:
 

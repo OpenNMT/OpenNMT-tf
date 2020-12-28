@@ -13,6 +13,10 @@ Classes
    opennmt.utils.BeamSearch
    opennmt.utils.BestSampler
    opennmt.utils.CTranslate2Exporter
+   opennmt.utils.CTranslate2Float16Exporter
+   opennmt.utils.CTranslate2Int16Exporter
+   opennmt.utils.CTranslate2Int8Exporter
+   opennmt.utils.CheckpointExporter
    opennmt.utils.DecodingResult
    opennmt.utils.DecodingStrategy
    opennmt.utils.Exporter
@@ -39,6 +43,7 @@ Functions
    opennmt.utils.format_translation_output
    opennmt.utils.guided_alignment_cost
    opennmt.utils.is_v1_checkpoint
+   opennmt.utils.make_scorers
    opennmt.utils.max_margin_loss
    opennmt.utils.register_exporter
    opennmt.utils.register_scorer

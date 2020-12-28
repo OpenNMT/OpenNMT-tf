@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_classifier &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.models.sequence_classifier &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -204,11 +204,11 @@
 <span class="sd">      ValueError: if :obj:`encoding` is invalid.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">example_inputter</span> <span class="o">=</span> <span class="n">inputters</span><span class="o">.</span><span class="n">ExampleInputter</span><span class="p">(</span><span class="n">inputter</span><span class="p">,</span> <span class="n">ClassInputter</span><span class="p">())</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">SequenceClassifier</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">example_inputter</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">example_inputter</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">encoder</span></div>
 
 <div class="viewcode-block" id="SequenceClassifier.build"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">SequenceClassifier</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SequenceClassifier.call"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -260,7 +260,7 @@
   <span class="sd">&quot;&quot;&quot;Reading class from a text file.&quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">ClassInputter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ClassInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.models.ClassInputter.html#opennmt.models.ClassInputter.make_features">[docs]</a>  <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

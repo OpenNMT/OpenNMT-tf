@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.Inputter &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.inputters.Inputter &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -223,7 +223,7 @@
 <dt id="opennmt.inputters.Inputter.asset_prefix">
 <em class="property">property </em><code class="sig-name descname">asset_prefix</code><a class="headerlink" href="#opennmt.inputters.Inputter.asset_prefix" title="Permalink to this definition">¶</a></dt>
 <dd><p>The asset prefix is used to differentiate resources of parallel inputters.
-The most basic examples are the “<a href="#id1"><span class="problematic" id="id2">source_</span></a>” and “<a href="#id3"><span class="problematic" id="id4">target_</span></a>” prefixes.</p>
+The most basic examples are the “source_” and “target_” prefixes.</p>
 <ul class="simple">
 <li><p>When reading the data configuration, the inputter will read fields that
 start with this prefix (e.g. “source_vocabulary”).</p></li>
@@ -359,7 +359,7 @@ inputter (e.g. &lt;s&gt; and/or &lt;/s&gt;).</p></li>
 <p>This is typically called in a data pipeline (such as <code class="docutils literal notranslate"><span class="pre">Dataset.map</span></code>).
 Common transformation includes tokenization, parsing, vocabulary lookup,
 etc.</p>
-<p>This method accept both a single <code class="xref py py-obj docutils literal notranslate"><span class="pre">element</span></code> from the dataset or a
+<p>This method accepts both a single <code class="xref py py-obj docutils literal notranslate"><span class="pre">element</span></code> from the dataset or a
 partially built dictionary of <code class="xref py py-obj docutils literal notranslate"><span class="pre">features</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

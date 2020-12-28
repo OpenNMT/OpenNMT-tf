@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Serving &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>Serving &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -229,11 +229,24 @@
 <div class="section" id="ctranslate2">
 <h2>CTranslate2<a class="headerlink" href="#ctranslate2" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https://github.com/OpenNMT/CTranslate2">CTranslate2</a> is an optimized inference engine for OpenNMT models that is typically faster, lighter, and more customizable than the TensorFlow runtime.</p>
-<p>Selected models can be exported to the CTranslate2 format directly from OpenNMT-tf. An additional <code class="docutils literal notranslate"><span class="pre">export_format</span></code> option should be configured to select this export type:</p>
+<p>Selected models can be exported to the CTranslate2 format directly from OpenNMT-tf by selecting the <code class="docutils literal notranslate"><span class="pre">ctranslate2</span></code> export format.</p>
+<p><strong>When using the <code class="docutils literal notranslate"><span class="pre">export</span></code> command line</strong>, the <code class="docutils literal notranslate"><span class="pre">--export_format</span></code> option should be set:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> <span class="nb">export</span> --export_dir ~/my-models/ende --export_format ctranslate2
 </pre></div>
 </div>
-<p>The same option is available in the <code class="docutils literal notranslate"><span class="pre">eval</span></code> block of the YAML configuration when exporting models during the training.</p>
+<p><strong>When using the automatic model evaluation and export during the training</strong>, the <code class="docutils literal notranslate"><span class="pre">export_format</span></code> option should be configured in the <code class="docutils literal notranslate"><span class="pre">eval</span></code> block of the YAML configuration:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span>
+  <span class="nt">external_evaluators</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
+  <span class="nt">export_on_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
+  <span class="nt">export_format</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ctranslate2</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://github.com/OpenNMT/CTranslate2#quantization-and-reduced-precision">Model quantization</a> can also be enabled by replacing <code class="docutils literal notranslate"><span class="pre">ctranslate2</span></code> by one of the following export types:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ctranslate2_int8</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ctranslate2_int16</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ctranslate2_float16</span></code></p></li>
+</ul>
 </div>
 </div>
 

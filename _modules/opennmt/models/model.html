@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.model &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.models.model &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -196,7 +196,7 @@
   <span class="sd">&quot;&quot;&quot;Base class for models.&quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">examples_inputter</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span> <span class="o">=</span> <span class="n">examples_inputter</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -399,6 +399,7 @@
           <span class="n">learning_rate</span><span class="p">,</span>
           <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_type&quot;</span><span class="p">],</span>
           <span class="n">schedule_params</span><span class="o">=</span><span class="n">schedule_params</span><span class="p">,</span>
+          <span class="n">schedule_step_duration</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_step_duration&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
           <span class="n">start_step</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_decay_steps&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
           <span class="n">minimum_learning_rate</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minimum_learning_rate&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
     <span class="n">optimizer_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;optimizer_params&quot;</span><span class="p">)</span>

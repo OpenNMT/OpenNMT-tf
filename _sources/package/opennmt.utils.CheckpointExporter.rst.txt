@@ -1,0 +1,8 @@
+opennmt.utils.CheckpointExporter
+================================
+
+.. autoclass:: opennmt.utils.CheckpointExporter
+    :members:
+    :undoc-members:
+
+    **Inherits from:** :class:`opennmt.utils.Exporter`

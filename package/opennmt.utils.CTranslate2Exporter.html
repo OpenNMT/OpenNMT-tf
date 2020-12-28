@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.CTranslate2Exporter &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.utils.CTranslate2Exporter &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -39,7 +39,7 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.utils.DecodingResult" href="opennmt.utils.DecodingResult.html" />
+    <link rel="next" title="opennmt.utils.CTranslate2Float16Exporter" href="opennmt.utils.CTranslate2Float16Exporter.html" />
     <link rel="prev" title="opennmt.utils.BestSampler" href="opennmt.utils.BestSampler.html" /> 
 </head>
 
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -213,6 +213,12 @@
 <em class="property">class </em><code class="sig-prename descclassname">opennmt.utils.</code><code class="sig-name descname">CTranslate2Exporter</code><span class="sig-paren">(</span><em class="sig-param">quantization=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/exporters.html#CTranslate2Exporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.CTranslate2Exporter" title="Permalink to this definition">¶</a></dt>
 <dd><p>CTranslate2 exporter.</p>
 <p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.utils.Exporter.html#opennmt.utils.Exporter" title="opennmt.utils.Exporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.Exporter</span></code></a></p>
+<p><strong>Extended by:</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="opennmt.utils.CTranslate2Float16Exporter.html#opennmt.utils.CTranslate2Float16Exporter" title="opennmt.utils.CTranslate2Float16Exporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.CTranslate2Float16Exporter</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.utils.CTranslate2Int16Exporter.html#opennmt.utils.CTranslate2Int16Exporter" title="opennmt.utils.CTranslate2Int16Exporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.CTranslate2Int16Exporter</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.utils.CTranslate2Int8Exporter.html#opennmt.utils.CTranslate2Int8Exporter" title="opennmt.utils.CTranslate2Int8Exporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.CTranslate2Int8Exporter</span></code></a></p></li>
+</ul>
 <dl class="method">
 <dt id="opennmt.utils.CTranslate2Exporter.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">quantization=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/exporters.html#CTranslate2Exporter.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.CTranslate2Exporter.__init__" title="Permalink to this definition">¶</a></dt>
@@ -220,7 +226,13 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>quantization</strong> – Quantize model weights to this type when exporting the model.
-Can be “int16” or “int8”. Default is no quantization.</p>
+Can be “int8”, “int16”, or “float16”. Default is no quantization.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ImportError</strong> – if the CTranslate2 package is missing.</p></li>
+<li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">quantization</span></code> is invalid.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -237,7 +249,7 @@ Can be “int16” or “int8”. Default is no quantization.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.utils.DecodingResult.html" class="btn btn-neutral float-right" title="opennmt.utils.DecodingResult" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.utils.CTranslate2Float16Exporter.html" class="btn btn-neutral float-right" title="opennmt.utils.CTranslate2Float16Exporter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="opennmt.utils.BestSampler.html" class="btn btn-neutral float-left" title="opennmt.utils.BestSampler" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

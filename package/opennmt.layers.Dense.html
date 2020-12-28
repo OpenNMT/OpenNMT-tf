@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.Dense &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.layers.Dense &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -256,7 +256,7 @@ matrix.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – Variable name.</p></li>
 <li><p><strong>shape</strong> – Variable shape. Defaults to scalar if unspecified.</p></li>
-<li><p><strong>dtype</strong> – The type of the variable. Defaults to <cite>self.dtype</cite> or <cite>float32</cite>.</p></li>
+<li><p><strong>dtype</strong> – The type of the variable. Defaults to <cite>self.dtype</cite>.</p></li>
 <li><p><strong>initializer</strong> – Initializer instance (callable).</p></li>
 <li><p><strong>regularizer</strong> – Regularizer instance (callable).</p></li>
 <li><p><strong>trainable</strong> – Boolean, whether the variable should be part of the layer’s
@@ -265,7 +265,6 @@ or “non_trainable_variables” (e.g. BatchNorm mean and variance).
 Note that <cite>trainable</cite> cannot be <cite>True</cite> if <cite>synchronization</cite>
 is set to <cite>ON_READ</cite>.</p></li>
 <li><p><strong>constraint</strong> – Constraint instance (callable).</p></li>
-<li><p><strong>partitioner</strong> – Partitioner to be passed to the <cite>Trackable</cite> API.</p></li>
 <li><p><strong>use_resource</strong> – Whether to use <cite>ResourceVariable</cite>.</p></li>
 <li><p><strong>synchronization</strong> – Indicates when a distributed a variable will be
 aggregated. Accepted values are constants defined in the class
@@ -281,17 +280,11 @@ Accepted values are constants defined in the class
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The created variable. Usually either a <cite>Variable</cite> or <cite>ResourceVariable</cite>
-instance. If <cite>partitioner</cite> is not <cite>None</cite>, a <cite>PartitionedVariable</cite>
-instance is returned.</p>
+<dd class="field-even"><p>The variable created.</p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>RuntimeError</strong> – If called with partitioned variable regularization and
-    eager execution is enabled.</p></li>
-<li><p><strong>ValueError</strong> – When giving unsupported dtype and no initializer or when
-    trainable has been set to True with synchronization set as <cite>ON_READ</cite>.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>ValueError</strong> – When giving unsupported dtype and no initializer or when
+    trainable has been set to True with synchronization set as <cite>ON_READ</cite>.</p>
 </dd>
 </dl>
 </dd></dl>

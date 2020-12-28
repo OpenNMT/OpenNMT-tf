@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.ParallelInputter &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.inputters.ParallelInputter &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -258,6 +258,24 @@ inputs but <code class="docutils literal notranslate"><span class="pre">False</s
 </dd></dl>
 
 <dl class="method">
+<dt id="opennmt.inputters.ParallelInputter.get_dataset_size">
+<code class="sig-name descname">get_dataset_size</code><span class="sig-paren">(</span><em class="sig-param">data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.get_dataset_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the dataset size.</p>
+<p>If the inputter can efficiently compute the dataset size from a training
+file on disk, it can optionally override this method. Otherwise, we may
+compute the size later with a generic and slower approach (iterating over
+the dataset instance).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data_file</strong> – The data file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The dataset size or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="opennmt.inputters.ParallelInputter.input_signature">
 <code class="sig-name descname">input_signature</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.input_signature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.input_signature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the input signature of this inputter.</p>
@@ -288,7 +306,7 @@ inputter (e.g. &lt;s&gt; and/or &lt;/s&gt;).</p></li>
 <p>This is typically called in a data pipeline (such as <code class="docutils literal notranslate"><span class="pre">Dataset.map</span></code>).
 Common transformation includes tokenization, parsing, vocabulary lookup,
 etc.</p>
-<p>This method accept both a single <code class="xref py py-obj docutils literal notranslate"><span class="pre">element</span></code> from the dataset or a
+<p>This method accepts both a single <code class="xref py py-obj docutils literal notranslate"><span class="pre">element</span></code> from the dataset or a
 partially built dictionary of <code class="xref py py-obj docutils literal notranslate"><span class="pre">features</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

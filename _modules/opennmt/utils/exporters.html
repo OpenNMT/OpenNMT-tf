@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -248,13 +248,13 @@
     <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="n">signatures</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">serve_function</span><span class="p">())</span></div>
 
 
-<span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;checkpoint&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="CheckpointExporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CheckpointExporter.html#opennmt.utils.CheckpointExporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;checkpoint&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">CheckpointExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Checkpoint exporter.&quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">_export_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
     <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Checkpoint</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
-    <span class="n">checkpoint</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="s2">&quot;ckpt&quot;</span><span class="p">))</span>
+    <span class="n">checkpoint</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="s2">&quot;ckpt&quot;</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="CTranslate2Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Exporter.html#opennmt.utils.CTranslate2Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ctranslate2&quot;</span><span class="p">)</span>
@@ -266,10 +266,18 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">      quantization: Quantize model weights to this type when exporting the model.</span>
-<span class="sd">        Can be &quot;int16&quot; or &quot;int8&quot;. Default is no quantization.</span>
+<span class="sd">        Can be &quot;int8&quot;, &quot;int16&quot;, or &quot;float16&quot;. Default is no quantization.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ImportError: if the CTranslate2 package is missing.</span>
+<span class="sd">      ValueError: if :obj:`quantization` is invalid.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Fail now if ctranslate2 package is missing.</span>
     <span class="kn">import</span> <span class="nn">ctranslate2</span>  <span class="c1"># pylint: disable=import-outside-toplevel,unused-import</span>
+    <span class="n">accepted_quantization</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;int8&quot;</span><span class="p">,</span> <span class="s2">&quot;int16&quot;</span><span class="p">,</span> <span class="s2">&quot;float16&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">quantization</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">quantization</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">accepted_quantization</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid quantization &#39;</span><span class="si">%s</span><span class="s2">&#39; for CTranslate2, accepted values are: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+          <span class="n">quantization</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">accepted_quantization</span><span class="p">)))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_quantization</span> <span class="o">=</span> <span class="n">quantization</span></div>
 
   <span class="k">def</span> <span class="nf">_export_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
@@ -278,7 +286,7 @@
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model does not define an equivalent CTranslate2 model specification&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
       <span class="n">model</span><span class="o">.</span><span class="n">create_variables</span><span class="p">()</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">variables</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
     <span class="n">variables</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/.ATTRIBUTES/VARIABLE_VALUE&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span><span class="n">value</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
@@ -288,6 +296,27 @@
         <span class="n">tgt_vocab</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
         <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span>
     <span class="n">converter</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="n">model_spec</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_quantization</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CTranslate2Int8Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Int8Exporter.html#opennmt.utils.CTranslate2Int8Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ctranslate2_int8&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CTranslate2Int8Exporter</span><span class="p">(</span><span class="n">CTranslate2Exporter</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;CTranslate2 exporter with int8 quantization.&quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;int8&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CTranslate2Int16Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Int16Exporter.html#opennmt.utils.CTranslate2Int16Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ctranslate2_int16&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CTranslate2Int16Exporter</span><span class="p">(</span><span class="n">CTranslate2Exporter</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;CTranslate2 exporter with int16 quantization.&quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;int16&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CTranslate2Float16Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Float16Exporter.html#opennmt.utils.CTranslate2Float16Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ctranslate2_float16&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CTranslate2Float16Exporter</span><span class="p">(</span><span class="n">CTranslate2Exporter</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;CTranslate2 exporter with float16 quantization.&quot;&quot;&quot;</span>
+  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;float16&quot;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.common &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.layers.common &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -214,7 +214,7 @@
 <span class="sd">      transpose: Whether :obj:`weight` should be transposed or not.</span>
 <span class="sd">      kwargs: Additional layers arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">Dense</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="n">transpose</span><span class="o">=</span><span class="n">transpose</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Dense.set_kernel"><a class="viewcode-back" href="../../../package/opennmt.layers.Dense.html#opennmt.layers.Dense.set_kernel">[docs]</a>  <span class="k">def</span> <span class="nf">set_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">transpose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -235,7 +235,7 @@
 <div class="viewcode-block" id="Dense.add_weight"><a class="viewcode-back" href="../../../package/opennmt.layers.Dense.html#opennmt.layers.Dense.add_weight">[docs]</a>  <span class="k">def</span> <span class="nf">add_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;kernel&quot;</span><span class="p">:</span>
       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span>
-    <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">Dense</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Dense.call"><a class="viewcode-back" href="../../../package/opennmt.layers.Dense.html#opennmt.layers.Dense.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">shape_list</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
@@ -293,7 +293,7 @@
 <span class="sd">        compatible).</span>
 <span class="sd">      kwargs: Additional layer arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">LayerWrapper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">layer</span> <span class="o">=</span> <span class="n">layer</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">input_layer_norm</span> <span class="o">=</span> <span class="n">LayerNorm</span><span class="p">()</span> <span class="k">if</span> <span class="n">normalize_input</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">output_layer_norm</span> <span class="o">=</span> <span class="n">LayerNorm</span><span class="p">()</span> <span class="k">if</span> <span class="n">normalize_output</span> <span class="k">else</span> <span class="kc">None</span>
@@ -339,7 +339,7 @@
         <span class="s2">&quot;output_dropout&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dropout</span><span class="p">,</span>
         <span class="s2">&quot;residual_connection&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">residual_connection</span>
     <span class="p">}</span>
-    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">LayerWrapper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+    <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
     <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">base_config</span><span class="o">.</span><span class="n">items</span><span class="p">())</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span></div>
 
 <div class="viewcode-block" id="LayerWrapper.from_config"><a class="viewcode-back" href="../../../package/opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper.from_config">[docs]</a>  <span class="nd">@classmethod</span>

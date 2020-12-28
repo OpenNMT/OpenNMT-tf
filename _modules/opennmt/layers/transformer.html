@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -309,7 +309,7 @@
 <span class="sd">        transformations.</span>
 <span class="sd">      kwargs: Additional layer arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">FeedForwardNetwork</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">inner</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">inner_dim</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">activation</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">outer</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">output_dim</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span></div>
@@ -353,7 +353,7 @@
 <span class="sd">        (from https://arxiv.org/abs/1803.02155).</span>
 <span class="sd">      kwargs: Additional layer arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">MultiHeadAttention</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">num_units</span> <span class="o">%</span> <span class="n">num_heads</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Multi head attention requires that num_units is a&quot;</span>
                        <span class="s2">&quot; multiple of </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">num_heads</span><span class="p">)</span>
@@ -398,7 +398,7 @@
           <span class="n">name</span><span class="o">=</span><span class="s2">&quot;relative_position_keys&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">relative_repr_shape</span><span class="p">)</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">relative_position_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
           <span class="n">name</span><span class="o">=</span><span class="s2">&quot;relative_position_values&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">relative_repr_shape</span><span class="p">)</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">MultiHeadAttention</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MultiHeadAttention.call"><a class="viewcode-back" href="../../../package/opennmt.layers.MultiHeadAttention.html#opennmt.layers.MultiHeadAttention.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
     <span class="sd">&quot;&quot;&quot;Runs the layer.</span>
@@ -503,7 +503,7 @@
 <span class="sd">      output_dropout: The dropout to apply on the layer output.</span>
 <span class="sd">      **kwargs: Additional layer arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">TransformerLayerWrapper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="n">layer</span><span class="p">,</span>
         <span class="n">normalize_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">output_dropout</span><span class="o">=</span><span class="n">output_dropout</span><span class="p">,</span>
@@ -547,7 +547,7 @@
 <span class="sd">        (from https://arxiv.org/abs/1803.02155).</span>
 <span class="sd">      kwargs: Additional layer arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">SelfAttentionEncoderLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span> <span class="o">=</span> <span class="n">MultiHeadAttention</span><span class="p">(</span>
         <span class="n">num_heads</span><span class="p">,</span>
         <span class="n">num_units</span><span class="p">,</span>
@@ -608,7 +608,7 @@
 <span class="sd">        (from https://arxiv.org/abs/1803.02155).</span>
 <span class="sd">      **kwargs: Additional layer arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">(</span><span class="n">SelfAttentionDecoderLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span> <span class="o">=</span> <span class="n">MultiHeadAttention</span><span class="p">(</span>
         <span class="n">num_heads</span><span class="p">,</span>
         <span class="n">num_units</span><span class="p">,</span>

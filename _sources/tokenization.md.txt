@@ -27,7 +27,7 @@ params:
 OpenNMT-tf also defines additional tokenizers:
 
 * `CharacterTokenizer`
-* `SpaceTokenizer`
+* `SpaceTokenizer` (default tokenizer)
 
 ## Offline tokenization
 

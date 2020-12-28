@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.MultiInputter &mdash; OpenNMT-tf 2.13.0 documentation</title>
+  <title>opennmt.inputters.MultiInputter &mdash; OpenNMT-tf 2.14.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.13
+                2.14
               </div>
             
           
@@ -222,7 +222,7 @@
 <dt id="opennmt.inputters.MultiInputter.asset_prefix">
 <em class="property">property </em><code class="sig-name descname">asset_prefix</code><a class="headerlink" href="#opennmt.inputters.MultiInputter.asset_prefix" title="Permalink to this definition">¶</a></dt>
 <dd><p>The asset prefix is used to differentiate resources of parallel inputters.
-The most basic examples are the “<a href="#id1"><span class="problematic" id="id2">source_</span></a>” and “<a href="#id3"><span class="problematic" id="id4">target_</span></a>” prefixes.</p>
+The most basic examples are the “source_” and “target_” prefixes.</p>
 <ul class="simple">
 <li><p>When reading the data configuration, the inputter will read fields that
 start with this prefix (e.g. “source_vocabulary”).</p></li>
@@ -281,24 +281,6 @@ by the user.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> instance or a list of <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> instances.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.inputters.MultiInputter.get_dataset_size">
-<code class="sig-name descname">get_dataset_size</code><span class="sig-paren">(</span><em class="sig-param">data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#MultiInputter.get_dataset_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.MultiInputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the dataset size.</p>
-<p>If the inputter can efficiently compute the dataset size from a training
-file on disk, it can optionally override this method. Otherwise, we may
-compute the size later with a generic and slower approach (iterating over
-the dataset instance).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data_file</strong> – The data file.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The dataset size or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
