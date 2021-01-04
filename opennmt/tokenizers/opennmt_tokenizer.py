@@ -23,6 +23,11 @@ class OpenNMTTokenizer(tokenizer.Tokenizer):
     self._tokenizer = pyonmttok.Tokenizer(**kwargs)
 
   @property
+  def config(self):
+    """The tokenization configuration."""
+    return self._config.copy()
+
+  @property
   def opennmt_tokenizer(self):
     """The ``pyonmttok.Tokenizer`` instance."""
     return self._tokenizer
