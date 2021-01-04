@@ -2,12 +2,16 @@
 
 import argparse
 
+import tensorflow as tf
+
 from opennmt import constants
 from opennmt import tokenizers
 from opennmt import data
 
 
 def main():
+  tf.get_logger().setLevel("INFO")
+
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
       "data", nargs="*",
@@ -74,20 +78,37 @@ def main():
         tokenizer_type = tokenizer.__class__.__name__
         raise ValueError("Only tokenizer type 'OpenNMTTokenizer' can be used as a SentencePiece "
                          "pre-tokenization, got tokenizer type '%s' instead." % tokenizer_type)
-      tokenizer = tokenizer.opennmt_tokenizer
     else:
       tokenizer = None
 
     sp_params = dict(map(lambda arg: tuple(arg.split("=")), args.sentencepiece))
     sp_trainer = pyonmttok.SentencePieceLearner(
-        tokenizer=tokenizer, keep_vocab=True, vocab_size=vocab_size, **sp_params)
+        tokenizer=tokenizer.opennmt_tokenizer if tokenizer is not None else None,
+        keep_vocab=True,
+        vocab_size=vocab_size,
+        **sp_params)
 
     for data_file in args.data:
       sp_trainer.ingest_file(data_file)
     sp_trainer.learn(args.save_vocab, verbose=True)
 
-    args.save_vocab = args.save_vocab + ".vocab"
-    vocab.load(args.save_vocab, file_format="sentencepiece")
+    model_path = args.save_vocab + ".model"
+    vocab_path = args.save_vocab + ".vocab"
+
+    if tokenizer is None:
+      tf.get_logger().info("Converting SentencePiece vocabulary to OpenNMT-tf format...")
+      vocab.load(vocab_path, file_format="sentencepiece")
+    else:
+      tf.get_logger().info(
+          "Applying SentencePiece model on data and extracting the %d most frequent tokens...",
+          vocab_size)
+      tokenizer = tokenizers.OpenNMTTokenizer(sp_model_path=model_path, **tokenizer.config)
+      for data_file in args.data:
+        vocab.add_from_text(data_file, tokenizer=tokenizer)
+      vocab = vocab.prune(max_size=vocab_size)
+
+    vocab.serialize(vocab_path)
+
   else:
     if args.from_vocab is not None:
       vocab.load(args.from_vocab, file_format=args.from_format)
@@ -96,8 +117,7 @@ def main():
       vocab.add_from_text(data_file, tokenizer=tokenizer)
     vocab = vocab.prune(max_size=args.size, min_frequency=args.min_frequency)
     vocab.pad_to_multiple(args.size_multiple, num_oov_buckets=num_oov_buckets)
-
-  vocab.serialize(args.save_vocab)
+    vocab.serialize(args.save_vocab)
 
 
 if __name__ == "__main__":
