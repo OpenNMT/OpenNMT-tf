@@ -7,7 +7,7 @@ However, OpenNMT-tf provides tokenization tools based on the OpenNMT [Tokenizer]
 * *offline*: use the provided scripts to manually tokenize the text files before the execution and manually detokenize the output for evaluation
 * *online*: configure the execution to apply tokenization and detokenization on-the-fly
 
-*Note: the `pyonmttok` package is only available on Linux as of now.*
+*Note: the `pyonmttok` package is currently not available on Windows.*
 
 ## Configuration files
 
