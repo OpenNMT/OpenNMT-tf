@@ -3,7 +3,6 @@
 import argparse
 
 import tensorflow as tf
-tf.get_logger().setLevel("INFO")
 
 from opennmt import constants
 from opennmt import tokenizers
@@ -11,6 +10,8 @@ from opennmt import data
 
 
 def main():
+  tf.get_logger().setLevel("INFO")
+
   parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument(
       "data", nargs="*",
