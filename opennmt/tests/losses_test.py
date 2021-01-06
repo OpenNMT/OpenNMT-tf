@@ -7,6 +7,47 @@ from opennmt.utils import losses
 
 class LossesTest(tf.test.TestCase):
 
+  def testCrossEntropySequenceLoss(self):
+    logits = tf.constant([
+        [[0.1, 0.2, 0.9], [-1.2, 2.1, 0], [0.6, 0.3, 0.4]],
+        [[-2.2, -0.2, -1.2], [2.3, 0.2, -0.1], [0.0, 0.1, 0.7]]])
+    labels = tf.constant([[2, 1, 0], [1, 0, 2]], dtype=tf.int32)
+
+    loss, training_norm, stats_norm = losses.cross_entropy_sequence_loss(
+        logits, labels, training=True)
+    self.assertNear(loss, 3.06985, 1e-5)
+    self.assertEqual(training_norm, 2)
+    self.assertEqual(stats_norm, 6)
+
+    _, training_norm, stats_norm = losses.cross_entropy_sequence_loss(
+        logits, labels, average_in_time=True, training=True)
+    self.assertEqual(training_norm, 6)
+    self.assertEqual(stats_norm, 6)
+
+  def testMaskedCrossEntropySequenceLoss(self):
+    logits = tf.constant([
+        [[0.1, 0.2, 0.9], [-1.2, 2.1, 0], [0.6, 0.3, 0.4]],
+        [[-2.2, -0.2, -1.2], [2.3, 0.2, -0.1], [0.0, 0.1, 0.7]]])
+    labels = tf.constant([[2, 1, 0], [1, 0, 2]], dtype=tf.int32)
+    lengths = tf.constant([2, 1], dtype=tf.int32)
+
+    loss, _, stats_norm = losses.cross_entropy_sequence_loss(
+        logits, labels, sequence_length=lengths, training=True)
+    self.assertNear(loss, 1.22118, 1e-5)
+    self.assertEqual(stats_norm, 3)
+
+  def testWeightedAndMaskedCrossEntropySequenceLoss(self):
+    logits = tf.constant([
+        [[0.1, 0.2, 0.9], [-1.2, 2.1, 0], [0.6, 0.3, 0.4]],
+        [[-2.2, -0.2, -1.2], [2.3, 0.2, -0.1], [0.0, 0.1, 0.7]]])
+    labels = tf.constant([[2, 1, 0], [1, 0, 2]], dtype=tf.int32)
+    lengths = tf.constant([3, 2], dtype=tf.int32)
+    weights = tf.constant([0.6, 1.2])
+
+    loss, _, _ = losses.cross_entropy_sequence_loss(
+        logits, labels, sequence_length=lengths, sequence_weight=weights, training=True)
+    self.assertNear(loss, 1.77306, 1e-5)
+
   @parameterized.expand([
       ["l1", 1e-4],
       ["L1", 1e-4],

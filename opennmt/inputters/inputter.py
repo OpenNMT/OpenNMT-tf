@@ -697,16 +697,28 @@ class ExampleInputterAdapter:
     return dataset
 
 
+def _register_example_weight(features, labels, weight):
+  labels["weight"] = tf.strings.to_number(weight)
+  return features, labels
+
+
 class ExampleInputter(ParallelInputter, ExampleInputterAdapter):
   """An inputter that returns training examples (parallel features and labels)."""
 
-  def __init__(self, features_inputter, labels_inputter, share_parameters=False):
+  def __init__(self,
+               features_inputter,
+               labels_inputter,
+               share_parameters=False,
+               accepted_annotations=None):
     """Initializes this inputter.
 
     Args:
       features_inputter: An inputter producing the features (source).
       labels_inputter: An inputter producing the labels (target).
       share_parameters: Share the inputters parameters.
+      accepted_annotations: An optional dictionary mapping annotation names in
+        the data configuration (e.g. "train_alignments") to a callable with
+        signature ``(features, labels, annotations) -> (features, labels)``.
     """
     self.features_inputter = features_inputter
     self.labels_inputter = labels_inputter
@@ -717,6 +729,63 @@ class ExampleInputter(ParallelInputter, ExampleInputterAdapter):
     # Set a meaningful prefix for source and target.
     self.features_inputter.asset_prefix = "source_"
     self.labels_inputter.asset_prefix = "target_"
+
+    self.accepted_annotations = accepted_annotations or {}
+    self.accepted_annotations["example_weights"] = _register_example_weight
+    self.annotation_files = {}
+
+  def initialize(self, data_config):
+    super().initialize(data_config)
+
+    # Check if some accepted annotations are defined in the data configuration.
+    for annotation in self.accepted_annotations.keys():
+      path = data_config.get(annotation)
+      if path is not None:
+        self.annotation_files[annotation] = path
+
+  def make_dataset(self, data_file, training=None):
+    dataset = super().make_dataset(data_file, training=training)
+    if not training or not self.annotation_files:
+      return dataset
+
+    # Some annotations are configured and should be zipped to the training dataset.
+    all_annotation_datasets = tf.nest.map_structure(tf.data.TextLineDataset, self.annotation_files)
+
+    # Common case of a non-weighted dataset.
+    if not isinstance(dataset, list):
+      return tf.data.Dataset.zip({"examples": dataset, **all_annotation_datasets})
+
+    # Otherwise, there should be as many annotations datasets as input datasets.
+    datasets = dataset
+    for name, annotation_datasets in all_annotation_datasets.items():
+      num_annotation_datasets = (
+          len(annotation_datasets) if isinstance(annotation_datasets, list) else 1)
+      if num_annotation_datasets != len(datasets):
+        raise ValueError("%d '%s' files were provided, but %d were expected to match the "
+                         "number of data files" % (num_annotation_datasets, name, len(datasets)))
+
+    # Convert dict of lists to list of dicts.
+    all_annotation_datasets = [
+        dict(zip(all_annotation_datasets, t)) for t in zip(*all_annotation_datasets.values())]
+
+    return [
+        tf.data.Dataset.zip({"examples": dataset, **annotation_datasets})
+        for dataset, annotation_datasets in zip(datasets, all_annotation_datasets)]
+
+  def make_features(self, element=None, features=None, training=None):
+    if training and self.annotation_files:
+      annotations = element.copy()
+      example = annotations.pop("examples")
+    else:
+      annotations = {}
+      example = element
+
+    features, labels = super().make_features(element=example, features=features, training=training)
+
+    # Load each annotation into the features and labels dict.
+    for name, annotation in annotations.items():
+      features, labels = self.accepted_annotations[name](features, labels, annotation)
+    return features, labels
 
   def make_inference_dataset(self,
                              features_file,
