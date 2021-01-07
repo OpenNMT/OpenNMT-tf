@@ -22,7 +22,8 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
-    "sphinx.ext.githubpages"]
+    "sphinx.ext.githubpages",
+]
 
 source_suffix = [".rst", ".md"]
 exclude_patterns = ["README.md"]
@@ -40,5 +41,6 @@ autodoc_member_order = "bysource"
 napoleon_include_init_with_doc = True
 napoleon_include_special_with_doc = True
 
+
 def setup(app):
-  app.add_stylesheet("custom.css")
+    app.add_stylesheet("custom.css")

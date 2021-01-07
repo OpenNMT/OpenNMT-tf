@@ -3,15 +3,18 @@ import os
 from setuptools import setup, find_packages
 
 tests_require = [
-    "pylint==2.4.*",
+    "black==20.8b1",
+    "flake8==3.8.*",
     "parameterized",
-    "pytest-cov"
+    "pytest-cov",
 ]
+
 
 def get_long_description():
     readme_path = os.path.join(os.path.dirname(__file__), "README.md")
     with open(readme_path, encoding="utf-8") as readme_file:
         return readme_file.read()
+
 
 setup(
     name="OpenNMT-tf",
@@ -34,16 +37,16 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence"
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
     project_urls={
         "Documentation": "https://opennmt.net/OpenNMT-tf/",
         "Forum": "https://forum.opennmt.net/",
         "Gitter": "https://gitter.im/OpenNMT/OpenNMT-tf",
-        "Source": "https://github.com/OpenNMT/OpenNMT-tf/"
+        "Source": "https://github.com/OpenNMT/OpenNMT-tf/",
     },
     keywords="tensorflow opennmt nmt neural machine translation",
-    python_requires='>=3.5',
+    python_requires=">=3.5",
     install_requires=[
         "ctranslate2>=1.7,<2;platform_system=='Linux'",
         "pyonmttok>=1.23.0,<2;platform_system=='Linux' or platform_system=='Darwin'",
@@ -67,5 +70,5 @@ setup(
             "onmt-merge-config=opennmt.bin.merge_config:main",
             "onmt-tokenize-text=opennmt.bin.tokenize_text:main",
         ],
-    }
+    },
 )

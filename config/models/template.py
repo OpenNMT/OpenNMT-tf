@@ -4,10 +4,11 @@
 import tensorflow as tf
 import opennmt as onmt
 
-def model():
-  """Builds a model.
 
-  Returns:
-    A `opennmt.models.Model`.
-  """
-  pass
+def model():
+    """Builds a model.
+
+    Returns:
+      A `opennmt.models.Model`.
+    """
+    pass
