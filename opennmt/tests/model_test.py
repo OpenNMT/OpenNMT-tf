@@ -28,7 +28,7 @@ def _seq2seq_model(training=None):
 
 class ModelTest(tf.test.TestCase):
 
-  def _makeToyEnDeData(self, with_alignments=False):
+  def _makeToyEnDeData(self, with_alignments=False, with_weights=False):
     data_config = {}
     features_file = test_util.make_data_file(
         os.path.join(self.get_temp_dir(), "src.txt"),
@@ -55,10 +55,13 @@ class ModelTest(tf.test.TestCase):
     if with_alignments:
       # Dummy and incomplete alignments.
       data_config["train_alignments"] = test_util.make_data_file(
-          os.path.join(self.get_temp_dir(), "aligne.txt"),
+          os.path.join(self.get_temp_dir(), "alignments.txt"),
           ["0-0 1-0 2-2 3-4 4-4 5-6",
            "0-1 1-1 1-3 2-3 4-4",
            "0-0 1-0 2-2 3-4 4-4 5-6"])
+    if with_weights:
+      data_config["example_weights"] = test_util.make_data_file(
+          os.path.join(self.get_temp_dir(), "weights.txt"), ["0.6", "1", "1e-2"])
     return features_file, labels_file, data_config
 
   def _makeToyLMData(self):
@@ -241,6 +244,19 @@ class ModelTest(tf.test.TestCase):
     dataset = model.examples_inputter.make_training_dataset(
         [features_file, features_file], [labels_file, labels_file], 16)
     self.assertIsInstance(dataset, tf.data.Dataset)
+
+  def testSequenceToSequenceWithWeightedExamples(self):
+    model, params = _seq2seq_model(training=True)
+    features_file, labels_file, data_config = self._makeToyEnDeData(with_weights=True)
+    model.initialize(data_config, params=params)
+    dataset = model.examples_inputter.make_training_dataset(features_file, labels_file, 16)
+    features, labels = next(iter(dataset))
+    self.assertIn("weight", labels)
+    outputs, _ = model(features, labels=labels, training=True)
+    weighted_loss, _, _ = model.compute_loss(outputs, labels, training=True)
+    labels.pop("weight")
+    default_loss, _, _ = model.compute_loss(outputs, labels, training=True)
+    self.assertNotEqual(weighted_loss, default_loss)
 
   def testSequenceToSequenceWithReplaceUnknownTarget(self):
     model, params = _seq2seq_model()

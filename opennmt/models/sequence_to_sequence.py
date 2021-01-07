@@ -321,7 +321,8 @@ class SequenceToSequence(model.SequenceGenerator):
     loss, loss_normalizer, loss_token_normalizer = losses.cross_entropy_sequence_loss(
         logits,
         labels["ids_out"],
-        labels["length"],
+        sequence_length=labels["length"],
+        sequence_weight=labels.get("weight"),
         label_smoothing=params.get("label_smoothing", 0.0),
         average_in_time=params.get("average_loss_in_time", False),
         training=training)
@@ -419,44 +420,17 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
                labels_inputter,
                share_parameters=False):
     super().__init__(
-        features_inputter, labels_inputter, share_parameters=share_parameters)
+        features_inputter,
+        labels_inputter,
+        share_parameters=share_parameters,
+        accepted_annotations={"train_alignments": self._register_alignment})
     labels_inputter.set_decoder_mode(mark_start=True, mark_end=True)
-    self.alignment_file = None
 
-  def initialize(self, data_config):
-    super().initialize(data_config)
-    self.alignment_file = data_config.get("train_alignments")
-
-  def make_dataset(self, data_file, training=None):
-    dataset = super().make_dataset(
-        data_file, training=training)
-    if self.alignment_file is None or not training:
-      return dataset
-    if not isinstance(dataset, list):
-      return tf.data.Dataset.zip((dataset, tf.data.TextLineDataset(self.alignment_file)))
-    datasets = dataset
-    alignment_files = self.alignment_file
-    if not isinstance(alignment_files, list):
-      alignment_files = [alignment_files]
-    if len(alignment_files) != len(datasets):
-      raise ValueError("%d alignment files were provided, but %d were expected to match the "
-                       "number of data files" % (len(alignment_files), len(datasets)))
-    return [
-        tf.data.Dataset.zip((dataset, tf.data.TextLineDataset(alignment_file)))
-        for dataset, alignment_file in zip(datasets, alignment_files)]
-
-  def make_features(self, element=None, features=None, training=None):
-    if training and self.alignment_file is not None:
-      element, alignment = element
-    else:
-      alignment = None
-    features, labels = super().make_features(
-        element=element, features=features, training=training)
-    if alignment is not None:
-      labels["alignment"] = text.alignment_matrix_from_pharaoh(
-          alignment,
-          self.features_inputter.get_length(features, ignore_special_tokens=True),
-          self.labels_inputter.get_length(labels, ignore_special_tokens=True))
+  def _register_alignment(self, features, labels, alignment):
+    labels["alignment"] = text.alignment_matrix_from_pharaoh(
+        alignment,
+        self.features_inputter.get_length(features, ignore_special_tokens=True),
+        self.labels_inputter.get_length(labels, ignore_special_tokens=True))
     return features, labels
 
 

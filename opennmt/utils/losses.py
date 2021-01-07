@@ -24,55 +24,69 @@ def _softmax_cross_entropy(logits, labels, label_smoothing, training):
 
 def cross_entropy_sequence_loss(logits,
                                 labels,
-                                sequence_length,
+                                sequence_length=None,
                                 label_smoothing=0.0,
                                 average_in_time=False,
-                                training=None):
+                                training=None,
+                                sequence_weight=None):
   """Computes the cross entropy loss of sequences.
 
   Args:
-    logits: The unscaled probabilities.
-    labels: The true labels.
-    sequence_length: The length of each sequence.
+    logits: The unscaled probabilities with shape :math:`[B, T, V]`.
+    labels: The true labels with shape :math:`[B, T]`.
+    sequence_length: The length of each sequence with shape :math:`[B]`.
     label_smoothing: The label smoothing value.
     average_in_time: If ``True``, also average the loss in the time dimension.
     training: Compute training loss.
+    sequence_weight: The weight of each sequence with shape :math:`[B]`.
 
   Returns:
     A tuple (cumulated loss, loss normalizer, token-level normalizer).
   """
-  batch_size = tf.shape(logits)[0]
-  max_time = tf.shape(logits)[1]
-
   cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, training)
-  weights = tf.sequence_mask(
-      sequence_length, maxlen=max_time, dtype=cross_entropy.dtype)
-  loss = tf.reduce_sum(cross_entropy * weights)
-  loss_token_normalizer = tf.reduce_sum(weights)
+  dtype = cross_entropy.dtype
+
+  if sequence_weight is not None:
+    cross_entropy *= tf.expand_dims(tf.cast(sequence_weight, dtype), 1)
+
+  if sequence_length is not None:
+    max_time = tf.shape(logits)[1]
+    mask = tf.sequence_mask(sequence_length, maxlen=max_time, dtype=dtype)
+    cross_entropy *= mask
+    loss_token_normalizer = tf.reduce_sum(mask)
+  else:
+    loss_token_normalizer = tf.cast(tf.size(labels), dtype)
+
+  loss = tf.reduce_sum(cross_entropy)
 
   if average_in_time or not training:
     loss_normalizer = loss_token_normalizer
   else:
-    loss_normalizer = tf.cast(batch_size, loss.dtype)
+    batch_size = tf.shape(logits)[0]
+    loss_normalizer = tf.cast(batch_size, dtype)
 
   return loss, loss_normalizer, loss_token_normalizer
 
 def cross_entropy_loss(logits,
                        labels,
                        label_smoothing=0.0,
-                       training=None):
+                       training=None,
+                       weight=None):
   """Computes the cross entropy loss.
 
   Args:
-    logits: The unscaled probabilities.
-    labels: The true labels.
+    logits: The unscaled probabilities with shape :math:`[B, V]`.
+    labels: The true labels with shape :math:`[B]`.
     label_smoothing: The label smoothing value.
     training: Compute training loss.
+    weight: The weight of each example with shape :math:`[B]`.
 
   Returns:
     The cumulated loss and the loss normalizer.
   """
   cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, training)
+  if weight is not None:
+    cross_entropy *= tf.cast(weight, cross_entropy.dtype)
   loss = tf.reduce_sum(cross_entropy)
   loss_normalizer = tf.cast(tf.shape(cross_entropy)[0], loss.dtype)
   return loss, loss_normalizer

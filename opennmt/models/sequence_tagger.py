@@ -77,7 +77,8 @@ class SequenceTagger(Model):
       return cross_entropy_sequence_loss(
           outputs,
           labels["tags_id"],
-          labels["length"],
+          sequence_length=labels["length"],
+          sequence_weight=labels.get("weight"),
           label_smoothing=self.params.get("label_smoothing", 0.0),
           average_in_time=self.params.get("average_loss_in_time", False),
           training=training)

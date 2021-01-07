@@ -62,6 +62,7 @@ class SequenceClassifier(Model):
     return cross_entropy_loss(
         outputs,
         labels["classes_id"],
+        weight=labels.get("weight"),
         label_smoothing=self.params.get("label_smoothing", 0.0),
         training=training)
 
