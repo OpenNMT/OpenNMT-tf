@@ -12,160 +12,183 @@ from opennmt.inputters.record_inputter import write_sequence_record
 
 
 def consume_next_vector(ark_file):
-  """Consumes the next vector.
+    """Consumes the next vector.
 
-  Args:
-    ark_file: The ARK data file.
+    Args:
+      ark_file: The ARK data file.
 
-  Returns:
-    The next vector as a 2D Numpy array.
-  """
-  idx = None
-  vector = []
+    Returns:
+      The next vector as a 2D Numpy array.
+    """
+    idx = None
+    vector = []
 
-  for line in ark_file:
-    line = line.strip()
-    fields = line.split()
+    for line in ark_file:
+        line = line.strip()
+        fields = line.split()
 
-    if not idx:
-      idx = fields[0]
-      fields.pop(0)
-      fields.pop(0)
+        if not idx:
+            idx = fields[0]
+            fields.pop(0)
+            fields.pop(0)
 
-    end = fields and fields[-1] == "]"
+        end = fields and fields[-1] == "]"
 
-    if end:
-      fields.pop()
+        if end:
+            fields.pop()
 
-    if fields:
-      vector.append(fields)
+        if fields:
+            vector.append(fields)
 
-    if end:
-      break
+        if end:
+            break
 
-  return idx, np.asarray(vector, dtype=np.float32)
+    return idx, np.asarray(vector, dtype=np.float32)
+
 
 def consume_next_text(text_file):
-  """Consumes the next text line from `text_file`."""
-  idx = None
-  text = text_file.readline()
+    """Consumes the next text line from `text_file`."""
+    idx = None
+    text = text_file.readline()
 
-  if text:
-    tokens = text.strip().split()
-    idx = tokens[0]
-    tokens.pop(0)
-    text = " ".join(tokens)
+    if text:
+        tokens = text.strip().split()
+        idx = tokens[0]
+        tokens.pop(0)
+        text = " ".join(tokens)
 
-  return idx, text
+    return idx, text
+
 
 def write_text(text, writer):
-  """Serializes a line of text."""
-  writer.write(text)
-  writer.write("\n")
+    """Serializes a line of text."""
+    writer.write(text)
+    writer.write("\n")
 
-def ark_to_records_aligned(ark_filename, text_filename, out_prefix, compression_type=None):
-  """Converts ARK and text datasets to aligned TFRecords and text datasets."""
-  record_filename = "%s.records" % out_prefix
-  if compression_type == "GZIP":
-    record_filename = "%s.gz" % record_filename
-  record_writer = tf.io.TFRecordWriter(record_filename, options=compression_type)
-  text_writer = open(out_prefix + ".txt", encoding="utf-8", mode="w")
 
-  ark_buffer = {}
-  text_buffer = {}
-  count = 0
+def ark_to_records_aligned(
+    ark_filename, text_filename, out_prefix, compression_type=None
+):
+    """Converts ARK and text datasets to aligned TFRecords and text datasets."""
+    record_filename = "%s.records" % out_prefix
+    if compression_type == "GZIP":
+        record_filename = "%s.gz" % record_filename
+    record_writer = tf.io.TFRecordWriter(record_filename, options=compression_type)
+    text_writer = open(out_prefix + ".txt", encoding="utf-8", mode="w")
 
-  def _write_example(vector, text):
-    write_sequence_record(vector, record_writer)
-    write_text(text, text_writer)
+    ark_buffer = {}
+    text_buffer = {}
+    count = 0
 
-  def _search_aligned():
-    for idx in ark_buffer:
-      if idx in text_buffer:
-        vector = ark_buffer[idx]
-        text = text_buffer[idx]
+    def _write_example(vector, text):
+        write_sequence_record(vector, record_writer)
+        write_text(text, text_writer)
 
-        del ark_buffer[idx]
-        del text_buffer[idx]
+    def _search_aligned():
+        for idx in ark_buffer:
+            if idx in text_buffer:
+                vector = ark_buffer[idx]
+                text = text_buffer[idx]
 
-        return vector, text
+                del ark_buffer[idx]
+                del text_buffer[idx]
 
-    return None, None
+                return vector, text
 
-  with open(ark_filename, encoding="utf-8") as ark_file, open(text_filename, encoding="utf-8") as text_file: #pylint: disable=line-too-long
+        return None, None
+
+    with open(ark_filename, encoding="utf-8") as ark_file, open(
+        text_filename, encoding="utf-8"
+    ) as text_file:
+        while True:
+            ark_idx, vector = consume_next_vector(ark_file)
+            text_idx, text = consume_next_text(text_file)
+
+            if not ark_idx and not text_idx:
+                # Both files are empty.
+                break
+
+            if ark_idx == text_idx:
+                # If the indices match, write the example.
+                _write_example(vector, text)
+                count += 1
+            else:
+                # Otherwise store the entries.
+                if ark_idx:
+                    ark_buffer[ark_idx] = vector
+                if text_idx:
+                    text_buffer[text_idx] = text
+
+                # Look if we can now find aligned entries.
+                vector, text = _search_aligned()
+
+                if vector is not None:
+                    _write_example(vector, text)
+                    count += 1
+
+    # Search alignments in stored entries.
     while True:
-      ark_idx, vector = consume_next_vector(ark_file)
-      text_idx, text = consume_next_text(text_file)
-
-      if not ark_idx and not text_idx:
-        # Both files are empty.
-        break
-
-      if ark_idx == text_idx:
-        # If the indices match, write the example.
+        vector, text = _search_aligned()
+        if vector is None:
+            break
         _write_example(vector, text)
         count += 1
-      else:
-        # Otherwise store the entries.
-        if ark_idx:
-          ark_buffer[ark_idx] = vector
-        if text_idx:
-          text_buffer[text_idx] = text
 
-        # Look if we can now find aligned entries.
-        vector, text = _search_aligned()
+    record_writer.close()
+    text_writer.close()
 
-        if vector is not None:
-          _write_example(vector, text)
-          count += 1
+    print("Saved {} aligned records.".format(count))
 
-  # Search alignments in stored entries.
-  while True:
-    vector, text = _search_aligned()
-    if vector is None:
-      break
-    _write_example(vector, text)
-    count += 1
-
-  record_writer.close()
-  text_writer.close()
-
-  print("Saved {} aligned records.".format(count))
 
 def ark_to_records(ark_filename, out_prefix, compression_type=None):
-  """Converts ARK dataset to TFRecords."""
-  record_writer = tf.io.TFRecordWriter(out_prefix + ".records", options=compression_type)
-  count = 0
+    """Converts ARK dataset to TFRecords."""
+    record_writer = tf.io.TFRecordWriter(
+        out_prefix + ".records", options=compression_type
+    )
+    count = 0
 
-  with open(ark_filename, encoding="utf-8") as ark_file:
-    while True:
-      ark_idx, vector = consume_next_vector(ark_file)
-      if not ark_idx:
-        break
-      write_sequence_record(vector, record_writer)
-      count += 1
+    with open(ark_filename, encoding="utf-8") as ark_file:
+        while True:
+            ark_idx, vector = consume_next_vector(ark_file)
+            if not ark_idx:
+                break
+            write_sequence_record(vector, record_writer)
+            count += 1
 
-  record_writer.close()
-  print("Saved {} records.".format(count))
+    record_writer.close()
+    print("Saved {} records.".format(count))
 
 
 def main():
-  parser = argparse.ArgumentParser()
-  parser.add_argument("--ark", required=True,
-                      help="Indexed ARK data file.")
-  parser.add_argument("--txt",
-                      help=("Indexed target text data file "
-                            "(must set it to align source and target files)."))
-  parser.add_argument("--out", required=True,
-                      help="Output files prefix (will be suffixed by .records and .txt).")
-  parser.add_argument("--compression_type", default=None, choices=["GZIP"],
-                      help="Optional compression type.")
-  args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ark", required=True, help="Indexed ARK data file.")
+    parser.add_argument(
+        "--txt",
+        help=(
+            "Indexed target text data file "
+            "(must set it to align source and target files)."
+        ),
+    )
+    parser.add_argument(
+        "--out",
+        required=True,
+        help="Output files prefix (will be suffixed by .records and .txt).",
+    )
+    parser.add_argument(
+        "--compression_type",
+        default=None,
+        choices=["GZIP"],
+        help="Optional compression type.",
+    )
+    args = parser.parse_args()
 
-  if args.txt:
-    ark_to_records_aligned(args.ark, args.txt, args.out, compression_type=args.compression_type)
-  else:
-    ark_to_records(args.ark, args.out, compression_type=args.compression_type)
+    if args.txt:
+        ark_to_records_aligned(
+            args.ark, args.txt, args.out, compression_type=args.compression_type
+        )
+    else:
+        ark_to_records(args.ark, args.out, compression_type=args.compression_type)
+
 
 if __name__ == "__main__":
-  main()
+    main()

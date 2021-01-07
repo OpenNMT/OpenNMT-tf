@@ -30,7 +30,8 @@ Do you think a feature is missing or would be a great addition to the project? P
 In any cases, your new code **must**:
 
 * pass the existing tests
-* pass the [`pylint`](https://www.pylint.org/) code checker (we use the TensorFlow Python coding style with relaxed line length)
+* be reformatted with [`black`](https://github.com/psf/black)
+* pass the [`flake8`](https://flake8.pycqa.org/en/latest/) style checker
 
 and **should**:
 

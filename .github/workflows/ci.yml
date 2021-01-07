@@ -26,9 +26,14 @@ jobs:
         run: |
           python -m pip install -e .[tests]
 
-      - name: Check code with Pylint
+      - name: Check code format with Black
         run: |
-          pylint opennmt/
+          black --check .
+
+      - name: Check code style with Flake8
+        if: ${{ always() }}
+        run: |
+          flake8 .
 
 
   test:
