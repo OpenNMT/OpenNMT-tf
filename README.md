@@ -20,16 +20,21 @@ Models are described with code to allow training custom architectures and overri
 ```python
 opennmt.models.SequenceToSequence(
     source_inputter=opennmt.inputters.ParallelInputter(
-        [opennmt.inputters.WordEmbedder(embedding_size=256),
-         opennmt.inputters.WordEmbedder(embedding_size=256)],
-        reducer=opennmt.layers.ConcatReducer(axis=-1)),
+        [
+            opennmt.inputters.WordEmbedder(embedding_size=256),
+            opennmt.inputters.WordEmbedder(embedding_size=256),
+        ],
+        reducer=opennmt.layers.ConcatReducer(axis=-1),
+    ),
     target_inputter=opennmt.inputters.WordEmbedder(embedding_size=512),
     encoder=opennmt.encoders.SelfAttentionEncoder(num_layers=6),
     decoder=opennmt.decoders.AttentionalRNNDecoder(
         num_layers=4,
         num_units=512,
-        attention_mechanism_class=tfa.seq2seq.LuongAttention),
-    share_embeddings=opennmt.models.EmbeddingsSharingLevel.TARGET)
+        attention_mechanism_class=tfa.seq2seq.LuongAttention,
+    ),
+    share_embeddings=opennmt.models.EmbeddingsSharingLevel.TARGET,
+)
 ```
 
 The [`opennmt`](https://opennmt.net/OpenNMT-tf/package/opennmt.html) package exposes other building blocks that can be used to design:
@@ -153,8 +158,8 @@ decoder = opennmt.decoders.SelfAttentionDecoder(num_layers=6)
 decoder.initialize(vocab_size=32000)
 
 initial_state = decoder.initial_state(
-    memory=memory,
-    memory_sequence_length=memory_sequence_length)
+    memory=memory, memory_sequence_length=memory_sequence_length
+)
 
 batch_size = tf.shape(memory)[0]
 start_ids = tf.fill([batch_size], opennmt.START_OF_SENTENCE_ID)
@@ -163,7 +168,8 @@ decoding_result = decoder.dynamic_decode(
     target_embedding,
     start_ids=start_ids,
     initial_state=initial_state,
-    decoding_strategy=opennmt.utils.BeamSearch(4))
+    decoding_strategy=opennmt.utils.BeamSearch(4),
+)
 ```
 
 More examples using OpenNMT-tf as a library can be found online:
