@@ -49,6 +49,7 @@ setup(
     python_requires=">=3.5",
     install_requires=[
         "ctranslate2>=1.7,<2;platform_system=='Linux'",
+        "ctranslate2>=1.17,<2;platform_system=='Darwin'",
         "pyonmttok>=1.23.0,<2;platform_system=='Linux' or platform_system=='Darwin'",
         "pyyaml>=5.3,<5.4",
         "rouge>=1.0,<2",
