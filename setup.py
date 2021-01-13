@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 tests_require = [
     "black==20.8b1",
     "flake8==3.8.*",
-    "parameterized",
+    "parameterized>=0.8,<0.9",
     "pytest-cov",
 ]
 

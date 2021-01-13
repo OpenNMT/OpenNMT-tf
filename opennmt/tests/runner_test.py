@@ -23,16 +23,13 @@ test_data = os.path.join(root_dir, "testdata")
 
 def _get_test_class_name(cls, num, params_dict):
     eager = params_dict.get("run_functions_eagerly")
-    name = cls.__name__
-    if eager:
-        name = "%s_eager" % name
-    return name
+    return "%s_%s" % (cls.__name__, "eager" if eager else "graph")
 
 
 @unittest.skipIf(not os.path.isdir(test_data), "Missing test data directory")
 @parameterized_class(
     ["run_functions_eagerly"],
-    [[True]],  # There is always one non parameterized instance.
+    [[False], [True]],
     class_name_func=_get_test_class_name,
 )
 class RunnerTest(tf.test.TestCase):
