@@ -34,7 +34,8 @@ def _get_test_class_name(cls, num, params_dict):
 )
 class RunnerTest(tf.test.TestCase):
     def setUp(self):
-        tf.config.run_functions_eagerly(self.run_functions_eagerly)
+        if hasattr(self, "run_functions_eagerly"):
+            tf.config.run_functions_eagerly(self.run_functions_eagerly)
 
     def tearDown(self):
         tf.config.run_functions_eagerly(False)
