@@ -210,6 +210,9 @@ class InputterTest(tf.test.TestCase):
         self.assertAllEqual([[2, 1, 4]], features["ids"])
         self.assertAllEqual([1, 3, 10], transformed.shape)
 
+        oov_tokens = embedder.get_oov_tokens(features)
+        self.assertListEqual(oov_tokens.numpy().flatten().tolist(), [b"!"])
+
     def testWordEmbedderForDecoder(self):
         vocab_file = test_util.make_vocab(
             os.path.join(self.get_temp_dir(), "vocab.txt"),
@@ -218,11 +221,14 @@ class InputterTest(tf.test.TestCase):
         embedder = text_inputter.WordEmbedder(embedding_size=10)
         embedder.set_decoder_mode(mark_start=True, mark_end=True)
         embedder.initialize({"vocabulary": vocab_file})
-        features = self.evaluate(embedder.make_features(tf.constant("hello world")))
-        self.assertEqual(features["length"], 3)
-        self.assertEqual(embedder.get_length(features, ignore_special_tokens=True), 2)
-        self.assertAllEqual(features["ids"], [1, 5, 4])
-        self.assertAllEqual(features["ids_out"], [5, 4, 2])
+        features = embedder.make_features(tf.constant("hello world !"))
+        self.assertEqual(features["length"], 4)
+        self.assertEqual(embedder.get_length(features, ignore_special_tokens=True), 3)
+        self.assertAllEqual(features["ids"], [1, 5, 4, 7])
+        self.assertAllEqual(features["ids_out"], [5, 4, 7, 2])
+
+        oov_tokens = embedder.get_oov_tokens(features)
+        self.assertListEqual(oov_tokens.numpy().flatten().tolist(), [b"!"])
 
     def testWordEmbedderWithTokenizer(self):
         vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "￭"])
