@@ -372,6 +372,13 @@ class WordEmbedder(TextInputter):
             length -= num_special_tokens
         return length
 
+    def get_oov_tokens(self, features):
+        tokens, ids = features["tokens"], features["ids"]
+        if self.mark_start:
+            ids = ids[1:] if ids.shape.rank == 1 else ids[:, 1:]
+        oov_tokens_pos = tf.where(ids >= (self.vocabulary_size - self.num_oov_buckets))
+        return tf.gather_nd(tokens, oov_tokens_pos)
+
     def initialize(self, data_config):
         super().initialize(data_config)
         embedding = data_config.get("embedding")

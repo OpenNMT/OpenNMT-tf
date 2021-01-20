@@ -1,11 +1,13 @@
 """Training related classes and functions."""
 
+import collections
 import contextlib
 import itertools
 import time
 
 import tensorflow as tf
 
+from opennmt.inputters import text_inputter
 from opennmt.optimizers import utils as optimizer_util
 
 
@@ -149,6 +151,8 @@ class Trainer:
                     "For the latter, verify that the maximum_*_length values are "
                     "consistent with your data."
                 )
+
+            self._training_stats.log_final(self._is_master)
             summary = self._training_stats.get_global_summary()
             self._save_checkpoint(step, moving_average=moving_average)
             self._evaluate(evaluator, step, moving_average=moving_average)
@@ -560,6 +564,8 @@ class TrainingStats:
         self._last_step = optimizer.iterations.numpy()
         self._last_logged_step = self._last_step
         self._last_logged_time = time.time()
+        self._num_tokens = collections.defaultdict(int)
+        self._oov_tokens = collections.defaultdict(lambda: collections.defaultdict(int))
 
     def update_on_example(self, source, target):
         """Updates the training statistics on a new training example.
@@ -568,11 +574,13 @@ class TrainingStats:
 
         Args:
           source: A dictionary of source features.
-          tagret: A dictionary of target features.
+          target: A dictionary of target features.
         """
         self._update_words_counter("source", source)
+        self._record_oov_tokens("source", source, self._model.features_inputter)
         if not self._model.unsupervised:
             self._update_words_counter("target", target)
+            self._record_oov_tokens("target", target, self._model.labels_inputter)
 
     def update_on_step(self, step, loss):
         """Updates the training statistics on a new training step.
@@ -669,6 +677,38 @@ class TrainingStats:
             "optim/learning_rate", summary["learning_rate"], description="Learning rate"
         )
 
+    def log_final(self, is_master=True):
+        """Outputs the final log."""
+        if not is_master:
+            return
+
+        for name, oov_tokens in self._oov_tokens.items():
+            num_oov_tokens = sum(oov_tokens.values())
+            if num_oov_tokens > 0:
+                num_tokens = self._num_tokens[name]
+                tf.get_logger().warning(
+                    "%.3f%% of %s tokens are out of vocabulary (%d out of %d tokens)",
+                    (num_oov_tokens / num_tokens) * 100,
+                    name,
+                    num_oov_tokens,
+                    num_tokens,
+                )
+                most_frequent_oov_tokens = (
+                    "%s (%.1f%%)" % (oov_token, (count / num_oov_tokens) * 100)
+                    for oov_token, count in sorted(
+                        oov_tokens.items(),
+                        key=lambda x: x[1],
+                        reverse=True,
+                    )
+                )
+                most_frequent_oov_tokens = list(most_frequent_oov_tokens)[:10]
+                tf.get_logger().info(
+                    "The %d most frequent out of vocabulary %s tokens are: %s",
+                    len(most_frequent_oov_tokens),
+                    name,
+                    "; ".join(most_frequent_oov_tokens),
+                )
+
     def reset_throughput(self):
         """Resets the accumulated values since the last log."""
         self._reset_words_counters()
@@ -680,6 +720,23 @@ class TrainingStats:
         if isinstance(learning_rate, tf.optimizers.schedules.LearningRateSchedule):
             learning_rate = learning_rate(self._last_step)
         return float(learning_rate)
+
+    def _record_oov_tokens(self, name, features, inputter):
+        if not isinstance(inputter, text_inputter.WordEmbedder):
+            return
+
+        def _record(num_tokens, oov_tokens):
+            self._num_tokens[name] += int(num_tokens)
+            all_oov_tokens = self._oov_tokens[name]
+            for oov_token in oov_tokens.flatten():
+                all_oov_tokens[oov_token.decode("utf-8")] += 1
+
+        num_tokens = tf.reduce_sum(
+            inputter.get_length(features, ignore_special_tokens=True)
+        )
+        oov_tokens = inputter.get_oov_tokens(features)
+
+        tf.numpy_function(_record, [num_tokens, oov_tokens], [])
 
     def _update_words_counter(self, name, features):
         """Accumulates the number of source and target tokens to report throughput."""

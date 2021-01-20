@@ -83,9 +83,14 @@ class TrainingTest(tf.test.TestCase):
         optimizer = tf.keras.optimizers.SGD(1.0)
         stats = training.TrainingStats(model, optimizer, warmup_steps=2)
 
+        def _generate_example(length):
+            return tf.constant(" ".join(map(str, range(length))))
+
         def _step(source_length, target_length, step, loss):
-            source_features = {"length": tf.constant(source_length, dtype=tf.int32)}
-            target_features = {"length": tf.constant(target_length, dtype=tf.int32)}
+            source_example = _generate_example(source_length)
+            target_example = _generate_example(target_length)
+            source_features = model.features_inputter.make_features(source_example)
+            target_features = model.labels_inputter.make_features(target_example)
             stats.update_on_example(source_features, target_features)
             stats.update_on_step(tf.constant(step, dtype=tf.int64), tf.constant(loss))
 
