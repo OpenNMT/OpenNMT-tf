@@ -38,30 +38,30 @@ def save_embeddings_metadata(
     filename = "%s.txt" % "_".join(variable_name.split("/")[:-2])
     metadata_path = os.path.join(log_dir, filename)
 
-    with tf.io.gfile.GFile(vocabulary_file, mode="rb") as src, tf.io.gfile.GFile(
-        metadata_path, mode="wb"
+    with tf.io.gfile.GFile(vocabulary_file) as src, tf.io.gfile.GFile(
+        metadata_path, mode="w"
     ) as dst:
         ws_index = 0
         for line in src:
             # The TensorBoard code checks line.trim().length == 0 when loading the
             # metadata file so make sure lines are not dropped.
-            if not line.decode("utf-8").replace("\uFEFF", "").strip():
-                dst.write(tf.compat.as_bytes("<whitespace%d>\n" % ws_index))
+            if not line.replace("\uFEFF", "").strip():
+                dst.write("<whitespace%d>\n" % ws_index)
                 ws_index += 1
             else:
                 dst.write(line)
         if num_oov_buckets == 1:
-            dst.write(b"<unk>\n")
+            dst.write("<unk>\n")
         else:
             for i in range(num_oov_buckets):
-                dst.write(tf.compat.as_bytes("<unk%d>\n" % i))
+                dst.write("<unk%d>\n" % i)
 
     config = projector.ProjectorConfig()
 
     # If the projector file exists, load it.
     config_path = os.path.join(log_dir, "projector_config.pbtxt")
     if tf.io.gfile.exists(config_path):
-        with tf.io.gfile.GFile(config_path, mode="rb") as config_file:
+        with tf.io.gfile.GFile(config_path) as config_file:
             text_format.Merge(config_file.read(), config)
 
     # If this embedding is already registered, just update the metadata path.
@@ -134,7 +134,7 @@ def load_pretrained_embeddings(
     """
     # Map words to ids from the vocabulary.
     word_to_id = collections.defaultdict(list)
-    with tf.io.gfile.GFile(vocabulary_file, mode="rb") as vocabulary:
+    with tf.io.gfile.GFile(vocabulary_file) as vocabulary:
         count = 0
         for word in vocabulary:
             word = word.strip()
@@ -144,7 +144,7 @@ def load_pretrained_embeddings(
             count += 1
 
     # Fill pretrained embedding matrix.
-    with tf.io.gfile.GFile(embedding_file, mode="rb") as embedding:
+    with tf.io.gfile.GFile(embedding_file) as embedding:
         pretrained = None
 
         if with_header:

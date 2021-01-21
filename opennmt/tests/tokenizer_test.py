@@ -159,7 +159,7 @@ class TokenizerTest(tf.test.TestCase):
         self.assertTrue(os.path.exists(assets["model.bpe"]))
 
         # The tokenization configuration should not contain absolute paths to resources.
-        with open(assets["source_tokenizer_config.yml"], "rb") as config_file:
+        with open(assets["source_tokenizer_config.yml"]) as config_file:
             asset_config = yaml.load(config_file.read(), Loader=yaml.UnsafeLoader)
         self.assertDictEqual(
             asset_config, {"mode": "conservative", "bpe_model_path": "model.bpe"}

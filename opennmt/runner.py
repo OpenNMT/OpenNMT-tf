@@ -546,7 +546,7 @@ def _auto_tune_batch_size(
             # Update configuration with current batch size and adjusted gradients
             # accumulation.
             config["train"]["batch_size"] = batch_size
-            with tf.io.gfile.GFile(config_path, mode="wb") as config_file:
+            with tf.io.gfile.GFile(config_path, mode="w") as config_file:
                 yaml.dump(config, config_file)
 
             tf.get_logger().info("Trying training with batch size %d...", batch_size)

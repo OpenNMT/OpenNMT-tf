@@ -83,9 +83,9 @@ class Vocab(object):
           filename: The file to load from.
           tokenizer: A callable to tokenize a line of text.
         """
-        with tf.io.gfile.GFile(filename, mode="rb") as text:
+        with tf.io.gfile.GFile(filename) as text:
             for line in text:
-                line = tf.compat.as_text(line.strip())
+                line = line.rstrip("\r\n")
                 if tokenizer:
                     tokens = tokenizer.tokenize(line)
                 else:
@@ -99,10 +99,10 @@ class Vocab(object):
         Args:
           path: The path where the vocabulary will be saved.
         """
-        with tf.io.gfile.GFile(path, mode="wb") as vocab:
+        with tf.io.gfile.GFile(path, mode="w") as vocab:
             for token in self._id_to_token:
-                vocab.write(tf.compat.as_bytes(token))
-                vocab.write(b"\n")
+                vocab.write(token)
+                vocab.write("\n")
 
     def load(self, path, file_format="default"):
         """Loads a serialized vocabulary.
@@ -115,17 +115,17 @@ class Vocab(object):
         Raises:
           ValueError: if :obj:`file_format` is invalid.
         """
-        with tf.io.gfile.GFile(path, mode="rb") as vocab:
+        with tf.io.gfile.GFile(path) as vocab:
             for line in vocab:
-                token = line.rstrip(b"\r\n")
+                token = line.rstrip("\r\n")
                 if file_format == "default":
                     self.add(token)
                 elif file_format == "sentencepiece":
-                    token, _ = token.split(b"\t")
+                    token, _ = token.split("\t")
                     if token in (
-                        b"<unk>",
-                        b"<s>",
-                        b"</s>",
+                        "<unk>",
+                        "<s>",
+                        "</s>",
                     ):  # Ignore SentencePiece special tokens.
                         continue
                     self.add(token)
