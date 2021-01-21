@@ -296,7 +296,7 @@ def make_tokenizer(config=None):
     if config:
         if isinstance(config, str):
             if tf.io.gfile.exists(config):
-                with tf.io.gfile.GFile(config, mode="rb") as config_file:
+                with tf.io.gfile.GFile(config) as config_file:
                     config = yaml.load(config_file, Loader=yaml.UnsafeLoader)
             else:
                 try:
