@@ -54,6 +54,14 @@ _SCORERS_REGISTRY = misc.ClassRegistry(base_class=Scorer)
 register_scorer = _SCORERS_REGISTRY.register
 
 
+def _get_lines(path):
+    lines = []
+    with tf.io.gfile.GFile(path) as f:
+        for line in f:
+            lines.append(line.rstrip())
+    return lines
+
+
 @register_scorer(name="rouge")
 class ROUGEScorer(Scorer):
     """ROUGE scorer based on https://github.com/pltrdy/rouge."""
@@ -79,11 +87,10 @@ class BLEUScorer(Scorer):
         super().__init__("bleu")
 
     def __call__(self, ref_path, hyp_path):
-        with tf.io.gfile.GFile(ref_path) as ref_stream, tf.io.gfile.GFile(
-            hyp_path
-        ) as sys_stream:
-            bleu = sacrebleu.corpus_bleu(sys_stream, [ref_stream], force=True)
-            return bleu.score
+        sys_stream = _get_lines(hyp_path)
+        ref_stream = _get_lines(ref_path)
+        bleu = sacrebleu.corpus_bleu(sys_stream, [ref_stream], force=True)
+        return bleu.score
 
 
 @register_scorer(name="wer")
@@ -109,11 +116,10 @@ class TERScorer(Scorer):
         super().__init__("ter")
 
     def __call__(self, ref_path, hyp_path):
-        with tf.io.gfile.GFile(ref_path) as ref_stream, tf.io.gfile.GFile(
-            hyp_path
-        ) as sys_stream:
-            ter = sacrebleu.corpus_ter(sys_stream, [ref_stream])
-            return ter.score
+        sys_stream = _get_lines(hyp_path)
+        ref_stream = _get_lines(ref_path)
+        ter = sacrebleu.corpus_ter(sys_stream, [ref_stream])
+        return ter.score
 
     def lower_is_better(self):
         return True
