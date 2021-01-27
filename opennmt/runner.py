@@ -158,6 +158,7 @@ class Runner(object):
         checkpoint_path=None,
         hvd=None,
         return_summary=False,
+        fallback_to_cpu=True,
     ):
         """Runs the training loop.
 
@@ -167,6 +168,7 @@ class Runner(object):
           checkpoint_path: The checkpoint path to load the model weights from it.
           hvd: Optional Horovod module.
           return_summary: Return a summary of the training from this function.
+          fallback_to_cpu: If no GPU is detected, allow the training to run on CPU.
 
         Returns:
           The path to the final model directory and, if :obj:`return_summary` is set,
@@ -176,8 +178,14 @@ class Runner(object):
             num_replicas = num_devices
             is_master = True
         else:
+            if num_devices > 1:
+                raise ValueError(
+                    "num_devices (or num_gpus) should be set to 1 when using Horovod"
+                )
             num_replicas = hvd.size()
             is_master = hvd.rank() == 0
+
+        devices = misc.get_devices(count=num_devices, fallback_to_cpu=fallback_to_cpu)
 
         config = self._finalize_config(
             training=True, num_replicas=num_replicas, num_devices=num_devices
@@ -244,15 +252,10 @@ class Runner(object):
             accum_steps = 1
 
         if hvd is not None:
-            if num_devices > 1:
-                raise ValueError(
-                    "num_devices (or num_gpus) should be set to 1 when using Horovod"
-                )
             trainer = training_util.HorovodTrainer(
                 model, optimizer, hvd, checkpoint=checkpoint
             )
         elif num_devices > 1:
-            devices = misc.get_devices(count=num_devices)
             trainer = training_util.MirroredStrategyTrainer(
                 model, optimizer, checkpoint=checkpoint, devices=devices
             )
