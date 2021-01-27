@@ -141,8 +141,7 @@ class Checkpoint(object):
                 checkpoint_path=checkpoint_path, weights_only=weights_only
             )
         load_status = checkpoint.restore(checkpoint_path)
-        if weights_only:
-            load_status.expect_partial()
+        load_status.expect_partial()
         tf.get_logger().info("Restored checkpoint %s", checkpoint_path)
         return checkpoint_path
 
