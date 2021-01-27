@@ -15,30 +15,6 @@ import tensorflow_addons as tfa
 from tensorflow.python.training.tracking import graph_view
 
 
-def get_devices(count=1, fallback_to_cpu=True):
-    """Gets devices.
-
-    Args:
-      count: The number of devices to get.
-      fallback_to_cpu: If ``True``, return CPU devices if no GPU is available.
-
-    Returns:
-      A list of device names.
-
-    Raises:
-      ValueError: if :obj:`count` is greater than the number of visible devices.
-    """
-    devices = tf.config.list_logical_devices(device_type="GPU")
-    if not devices and fallback_to_cpu:
-        devices = tf.config.list_logical_devices(device_type="CPU")
-    if len(devices) < count:
-        raise ValueError(
-            "Requested %d devices but only %d %s visible"
-            % (count, len(devices), "is" if len(devices) == 1 else "are")
-        )
-    return devices[0:count]
-
-
 def get_variables_name_mapping(root, root_key=None):
     """Returns mapping between variables and their name in the object-based
     representation.

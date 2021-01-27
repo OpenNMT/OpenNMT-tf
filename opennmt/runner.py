@@ -252,9 +252,14 @@ class Runner(object):
                 model, optimizer, hvd, checkpoint=checkpoint
             )
         elif num_devices > 1:
-            devices = misc.get_devices(count=num_devices)
+            devices = tf.config.list_logical_devices(device_type="GPU")
+            if len(devices) < num_devices:
+                raise RuntimeError(
+                    "Requested %d GPU for training but %d GPU %s visible"
+                    % (num_devices, len(devices), "is" if len(devices) == 1 else "are")
+                )
             trainer = training_util.MirroredStrategyTrainer(
-                model, optimizer, checkpoint=checkpoint, devices=devices
+                model, optimizer, checkpoint=checkpoint, devices=devices[:num_devices]
             )
         else:
             trainer = training_util.Trainer(model, optimizer, checkpoint=checkpoint)
