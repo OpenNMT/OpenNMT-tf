@@ -28,13 +28,22 @@ def get_devices(count=1, fallback_to_cpu=True):
     Raises:
       ValueError: if :obj:`count` is greater than the number of visible devices.
     """
-    devices = tf.config.list_logical_devices(device_type="GPU")
+    device_type = "GPU"
+    devices = tf.config.list_logical_devices(device_type=device_type)
     if not devices and fallback_to_cpu:
-        devices = tf.config.list_logical_devices(device_type="CPU")
+        tf.get_logger().warning("No GPU is detected, falling back to CPU")
+        device_type = "CPU"
+        devices = tf.config.list_logical_devices(device_type=device_type)
     if len(devices) < count:
         raise ValueError(
-            "Requested %d devices but only %d %s visible"
-            % (count, len(devices), "is" if len(devices) == 1 else "are")
+            "Requested %d %s devices but %d %s %s visible"
+            % (
+                count,
+                device_type,
+                len(devices),
+                device_type,
+                "is" if len(devices) == 1 else "are",
+            )
         )
     return devices[0:count]
 
