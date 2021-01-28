@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parameters &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>Parameters &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -249,6 +249,10 @@
 
   <span class="c1"># (optional) Pharaoh alignments of the training files.</span>
   <span class="nt">train_alignments</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/alignments-train.txt</span>
+
+  <span class="c1"># (optional) File containing the weight of each example (one weight per line).</span>
+  <span class="c1"># The loss value of each example is multiplied by its corresponding weight.</span>
+  <span class="nt">example_weights</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/weights-train.txt</span>
 
   <span class="c1"># (required for train_end_eval and eval run types).</span>
   <span class="nt">eval_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/src-val.txt</span>

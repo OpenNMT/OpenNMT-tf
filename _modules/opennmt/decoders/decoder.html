@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -192,449 +192,486 @@
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
 
 
-<div class="viewcode-block" id="get_sampling_probability"><a class="viewcode-back" href="../../../package/opennmt.decoders.get_sampling_probability.html#opennmt.decoders.get_sampling_probability">[docs]</a><span class="k">def</span> <span class="nf">get_sampling_probability</span><span class="p">(</span><span class="n">step</span><span class="p">,</span>
-                             <span class="n">read_probability</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                             <span class="n">schedule_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                             <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Returns the sampling probability as described in</span>
-<span class="sd">  https://arxiv.org/abs/1506.03099.</span>
+<div class="viewcode-block" id="get_sampling_probability"><a class="viewcode-back" href="../../../package/opennmt.decoders.get_sampling_probability.html#opennmt.decoders.get_sampling_probability">[docs]</a><span class="k">def</span> <span class="nf">get_sampling_probability</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">read_probability</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">schedule_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the sampling probability as described in</span>
+<span class="sd">    https://arxiv.org/abs/1506.03099.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    step: The training step.</span>
-<span class="sd">    read_probability: The probability to read from the inputs.</span>
-<span class="sd">    schedule_type: The type of schedule: &quot;constant&quot;, &quot;linear&quot;, &quot;exponential&quot;,</span>
-<span class="sd">      or &quot;inverse_sigmoid&quot;.</span>
-<span class="sd">    k: The convergence constant.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      step: The training step.</span>
+<span class="sd">      read_probability: The probability to read from the inputs.</span>
+<span class="sd">      schedule_type: The type of schedule: &quot;constant&quot;, &quot;linear&quot;, &quot;exponential&quot;,</span>
+<span class="sd">        or &quot;inverse_sigmoid&quot;.</span>
+<span class="sd">      k: The convergence constant.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    The probability to sample from the output ids as a 0D ``tf.Tensor`` or</span>
-<span class="sd">    ``None`` if scheduled sampling is not configured.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      The probability to sample from the output ids as a 0D ``tf.Tensor`` or</span>
+<span class="sd">      ``None`` if scheduled sampling is not configured.</span>
 
-<span class="sd">  Raises:</span>
-<span class="sd">    ValueError: if :obj:`schedule_type` is set but not :obj:`k` or if</span>
-<span class="sd">     :obj:`schedule_type` is ``linear`` but an initial :obj:`read_probability`</span>
-<span class="sd">     is not set.</span>
-<span class="sd">    TypeError: if :obj:`schedule_type` is invalid.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="n">read_probability</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">schedule_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">return</span> <span class="kc">None</span>
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`schedule_type` is set but not :obj:`k` or if</span>
+<span class="sd">       :obj:`schedule_type` is ``linear`` but an initial :obj:`read_probability`</span>
+<span class="sd">       is not set.</span>
+<span class="sd">      TypeError: if :obj:`schedule_type` is invalid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">read_probability</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">schedule_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
-  <span class="k">if</span> <span class="n">schedule_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">schedule_type</span> <span class="o">!=</span> <span class="s2">&quot;constant&quot;</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">k</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;scheduled_sampling_k is required when scheduled_sampling_type is set&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">schedule_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">schedule_type</span> <span class="o">!=</span> <span class="s2">&quot;constant&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;scheduled_sampling_k is required when scheduled_sampling_type is set&quot;</span>
+            <span class="p">)</span>
 
-    <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-    <span class="n">k</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">schedule_type</span> <span class="o">==</span> <span class="s2">&quot;linear&quot;</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">read_probability</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Linear schedule requires an initial read probability&quot;</span><span class="p">)</span>
-      <span class="n">read_probability</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">read_probability</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
-      <span class="n">read_probability</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">read_probability</span> <span class="o">-</span> <span class="n">k</span> <span class="o">*</span> <span class="n">step</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">schedule_type</span> <span class="o">==</span> <span class="s2">&quot;exponential&quot;</span><span class="p">:</span>
-      <span class="n">read_probability</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">schedule_type</span> <span class="o">==</span> <span class="s2">&quot;inverse_sigmoid&quot;</span><span class="p">:</span>
-      <span class="n">read_probability</span> <span class="o">=</span> <span class="n">k</span> <span class="o">/</span> <span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">step</span> <span class="o">/</span> <span class="n">k</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Unknown scheduled sampling type: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schedule_type</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">schedule_type</span> <span class="o">==</span> <span class="s2">&quot;linear&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">read_probability</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Linear schedule requires an initial read probability&quot;</span><span class="p">)</span>
+            <span class="n">read_probability</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">read_probability</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">read_probability</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">read_probability</span> <span class="o">-</span> <span class="n">k</span> <span class="o">*</span> <span class="n">step</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">schedule_type</span> <span class="o">==</span> <span class="s2">&quot;exponential&quot;</span><span class="p">:</span>
+            <span class="n">read_probability</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">schedule_type</span> <span class="o">==</span> <span class="s2">&quot;inverse_sigmoid&quot;</span><span class="p">:</span>
+            <span class="n">read_probability</span> <span class="o">=</span> <span class="n">k</span> <span class="o">/</span> <span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">step</span> <span class="o">/</span> <span class="n">k</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Unknown scheduled sampling type: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">schedule_type</span><span class="p">))</span>
 
-  <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">read_probability</span></div>
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">read_probability</span></div>
 
 
 <div class="viewcode-block" id="Decoder"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder">[docs]</a><span class="k">class</span> <span class="nc">Decoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Base class for decoders.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Base class for decoders.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Decoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_sources</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
+<div class="viewcode-block" id="Decoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_sources</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      num_sources: The number of source contexts expected by this decoder.</span>
-<span class="sd">      **kwargs: Additional layer arguments.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          num_sources: The number of source contexts expected by this decoder.</span>
+<span class="sd">          **kwargs: Additional layer arguments.</span>
 
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if the number of source contexts :obj:`num_sources` is not</span>
-<span class="sd">        supported by this decoder.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">num_sources</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_sources</span> <span class="ow">or</span> <span class="n">num_sources</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_sources</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This decoder accepts between </span><span class="si">%d</span><span class="s2"> and </span><span class="si">%d</span><span class="s2"> source contexts, &quot;</span>
-                       <span class="s2">&quot;but received </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">minimum_sources</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_sources</span><span class="p">,</span> <span class="n">num_sources</span><span class="p">))</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span> <span class="o">=</span> <span class="n">num_sources</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">memory_sequence_length</span> <span class="o">=</span> <span class="kc">None</span></div>
+<span class="sd">        Raises:</span>
+<span class="sd">          ValueError: if the number of source contexts :obj:`num_sources` is not</span>
+<span class="sd">            supported by this decoder.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">num_sources</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_sources</span> <span class="ow">or</span> <span class="n">num_sources</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_sources</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;This decoder accepts between </span><span class="si">%d</span><span class="s2"> and </span><span class="si">%d</span><span class="s2"> source contexts, &quot;</span>
+                <span class="s2">&quot;but received </span><span class="si">%d</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minimum_sources</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_sources</span><span class="p">,</span> <span class="n">num_sources</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span> <span class="o">=</span> <span class="n">num_sources</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_sequence_length</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">minimum_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The minimum number of source contexts supported by this decoder.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="mi">1</span>
-
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">maximum_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The maximum number of source contexts supported by this decoder.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="mi">1</span>
-
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">support_alignment_history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns ``True`` if this decoder can return the attention as alignment</span>
-<span class="sd">    history.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="kc">False</span>
-
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns ``True`` if this decoder is initialized.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-
-<div class="viewcode-block" id="Decoder.initialize"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vocab_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the decoder configuration.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      vocab_size: The target vocabulary size.</span>
-<span class="sd">      output_layer: The output layer to use.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if both :obj:`vocab_size` and :obj:`output_layer` are not set.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">output_layer</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">vocab_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;One of vocab_size and output_layer must be set&quot;</span><span class="p">)</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Decoder.reuse_embeddings"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.reuse_embeddings">[docs]</a>  <span class="k">def</span> <span class="nf">reuse_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Reuses embeddings in the decoder output layer.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      embeddings: The embeddings matrix to reuse.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">      RuntimeError: if the decoder was not initialized.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_assert_is_initialized</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">transpose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Decoder.initial_state"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.initial_state">[docs]</a>  <span class="k">def</span> <span class="nf">initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                    <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                    <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                    <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                    <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                    <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the initial decoder state.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      memory: Memory values to query.</span>
-<span class="sd">      memory_sequence_length: Memory values length.</span>
-<span class="sd">      initial_state: An initial state to start from, e.g. the last encoder</span>
-<span class="sd">        state.</span>
-<span class="sd">      batch_size: The batch size to use.</span>
-<span class="sd">      dtype: The dtype of the state.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      A nested structure of tensors representing the decoder state.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">      RuntimeError: if the decoder was not initialized.</span>
-<span class="sd">      ValueError: if one of :obj:`batch_size` or :obj:`dtype` is not set and</span>
-<span class="sd">        neither :obj:`initial_state` nor :obj:`memory` are not passed.</span>
-<span class="sd">      ValueError: if the number of source contexts (:obj:`memory`) does not</span>
-<span class="sd">        match the number defined at the decoder initialization.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_assert_is_initialized</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_assert_memory_is_compatible</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">memory</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">memory_sequence_length</span> <span class="o">=</span> <span class="n">memory_sequence_length</span>
-    <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">sentinel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">memory</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-      <span class="k">if</span> <span class="n">sentinel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">sentinel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">initial_state</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-      <span class="k">if</span> <span class="n">sentinel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If batch_size or dtype are not set, then either &quot;</span>
-                         <span class="s2">&quot;memory or initial_state should be set&quot;</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">sentinel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-      <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">dtype</span> <span class="o">=</span> <span class="n">sentinel</span><span class="o">.</span><span class="n">dtype</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_state</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">)</span></div>
-
-  <span class="c1"># pylint: disable=arguments-differ</span>
-<div class="viewcode-block" id="Decoder.call"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-           <span class="n">inputs</span><span class="p">,</span>
-           <span class="n">length_or_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">input_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">sampling_probability</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Runs the decoder layer on either a complete sequence (e.g. for training</span>
-<span class="sd">    or scoring), or a single timestep (e.g. for iterative decoding).</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      inputs: The inputs to decode, can be a 3D (training) or 2D (iterative</span>
-<span class="sd">        decoding) tensor.</span>
-<span class="sd">      length_or_step: For 3D :obj:`inputs`, the length of each sequence. For 2D</span>
-<span class="sd">        :obj:`inputs`, the current decoding timestep.</span>
-<span class="sd">      state: The decoder state.</span>
-<span class="sd">      input_fn: A callable taking sampled ids and returning the decoding inputs.</span>
-<span class="sd">      sampling_probability: When :obj:`inputs` is the full sequence, the</span>
-<span class="sd">        probability to read from the last sample instead of the true target.</span>
-<span class="sd">      training: Run in training mode.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      A tuple with the logits, the decoder state, and an attention vector.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">      RuntimeError: if the decoder was not initialized.</span>
-<span class="sd">      ValueError: if the :obj:`inputs` rank is different than 2 or 3.</span>
-<span class="sd">      ValueError: if :obj:`length_or_step` is invalid.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_assert_is_initialized</span><span class="p">()</span>
-    <span class="n">rank</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span>
-    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">length_or_step</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;length_or_step should be a scalar with the current timestep&quot;</span><span class="p">)</span>
-      <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span>
-          <span class="n">inputs</span><span class="p">,</span>
-          <span class="n">length_or_step</span><span class="p">,</span>
-          <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
-          <span class="n">memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
-          <span class="n">memory_sequence_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_sequence_length</span><span class="p">,</span>
-          <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
-      <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">length_or_step</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;length_or_step should contain the length of each sequence&quot;</span><span class="p">)</span>
-      <span class="n">logits</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span>
-          <span class="n">inputs</span><span class="p">,</span>
-          <span class="n">sequence_length</span><span class="o">=</span><span class="n">length_or_step</span><span class="p">,</span>
-          <span class="n">initial_state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
-          <span class="n">memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
-          <span class="n">memory_sequence_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_sequence_length</span><span class="p">,</span>
-          <span class="n">input_fn</span><span class="o">=</span><span class="n">input_fn</span><span class="p">,</span>
-          <span class="n">sampling_probability</span><span class="o">=</span><span class="n">sampling_probability</span><span class="p">,</span>
-          <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported input rank </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span></div>
-
-<div class="viewcode-block" id="Decoder.forward"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.forward">[docs]</a>  <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-              <span class="n">inputs</span><span class="p">,</span>
-              <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-              <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-              <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-              <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-              <span class="n">input_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-              <span class="n">sampling_probability</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-              <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Runs the decoder on full sequences.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      inputs: The 3D decoder input.</span>
-<span class="sd">      sequence_length: The length of each input sequence.</span>
-<span class="sd">      initial_state: The initial decoder state.</span>
-<span class="sd">      memory: Memory values to query.</span>
-<span class="sd">      memory_sequence_length: Memory values length.</span>
-<span class="sd">      input_fn: A callable taking sampled ids and returning the decoding inputs.</span>
-<span class="sd">      sampling_probability: The probability to read from the last sample instead</span>
-<span class="sd">        of the true target.</span>
-<span class="sd">      training: Run in training mode.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      A tuple with the logits, the decoder state, and the attention</span>
-<span class="sd">      vector.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_</span> <span class="o">=</span> <span class="n">sequence_length</span>
-    <span class="n">fused_projection</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">if</span> <span class="n">sampling_probability</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">input_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;input_fn is required when a sampling probability is set&quot;</span><span class="p">)</span>
-      <span class="k">if</span> <span class="ow">not</span> <span class="n">tf</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">sampling_probability</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sampling_probability</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">sampling_probability</span> <span class="o">=</span> <span class="kc">None</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="n">fused_projection</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;sampling_probability&quot;</span><span class="p">,</span> <span class="n">sampling_probability</span><span class="p">)</span>
-
-    <span class="n">batch_size</span><span class="p">,</span> <span class="n">max_step</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">shape_list</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-    <span class="n">inputs_ta</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">max_step</span><span class="p">)</span>
-    <span class="n">inputs_ta</span> <span class="o">=</span> <span class="n">inputs_ta</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span>
-
-    <span class="k">def</span> <span class="nf">_maybe_sample</span><span class="p">(</span><span class="n">true_inputs</span><span class="p">,</span> <span class="n">logits</span><span class="p">):</span>
-      <span class="c1"># Read from samples with a probability.</span>
-      <span class="n">draw</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="n">batch_size</span><span class="p">])</span>
-      <span class="n">read_sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">sampling_probability</span><span class="p">)</span>
-      <span class="n">sampled_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">categorical</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-      <span class="n">sampled_inputs</span> <span class="o">=</span> <span class="n">input_fn</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">sampled_ids</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-      <span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-          <span class="n">tf</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">read_sample</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">true_inputs</span><span class="p">)),</span>
-          <span class="n">x</span><span class="o">=</span><span class="n">sampled_inputs</span><span class="p">,</span>
-          <span class="n">y</span><span class="o">=</span><span class="n">true_inputs</span><span class="p">)</span>
-      <span class="k">return</span> <span class="n">inputs</span>
-
-    <span class="k">def</span> <span class="nf">_body</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs_ta</span><span class="p">,</span> <span class="n">attention_ta</span><span class="p">):</span>
-      <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span>
-          <span class="n">inputs</span><span class="p">,</span>
-          <span class="n">step</span><span class="p">,</span>
-          <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
-          <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
-          <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">memory_sequence_length</span><span class="p">,</span>
-          <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
-      <span class="n">next_inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
-          <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">max_step</span><span class="p">,</span>
-          <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">inputs_ta</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
-          <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
-      <span class="k">if</span> <span class="ow">not</span> <span class="n">fused_projection</span><span class="p">:</span>
-        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">sampling_probability</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">next_inputs</span> <span class="o">=</span> <span class="n">_maybe_sample</span><span class="p">(</span><span class="n">next_inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>
-      <span class="n">outputs_ta</span> <span class="o">=</span> <span class="n">outputs_ta</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">attention_ta</span> <span class="o">=</span> <span class="n">attention_ta</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">attention</span><span class="p">)</span>
-      <span class="k">return</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">next_inputs</span><span class="p">,</span> <span class="n">outputs_ta</span><span class="p">,</span> <span class="n">attention_ta</span>
-
-    <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-    <span class="n">outputs_ta</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">max_step</span><span class="p">)</span>
-    <span class="n">attention_ta</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">max_step</span><span class="p">)</span>
-
-    <span class="n">_</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">outputs_ta</span><span class="p">,</span> <span class="n">attention_ta</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="o">*</span><span class="n">arg</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">_body</span><span class="p">,</span>
-        <span class="n">loop_vars</span><span class="o">=</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">initial_state</span><span class="p">,</span> <span class="n">inputs_ta</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">outputs_ta</span><span class="p">,</span> <span class="n">attention_ta</span><span class="p">),</span>
-        <span class="n">parallel_iterations</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
-        <span class="n">swap_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">max_step</span><span class="p">)</span>
-
-    <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">outputs_ta</span><span class="o">.</span><span class="n">stack</span><span class="p">(),</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-    <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span> <span class="k">if</span> <span class="n">fused_projection</span> <span class="k">else</span> <span class="n">outputs</span>
-    <span class="n">attention</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span><span class="p">:</span>
-      <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">attention_ta</span><span class="o">.</span><span class="n">stack</span><span class="p">(),</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span></div>
-
-<div class="viewcode-block" id="Decoder.step"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.step">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-  <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-           <span class="n">inputs</span><span class="p">,</span>
-           <span class="n">timestep</span><span class="p">,</span>
-           <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Runs one decoding step.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      inputs: The 2D decoder input.</span>
-<span class="sd">      timestep: The current decoding step.</span>
-<span class="sd">      state: The decoder state.</span>
-<span class="sd">      memory: Memory values to query.</span>
-<span class="sd">      memory_sequence_length: Memory values length.</span>
-<span class="sd">      training: Run in training mode.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      A tuple with the decoder outputs, the decoder state, and the attention</span>
-<span class="sd">      vector.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="Decoder.dynamic_decode"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.dynamic_decode">[docs]</a>  <span class="k">def</span> <span class="nf">dynamic_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                     <span class="n">embeddings</span><span class="p">,</span>
-                     <span class="n">start_ids</span><span class="p">,</span>
-                     <span class="n">end_id</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">END_OF_SENTENCE_ID</span><span class="p">,</span>
-                     <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                     <span class="n">decoding_strategy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                     <span class="n">sampler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                     <span class="n">maximum_iterations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                     <span class="n">minimum_iterations</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Decodes dynamically from :obj:`start_ids`.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      embeddings: Target embeddings or :class:`opennmt.inputters.WordEmbedder`</span>
-<span class="sd">        to apply on decoded ids.</span>
-<span class="sd">      start_ids: Initial input IDs of shape :math:`[B]`.</span>
-<span class="sd">      end_id: ID of the end of sequence token.</span>
-<span class="sd">      initial_state: Initial decoder state.</span>
-<span class="sd">      decoding_strategy: A :class:`opennmt.utils.DecodingStrategy`</span>
-<span class="sd">        instance that define the decoding logic. Defaults to a greedy search.</span>
-<span class="sd">      sampler: A :class:`opennmt.utils.Sampler` instance that samples</span>
-<span class="sd">        predictions from the model output. Defaults to an argmax sampling.</span>
-<span class="sd">      maximum_iterations: The maximum number of iterations to decode for.</span>
-<span class="sd">      minimum_iterations: The minimum number of iterations to decode for.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      A :class:`opennmt.utils.DecodingResult` instance.</span>
-
-<span class="sd">    See Also:</span>
-<span class="sd">      :func:`opennmt.utils.dynamic_decode`</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">text_inputter</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
-      <span class="n">input_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="n">embeddings</span><span class="p">({</span><span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="n">ids</span><span class="p">})</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="n">input_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
-
-    <span class="c1"># TODO: find a better way to pass the state reorder flags.</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">decoding_strategy</span><span class="p">,</span> <span class="s2">&quot;_set_state_reorder_flags&quot;</span><span class="p">):</span>
-      <span class="n">state_reorder_flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_state_reorder_flags</span><span class="p">()</span>
-      <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">_set_state_reorder_flags</span><span class="p">(</span><span class="n">state_reorder_flags</span><span class="p">)</span>  <span class="c1"># pylint: disable=protected-access</span>
-
-    <span class="k">return</span> <span class="n">decoding</span><span class="o">.</span><span class="n">dynamic_decode</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">ids</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="p">(</span><span class="n">input_fn</span><span class="p">(</span><span class="n">ids</span><span class="p">),</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
-        <span class="n">start_ids</span><span class="p">,</span>
-        <span class="n">end_id</span><span class="o">=</span><span class="n">end_id</span><span class="p">,</span>
-        <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span>
-        <span class="n">decoding_strategy</span><span class="o">=</span><span class="n">decoding_strategy</span><span class="p">,</span>
-        <span class="n">sampler</span><span class="o">=</span><span class="n">sampler</span><span class="p">,</span>
-        <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">,</span>
-        <span class="n">minimum_iterations</span><span class="o">=</span><span class="n">minimum_iterations</span><span class="p">,</span>
-        <span class="n">attention_history</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span><span class="p">,</span>
-        <span class="n">attention_size</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Decoder.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.map_v1_weights">[docs]</a>  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;dense&quot;</span><span class="p">])</span></div>
-
-  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-  <span class="k">def</span> <span class="nf">_get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the decoder initial state.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      batch_size: The batch size of the returned state.</span>
-<span class="sd">      dtype; The data type of the state.</span>
-<span class="sd">      initial_state: A state to start from.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      The decoder state as a nested structure of tensors.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
-
-  <span class="k">def</span> <span class="nf">_get_state_reorder_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a structure that marks states that should be reordered during beam search.</span>
-<span class="sd">    By default all states are reordered.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">      The same structure as the decoder state with tensors replaced by booleans.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="kc">None</span>
-
-  <span class="k">def</span> <span class="nf">_assert_is_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Raises an expection if the decoder was not initialized.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The decoder was not initialized&quot;</span><span class="p">)</span>
-
-  <span class="k">def</span> <span class="nf">_assert_memory_is_compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Raises an expection if the memory layout is not compatible with this decoder.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">_num_elements</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
-      <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">0</span>
-      <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-      <span class="k">else</span><span class="p">:</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">minimum_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The minimum number of source contexts supported by this decoder.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">1</span>
 
-    <span class="n">num_memory</span> <span class="o">=</span> <span class="n">_num_elements</span><span class="p">(</span><span class="n">memory</span><span class="p">)</span>
-    <span class="n">num_length</span> <span class="o">=</span> <span class="n">_num_elements</span><span class="p">(</span><span class="n">memory_sequence_length</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">num_memory</span> <span class="o">!=</span> <span class="n">num_length</span> <span class="ow">and</span> <span class="n">memory_sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;got </span><span class="si">%d</span><span class="s2"> memory values but </span><span class="si">%d</span><span class="s2"> length vectors&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num_memory</span><span class="p">,</span> <span class="n">num_length</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">num_memory</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;expected </span><span class="si">%d</span><span class="s2"> source contexts, but got </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span><span class="p">,</span> <span class="n">num_memory</span><span class="p">))</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">maximum_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The maximum number of source contexts supported by this decoder.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">support_alignment_history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns ``True`` if this decoder can return the attention as alignment</span>
+<span class="sd">        history.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns ``True`` if this decoder is initialized.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Decoder.initialize"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vocab_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the decoder configuration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          vocab_size: The target vocabulary size.</span>
+<span class="sd">          output_layer: The output layer to use.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">          ValueError: if both :obj:`vocab_size` and :obj:`output_layer` are not set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">output_layer</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">vocab_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;One of vocab_size and output_layer must be set&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Decoder.reuse_embeddings"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.reuse_embeddings">[docs]</a>    <span class="k">def</span> <span class="nf">reuse_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reuses embeddings in the decoder output layer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          embeddings: The embeddings matrix to reuse.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">          RuntimeError: if the decoder was not initialized.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_is_initialized</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">set_kernel</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">transpose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Decoder.initial_state"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.initial_state">[docs]</a>    <span class="k">def</span> <span class="nf">initial_state</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the initial decoder state.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          memory: Memory values to query.</span>
+<span class="sd">          memory_sequence_length: Memory values length.</span>
+<span class="sd">          initial_state: An initial state to start from, e.g. the last encoder</span>
+<span class="sd">            state.</span>
+<span class="sd">          batch_size: The batch size to use.</span>
+<span class="sd">          dtype: The dtype of the state.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          A nested structure of tensors representing the decoder state.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">          RuntimeError: if the decoder was not initialized.</span>
+<span class="sd">          ValueError: if one of :obj:`batch_size` or :obj:`dtype` is not set and</span>
+<span class="sd">            neither :obj:`initial_state` nor :obj:`memory` are not passed.</span>
+<span class="sd">          ValueError: if the number of source contexts (:obj:`memory`) does not</span>
+<span class="sd">            match the number defined at the decoder initialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_is_initialized</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_memory_is_compatible</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_sequence_length</span> <span class="o">=</span> <span class="n">memory_sequence_length</span>
+        <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sentinel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">memory</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">sentinel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">sentinel</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">initial_state</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">sentinel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;If batch_size or dtype are not set, then either &quot;</span>
+                    <span class="s2">&quot;memory or initial_state should be set&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">sentinel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="n">sentinel</span><span class="o">.</span><span class="n">dtype</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_initial_state</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Decoder.call"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">,</span>
+        <span class="n">length_or_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">sampling_probability</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs the decoder layer on either a complete sequence (e.g. for training</span>
+<span class="sd">        or scoring), or a single timestep (e.g. for iterative decoding).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          inputs: The inputs to decode, can be a 3D (training) or 2D (iterative</span>
+<span class="sd">            decoding) tensor.</span>
+<span class="sd">          length_or_step: For 3D :obj:`inputs`, the length of each sequence. For 2D</span>
+<span class="sd">            :obj:`inputs`, the current decoding timestep.</span>
+<span class="sd">          state: The decoder state.</span>
+<span class="sd">          input_fn: A callable taking sampled ids and returning the decoding inputs.</span>
+<span class="sd">          sampling_probability: When :obj:`inputs` is the full sequence, the</span>
+<span class="sd">            probability to read from the last sample instead of the true target.</span>
+<span class="sd">          training: Run in training mode.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          A tuple with the logits, the decoder state, and an attention vector.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">          RuntimeError: if the decoder was not initialized.</span>
+<span class="sd">          ValueError: if the :obj:`inputs` rank is different than 2 or 3.</span>
+<span class="sd">          ValueError: if :obj:`length_or_step` is invalid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_is_initialized</span><span class="p">()</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">length_or_step</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;length_or_step should be a scalar with the current timestep&quot;</span>
+                <span class="p">)</span>
+            <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span>
+                <span class="n">inputs</span><span class="p">,</span>
+                <span class="n">length_or_step</span><span class="p">,</span>
+                <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+                <span class="n">memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
+                <span class="n">memory_sequence_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_sequence_length</span><span class="p">,</span>
+                <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">length_or_step</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;length_or_step should contain the length of each sequence&quot;</span>
+                <span class="p">)</span>
+            <span class="n">logits</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span>
+                <span class="n">inputs</span><span class="p">,</span>
+                <span class="n">sequence_length</span><span class="o">=</span><span class="n">length_or_step</span><span class="p">,</span>
+                <span class="n">initial_state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+                <span class="n">memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
+                <span class="n">memory_sequence_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_sequence_length</span><span class="p">,</span>
+                <span class="n">input_fn</span><span class="o">=</span><span class="n">input_fn</span><span class="p">,</span>
+                <span class="n">sampling_probability</span><span class="o">=</span><span class="n">sampling_probability</span><span class="p">,</span>
+                <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported input rank </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span></div>
+
+<div class="viewcode-block" id="Decoder.forward"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">,</span>
+        <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">sampling_probability</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs the decoder on full sequences.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          inputs: The 3D decoder input.</span>
+<span class="sd">          sequence_length: The length of each input sequence.</span>
+<span class="sd">          initial_state: The initial decoder state.</span>
+<span class="sd">          memory: Memory values to query.</span>
+<span class="sd">          memory_sequence_length: Memory values length.</span>
+<span class="sd">          input_fn: A callable taking sampled ids and returning the decoding inputs.</span>
+<span class="sd">          sampling_probability: The probability to read from the last sample instead</span>
+<span class="sd">            of the true target.</span>
+<span class="sd">          training: Run in training mode.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          A tuple with the logits, the decoder state, and the attention</span>
+<span class="sd">          vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">sequence_length</span>
+        <span class="n">fused_projection</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">sampling_probability</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">input_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;input_fn is required when a sampling probability is set&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">tf</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">sampling_probability</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sampling_probability</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">sampling_probability</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fused_projection</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;sampling_probability&quot;</span><span class="p">,</span> <span class="n">sampling_probability</span><span class="p">)</span>
+
+        <span class="n">batch_size</span><span class="p">,</span> <span class="n">max_step</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">shape_list</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="n">inputs_ta</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">max_step</span><span class="p">)</span>
+        <span class="n">inputs_ta</span> <span class="o">=</span> <span class="n">inputs_ta</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span>
+
+        <span class="k">def</span> <span class="nf">_maybe_sample</span><span class="p">(</span><span class="n">true_inputs</span><span class="p">,</span> <span class="n">logits</span><span class="p">):</span>
+            <span class="c1"># Read from samples with a probability.</span>
+            <span class="n">draw</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="n">batch_size</span><span class="p">])</span>
+            <span class="n">read_sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">draw</span><span class="p">,</span> <span class="n">sampling_probability</span><span class="p">)</span>
+            <span class="n">sampled_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">categorical</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">sampled_inputs</span> <span class="o">=</span> <span class="n">input_fn</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">sampled_ids</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">read_sample</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">true_inputs</span><span class="p">)),</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">sampled_inputs</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">true_inputs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">inputs</span>
+
+        <span class="k">def</span> <span class="nf">_body</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs_ta</span><span class="p">,</span> <span class="n">attention_ta</span><span class="p">):</span>
+            <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span>
+                <span class="n">inputs</span><span class="p">,</span>
+                <span class="n">step</span><span class="p">,</span>
+                <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+                <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+                <span class="n">memory_sequence_length</span><span class="o">=</span><span class="n">memory_sequence_length</span><span class="p">,</span>
+                <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">next_inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+                <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">max_step</span><span class="p">,</span>
+                <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">inputs_ta</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">fused_projection</span><span class="p">:</span>
+                <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sampling_probability</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">next_inputs</span> <span class="o">=</span> <span class="n">_maybe_sample</span><span class="p">(</span><span class="n">next_inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>
+            <span class="n">outputs_ta</span> <span class="o">=</span> <span class="n">outputs_ta</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">attention_ta</span> <span class="o">=</span> <span class="n">attention_ta</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">attention</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">next_inputs</span><span class="p">,</span> <span class="n">outputs_ta</span><span class="p">,</span> <span class="n">attention_ta</span>
+
+        <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">outputs_ta</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">max_step</span><span class="p">)</span>
+        <span class="n">attention_ta</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">max_step</span><span class="p">)</span>
+
+        <span class="n">_</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">outputs_ta</span><span class="p">,</span> <span class="n">attention_ta</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="o">*</span><span class="n">arg</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">_body</span><span class="p">,</span>
+            <span class="n">loop_vars</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">step</span><span class="p">,</span>
+                <span class="n">initial_state</span><span class="p">,</span>
+                <span class="n">inputs_ta</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+                <span class="n">outputs_ta</span><span class="p">,</span>
+                <span class="n">attention_ta</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">parallel_iterations</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+            <span class="n">swap_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">max_step</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">outputs_ta</span><span class="o">.</span><span class="n">stack</span><span class="p">(),</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span> <span class="k">if</span> <span class="n">fused_projection</span> <span class="k">else</span> <span class="n">outputs</span>
+        <span class="n">attention</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span><span class="p">:</span>
+            <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">attention_ta</span><span class="o">.</span><span class="n">stack</span><span class="p">(),</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span></div>
+
+<div class="viewcode-block" id="Decoder.step"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.step">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">,</span>
+        <span class="n">timestep</span><span class="p">,</span>
+        <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs one decoding step.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          inputs: The 2D decoder input.</span>
+<span class="sd">          timestep: The current decoding step.</span>
+<span class="sd">          state: The decoder state.</span>
+<span class="sd">          memory: Memory values to query.</span>
+<span class="sd">          memory_sequence_length: Memory values length.</span>
+<span class="sd">          training: Run in training mode.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          A tuple with the decoder outputs, the decoder state, and the attention</span>
+<span class="sd">          vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Decoder.dynamic_decode"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.dynamic_decode">[docs]</a>    <span class="k">def</span> <span class="nf">dynamic_decode</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">embeddings</span><span class="p">,</span>
+        <span class="n">start_ids</span><span class="p">,</span>
+        <span class="n">end_id</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">END_OF_SENTENCE_ID</span><span class="p">,</span>
+        <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">decoding_strategy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">sampler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">maximum_iterations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">minimum_iterations</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Decodes dynamically from :obj:`start_ids`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          embeddings: Target embeddings or :class:`opennmt.inputters.WordEmbedder`</span>
+<span class="sd">            to apply on decoded ids.</span>
+<span class="sd">          start_ids: Initial input IDs of shape :math:`[B]`.</span>
+<span class="sd">          end_id: ID of the end of sequence token.</span>
+<span class="sd">          initial_state: Initial decoder state.</span>
+<span class="sd">          decoding_strategy: A :class:`opennmt.utils.DecodingStrategy`</span>
+<span class="sd">            instance that define the decoding logic. Defaults to a greedy search.</span>
+<span class="sd">          sampler: A :class:`opennmt.utils.Sampler` instance that samples</span>
+<span class="sd">            predictions from the model output. Defaults to an argmax sampling.</span>
+<span class="sd">          maximum_iterations: The maximum number of iterations to decode for.</span>
+<span class="sd">          minimum_iterations: The minimum number of iterations to decode for.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          A :class:`opennmt.utils.DecodingResult` instance.</span>
+
+<span class="sd">        See Also:</span>
+<span class="sd">          :func:`opennmt.utils.dynamic_decode`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">text_inputter</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
+            <span class="n">input_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="n">embeddings</span><span class="p">({</span><span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="n">ids</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">input_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
+
+        <span class="c1"># TODO: find a better way to pass the state reorder flags.</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">decoding_strategy</span><span class="p">,</span> <span class="s2">&quot;_set_state_reorder_flags&quot;</span><span class="p">):</span>
+            <span class="n">state_reorder_flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_state_reorder_flags</span><span class="p">()</span>
+            <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">_set_state_reorder_flags</span><span class="p">(</span><span class="n">state_reorder_flags</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">decoding</span><span class="o">.</span><span class="n">dynamic_decode</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">ids</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="p">(</span><span class="n">input_fn</span><span class="p">(</span><span class="n">ids</span><span class="p">),</span> <span class="n">step</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
+            <span class="n">start_ids</span><span class="p">,</span>
+            <span class="n">end_id</span><span class="o">=</span><span class="n">end_id</span><span class="p">,</span>
+            <span class="n">initial_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span>
+            <span class="n">decoding_strategy</span><span class="o">=</span><span class="n">decoding_strategy</span><span class="p">,</span>
+            <span class="n">sampler</span><span class="o">=</span><span class="n">sampler</span><span class="p">,</span>
+            <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">,</span>
+            <span class="n">minimum_iterations</span><span class="o">=</span><span class="n">minimum_iterations</span><span class="p">,</span>
+            <span class="n">attention_history</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span><span class="p">,</span>
+            <span class="n">attention_size</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span>
+            <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Decoder.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.map_v1_weights">[docs]</a>    <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="s2">&quot;dense&quot;</span><span class="p">])</span></div>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the decoder initial state.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          batch_size: The batch size of the returned state.</span>
+<span class="sd">          dtype; The data type of the state.</span>
+<span class="sd">          initial_state: A state to start from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          The decoder state as a nested structure of tensors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_state_reorder_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a structure that marks states that should be reordered during beam search.</span>
+<span class="sd">        By default all states are reordered.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          The same structure as the decoder state with tensors replaced by booleans.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_assert_is_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Raises an expection if the decoder was not initialized.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The decoder was not initialized&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_assert_memory_is_compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Raises an expection if the memory layout is not compatible with this decoder.&quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">_num_elements</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mi">0</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mi">1</span>
+
+        <span class="n">num_memory</span> <span class="o">=</span> <span class="n">_num_elements</span><span class="p">(</span><span class="n">memory</span><span class="p">)</span>
+        <span class="n">num_length</span> <span class="o">=</span> <span class="n">_num_elements</span><span class="p">(</span><span class="n">memory_sequence_length</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_memory</span> <span class="o">!=</span> <span class="n">num_length</span> <span class="ow">and</span> <span class="n">memory_sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;got </span><span class="si">%d</span><span class="s2"> memory values but </span><span class="si">%d</span><span class="s2"> length vectors&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num_memory</span><span class="p">,</span> <span class="n">num_length</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_memory</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;expected </span><span class="si">%d</span><span class="s2"> source contexts, but got </span><span class="si">%d</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span><span class="p">,</span> <span class="n">num_memory</span><span class="p">)</span>
+            <span class="p">)</span></div>
 </pre></div>
 
            </div>

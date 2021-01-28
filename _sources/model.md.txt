@@ -60,7 +60,8 @@ class MyCustomTransformer(opennmt.models.Transformer):
             dropout=0.1,
             attention_dropout=0.1,
             ffn_dropout=0.1,
-            share_embeddings=opennmt.models.EmbeddingsSharingLevel.ALL)
+            share_embeddings=opennmt.models.EmbeddingsSharingLevel.ALL,
+        )
 
     # Here you can override any method from the Model class for a customized behavior.
 

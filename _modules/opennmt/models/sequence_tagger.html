@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_tagger &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.models.sequence_tagger &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -192,231 +192,246 @@
 
 
 <div class="viewcode-block" id="SequenceTagger"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger">[docs]</a><span class="k">class</span> <span class="nc">SequenceTagger</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;A sequence tagger.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A sequence tagger.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SequenceTagger.__init__"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">crf_decoding</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes a sequence tagger.</span>
+<div class="viewcode-block" id="SequenceTagger.__init__"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">crf_decoding</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes a sequence tagger.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      inputter: A :class:`opennmt.inputters.Inputter` to process the</span>
-<span class="sd">        input data.</span>
-<span class="sd">      encoder: A :class:`opennmt.encoders.Encoder` to encode the input.</span>
-<span class="sd">      crf_decoding: If ``True``, add a CRF layer after the encoder.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">example_inputter</span> <span class="o">=</span> <span class="n">inputters</span><span class="o">.</span><span class="n">ExampleInputter</span><span class="p">(</span><span class="n">inputter</span><span class="p">,</span> <span class="n">TagsInputter</span><span class="p">())</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">example_inputter</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">encoder</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span> <span class="o">=</span> <span class="n">crf_decoding</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">transition_params</span> <span class="o">=</span> <span class="kc">None</span></div>
+<span class="sd">        Args:</span>
+<span class="sd">          inputter: A :class:`opennmt.inputters.Inputter` to process the</span>
+<span class="sd">            input data.</span>
+<span class="sd">          encoder: A :class:`opennmt.encoders.Encoder` to encode the input.</span>
+<span class="sd">          crf_decoding: If ``True``, add a CRF layer after the encoder.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">example_inputter</span> <span class="o">=</span> <span class="n">inputters</span><span class="o">.</span><span class="n">ExampleInputter</span><span class="p">(</span><span class="n">inputter</span><span class="p">,</span> <span class="n">TagsInputter</span><span class="p">())</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">example_inputter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">encoder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span> <span class="o">=</span> <span class="n">crf_decoding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transition_params</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="SequenceTagger.initialize"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.initialize">[docs]</a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tagging_scheme&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span></div>
+<div class="viewcode-block" id="SequenceTagger.initialize"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tagging_scheme&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SequenceTagger.build"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
-    <span class="n">num_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_size</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_tags</span><span class="p">)</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">transition_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="s2">&quot;transition_params&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">num_tags</span><span class="p">,</span> <span class="n">num_tags</span><span class="p">])</span></div>
+<div class="viewcode-block" id="SequenceTagger.build"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+        <span class="n">num_tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_tags</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transition_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span>
+                <span class="s2">&quot;transition_params&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">num_tags</span><span class="p">,</span> <span class="n">num_tags</span><span class="p">]</span>
+            <span class="p">)</span></div>
 
-<div class="viewcode-block" id="SequenceTagger.call"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
-    <span class="n">outputs</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span>
-        <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
-    <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">training</span><span class="p">:</span>
-      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span><span class="p">:</span>
-        <span class="n">tags_id</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">crf_decode</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition_params</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
-        <span class="n">tags_id</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tags_id</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="n">tags_prob</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
-        <span class="n">tags_id</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">tags_prob</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-      <span class="n">predictions</span> <span class="o">=</span> <span class="p">{</span>
-          <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">length</span><span class="p">),</span>
-          <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">ids_to_tokens</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">tags_id</span><span class="p">),</span>
-          <span class="s2">&quot;tags_id&quot;</span><span class="p">:</span> <span class="n">tags_id</span>
-      <span class="p">}</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="n">predictions</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">predictions</span></div>
+<div class="viewcode-block" id="SequenceTagger.call"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="n">outputs</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span>
+            <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span>
+        <span class="p">)</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">training</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span><span class="p">:</span>
+                <span class="n">tags_id</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">crf_decode</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transition_params</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+                <span class="n">tags_id</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tags_id</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tags_prob</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
+                <span class="n">tags_id</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">tags_prob</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">length</span><span class="p">),</span>
+                <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">ids_to_tokens</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">tags_id</span><span class="p">),</span>
+                <span class="s2">&quot;tags_id&quot;</span><span class="p">:</span> <span class="n">tags_id</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">logits</span><span class="p">,</span> <span class="n">predictions</span></div>
 
-<div class="viewcode-block" id="SequenceTagger.compute_loss"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.compute_loss">[docs]</a>  <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span><span class="p">:</span>
-      <span class="n">log_likelihood</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">crf_log_likelihood</span><span class="p">(</span>
-          <span class="n">outputs</span><span class="p">,</span>
-          <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags_id&quot;</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
-          <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
-          <span class="n">transition_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_params</span><span class="p">)</span>
-      <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="o">-</span><span class="n">log_likelihood</span><span class="p">)</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">log_likelihood</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">cross_entropy_sequence_loss</span><span class="p">(</span>
-          <span class="n">outputs</span><span class="p">,</span>
-          <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags_id&quot;</span><span class="p">],</span>
-          <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
-          <span class="n">label_smoothing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label_smoothing&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
-          <span class="n">average_in_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;average_loss_in_time&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-          <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span></div>
+<div class="viewcode-block" id="SequenceTagger.compute_loss"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.compute_loss">[docs]</a>    <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crf_decoding</span><span class="p">:</span>
+            <span class="n">log_likelihood</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">crf_log_likelihood</span><span class="p">(</span>
+                <span class="n">outputs</span><span class="p">,</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags_id&quot;</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+                <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
+                <span class="n">transition_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_params</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">log_likelihood</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="o">-</span><span class="n">log_likelihood</span><span class="p">)</span> <span class="o">/</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span>
+                <span class="n">batch_size</span><span class="p">,</span> <span class="n">log_likelihood</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cross_entropy_sequence_loss</span><span class="p">(</span>
+                <span class="n">outputs</span><span class="p">,</span>
+                <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags_id&quot;</span><span class="p">],</span>
+                <span class="n">sequence_length</span><span class="o">=</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
+                <span class="n">sequence_weight</span><span class="o">=</span><span class="n">labels</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">),</span>
+                <span class="n">label_smoothing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label_smoothing&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                <span class="n">average_in_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;average_loss_in_time&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
-<div class="viewcode-block" id="SequenceTagger.get_metrics"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.get_metrics">[docs]</a>  <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;accuracy&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Accuracy</span><span class="p">()}</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bioes&quot;</span><span class="p">,):</span>
-      <span class="n">f1</span> <span class="o">=</span> <span class="n">F1</span><span class="p">()</span>
-      <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;f1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f1</span>
-      <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;precision&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f1</span><span class="o">.</span><span class="n">precision</span>
-      <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;recall&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f1</span><span class="o">.</span><span class="n">recall</span>
-    <span class="k">return</span> <span class="n">metrics</span></div>
+<div class="viewcode-block" id="SequenceTagger.get_metrics"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;accuracy&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Accuracy</span><span class="p">()}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bioes&quot;</span><span class="p">,):</span>
+            <span class="n">f1</span> <span class="o">=</span> <span class="n">F1</span><span class="p">()</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;f1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f1</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;precision&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f1</span><span class="o">.</span><span class="n">precision</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;recall&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f1</span><span class="o">.</span><span class="n">recall</span>
+        <span class="k">return</span> <span class="n">metrics</span></div>
 
-<div class="viewcode-block" id="SequenceTagger.update_metrics"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.update_metrics">[docs]</a>  <span class="k">def</span> <span class="nf">update_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
-    <span class="n">weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span>
-        <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">])[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<div class="viewcode-block" id="SequenceTagger.update_metrics"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.update_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">update_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span>
+            <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">])[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span>
+        <span class="p">)</span>
 
-    <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span>
-        <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags_id&quot;</span><span class="p">],</span> <span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;tags_id&quot;</span><span class="p">],</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span>
+            <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags_id&quot;</span><span class="p">],</span> <span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;tags_id&quot;</span><span class="p">],</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">weights</span>
+        <span class="p">)</span>
 
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bioes&quot;</span><span class="p">,):</span>
-      <span class="n">flag_fn</span> <span class="o">=</span> <span class="kc">None</span>
-      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">==</span> <span class="s2">&quot;bioes&quot;</span><span class="p">:</span>
-        <span class="n">flag_fn</span> <span class="o">=</span> <span class="n">flag_bioes_tags</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bioes&quot;</span><span class="p">,):</span>
+            <span class="n">flag_fn</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagging_scheme</span> <span class="o">==</span> <span class="s2">&quot;bioes&quot;</span><span class="p">:</span>
+                <span class="n">flag_fn</span> <span class="o">=</span> <span class="n">flag_bioes_tags</span>
 
-      <span class="n">gold_flags</span><span class="p">,</span> <span class="n">predicted_flags</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">numpy_function</span><span class="p">(</span>
-          <span class="n">flag_fn</span><span class="p">,</span>
-          <span class="p">[</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">],</span> <span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]],</span>
-          <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">])</span>
+            <span class="n">gold_flags</span><span class="p">,</span> <span class="n">predicted_flags</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">numpy_function</span><span class="p">(</span>
+                <span class="n">flag_fn</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">labels</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">],</span> <span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]],</span>
+                <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">],</span>
+            <span class="p">)</span>
 
-      <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;f1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">gold_flags</span><span class="p">,</span> <span class="n">predicted_flags</span><span class="p">)</span></div>
+            <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;f1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">gold_flags</span><span class="p">,</span> <span class="n">predicted_flags</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SequenceTagger.print_prediction"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.print_prediction">[docs]</a>  <span class="k">def</span> <span class="nf">print_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">tags</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">][:</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]]</span>
-    <span class="n">sent</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
-    <span class="n">misc</span><span class="o">.</span><span class="n">print_as_bytes</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="SequenceTagger.print_prediction"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.print_prediction">[docs]</a>    <span class="k">def</span> <span class="nf">print_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">][:</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]]</span>
+        <span class="n">sent</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
+        <span class="n">misc</span><span class="o">.</span><span class="n">print_as_bytes</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="TagsInputter"><a class="viewcode-back" href="../../../package/opennmt.models.TagsInputter.html#opennmt.models.TagsInputter">[docs]</a><span class="k">class</span> <span class="nc">TagsInputter</span><span class="p">(</span><span class="n">inputters</span><span class="o">.</span><span class="n">TextInputter</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Reading space-separated tags.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Reading space-separated tags.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-<div class="viewcode-block" id="TagsInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.models.TagsInputter.html#opennmt.models.TagsInputter.make_features">[docs]</a>  <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">features</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
-        <span class="n">element</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;tags_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens_to_ids</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">])</span>
-    <span class="p">}</span></div></div>
+<div class="viewcode-block" id="TagsInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.models.TagsInputter.html#opennmt.models.TagsInputter.make_features">[docs]</a>    <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
+            <span class="n">element</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;tags_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokens_to_ids</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">]),</span>
+        <span class="p">}</span></div></div>
 
 
 <span class="k">class</span> <span class="nc">F1</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Metric</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Defines a F1 metric.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Defines a F1 metric.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the metric.</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the metric.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      **kwargs: Base class arguments.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Precision</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">recall</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Recall</span><span class="p">()</span>
+<span class="sd">        Args:</span>
+<span class="sd">          **kwargs: Base class arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Precision</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recall</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">Recall</span><span class="p">()</span>
 
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">updates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Metric update operations.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">precision</span><span class="o">.</span><span class="n">updates</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">recall</span><span class="o">.</span><span class="n">updates</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">updates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Metric update operations.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">precision</span><span class="o">.</span><span class="n">updates</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">recall</span><span class="o">.</span><span class="n">updates</span>
 
-  <span class="k">def</span> <span class="nf">update_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
-    <span class="sd">&quot;&quot;&quot;Updates the metric state.&quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">precision</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">recall</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">update_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Updates the metric state.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">precision</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recall</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the metric result.&quot;&quot;&quot;</span>
-    <span class="n">precision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">precision</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
-    <span class="n">recall</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recall</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
-    <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">precision</span> <span class="o">*</span> <span class="n">recall</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">recall</span> <span class="o">+</span> <span class="n">precision</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the metric result.&quot;&quot;&quot;</span>
+        <span class="n">precision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">precision</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="n">recall</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recall</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">precision</span> <span class="o">*</span> <span class="n">recall</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">recall</span> <span class="o">+</span> <span class="n">precision</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">flag_bioes_tags</span><span class="p">(</span><span class="n">gold</span><span class="p">,</span> <span class="n">predicted</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Flags chunk matches for the BIOES tagging scheme.</span>
+    <span class="sd">&quot;&quot;&quot;Flags chunk matches for the BIOES tagging scheme.</span>
 
-<span class="sd">  This function will produce the gold flags and the predicted flags. For each aligned</span>
-<span class="sd">  gold flag ``g`` and predicted flag ``p``:</span>
+<span class="sd">    This function will produce the gold flags and the predicted flags. For each aligned</span>
+<span class="sd">    gold flag ``g`` and predicted flag ``p``:</span>
 
-<span class="sd">  * when ``g == p == True``, the chunk has been correctly identified (true positive).</span>
-<span class="sd">  * when ``g == False and p == True``, the chunk has been incorrectly identified (false positive).</span>
-<span class="sd">  * when ``g == True and p == False``, the chunk has been missed (false negative).</span>
-<span class="sd">  * when ``g == p == False``, the chunk has been correctly ignored (true negative).</span>
+<span class="sd">    * when ``g == p == True``, the chunk has been correctly identified (true positive).</span>
+<span class="sd">    * when ``g == False and p == True``, the chunk has been incorrectly identified (false positive).</span>
+<span class="sd">    * when ``g == True and p == False``, the chunk has been missed (false negative).</span>
+<span class="sd">    * when ``g == p == False``, the chunk has been correctly ignored (true negative).</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    gold: The gold tags as a Numpy 2D string array.</span>
-<span class="sd">    predicted: The predicted tags as a Numpy 2D string array.</span>
-<span class="sd">    sequence_length: The length of each sequence as Numpy array.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      gold: The gold tags as a Numpy 2D string array.</span>
+<span class="sd">      predicted: The predicted tags as a Numpy 2D string array.</span>
+<span class="sd">      sequence_length: The length of each sequence as Numpy array.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    A tuple ``(gold_flags, predicted_flags)``.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">gold_flags</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="n">predicted_flags</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      A tuple ``(gold_flags, predicted_flags)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gold_flags</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">predicted_flags</span> <span class="o">=</span> <span class="p">[]</span>
 
-  <span class="k">def</span> <span class="nf">_add_true_positive</span><span class="p">():</span>
-    <span class="n">gold_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">predicted_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-  <span class="k">def</span> <span class="nf">_add_false_positive</span><span class="p">():</span>
-    <span class="n">gold_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">predicted_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-  <span class="k">def</span> <span class="nf">_add_true_negative</span><span class="p">():</span>
-    <span class="n">gold_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">predicted_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-  <span class="k">def</span> <span class="nf">_add_false_negative</span><span class="p">():</span>
-    <span class="n">gold_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">predicted_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_add_true_positive</span><span class="p">():</span>
+        <span class="n">gold_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">predicted_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_match</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">hyp</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">ref</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;B&quot;</span><span class="p">):</span>
-      <span class="n">match</span> <span class="o">=</span> <span class="kc">True</span>
-      <span class="k">while</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">length</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ref</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;E&quot;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">ref</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">!=</span> <span class="n">hyp</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
-          <span class="n">match</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
-      <span class="n">match</span> <span class="o">=</span> <span class="n">match</span> <span class="ow">and</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">length</span> <span class="ow">and</span> <span class="n">ref</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="n">hyp</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
-      <span class="k">return</span> <span class="n">match</span><span class="p">,</span> <span class="n">index</span>
-    <span class="k">return</span> <span class="n">ref</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="n">hyp</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">index</span>
+    <span class="k">def</span> <span class="nf">_add_false_positive</span><span class="p">():</span>
+        <span class="n">gold_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">predicted_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 
-  <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">gold</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-    <span class="n">length</span> <span class="o">=</span> <span class="n">sequence_length</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">gold</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">_add_true_negative</span><span class="p">():</span>
+        <span class="n">gold_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">predicted_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="c1"># First pass to detect true positives and true/false negatives.</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">while</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">:</span>
-      <span class="n">gold_tag</span> <span class="o">=</span> <span class="n">gold</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-      <span class="n">match</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">_match</span><span class="p">(</span><span class="n">gold</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">predicted</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">index</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">gold_tag</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;O&quot;</span><span class="p">:</span>
-          <span class="n">_add_true_negative</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-          <span class="n">_add_true_positive</span><span class="p">()</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">gold_tag</span> <span class="o">!=</span> <span class="sa">b</span><span class="s2">&quot;O&quot;</span><span class="p">:</span>
-          <span class="n">_add_false_negative</span><span class="p">()</span>
-      <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">def</span> <span class="nf">_add_false_negative</span><span class="p">():</span>
+        <span class="n">gold_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">predicted_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="c1"># Second pass to detect false postives.</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">while</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">:</span>
-      <span class="n">pred_tag</span> <span class="o">=</span> <span class="n">predicted</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
-      <span class="n">match</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">_match</span><span class="p">(</span><span class="n">predicted</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">gold</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">index</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
-      <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span> <span class="ow">and</span> <span class="n">pred_tag</span> <span class="o">!=</span> <span class="sa">b</span><span class="s2">&quot;O&quot;</span><span class="p">:</span>
-        <span class="n">_add_false_positive</span><span class="p">()</span>
-      <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">def</span> <span class="nf">_match</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">hyp</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ref</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;B&quot;</span><span class="p">):</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">while</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">length</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ref</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;E&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">ref</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">!=</span> <span class="n">hyp</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
+                    <span class="n">match</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">match</span> <span class="ow">and</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">length</span> <span class="ow">and</span> <span class="n">ref</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="n">hyp</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">match</span><span class="p">,</span> <span class="n">index</span>
+        <span class="k">return</span> <span class="n">ref</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="n">hyp</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">index</span>
 
-  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">gold_flags</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">predicted_flags</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">gold</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">sequence_length</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">gold</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># First pass to detect true positives and true/false negatives.</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">:</span>
+            <span class="n">gold_tag</span> <span class="o">=</span> <span class="n">gold</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">match</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">_match</span><span class="p">(</span><span class="n">gold</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">predicted</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">index</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">gold_tag</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;O&quot;</span><span class="p">:</span>
+                    <span class="n">_add_true_negative</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_add_true_positive</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">gold_tag</span> <span class="o">!=</span> <span class="sa">b</span><span class="s2">&quot;O&quot;</span><span class="p">:</span>
+                    <span class="n">_add_false_negative</span><span class="p">()</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Second pass to detect false postives.</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">:</span>
+            <span class="n">pred_tag</span> <span class="o">=</span> <span class="n">predicted</span><span class="p">[</span><span class="n">b</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">match</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">_match</span><span class="p">(</span><span class="n">predicted</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">gold</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">index</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span> <span class="ow">and</span> <span class="n">pred_tag</span> <span class="o">!=</span> <span class="sa">b</span><span class="s2">&quot;O&quot;</span><span class="p">:</span>
+                <span class="n">_add_false_positive</span><span class="p">()</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">gold_flags</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">predicted_flags</span><span class="p">)</span>
 </pre></div>
 
            </div>

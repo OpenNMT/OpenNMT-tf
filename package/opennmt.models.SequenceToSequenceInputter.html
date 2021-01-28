@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.SequenceToSequenceInputter &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.models.SequenceToSequenceInputter &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -214,60 +214,6 @@
 <dd><p>A custom <a class="reference internal" href="opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter" title="opennmt.inputters.ExampleInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.ExampleInputter</span></code></a> for sequence to
 sequence models.</p>
 <p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter" title="opennmt.inputters.ExampleInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.ExampleInputter</span></code></a></p>
-<dl class="method">
-<dt id="opennmt.models.SequenceToSequenceInputter.initialize">
-<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param">data_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequenceInputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.SequenceToSequenceInputter.initialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes the inputter.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data_config</strong> – A dictionary containing the data configuration set
-by the user.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.models.SequenceToSequenceInputter.make_dataset">
-<code class="sig-name descname">make_dataset</code><span class="sig-paren">(</span><em class="sig-param">data_file</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequenceInputter.make_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.SequenceToSequenceInputter.make_dataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates the base dataset required by this inputter.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data_file</strong> – The data file.</p></li>
-<li><p><strong>training</strong> – Run in training mode.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> instance or a list of <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> instances.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="opennmt.models.SequenceToSequenceInputter.make_features">
-<code class="sig-name descname">make_features</code><span class="sig-paren">(</span><em class="sig-param">element=None</em>, <em class="sig-param">features=None</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequenceInputter.make_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.SequenceToSequenceInputter.make_features" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates features from data.</p>
-<p>This is typically called in a data pipeline (such as <code class="docutils literal notranslate"><span class="pre">Dataset.map</span></code>).
-Common transformation includes tokenization, parsing, vocabulary lookup,
-etc.</p>
-<p>This method accepts both a single <code class="xref py py-obj docutils literal notranslate"><span class="pre">element</span></code> from the dataset or a
-partially built dictionary of <code class="xref py py-obj docutils literal notranslate"><span class="pre">features</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>element</strong> – An element from the dataset returned by
-<a class="reference internal" href="opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.make_dataset" title="opennmt.inputters.Inputter.make_dataset"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter.make_dataset()</span></code></a>.</p></li>
-<li><p><strong>features</strong> – An optional and possibly partial dictionary of features to
-augment.</p></li>
-<li><p><strong>training</strong> – Run in training mode.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p>
-</dd>
-</dl>
-</dd></dl>
-
 </dd></dl>
 
 </div>

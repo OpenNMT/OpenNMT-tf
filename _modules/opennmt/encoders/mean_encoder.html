@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.encoders.mean_encoder &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.encoders.mean_encoder &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -187,14 +187,14 @@
 
 
 <div class="viewcode-block" id="MeanEncoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.MeanEncoder.html#opennmt.encoders.MeanEncoder">[docs]</a><span class="k">class</span> <span class="nc">MeanEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;A simple encoder that takes the mean of its inputs.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A simple encoder that takes the mean of its inputs.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="MeanEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.encoders.MeanEncoder.html#opennmt.encoders.MeanEncoder.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">lengths</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">)</span>
-    <span class="n">state</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="MeanEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.encoders.MeanEncoder.html#opennmt.encoders.MeanEncoder.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">lengths</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">)</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.losses &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.utils.losses &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -185,196 +185,219 @@
 
 
 <span class="k">def</span> <span class="nf">_smooth_one_hot_labels</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">):</span>
-  <span class="n">num_classes</span> <span class="o">=</span> <span class="n">logits</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-  <span class="n">on_value</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">label_smoothing</span>
-  <span class="n">off_value</span> <span class="o">=</span> <span class="n">label_smoothing</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_classes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span>
-      <span class="n">labels</span><span class="p">,</span>
-      <span class="n">num_classes</span><span class="p">,</span>
-      <span class="n">on_value</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">on_value</span><span class="p">,</span> <span class="n">logits</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
-      <span class="n">off_value</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">off_value</span><span class="p">,</span> <span class="n">logits</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
+    <span class="n">num_classes</span> <span class="o">=</span> <span class="n">logits</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">on_value</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">label_smoothing</span>
+    <span class="n">off_value</span> <span class="o">=</span> <span class="n">label_smoothing</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_classes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span>
+        <span class="n">labels</span><span class="p">,</span>
+        <span class="n">num_classes</span><span class="p">,</span>
+        <span class="n">on_value</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">on_value</span><span class="p">,</span> <span class="n">logits</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+        <span class="n">off_value</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">off_value</span><span class="p">,</span> <span class="n">logits</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+    <span class="p">)</span>
+
 
 <span class="k">def</span> <span class="nf">_softmax_cross_entropy</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
-  <span class="c1"># Computes the softmax in full precision.</span>
-  <span class="n">logits</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">training</span> <span class="ow">and</span> <span class="n">label_smoothing</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
-    <span class="n">smoothed_labels</span> <span class="o">=</span> <span class="n">_smooth_one_hot_labels</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax_cross_entropy_with_logits</span><span class="p">(</span><span class="n">smoothed_labels</span><span class="p">,</span> <span class="n">logits</span><span class="p">)</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">sparse_softmax_cross_entropy_with_logits</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">logits</span><span class="p">)</span>
+    <span class="c1"># Computes the softmax in full precision.</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">training</span> <span class="ow">and</span> <span class="n">label_smoothing</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">smoothed_labels</span> <span class="o">=</span> <span class="n">_smooth_one_hot_labels</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax_cross_entropy_with_logits</span><span class="p">(</span><span class="n">smoothed_labels</span><span class="p">,</span> <span class="n">logits</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">sparse_softmax_cross_entropy_with_logits</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">logits</span><span class="p">)</span>
 
-<div class="viewcode-block" id="cross_entropy_sequence_loss"><a class="viewcode-back" href="../../../package/opennmt.utils.cross_entropy_sequence_loss.html#opennmt.utils.cross_entropy_sequence_loss">[docs]</a><span class="k">def</span> <span class="nf">cross_entropy_sequence_loss</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span>
-                                <span class="n">labels</span><span class="p">,</span>
-                                <span class="n">sequence_length</span><span class="p">,</span>
-                                <span class="n">label_smoothing</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-                                <span class="n">average_in_time</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Computes the cross entropy loss of sequences.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    logits: The unscaled probabilities.</span>
-<span class="sd">    labels: The true labels.</span>
-<span class="sd">    sequence_length: The length of each sequence.</span>
-<span class="sd">    label_smoothing: The label smoothing value.</span>
-<span class="sd">    average_in_time: If ``True``, also average the loss in the time dimension.</span>
-<span class="sd">    training: Compute training loss.</span>
+<div class="viewcode-block" id="cross_entropy_sequence_loss"><a class="viewcode-back" href="../../../package/opennmt.utils.cross_entropy_sequence_loss.html#opennmt.utils.cross_entropy_sequence_loss">[docs]</a><span class="k">def</span> <span class="nf">cross_entropy_sequence_loss</span><span class="p">(</span>
+    <span class="n">logits</span><span class="p">,</span>
+    <span class="n">labels</span><span class="p">,</span>
+    <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">label_smoothing</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">average_in_time</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">sequence_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the cross entropy loss of sequences.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    A tuple (cumulated loss, loss normalizer, token-level normalizer).</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">logits</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-  <span class="n">max_time</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">logits</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="sd">    Args:</span>
+<span class="sd">      logits: The unscaled probabilities with shape :math:`[B, T, V]`.</span>
+<span class="sd">      labels: The true labels with shape :math:`[B, T]`.</span>
+<span class="sd">      sequence_length: The length of each sequence with shape :math:`[B]`.</span>
+<span class="sd">      label_smoothing: The label smoothing value.</span>
+<span class="sd">      average_in_time: If ``True``, also average the loss in the time dimension.</span>
+<span class="sd">      training: Compute training loss.</span>
+<span class="sd">      sequence_weight: The weight of each sequence with shape :math:`[B]`.</span>
 
-  <span class="n">cross_entropy</span> <span class="o">=</span> <span class="n">_softmax_cross_entropy</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
-  <span class="n">weights</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span>
-      <span class="n">sequence_length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">max_time</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cross_entropy</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-  <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">cross_entropy</span> <span class="o">*</span> <span class="n">weights</span><span class="p">)</span>
-  <span class="n">loss_token_normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      A tuple (cumulated loss, loss normalizer, token-level normalizer).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cross_entropy</span> <span class="o">=</span> <span class="n">_softmax_cross_entropy</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
+    <span class="n">dtype</span> <span class="o">=</span> <span class="n">cross_entropy</span><span class="o">.</span><span class="n">dtype</span>
 
-  <span class="k">if</span> <span class="n">average_in_time</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">training</span><span class="p">:</span>
-    <span class="n">loss_normalizer</span> <span class="o">=</span> <span class="n">loss_token_normalizer</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="n">loss_normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">loss</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sequence_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cross_entropy</span> <span class="o">*=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sequence_weight</span><span class="p">,</span> <span class="n">dtype</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
 
-  <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">loss_normalizer</span><span class="p">,</span> <span class="n">loss_token_normalizer</span></div>
+    <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_time</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">logits</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">max_time</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">cross_entropy</span> <span class="o">*=</span> <span class="n">mask</span>
+        <span class="n">loss_token_normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">loss_token_normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span> <span class="n">dtype</span><span class="p">)</span>
 
-<div class="viewcode-block" id="cross_entropy_loss"><a class="viewcode-back" href="../../../package/opennmt.utils.cross_entropy_loss.html#opennmt.utils.cross_entropy_loss">[docs]</a><span class="k">def</span> <span class="nf">cross_entropy_loss</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span>
-                       <span class="n">labels</span><span class="p">,</span>
-                       <span class="n">label_smoothing</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-                       <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Computes the cross entropy loss.</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    logits: The unscaled probabilities.</span>
-<span class="sd">    labels: The true labels.</span>
-<span class="sd">    label_smoothing: The label smoothing value.</span>
-<span class="sd">    training: Compute training loss.</span>
+    <span class="k">if</span> <span class="n">average_in_time</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">training</span><span class="p">:</span>
+        <span class="n">loss_normalizer</span> <span class="o">=</span> <span class="n">loss_token_normalizer</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">logits</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">loss_normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    The cumulated loss and the loss normalizer.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">cross_entropy</span> <span class="o">=</span> <span class="n">_softmax_cross_entropy</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
-  <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)</span>
-  <span class="n">loss_normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">loss</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">loss_normalizer</span></div>
+    <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">loss_normalizer</span><span class="p">,</span> <span class="n">loss_token_normalizer</span></div>
 
-<div class="viewcode-block" id="guided_alignment_cost"><a class="viewcode-back" href="../../../package/opennmt.utils.guided_alignment_cost.html#opennmt.utils.guided_alignment_cost">[docs]</a><span class="k">def</span> <span class="nf">guided_alignment_cost</span><span class="p">(</span><span class="n">attention_probs</span><span class="p">,</span>
-                          <span class="n">gold_alignment</span><span class="p">,</span>
-                          <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                          <span class="n">cost_type</span><span class="o">=</span><span class="s2">&quot;ce&quot;</span><span class="p">,</span>
-                          <span class="n">weight</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Computes the guided alignment cost.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    attention_probs: The attention probabilities, a float ``tf.Tensor`` of shape</span>
-<span class="sd">      :math:`[B, T_t, T_s]`.</span>
-<span class="sd">    gold_alignment: The true alignment matrix, a float ``tf.Tensor`` of shape</span>
-<span class="sd">      :math:`[B, T_t, T_s]`.</span>
-<span class="sd">    sequence_length: The length of each sequence.</span>
-<span class="sd">    cost_type: The type of the cost function to compute (can be: ce, mse).</span>
-<span class="sd">    weight: The weight applied to the cost.</span>
+<div class="viewcode-block" id="cross_entropy_loss"><a class="viewcode-back" href="../../../package/opennmt.utils.cross_entropy_loss.html#opennmt.utils.cross_entropy_loss">[docs]</a><span class="k">def</span> <span class="nf">cross_entropy_loss</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the cross entropy loss.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    The guided alignment cost.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      logits: The unscaled probabilities with shape :math:`[B, V]`.</span>
+<span class="sd">      labels: The true labels with shape :math:`[B]`.</span>
+<span class="sd">      label_smoothing: The label smoothing value.</span>
+<span class="sd">      training: Compute training loss.</span>
+<span class="sd">      weight: The weight of each example with shape :math:`[B]`.</span>
 
-<span class="sd">  Raises:</span>
-<span class="sd">    ValueError: if :obj:`cost_type` is invalid.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="n">cost_type</span> <span class="o">==</span> <span class="s2">&quot;ce&quot;</span><span class="p">:</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">CategoricalCrossentropy</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">Reduction</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
-  <span class="k">elif</span> <span class="n">cost_type</span> <span class="o">==</span> <span class="s2">&quot;mse&quot;</span><span class="p">:</span>
-    <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">MeanSquaredError</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">Reduction</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid guided alignment cost: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cost_type</span><span class="p">)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      The cumulated loss and the loss normalizer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cross_entropy</span> <span class="o">=</span> <span class="n">_softmax_cross_entropy</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">label_smoothing</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cross_entropy</span> <span class="o">*=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="n">cross_entropy</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)</span>
+    <span class="n">loss_normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">loss</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">loss_normalizer</span></div>
 
-  <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span>
-        <span class="n">sequence_length</span><span class="p">,</span>
-        <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">attention_probs</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="n">attention_probs</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">)</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="n">sample_weight</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">attention_probs</span><span class="p">)</span>
 
-  <span class="n">cost</span> <span class="o">=</span> <span class="n">loss</span><span class="p">(</span>
-      <span class="n">gold_alignment</span><span class="p">,</span>
-      <span class="n">attention_probs</span><span class="p">,</span>
-      <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
-  <span class="n">cost</span> <span class="o">/=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">normalizer</span><span class="p">,</span> <span class="n">cost</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">cost</span></div>
+<div class="viewcode-block" id="guided_alignment_cost"><a class="viewcode-back" href="../../../package/opennmt.utils.guided_alignment_cost.html#opennmt.utils.guided_alignment_cost">[docs]</a><span class="k">def</span> <span class="nf">guided_alignment_cost</span><span class="p">(</span>
+    <span class="n">attention_probs</span><span class="p">,</span> <span class="n">gold_alignment</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cost_type</span><span class="o">=</span><span class="s2">&quot;ce&quot;</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the guided alignment cost.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      attention_probs: The attention probabilities, a float ``tf.Tensor`` of shape</span>
+<span class="sd">        :math:`[B, T_t, T_s]`.</span>
+<span class="sd">      gold_alignment: The true alignment matrix, a float ``tf.Tensor`` of shape</span>
+<span class="sd">        :math:`[B, T_t, T_s]`.</span>
+<span class="sd">      sequence_length: The length of each sequence.</span>
+<span class="sd">      cost_type: The type of the cost function to compute (can be: ce, mse).</span>
+<span class="sd">      weight: The weight applied to the cost.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The guided alignment cost.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`cost_type` is invalid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">cost_type</span> <span class="o">==</span> <span class="s2">&quot;ce&quot;</span><span class="p">:</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">CategoricalCrossentropy</span><span class="p">(</span>
+            <span class="n">reduction</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">Reduction</span><span class="o">.</span><span class="n">SUM</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">cost_type</span> <span class="o">==</span> <span class="s2">&quot;mse&quot;</span><span class="p">:</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">MeanSquaredError</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">Reduction</span><span class="o">.</span><span class="n">SUM</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid guided alignment cost: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cost_type</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span>
+            <span class="n">sequence_length</span><span class="p">,</span>
+            <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">attention_probs</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">attention_probs</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">sample_weight</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sample_weight</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">normalizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">attention_probs</span><span class="p">)</span>
+
+    <span class="n">cost</span> <span class="o">=</span> <span class="n">loss</span><span class="p">(</span><span class="n">gold_alignment</span><span class="p">,</span> <span class="n">attention_probs</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">)</span>
+    <span class="n">cost</span> <span class="o">/=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">normalizer</span><span class="p">,</span> <span class="n">cost</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">cost</span></div>
+
 
 <div class="viewcode-block" id="regularization_penalty"><a class="viewcode-back" href="../../../package/opennmt.utils.regularization_penalty.html#opennmt.utils.regularization_penalty">[docs]</a><span class="k">def</span> <span class="nf">regularization_penalty</span><span class="p">(</span><span class="n">regularization_type</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Computes the weights regularization penalty.</span>
+    <span class="sd">&quot;&quot;&quot;Computes the weights regularization penalty.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    regularization_type: The regularization type: ``l1``, ``l2``, or ``l1_l2``.</span>
-<span class="sd">    scale: The regularization multiplier. If :obj:`regularization_type` is</span>
-<span class="sd">      ``l1_l2``, this should be a list or tuple containing the L1 regularization</span>
-<span class="sd">      scale and the L2 regularization scale.</span>
-<span class="sd">    weights: The list of weights.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      regularization_type: The regularization type: ``l1``, ``l2``, or ``l1_l2``.</span>
+<span class="sd">      scale: The regularization multiplier. If :obj:`regularization_type` is</span>
+<span class="sd">        ``l1_l2``, this should be a list or tuple containing the L1 regularization</span>
+<span class="sd">        scale and the L2 regularization scale.</span>
+<span class="sd">      weights: The list of weights.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    The regularization penalty.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      The regularization penalty.</span>
 
-<span class="sd">  Raises:</span>
-<span class="sd">    ValueError: if :obj:`regularization_type` is invalid or is ``l1_l2`` but</span>
-<span class="sd">      :obj:`scale` is not a sequence.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">regularization_type</span> <span class="o">=</span> <span class="n">regularization_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-  <span class="k">if</span> <span class="n">regularization_type</span> <span class="o">==</span> <span class="s2">&quot;l1&quot;</span><span class="p">:</span>
-    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">l1</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span>
-  <span class="k">elif</span> <span class="n">regularization_type</span> <span class="o">==</span> <span class="s2">&quot;l2&quot;</span><span class="p">:</span>
-    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">l2</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span>
-  <span class="k">elif</span> <span class="n">regularization_type</span> <span class="o">==</span> <span class="s2">&quot;l1_l2&quot;</span><span class="p">:</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;l1_l2 regularization requires 2 scale values&quot;</span><span class="p">)</span>
-    <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">l1_l2</span><span class="p">(</span>
-        <span class="n">l1</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">l2</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid regularization type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">regularization_type</span><span class="p">)</span>
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`regularization_type` is invalid or is ``l1_l2`` but</span>
+<span class="sd">        :obj:`scale` is not a sequence.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">regularization_type</span> <span class="o">=</span> <span class="n">regularization_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">regularization_type</span> <span class="o">==</span> <span class="s2">&quot;l1&quot;</span><span class="p">:</span>
+        <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">l1</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">regularization_type</span> <span class="o">==</span> <span class="s2">&quot;l2&quot;</span><span class="p">:</span>
+        <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">l2</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">regularization_type</span> <span class="o">==</span> <span class="s2">&quot;l1_l2&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;l1_l2 regularization requires 2 scale values&quot;</span><span class="p">)</span>
+        <span class="n">regularizer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">regularizers</span><span class="o">.</span><span class="n">l1_l2</span><span class="p">(</span>
+            <span class="n">l1</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">l2</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid regularization type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">regularization_type</span><span class="p">)</span>
 
-  <span class="n">weights</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="ow">not</span> <span class="n">_is_bias</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">weights</span><span class="p">))</span>
-  <span class="n">penalty</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">([</span><span class="n">regularizer</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">])</span>
-  <span class="k">return</span> <span class="n">penalty</span></div>
+    <span class="n">weights</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="ow">not</span> <span class="n">_is_bias</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">weights</span><span class="p">))</span>
+    <span class="n">penalty</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">add_n</span><span class="p">([</span><span class="n">regularizer</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">penalty</span></div>
+
 
 <span class="k">def</span> <span class="nf">_is_bias</span><span class="p">(</span><span class="n">variable</span><span class="p">):</span>
-  <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;bias:0&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;bias:0&quot;</span><span class="p">)</span>
+
 
 <span class="k">def</span> <span class="nf">_negative_log_likelihood</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
-  <span class="n">nll_num</span><span class="p">,</span> <span class="n">nll_den</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cross_entropy_sequence_loss</span><span class="p">(</span>
-      <span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">average_in_time</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">nll_num</span> <span class="o">/</span> <span class="n">nll_den</span>
+    <span class="n">nll_num</span><span class="p">,</span> <span class="n">nll_den</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cross_entropy_sequence_loss</span><span class="p">(</span>
+        <span class="n">logits</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">average_in_time</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">nll_num</span> <span class="o">/</span> <span class="n">nll_den</span>
 
-<div class="viewcode-block" id="max_margin_loss"><a class="viewcode-back" href="../../../package/opennmt.utils.max_margin_loss.html#opennmt.utils.max_margin_loss">[docs]</a><span class="k">def</span> <span class="nf">max_margin_loss</span><span class="p">(</span><span class="n">true_logits</span><span class="p">,</span>
-                    <span class="n">true_labels</span><span class="p">,</span>
-                    <span class="n">true_sequence_length</span><span class="p">,</span>
-                    <span class="n">negative_logits</span><span class="p">,</span>
-                    <span class="n">negative_labels</span><span class="p">,</span>
-                    <span class="n">negative_sequence_length</span><span class="p">,</span>
-                    <span class="n">eta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Computes the max-margin loss described in</span>
-<span class="sd">  https://www.aclweb.org/anthology/P19-1623.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    true_logits: The unscaled probabilities from the true example.</span>
-<span class="sd">    negative_logits: The unscaled probabilities from the negative example.</span>
-<span class="sd">    true_labels: The true labels.</span>
-<span class="sd">    true_sequence_length: The length of each true sequence.</span>
-<span class="sd">    negative_labels: The negative labels.</span>
-<span class="sd">    negative_sequence_length: The length of each negative sequence.</span>
-<span class="sd">    eta: Ensure that the margin is higher than this value.</span>
+<div class="viewcode-block" id="max_margin_loss"><a class="viewcode-back" href="../../../package/opennmt.utils.max_margin_loss.html#opennmt.utils.max_margin_loss">[docs]</a><span class="k">def</span> <span class="nf">max_margin_loss</span><span class="p">(</span>
+    <span class="n">true_logits</span><span class="p">,</span>
+    <span class="n">true_labels</span><span class="p">,</span>
+    <span class="n">true_sequence_length</span><span class="p">,</span>
+    <span class="n">negative_logits</span><span class="p">,</span>
+    <span class="n">negative_labels</span><span class="p">,</span>
+    <span class="n">negative_sequence_length</span><span class="p">,</span>
+    <span class="n">eta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the max-margin loss described in</span>
+<span class="sd">    https://www.aclweb.org/anthology/P19-1623.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    The max-margin loss.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">true_nll</span> <span class="o">=</span> <span class="n">_negative_log_likelihood</span><span class="p">(</span>
-      <span class="n">true_logits</span><span class="p">,</span> <span class="n">true_labels</span><span class="p">,</span> <span class="n">true_sequence_length</span><span class="p">)</span>
-  <span class="n">negative_nll</span> <span class="o">=</span> <span class="n">_negative_log_likelihood</span><span class="p">(</span>
-      <span class="n">negative_logits</span><span class="p">,</span> <span class="n">negative_labels</span><span class="p">,</span> <span class="n">negative_sequence_length</span><span class="p">)</span>
-  <span class="n">margin</span> <span class="o">=</span> <span class="n">true_nll</span> <span class="o">-</span> <span class="n">negative_nll</span> <span class="o">+</span> <span class="n">eta</span>
-  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+<span class="sd">    Args:</span>
+<span class="sd">      true_logits: The unscaled probabilities from the true example.</span>
+<span class="sd">      negative_logits: The unscaled probabilities from the negative example.</span>
+<span class="sd">      true_labels: The true labels.</span>
+<span class="sd">      true_sequence_length: The length of each true sequence.</span>
+<span class="sd">      negative_labels: The negative labels.</span>
+<span class="sd">      negative_sequence_length: The length of each negative sequence.</span>
+<span class="sd">      eta: Ensure that the margin is higher than this value.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The max-margin loss.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">true_nll</span> <span class="o">=</span> <span class="n">_negative_log_likelihood</span><span class="p">(</span><span class="n">true_logits</span><span class="p">,</span> <span class="n">true_labels</span><span class="p">,</span> <span class="n">true_sequence_length</span><span class="p">)</span>
+    <span class="n">negative_nll</span> <span class="o">=</span> <span class="n">_negative_log_likelihood</span><span class="p">(</span>
+        <span class="n">negative_logits</span><span class="p">,</span> <span class="n">negative_labels</span><span class="p">,</span> <span class="n">negative_sequence_length</span>
+    <span class="p">)</span>
+    <span class="n">margin</span> <span class="o">=</span> <span class="n">true_nll</span> <span class="o">-</span> <span class="n">negative_nll</span> <span class="o">+</span> <span class="n">eta</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

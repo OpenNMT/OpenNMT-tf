@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.rnn_decoder &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.decoders.rnn_decoder &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -193,260 +193,274 @@
 
 
 <div class="viewcode-block" id="RNNDecoder"><a class="viewcode-back" href="../../../package/opennmt.decoders.RNNDecoder.html#opennmt.decoders.RNNDecoder">[docs]</a><span class="k">class</span> <span class="nc">RNNDecoder</span><span class="p">(</span><span class="n">decoder</span><span class="o">.</span><span class="n">Decoder</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;A basic RNN decoder.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A basic RNN decoder.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="RNNDecoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.RNNDecoder.html#opennmt.decoders.RNNDecoder.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-               <span class="n">num_layers</span><span class="p">,</span>
-               <span class="n">num_units</span><span class="p">,</span>
-               <span class="n">bridge_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
-               <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      num_layers: The number of layers.</span>
-<span class="sd">      num_units: The number of units in each layer.</span>
-<span class="sd">      bridge_class: A :class:`opennmt.layers.Bridge` class to pass the</span>
-<span class="sd">        encoder state to the decoder. Default to</span>
-<span class="sd">        :class:`opennmt.layers.ZeroBridge`.</span>
-<span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
-<span class="sd">        argument and returning a cell. Defaults to a LSTM cell.</span>
-<span class="sd">      dropout: The probability to drop units in each layer output.</span>
-<span class="sd">      residual_connections: If ``True``, each layer input will be added to its</span>
-<span class="sd">        output.</span>
-<span class="sd">      **kwargs: Additional layer arguments.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">cell</span> <span class="o">=</span> <span class="n">rnn</span><span class="o">.</span><span class="n">make_rnn_cell</span><span class="p">(</span>
+<div class="viewcode-block" id="RNNDecoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.RNNDecoder.html#opennmt.decoders.RNNDecoder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">num_layers</span><span class="p">,</span>
         <span class="n">num_units</span><span class="p">,</span>
-        <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
-        <span class="n">residual_connections</span><span class="o">=</span><span class="n">residual_connections</span><span class="p">,</span>
-        <span class="n">cell_class</span><span class="o">=</span><span class="n">cell_class</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">bridge_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">bridge_class</span> <span class="o">=</span> <span class="n">bridge</span><span class="o">.</span><span class="n">ZeroBridge</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">bridge</span> <span class="o">=</span> <span class="n">bridge_class</span><span class="p">()</span></div>
+        <span class="n">bridge_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+        <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
 
-  <span class="k">def</span> <span class="nf">_get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">cell_initial_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">get_initial_state</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">initial_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">cell_initial_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bridge</span><span class="p">(</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">cell_initial_state</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">cell_initial_state</span>
+<span class="sd">        Args:</span>
+<span class="sd">          num_layers: The number of layers.</span>
+<span class="sd">          num_units: The number of units in each layer.</span>
+<span class="sd">          bridge_class: A :class:`opennmt.layers.Bridge` class to pass the</span>
+<span class="sd">            encoder state to the decoder. Default to</span>
+<span class="sd">            :class:`opennmt.layers.ZeroBridge`.</span>
+<span class="sd">          cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
+<span class="sd">            argument and returning a cell. Defaults to a LSTM cell.</span>
+<span class="sd">          dropout: The probability to drop units in each layer output.</span>
+<span class="sd">          residual_connections: If ``True``, each layer input will be added to its</span>
+<span class="sd">            output.</span>
+<span class="sd">          **kwargs: Additional layer arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cell</span> <span class="o">=</span> <span class="n">rnn</span><span class="o">.</span><span class="n">make_rnn_cell</span><span class="p">(</span>
+            <span class="n">num_layers</span><span class="p">,</span>
+            <span class="n">num_units</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+            <span class="n">residual_connections</span><span class="o">=</span><span class="n">residual_connections</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">cell_class</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">bridge_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bridge_class</span> <span class="o">=</span> <span class="n">bridge</span><span class="o">.</span><span class="n">ZeroBridge</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bridge</span> <span class="o">=</span> <span class="n">bridge_class</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="RNNDecoder.step"><a class="viewcode-back" href="../../../package/opennmt.decoders.RNNDecoder.html#opennmt.decoders.RNNDecoder.step">[docs]</a>  <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-           <span class="n">inputs</span><span class="p">,</span>
-           <span class="n">timestep</span><span class="p">,</span>
-           <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="kc">None</span></div></div>
+    <span class="k">def</span> <span class="nf">_get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">cell_initial_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">get_initial_state</span><span class="p">(</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">initial_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cell_initial_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bridge</span><span class="p">(</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">cell_initial_state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cell_initial_state</span>
+
+<div class="viewcode-block" id="RNNDecoder.step"><a class="viewcode-back" href="../../../package/opennmt.decoders.RNNDecoder.html#opennmt.decoders.RNNDecoder.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">,</span>
+        <span class="n">timestep</span><span class="p">,</span>
+        <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="kc">None</span></div></div>
 
 
 <div class="viewcode-block" id="AttentionalRNNDecoder"><a class="viewcode-back" href="../../../package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder">[docs]</a><span class="k">class</span> <span class="nc">AttentionalRNNDecoder</span><span class="p">(</span><span class="n">RNNDecoder</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;A RNN decoder with attention.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A RNN decoder with attention.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="AttentionalRNNDecoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-               <span class="n">num_layers</span><span class="p">,</span>
-               <span class="n">num_units</span><span class="p">,</span>
-               <span class="n">bridge_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
-               <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-               <span class="n">first_layer_attention</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-               <span class="n">attention_layer_activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">tanh</span><span class="p">,</span>
-               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      num_layers: The number of layers.</span>
-<span class="sd">      num_units: The number of units in each layer.</span>
-<span class="sd">      bridge: A :class:`opennmt.layers.Bridge` to pass the encoder state</span>
-<span class="sd">        to the decoder.</span>
-<span class="sd">      attention_mechanism_class: A class inheriting from</span>
-<span class="sd">        ``tfa.seq2seq.AttentionMechanism``. Defaults to</span>
-<span class="sd">        ``tfa.seq2seq.LuongAttention``.</span>
-<span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
-<span class="sd">        argument and returning a cell.</span>
-<span class="sd">      dropout: The probability to drop units in each layer output.</span>
-<span class="sd">      residual_connections: If ``True``, each layer input will be added to its</span>
-<span class="sd">        output.</span>
-<span class="sd">      first_layer_attention: If ``True``, output attention after the first layer.</span>
-<span class="sd">      attention_layer_activation: The activation to produce the attentional hidden</span>
-<span class="sd">        state. Defaults to tanh following Luong paper (equation (5) in</span>
-<span class="sd">        https://arxiv.org/abs/1508.04025).</span>
-<span class="sd">      **kwargs: Additional layer arguments.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="AttentionalRNNDecoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">num_layers</span><span class="p">,</span>
         <span class="n">num_units</span><span class="p">,</span>
-        <span class="n">bridge_class</span><span class="o">=</span><span class="n">bridge_class</span><span class="p">,</span>
-        <span class="n">cell_class</span><span class="o">=</span><span class="n">cell_class</span><span class="p">,</span>
-        <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
-        <span class="n">residual_connections</span><span class="o">=</span><span class="n">residual_connections</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">attention_mechanism_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">attention_mechanism_class</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism</span> <span class="o">=</span> <span class="n">attention_mechanism_class</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">output_size</span><span class="p">)</span>
+        <span class="n">bridge_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">attention_mechanism_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+        <span class="n">residual_connections</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">first_layer_attention</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">attention_layer_activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">tanh</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
 
-    <span class="k">def</span> <span class="nf">_add_attention</span><span class="p">(</span><span class="n">cell</span><span class="p">):</span>
-      <span class="c1"># Produce Luong-style attentional hidden states.</span>
-      <span class="n">attention_layer</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span>
-          <span class="n">cell</span><span class="o">.</span><span class="n">output_size</span><span class="p">,</span>
-          <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-          <span class="n">activation</span><span class="o">=</span><span class="n">attention_layer_activation</span><span class="p">)</span>
-      <span class="n">wrapper</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">AttentionWrapper</span><span class="p">(</span>
-          <span class="n">cell</span><span class="p">,</span>
-          <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism</span><span class="p">,</span>
-          <span class="n">attention_layer</span><span class="o">=</span><span class="n">attention_layer</span><span class="p">)</span>
-      <span class="k">return</span> <span class="n">wrapper</span>
+<span class="sd">        Args:</span>
+<span class="sd">          num_layers: The number of layers.</span>
+<span class="sd">          num_units: The number of units in each layer.</span>
+<span class="sd">          bridge: A :class:`opennmt.layers.Bridge` to pass the encoder state</span>
+<span class="sd">            to the decoder.</span>
+<span class="sd">          attention_mechanism_class: A class inheriting from</span>
+<span class="sd">            ``tfa.seq2seq.AttentionMechanism``. Defaults to</span>
+<span class="sd">            ``tfa.seq2seq.LuongAttention``.</span>
+<span class="sd">          cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
+<span class="sd">            argument and returning a cell.</span>
+<span class="sd">          dropout: The probability to drop units in each layer output.</span>
+<span class="sd">          residual_connections: If ``True``, each layer input will be added to its</span>
+<span class="sd">            output.</span>
+<span class="sd">          first_layer_attention: If ``True``, output attention after the first layer.</span>
+<span class="sd">          attention_layer_activation: The activation to produce the attentional hidden</span>
+<span class="sd">            state. Defaults to tanh following Luong paper (equation (5) in</span>
+<span class="sd">            https://arxiv.org/abs/1508.04025).</span>
+<span class="sd">          **kwargs: Additional layer arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">num_layers</span><span class="p">,</span>
+            <span class="n">num_units</span><span class="p">,</span>
+            <span class="n">bridge_class</span><span class="o">=</span><span class="n">bridge_class</span><span class="p">,</span>
+            <span class="n">cell_class</span><span class="o">=</span><span class="n">cell_class</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+            <span class="n">residual_connections</span><span class="o">=</span><span class="n">residual_connections</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">attention_mechanism_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">attention_mechanism_class</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism</span> <span class="o">=</span> <span class="n">attention_mechanism_class</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">output_size</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">first_layer_attention</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">_add_attention</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">cell</span> <span class="o">=</span> <span class="n">_add_attention</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">first_layer_attention</span> <span class="o">=</span> <span class="n">first_layer_attention</span></div>
+        <span class="k">def</span> <span class="nf">_add_attention</span><span class="p">(</span><span class="n">cell</span><span class="p">):</span>
+            <span class="c1"># Produce Luong-style attentional hidden states.</span>
+            <span class="n">attention_layer</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span>
+                <span class="n">cell</span><span class="o">.</span><span class="n">output_size</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">attention_layer_activation</span>
+            <span class="p">)</span>
+            <span class="n">wrapper</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">AttentionWrapper</span><span class="p">(</span>
+                <span class="n">cell</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism</span><span class="p">,</span> <span class="n">attention_layer</span><span class="o">=</span><span class="n">attention_layer</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">wrapper</span>
 
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">support_alignment_history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">first_layer_attention</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">_add_attention</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cell</span> <span class="o">=</span> <span class="n">_add_attention</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_layer_attention</span> <span class="o">=</span> <span class="n">first_layer_attention</span></div>
 
-  <span class="k">def</span> <span class="nf">_get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="c1"># Reset memory of attention mechanism.</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism</span><span class="o">.</span><span class="n">setup_memory</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_sequence_length</span><span class="p">)</span>
-    <span class="n">decoder_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">get_initial_state</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">initial_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_layer_attention</span><span class="p">:</span>
-        <span class="n">cell_state</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">decoder_state</span><span class="p">)</span>
-        <span class="n">cell_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">decoder_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cell_state</span>
-        <span class="n">cell_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bridge</span><span class="p">(</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">cell_state</span><span class="p">)</span>
-        <span class="n">cell_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">decoder_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">cell_state</span><span class="o">=</span><span class="n">cell_state</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">decoder_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">cell_state</span><span class="p">)</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="n">cell_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bridge</span><span class="p">(</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">decoder_state</span><span class="o">.</span><span class="n">cell_state</span><span class="p">)</span>
-        <span class="n">decoder_state</span> <span class="o">=</span> <span class="n">decoder_state</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">cell_state</span><span class="o">=</span><span class="n">cell_state</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">decoder_state</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">support_alignment_history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="AttentionalRNNDecoder.step"><a class="viewcode-back" href="../../../package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder.step">[docs]</a>  <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-           <span class="n">inputs</span><span class="p">,</span>
-           <span class="n">timestep</span><span class="p">,</span>
-           <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_layer_attention</span><span class="p">:</span>
-      <span class="n">attention</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">alignments</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="n">attention</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">alignments</span>
-    <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span></div>
+    <span class="k">def</span> <span class="nf">_get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># Reset memory of attention mechanism.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism</span><span class="o">.</span><span class="n">setup_memory</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_sequence_length</span>
+        <span class="p">)</span>
+        <span class="n">decoder_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">get_initial_state</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">initial_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_layer_attention</span><span class="p">:</span>
+                <span class="n">cell_state</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">decoder_state</span><span class="p">)</span>
+                <span class="n">cell_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">decoder_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">cell_state</span>
+                <span class="n">cell_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bridge</span><span class="p">(</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">cell_state</span><span class="p">)</span>
+                <span class="n">cell_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">decoder_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">cell_state</span><span class="o">=</span><span class="n">cell_state</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">decoder_state</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">cell_state</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cell_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bridge</span><span class="p">(</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">decoder_state</span><span class="o">.</span><span class="n">cell_state</span><span class="p">)</span>
+                <span class="n">decoder_state</span> <span class="o">=</span> <span class="n">decoder_state</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">cell_state</span><span class="o">=</span><span class="n">cell_state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">decoder_state</span>
 
-<div class="viewcode-block" id="AttentionalRNNDecoder.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder.map_v1_weights">[docs]</a>  <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
-    <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_layer_attention</span>
-        <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism</span><span class="p">,</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span><span class="p">)):</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can only map V1 weights for RNN decoder with Luong attention &quot;</span>
-                       <span class="s2">&quot;on the last layer&quot;</span><span class="p">)</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
-    <span class="n">m</span> <span class="o">+=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism</span><span class="o">.</span><span class="n">memory_layer</span><span class="p">,</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;memory_layer&quot;</span><span class="p">])</span>
-    <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">][</span><span class="s2">&quot;attention_wrapper&quot;</span><span class="p">]</span>
-    <span class="c1"># pylint: disable=protected-access</span>
-    <span class="n">m</span> <span class="o">+=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">_attention_layers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;attention_layer&quot;</span><span class="p">])</span>
-    <span class="n">m</span> <span class="o">+=</span> <span class="n">map_v1_weights_to_cell</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">_cell</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
-    <span class="c1"># pylint: enable=protected-access</span>
-    <span class="k">return</span> <span class="n">m</span></div></div>
+<div class="viewcode-block" id="AttentionalRNNDecoder.step"><a class="viewcode-back" href="../../../package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">,</span>
+        <span class="n">timestep</span><span class="p">,</span>
+        <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_layer_attention</span><span class="p">:</span>
+            <span class="n">attention</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">alignments</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">attention</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">alignments</span>
+        <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">attention</span></div>
+
+<div class="viewcode-block" id="AttentionalRNNDecoder.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder.map_v1_weights">[docs]</a>    <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_layer_attention</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism</span><span class="p">,</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">LuongAttention</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Can only map V1 weights for RNN decoder with Luong attention &quot;</span>
+                <span class="s2">&quot;on the last layer&quot;</span>
+            <span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">+=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attention_mechanism</span><span class="o">.</span><span class="n">memory_layer</span><span class="p">,</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;memory_layer&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;decoder&quot;</span><span class="p">][</span><span class="s2">&quot;attention_wrapper&quot;</span><span class="p">]</span>
+        <span class="n">m</span> <span class="o">+=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="o">.</span><span class="n">map_v1_weights</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">_attention_layers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">weights</span><span class="p">[</span><span class="s2">&quot;attention_layer&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">m</span> <span class="o">+=</span> <span class="n">map_v1_weights_to_cell</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cell</span><span class="o">.</span><span class="n">_cell</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m</span></div></div>
 
 
 <div class="viewcode-block" id="RNMTPlusDecoder"><a class="viewcode-back" href="../../../package/opennmt.decoders.RNMTPlusDecoder.html#opennmt.decoders.RNMTPlusDecoder">[docs]</a><span class="k">class</span> <span class="nc">RNMTPlusDecoder</span><span class="p">(</span><span class="n">decoder</span><span class="o">.</span><span class="n">Decoder</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;The RNMT+ decoder described in https://arxiv.org/abs/1804.09849.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;The RNMT+ decoder described in https://arxiv.org/abs/1804.09849.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="RNMTPlusDecoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.RNMTPlusDecoder.html#opennmt.decoders.RNMTPlusDecoder.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-               <span class="n">num_layers</span><span class="p">,</span>
-               <span class="n">num_units</span><span class="p">,</span>
-               <span class="n">num_heads</span><span class="p">,</span>
-               <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
-               <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
+<div class="viewcode-block" id="RNMTPlusDecoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.RNMTPlusDecoder.html#opennmt.decoders.RNMTPlusDecoder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">num_layers</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      num_layers: The number of layers.</span>
-<span class="sd">      num_units: The number of units in each layer.</span>
-<span class="sd">      num_heads: The number of attention heads.</span>
-<span class="sd">      dropout: The probability to drop units from the decoder input and in each</span>
-<span class="sd">        layer output.</span>
-<span class="sd">      cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
-<span class="sd">        argument and returning a cell. Defaults to a layer normalized LSTM cell.</span>
-<span class="sd">      **kwargs: Additional layer arguments.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">cell_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">cell_class</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LayerNormLSTMCell</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span> <span class="o">=</span> <span class="n">num_heads</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span> <span class="o">=</span> <span class="n">num_units</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">cells</span> <span class="o">=</span> <span class="p">[</span><span class="n">cell_class</span><span class="p">(</span><span class="n">num_units</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">)]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">multi_head_attention</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">MultiHeadAttention</span><span class="p">(</span>
-        <span class="n">num_heads</span><span class="p">,</span>
-        <span class="n">num_units</span><span class="p">,</span>
-        <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
-        <span class="n">return_attention</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+<span class="sd">        Args:</span>
+<span class="sd">          num_layers: The number of layers.</span>
+<span class="sd">          num_units: The number of units in each layer.</span>
+<span class="sd">          num_heads: The number of attention heads.</span>
+<span class="sd">          dropout: The probability to drop units from the decoder input and in each</span>
+<span class="sd">            layer output.</span>
+<span class="sd">          cell_class: The inner cell class or a callable taking :obj:`num_units` as</span>
+<span class="sd">            argument and returning a cell. Defaults to a layer normalized LSTM cell.</span>
+<span class="sd">          **kwargs: Additional layer arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cell_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cell_class</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">rnn</span><span class="o">.</span><span class="n">LayerNormLSTMCell</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span> <span class="o">=</span> <span class="n">num_heads</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span> <span class="o">=</span> <span class="n">num_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cells</span> <span class="o">=</span> <span class="p">[</span><span class="n">cell_class</span><span class="p">(</span><span class="n">num_units</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_head_attention</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">MultiHeadAttention</span><span class="p">(</span>
+            <span class="n">num_heads</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span> <span class="n">return_attention</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span></div>
 
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">support_alignment_history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="kc">True</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">support_alignment_history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
-  <span class="k">def</span> <span class="nf">_get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
-        <span class="n">cell</span><span class="o">.</span><span class="n">get_initial_state</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">cell</span><span class="o">.</span><span class="n">get_initial_state</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cells</span>
+        <span class="p">)</span>
 
-<div class="viewcode-block" id="RNMTPlusDecoder.step"><a class="viewcode-back" href="../../../package/opennmt.decoders.RNMTPlusDecoder.html#opennmt.decoders.RNMTPlusDecoder.step">[docs]</a>  <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-           <span class="n">inputs</span><span class="p">,</span>
-           <span class="n">timestep</span><span class="p">,</span>
-           <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-           <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+<div class="viewcode-block" id="RNMTPlusDecoder.step"><a class="viewcode-back" href="../../../package/opennmt.decoders.RNMTPlusDecoder.html#opennmt.decoders.RNMTPlusDecoder.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">,</span>
+        <span class="n">timestep</span><span class="p">,</span>
+        <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
 
-    <span class="n">new_states</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">last_outputs</span><span class="p">,</span> <span class="n">state_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">new_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state_0</span><span class="p">)</span>
+        <span class="n">new_states</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">last_outputs</span><span class="p">,</span> <span class="n">state_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">](</span><span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">new_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state_0</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">memory_sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">memory_mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span><span class="n">memory_sequence_length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">memory</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="n">memory_mask</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">memory_sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">memory_mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span>
+                <span class="n">memory_sequence_length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">memory</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">memory_mask</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="n">context</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_head_attention</span><span class="p">(</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">last_outputs</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-        <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
-        <span class="n">mask</span><span class="o">=</span><span class="n">memory_mask</span><span class="p">,</span>
-        <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
-    <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># Use the first head for the attention vector.</span>
-    <span class="n">context</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">context</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_head_attention</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">last_outputs</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span>
+            <span class="n">mask</span><span class="o">=</span><span class="n">memory_mask</span><span class="p">,</span>
+            <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># Use the first head for the attention vector.</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">)):</span>
-      <span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">last_outputs</span><span class="p">,</span> <span class="n">context</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-      <span class="n">outputs</span><span class="p">,</span> <span class="n">state_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
-      <span class="n">new_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state_i</span><span class="p">)</span>
-      <span class="n">outputs</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">outputs</span> <span class="o">+=</span> <span class="n">last_outputs</span>
-      <span class="n">last_outputs</span> <span class="o">=</span> <span class="n">outputs</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">)):</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">last_outputs</span><span class="p">,</span> <span class="n">context</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">outputs</span><span class="p">,</span> <span class="n">state_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="n">i</span><span class="p">](</span><span class="n">inputs</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+            <span class="n">new_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state_i</span><span class="p">)</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">outputs</span> <span class="o">+=</span> <span class="n">last_outputs</span>
+            <span class="n">last_outputs</span> <span class="o">=</span> <span class="n">outputs</span>
 
-    <span class="n">final</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">last_outputs</span><span class="p">,</span> <span class="n">context</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">final</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_states</span><span class="p">),</span> <span class="n">attention</span></div></div>
+        <span class="n">final</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">last_outputs</span><span class="p">,</span> <span class="n">context</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">final</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">new_states</span><span class="p">),</span> <span class="n">attention</span></div></div>
 </pre></div>
 
            </div>

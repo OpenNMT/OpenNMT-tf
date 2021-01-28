@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.position &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.layers.position &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -190,100 +190,106 @@
 
 
 <div class="viewcode-block" id="PositionEncoder"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder">[docs]</a><span class="k">class</span> <span class="nc">PositionEncoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Base class for position encoders.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Base class for position encoders.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PositionEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the position encoder.</span>
+<div class="viewcode-block" id="PositionEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the position encoder.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position</span>
-<span class="sd">        encodings. Defaults to :class:`opennmt.layers.SumReducer`.</span>
-<span class="sd">      **kwargs: Additional layer keyword arguments.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">reducer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">reducer</span> <span class="o">=</span> <span class="n">SumReducer</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">))</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span> <span class="o">=</span> <span class="n">reducer</span></div>
+<span class="sd">        Args:</span>
+<span class="sd">          reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position</span>
+<span class="sd">            encodings. Defaults to :class:`opennmt.layers.SumReducer`.</span>
+<span class="sd">          **kwargs: Additional layer keyword arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reducer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reducer</span> <span class="o">=</span> <span class="n">SumReducer</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dtype&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span> <span class="o">=</span> <span class="n">reducer</span></div>
 
-<div class="viewcode-block" id="PositionEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.call">[docs]</a>  <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># pylint: disable=arguments-differ</span>
-    <span class="sd">&quot;&quot;&quot;Add position encodings to :obj:`inputs`.</span>
+<div class="viewcode-block" id="PositionEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add position encodings to :obj:`inputs`.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      inputs: The inputs to encode.</span>
-<span class="sd">      position: The single position to encode, to use when this layer is called</span>
-<span class="sd">        step by step.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          inputs: The inputs to encode.</span>
+<span class="sd">          position: The single position to encode, to use when this layer is called</span>
+<span class="sd">            step by step.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      A ``tf.Tensor`` whose shape depends on the configured ``reducer``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">timesteps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">input_dim</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">positions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">timesteps</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">position</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">position</span><span class="p">]</span>
-    <span class="n">position_encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode</span><span class="p">([</span><span class="n">positions</span><span class="p">],</span> <span class="n">input_dim</span><span class="p">)</span>
-    <span class="n">position_encoding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">position_encoding</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span><span class="p">([</span><span class="n">inputs</span><span class="p">,</span> <span class="n">position_encoding</span><span class="p">])</span></div>
+<span class="sd">        Returns:</span>
+<span class="sd">          A ``tf.Tensor`` whose shape depends on the configured ``reducer``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">timesteps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">input_dim</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">timesteps</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">position</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">position</span><span class="p">]</span>
+        <span class="n">position_encoding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode</span><span class="p">([</span><span class="n">positions</span><span class="p">],</span> <span class="n">input_dim</span><span class="p">)</span>
+        <span class="n">position_encoding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">position_encoding</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span><span class="p">([</span><span class="n">inputs</span><span class="p">,</span> <span class="n">position_encoding</span><span class="p">])</span></div>
 
-  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-  <span class="k">def</span> <span class="nf">_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Creates position encodings.</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates position encodings.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      positions: The positions to encode of shape :math:`[B, ...]`.</span>
-<span class="sd">      depth: The encoding depth :math:`D`.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          positions: The positions to encode of shape :math:`[B, ...]`.</span>
+<span class="sd">          depth: The encoding depth :math:`D`.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      A ``tf.Tensor`` of shape :math:`[B, ..., D]`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+<span class="sd">        Returns:</span>
+<span class="sd">          A ``tf.Tensor`` of shape :math:`[B, ..., D]`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="PositionEmbedder"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder">[docs]</a><span class="k">class</span> <span class="nc">PositionEmbedder</span><span class="p">(</span><span class="n">PositionEncoder</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Encodes position with a lookup table.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Encodes position with a lookup table.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="PositionEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maximum_position</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the position encoder.</span>
+<div class="viewcode-block" id="PositionEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maximum_position</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the position encoder.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      maximum_position: The maximum position to embed. Positions greater</span>
-<span class="sd">        than this value will be set to :obj:`maximum_position`.</span>
-<span class="sd">      reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position</span>
-<span class="sd">        encodings. Defaults to :class:`opennmt.layers.SumReducer`.</span>
-<span class="sd">      **kwargs: Additional layer keyword arguments.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">maximum_position</span> <span class="o">=</span> <span class="n">maximum_position</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="kc">None</span></div>
+<span class="sd">        Args:</span>
+<span class="sd">          maximum_position: The maximum position to embed. Positions greater</span>
+<span class="sd">            than this value will be set to :obj:`maximum_position`.</span>
+<span class="sd">          reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position</span>
+<span class="sd">            encodings. Defaults to :class:`opennmt.layers.SumReducer`.</span>
+<span class="sd">          **kwargs: Additional layer keyword arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_position</span> <span class="o">=</span> <span class="n">maximum_position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="PositionEmbedder.build"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder.build">[docs]</a>  <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">maximum_position</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="s2">&quot;position_embedding&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
+<div class="viewcode-block" id="PositionEmbedder.build"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">maximum_position</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_weight</span><span class="p">(</span><span class="s2">&quot;position_embedding&quot;</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
 
-  <span class="k">def</span> <span class="nf">_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
-    <span class="n">positions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_position</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_position</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SinusoidalPositionEncoder"><a class="viewcode-back" href="../../../package/opennmt.layers.SinusoidalPositionEncoder.html#opennmt.layers.SinusoidalPositionEncoder">[docs]</a><span class="k">class</span> <span class="nc">SinusoidalPositionEncoder</span><span class="p">(</span><span class="n">PositionEncoder</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Encodes positions with sine waves as described in</span>
-<span class="sd">  https://arxiv.org/abs/1706.03762.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Encodes positions with sine waves as described in</span>
+<span class="sd">    https://arxiv.org/abs/1706.03762.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">depth</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;SinusoidalPositionEncoder expects the depth to be divisble &quot;</span>
-                       <span class="s2">&quot;by 2 but got </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">depth</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">depth</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;SinusoidalPositionEncoder expects the depth to be divisble &quot;</span>
+                <span class="s2">&quot;by 2 but got </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">depth</span>
+            <span class="p">)</span>
 
-    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">positions</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">positions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">positions</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
-    <span class="n">log_timescale_increment</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">depth</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">inv_timescales</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">depth</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="n">log_timescale_increment</span><span class="p">)</span>
-    <span class="n">inv_timescales</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">inv_timescales</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">]),</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">depth</span> <span class="o">//</span> <span class="mi">2</span><span class="p">])</span>
-    <span class="n">scaled_time</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">inv_timescales</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">encoding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">tf</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">scaled_time</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">scaled_time</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span></div>
+        <span class="n">log_timescale_increment</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">depth</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">inv_timescales</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">depth</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="n">log_timescale_increment</span>
+        <span class="p">)</span>
+        <span class="n">inv_timescales</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">inv_timescales</span><span class="p">,</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">]),</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">depth</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">scaled_time</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">inv_timescales</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">encoding</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">tf</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">scaled_time</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">scaled_time</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">encoding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

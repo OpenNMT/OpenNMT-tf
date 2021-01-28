@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.config &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.config &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -196,206 +196,219 @@
 
 
 <span class="k">def</span> <span class="nf">load_model_module</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Loads a model configuration file.</span>
+    <span class="sd">&quot;&quot;&quot;Loads a model configuration file.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    path: The relative path to the configuration file.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      path: The relative path to the configuration file.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    A Python module.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      A Python module.</span>
 
-<span class="sd">  Raises:</span>
-<span class="sd">    ValueError: if :obj:`path` is invalid.</span>
-<span class="sd">    ImportError: if the module in :obj:`path` does not define a model.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model configuration not found in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
-  <span class="n">dirname</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-  <span class="n">module_name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-  <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dirname</span><span class="p">))</span>
-  <span class="n">module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
-  <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`path` is invalid.</span>
+<span class="sd">      ImportError: if the module in :obj:`path` does not define a model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model configuration not found in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">dirname</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">module_name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dirname</span><span class="p">))</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-  <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;No model defined in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;No model defined in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 
-  <span class="k">return</span> <span class="n">module</span>
+    <span class="k">return</span> <span class="n">module</span>
+
 
 <span class="k">def</span> <span class="nf">load_model_from_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Loads a model from a configuration file.</span>
+    <span class="sd">&quot;&quot;&quot;Loads a model from a configuration file.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    path: The relative path to the configuration file.</span>
-<span class="sd">    as_builder: If ``True``, return a callable building the model on call.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      path: The relative path to the configuration file.</span>
+<span class="sd">      as_builder: If ``True``, return a callable building the model on call.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    A :class:`opennmt.models.Model` instance or a callable returning such</span>
-<span class="sd">    instance.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">module</span> <span class="o">=</span> <span class="n">load_model_module</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-  <span class="n">model</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">model</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="n">as_builder</span><span class="p">:</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="p">()</span>
-  <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_importer_cache</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)]</span>
-  <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
-  <span class="k">return</span> <span class="n">model</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      A :class:`opennmt.models.Model` instance or a callable returning such</span>
+<span class="sd">      instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">load_model_module</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">model</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">as_builder</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="p">()</span>
+    <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">path_importer_cache</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)]</span>
+    <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">model</span>
+
 
 <span class="k">def</span> <span class="nf">load_model_from_catalog</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Loads a model from the catalog.</span>
+    <span class="sd">&quot;&quot;&quot;Loads a model from the catalog.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    name: The model name.</span>
-<span class="sd">    as_builder: If ``True``, return a callable building the model on call.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      name: The model name.</span>
+<span class="sd">      as_builder: If ``True``, return a callable building the model on call.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    A :class:`opennmt.models.Model` instance or a callable returning such</span>
-<span class="sd">    instance.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      A :class:`opennmt.models.Model` instance or a callable returning such</span>
+<span class="sd">      instance.</span>
 
-<span class="sd">  Raises:</span>
-<span class="sd">    ValueError: if the model :obj:`name` does not exist in the model catalog.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">return</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_model_from_catalog</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="n">as_builder</span><span class="p">)</span>
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if the model :obj:`name` does not exist in the model catalog.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_model_from_catalog</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="n">as_builder</span><span class="p">)</span>
 
-<div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../package/opennmt.load_model.html#opennmt.load_model">[docs]</a><span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span>
-               <span class="n">model_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-               <span class="n">serialize_model</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-               <span class="n">as_builder</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Loads the model from the catalog or a definition file.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    model_dir: The model directory.</span>
-<span class="sd">    model_file: An optional model configuration.</span>
-<span class="sd">      Mutually exclusive with :obj:`model_name`.</span>
-<span class="sd">    model_name: An optional model name from the catalog.</span>
-<span class="sd">      Mutually exclusive with :obj:`model_file`.</span>
-<span class="sd">    serialize_model: Serialize the model definition in the model directory to</span>
-<span class="sd">      make it optional for future runs.</span>
-<span class="sd">    as_builder: If ``True``, return a callable building the model on call.</span>
+<div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../package/opennmt.load_model.html#opennmt.load_model">[docs]</a><span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span>
+    <span class="n">model_dir</span><span class="p">,</span> <span class="n">model_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">serialize_model</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Loads the model from the catalog or a definition file.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    A :class:`opennmt.models.Model` instance or a callable returning such</span>
-<span class="sd">    instance.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      model_dir: The model directory.</span>
+<span class="sd">      model_file: An optional model configuration.</span>
+<span class="sd">        Mutually exclusive with :obj:`model_name`.</span>
+<span class="sd">      model_name: An optional model name from the catalog.</span>
+<span class="sd">        Mutually exclusive with :obj:`model_file`.</span>
+<span class="sd">      serialize_model: Serialize the model definition in the model directory to</span>
+<span class="sd">        make it optional for future runs.</span>
+<span class="sd">      as_builder: If ``True``, return a callable building the model on call.</span>
 
-<span class="sd">  Raises:</span>
-<span class="sd">    ValueError: if both :obj:`model_file` and :obj:`model_name` are set.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="n">model_file</span> <span class="ow">and</span> <span class="n">model_name</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;only one of model_file and model_name should be set&quot;</span><span class="p">)</span>
-  <span class="n">model_description_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;model_description.py&quot;</span><span class="p">)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      A :class:`opennmt.models.Model` instance or a callable returning such</span>
+<span class="sd">      instance.</span>
 
-  <span class="k">if</span> <span class="n">model_file</span><span class="p">:</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="n">as_builder</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">serialize_model</span><span class="p">:</span>
-      <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="n">model_description_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-  <span class="k">elif</span> <span class="n">model_name</span><span class="p">:</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_catalog</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="n">as_builder</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">serialize_model</span><span class="p">:</span>
-      <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">model_description_file</span><span class="p">:</span>
-        <span class="n">model_description_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="s2">&quot;from opennmt import models</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="s2">&quot;model = lambda: models.get_model_from_catalog(</span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">model_name</span><span class="p">)</span>
-  <span class="k">elif</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">):</span>
-    <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading model description from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_description_path</span><span class="p">)</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="n">as_builder</span><span class="p">)</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;A model configuration is required: you probably need to &quot;</span>
-                       <span class="s2">&quot;set --model or --model_type on the command line.&quot;</span><span class="p">)</span>
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if both :obj:`model_file` and :obj:`model_name` are set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">model_file</span> <span class="ow">and</span> <span class="n">model_name</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;only one of model_file and model_name should be set&quot;</span><span class="p">)</span>
+    <span class="n">model_description_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;model_description.py&quot;</span><span class="p">)</span>
 
-  <span class="k">return</span> <span class="n">model</span></div>
+    <span class="k">if</span> <span class="n">model_file</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="n">as_builder</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">serialize_model</span><span class="p">:</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="n">model_description_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">model_name</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_catalog</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="n">as_builder</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">serialize_model</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span>
+                <span class="n">model_description_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">model_description_file</span><span class="p">:</span>
+                <span class="n">model_description_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                    <span class="s2">&quot;from opennmt import models</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s1">&#39;model = lambda: models.get_model_from_catalog(&quot;</span><span class="si">%s</span><span class="s1">&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">model_name</span>
+                <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">):</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Loading model description from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_description_path</span>
+        <span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_description_path</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="n">as_builder</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;A model configuration is required: you probably need to &quot;</span>
+            <span class="s2">&quot;set --model or --model_type on the command line.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">model</span></div>
+
 
 <div class="viewcode-block" id="load_config"><a class="viewcode-back" href="../../package/opennmt.load_config.html#opennmt.load_config">[docs]</a><span class="k">def</span> <span class="nf">load_config</span><span class="p">(</span><span class="n">config_paths</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Loads YAML configuration files.</span>
+    <span class="sd">&quot;&quot;&quot;Loads YAML configuration files.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    config_paths: A list of configuration files that will be merged to a single</span>
-<span class="sd">      configuration. The rightmost configuration takes priority.</span>
-<span class="sd">    config: A (possibly non empty) config dictionary to fill.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      config_paths: A list of configuration files that will be merged to a single</span>
+<span class="sd">        configuration. The rightmost configuration takes priority.</span>
+<span class="sd">      config: A (possibly non empty) config dictionary to fill.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    The configuration as Python dictionary.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      The configuration as Python dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
 
-  <span class="k">for</span> <span class="n">config_path</span> <span class="ow">in</span> <span class="n">config_paths</span><span class="p">:</span>
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
-      <span class="n">subconfig</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">UnsafeLoader</span><span class="p">)</span>
-      <span class="c1"># Add or update section in main configuration.</span>
-      <span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">subconfig</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">config_path</span> <span class="ow">in</span> <span class="n">config_paths</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+            <span class="n">subconfig</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">UnsafeLoader</span><span class="p">)</span>
+            <span class="c1"># Add or update section in main configuration.</span>
+            <span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">subconfig</span><span class="p">)</span>
 
-  <span class="k">return</span> <span class="n">config</span></div>
+    <span class="k">return</span> <span class="n">config</span></div>
 
 
 <div class="viewcode-block" id="convert_to_v2_config"><a class="viewcode-back" href="../../package/opennmt.convert_to_v2_config.html#opennmt.convert_to_v2_config">[docs]</a><span class="k">def</span> <span class="nf">convert_to_v2_config</span><span class="p">(</span><span class="n">v1_config</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Converts a V1 configuration to its V2 equivalent.</span>
+    <span class="sd">&quot;&quot;&quot;Converts a V1 configuration to its V2 equivalent.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    v1_config: The V1 configuration.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      v1_config: The V1 configuration.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    The V2 configuration.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      The V2 configuration.</span>
 
-<span class="sd">  Raises:</span>
-<span class="sd">    ValueError: if the conversion can not be done automatically.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v1_config</span><span class="p">)</span>
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if the conversion can not be done automatically.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">v1_config</span><span class="p">)</span>
 
-  <span class="n">_convert_to_v2_params</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">_convert_to_v2_params</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
-  <span class="n">data_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">data_config</span><span class="p">:</span>
-    <span class="c1"># Covers most of seq2seq models in the catalog.</span>
-    <span class="n">_rename_opt</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="s2">&quot;source_words_vocabulary&quot;</span><span class="p">,</span> <span class="s2">&quot;source_vocabulary&quot;</span><span class="p">)</span>
-    <span class="n">_rename_opt</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="s2">&quot;target_words_vocabulary&quot;</span><span class="p">,</span> <span class="s2">&quot;target_vocabulary&quot;</span><span class="p">)</span>
+    <span class="n">data_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">data_config</span><span class="p">:</span>
+        <span class="c1"># Covers most of seq2seq models in the catalog.</span>
+        <span class="n">_rename_opt</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="s2">&quot;source_words_vocabulary&quot;</span><span class="p">,</span> <span class="s2">&quot;source_vocabulary&quot;</span><span class="p">)</span>
+        <span class="n">_rename_opt</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="s2">&quot;target_words_vocabulary&quot;</span><span class="p">,</span> <span class="s2">&quot;target_vocabulary&quot;</span><span class="p">)</span>
 
-  <span class="k">for</span> <span class="n">section_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;eval&quot;</span><span class="p">,</span> <span class="s2">&quot;infer&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">):</span>
-    <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">section</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">continue</span>
+    <span class="k">for</span> <span class="n">section_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;eval&quot;</span><span class="p">,</span> <span class="s2">&quot;infer&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">):</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">section</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
 
-    <span class="n">_delete_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;num_threads&quot;</span><span class="p">)</span>
-    <span class="n">_delete_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;prefetch_buffer_size&quot;</span><span class="p">)</span>
-    <span class="n">_rename_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;bucket_width&quot;</span><span class="p">,</span> <span class="s2">&quot;length_bucket_width&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">section_name</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span>
-      <span class="n">_rename_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;train_steps&quot;</span><span class="p">,</span> <span class="s2">&quot;max_step&quot;</span><span class="p">)</span>
-      <span class="n">_delete_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;save_checkpoints_secs&quot;</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">section_name</span> <span class="o">==</span> <span class="s2">&quot;eval&quot;</span><span class="p">:</span>
-      <span class="n">_delete_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;eval_delay&quot;</span><span class="p">)</span>
-      <span class="n">_delete_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;exporters&quot;</span><span class="p">)</span>
+        <span class="n">_delete_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;num_threads&quot;</span><span class="p">)</span>
+        <span class="n">_delete_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;prefetch_buffer_size&quot;</span><span class="p">)</span>
+        <span class="n">_rename_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;bucket_width&quot;</span><span class="p">,</span> <span class="s2">&quot;length_bucket_width&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">section_name</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span>
+            <span class="n">_rename_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;train_steps&quot;</span><span class="p">,</span> <span class="s2">&quot;max_step&quot;</span><span class="p">)</span>
+            <span class="n">_delete_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;save_checkpoints_secs&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">section_name</span> <span class="o">==</span> <span class="s2">&quot;eval&quot;</span><span class="p">:</span>
+            <span class="n">_delete_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;eval_delay&quot;</span><span class="p">)</span>
+            <span class="n">_delete_opt</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="s2">&quot;exporters&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Remove empty sections.</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">section</span><span class="p">:</span>
-      <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+        <span class="c1"># Remove empty sections.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">section</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
 
-  <span class="k">return</span> <span class="n">config</span></div>
+    <span class="k">return</span> <span class="n">config</span></div>
+
 
 <span class="k">def</span> <span class="nf">_convert_to_v2_params</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-  <span class="n">params</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
-    <span class="k">return</span>
-  <span class="k">if</span> <span class="s2">&quot;freeze_variables&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;params/freeze_variables should be manually converted to &quot;</span>
-                     <span class="s2">&quot;params/freeze_layers&quot;</span><span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="s2">&quot;freeze_variables&quot;</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;params/freeze_variables should be manually converted to &quot;</span>
+            <span class="s2">&quot;params/freeze_layers&quot;</span>
+        <span class="p">)</span>
 
-  <span class="n">_convert_to_v2_optimizer</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-  <span class="n">_convert_to_v2_lr_schedules</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-  <span class="n">_convert_to_v2_step_accumulation</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
-  <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;param_init&quot;</span><span class="p">)</span>
-  <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;loss_scale&quot;</span><span class="p">)</span>
-  <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;horovod&quot;</span><span class="p">)</span>
-  <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;maximum_learning_rate&quot;</span><span class="p">)</span>
-  <span class="n">_rename_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;maximum_iterations&quot;</span><span class="p">,</span> <span class="s2">&quot;maximum_decoding_length&quot;</span><span class="p">)</span>
+    <span class="n">_convert_to_v2_optimizer</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">_convert_to_v2_lr_schedules</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">_convert_to_v2_step_accumulation</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+    <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;param_init&quot;</span><span class="p">)</span>
+    <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;loss_scale&quot;</span><span class="p">)</span>
+    <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;horovod&quot;</span><span class="p">)</span>
+    <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;maximum_learning_rate&quot;</span><span class="p">)</span>
+    <span class="n">_rename_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;maximum_iterations&quot;</span><span class="p">,</span> <span class="s2">&quot;maximum_decoding_length&quot;</span><span class="p">)</span>
 
-  <span class="n">clip_gradients</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;clip_gradients&quot;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">clip_gradients</span><span class="p">:</span>
-    <span class="n">optimizer_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;optimizer_params&quot;</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="n">optimizer_params</span><span class="p">[</span><span class="s2">&quot;clipnorm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clip_gradients</span>
+    <span class="n">clip_gradients</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;clip_gradients&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clip_gradients</span><span class="p">:</span>
+        <span class="n">optimizer_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;optimizer_params&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">optimizer_params</span><span class="p">[</span><span class="s2">&quot;clipnorm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clip_gradients</span>
 
-  <span class="n">weight_decay</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;weight_decay&quot;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">weight_decay</span><span class="p">:</span>
-    <span class="n">optimizer_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;optimizer_params&quot;</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="n">optimizer_params</span><span class="p">[</span><span class="s2">&quot;weight_decay&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">weight_decay</span>
+    <span class="n">weight_decay</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;weight_decay&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">weight_decay</span><span class="p">:</span>
+        <span class="n">optimizer_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;optimizer_params&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">optimizer_params</span><span class="p">[</span><span class="s2">&quot;weight_decay&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">weight_decay</span>
+
 
 <span class="c1"># Only covering the most common optimizers.</span>
 <span class="n">_V1_OPTIMIZER_MAP</span> <span class="o">=</span> <span class="p">{</span>
@@ -404,64 +417,77 @@
     <span class="s2">&quot;LazyAdamOptimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;LazyAdam&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
-<span class="k">def</span> <span class="nf">_convert_to_v2_optimizer</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
-  <span class="n">optimizer</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;optimizer&quot;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">optimizer</span><span class="p">:</span>
-    <span class="k">try</span><span class="p">:</span>
-      <span class="c1"># Check if the optimizer exists in V2.</span>
-      <span class="n">optimizers_lib</span><span class="o">.</span><span class="n">get_optimizer_class</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-      <span class="n">v2_optimizer</span> <span class="o">=</span> <span class="n">_V1_OPTIMIZER_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span>
-      <span class="k">if</span> <span class="ow">not</span> <span class="n">v2_optimizer</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;params/optimizer should be manually converted: no registered &quot;</span>
-                         <span class="s2">&quot;conversion for optimizer </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">optimizer</span><span class="p">)</span>
-      <span class="n">params</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">v2_optimizer</span>
 
-  <span class="n">optimizer_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;optimizer_params&quot;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">optimizer_params</span><span class="p">:</span>
-    <span class="n">_rename_opt</span><span class="p">(</span><span class="n">optimizer_params</span><span class="p">,</span> <span class="s2">&quot;beta1&quot;</span><span class="p">,</span> <span class="s2">&quot;beta_1&quot;</span><span class="p">)</span>
-    <span class="n">_rename_opt</span><span class="p">(</span><span class="n">optimizer_params</span><span class="p">,</span> <span class="s2">&quot;beta2&quot;</span><span class="p">,</span> <span class="s2">&quot;beta_2&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_convert_to_v2_optimizer</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;optimizer&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">optimizer</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Check if the optimizer exists in V2.</span>
+            <span class="n">optimizers_lib</span><span class="o">.</span><span class="n">get_optimizer_class</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">v2_optimizer</span> <span class="o">=</span> <span class="n">_V1_OPTIMIZER_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">v2_optimizer</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;params/optimizer should be manually converted: no registered &quot;</span>
+                    <span class="s2">&quot;conversion for optimizer </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">optimizer</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;optimizer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">v2_optimizer</span>
+
+    <span class="n">optimizer_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;optimizer_params&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">optimizer_params</span><span class="p">:</span>
+        <span class="n">_rename_opt</span><span class="p">(</span><span class="n">optimizer_params</span><span class="p">,</span> <span class="s2">&quot;beta1&quot;</span><span class="p">,</span> <span class="s2">&quot;beta_1&quot;</span><span class="p">)</span>
+        <span class="n">_rename_opt</span><span class="p">(</span><span class="n">optimizer_params</span><span class="p">,</span> <span class="s2">&quot;beta2&quot;</span><span class="p">,</span> <span class="s2">&quot;beta_2&quot;</span><span class="p">)</span>
+
 
 <span class="k">def</span> <span class="nf">_convert_to_v2_lr_schedules</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
-  <span class="n">decay_type</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_type&quot;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="n">decay_type</span><span class="p">:</span>
-    <span class="k">return</span>
-  <span class="k">try</span><span class="p">:</span>
-    <span class="c1"># Check if the learning rate schedule exists in V2.</span>
-    <span class="n">schedules_lib</span><span class="o">.</span><span class="n">get_lr_schedule_class</span><span class="p">(</span><span class="n">decay_type</span><span class="p">)</span>
-  <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">decay_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;noam_decay&quot;</span><span class="p">):</span>
-      <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;NoamDecay&quot;</span>
-      <span class="k">if</span> <span class="s2">&quot;decay_params&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-        <span class="n">model_dim</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;decay_rate&quot;</span><span class="p">)</span>
-        <span class="n">warmup_steps</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;decay_steps&quot;</span><span class="p">)</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">model_dim</span><span class="o">=</span><span class="n">model_dim</span><span class="p">,</span> <span class="n">warmup_steps</span><span class="o">=</span><span class="n">warmup_steps</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;params/decay_type should be manually converted: no registered &quot;</span>
-                       <span class="s2">&quot;conversion for decay type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">decay_type</span><span class="p">)</span>
+    <span class="n">decay_type</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_type&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">decay_type</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Check if the learning rate schedule exists in V2.</span>
+        <span class="n">schedules_lib</span><span class="o">.</span><span class="n">get_lr_schedule_class</span><span class="p">(</span><span class="n">decay_type</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">decay_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;noam_decay&quot;</span><span class="p">):</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;NoamDecay&quot;</span>
+            <span class="k">if</span> <span class="s2">&quot;decay_params&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+                <span class="n">model_dim</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;decay_rate&quot;</span><span class="p">)</span>
+                <span class="n">warmup_steps</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;decay_steps&quot;</span><span class="p">)</span>
+                <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_params&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">model_dim</span><span class="o">=</span><span class="n">model_dim</span><span class="p">,</span> <span class="n">warmup_steps</span><span class="o">=</span><span class="n">warmup_steps</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;params/decay_type should be manually converted: no registered &quot;</span>
+                <span class="s2">&quot;conversion for decay type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">decay_type</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
 
 <span class="k">def</span> <span class="nf">_convert_to_v2_step_accumulation</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-  <span class="c1"># Try to upgrade step accumulation to train/effective_batch_size.</span>
-  <span class="n">decay_step_duration</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;decay_step_duration&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">1</span>
-  <span class="n">gradients_accum</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;gradients_accum&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">1</span>
-  <span class="n">accum_steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">decay_step_duration</span><span class="p">,</span> <span class="n">gradients_accum</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">accum_steps</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-    <span class="n">train_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;batch_size&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">batch_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;effective_batch_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">*</span> <span class="n">accum_steps</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;params/decay_step_duration and params/gradients_accum &quot;</span>
-                       <span class="s2">&quot;should be manually converted to train/effective_batch_size&quot;</span><span class="p">)</span>
+    <span class="c1"># Try to upgrade step accumulation to train/effective_batch_size.</span>
+    <span class="n">decay_step_duration</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;decay_step_duration&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">1</span>
+    <span class="n">gradients_accum</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;gradients_accum&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">1</span>
+    <span class="n">accum_steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">decay_step_duration</span><span class="p">,</span> <span class="n">gradients_accum</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">accum_steps</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">train_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;batch_size&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">batch_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;effective_batch_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">*</span> <span class="n">accum_steps</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;params/decay_step_duration and params/gradients_accum &quot;</span>
+                <span class="s2">&quot;should be manually converted to train/effective_batch_size&quot;</span>
+            <span class="p">)</span>
+
 
 <span class="k">def</span> <span class="nf">_delete_opt</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-  <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
 
 <span class="k">def</span> <span class="nf">_rename_opt</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">new_name</span><span class="p">):</span>
-  <span class="n">value</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">config</span><span class="p">[</span><span class="n">new_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-  <span class="k">return</span> <span class="n">value</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span><span class="p">[</span><span class="n">new_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">value</span>
 </pre></div>
 
            </div>

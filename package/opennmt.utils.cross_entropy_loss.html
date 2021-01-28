@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.cross_entropy_loss &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.utils.cross_entropy_loss &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -210,15 +210,16 @@
 <h1>opennmt.utils.cross_entropy_loss<a class="headerlink" href="#opennmt-utils-cross-entropy-loss" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="opennmt.utils.cross_entropy_loss">
-<code class="sig-prename descclassname">opennmt.utils.</code><code class="sig-name descname">cross_entropy_loss</code><span class="sig-paren">(</span><em class="sig-param">logits</em>, <em class="sig-param">labels</em>, <em class="sig-param">label_smoothing=0.0</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/losses.html#cross_entropy_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.cross_entropy_loss" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">opennmt.utils.</code><code class="sig-name descname">cross_entropy_loss</code><span class="sig-paren">(</span><em class="sig-param">logits</em>, <em class="sig-param">labels</em>, <em class="sig-param">label_smoothing=0.0</em>, <em class="sig-param">training=None</em>, <em class="sig-param">weight=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/losses.html#cross_entropy_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.cross_entropy_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the cross entropy loss.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>logits</strong> – The unscaled probabilities.</p></li>
-<li><p><strong>labels</strong> – The true labels.</p></li>
+<li><p><strong>logits</strong> – The unscaled probabilities with shape <span class="math notranslate nohighlight">\([B, V]\)</span>.</p></li>
+<li><p><strong>labels</strong> – The true labels with shape <span class="math notranslate nohighlight">\([B]\)</span>.</p></li>
 <li><p><strong>label_smoothing</strong> – The label smoothing value.</p></li>
 <li><p><strong>training</strong> – Compute training loss.</p></li>
+<li><p><strong>weight</strong> – The weight of each example with shape <span class="math notranslate nohighlight">\([B]\)</span>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

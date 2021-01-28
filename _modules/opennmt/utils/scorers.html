@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.scorers &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.utils.scorers &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -194,149 +194,159 @@
 
 
 <div class="viewcode-block" id="Scorer"><a class="viewcode-back" href="../../../package/opennmt.utils.Scorer.html#opennmt.utils.Scorer">[docs]</a><span class="k">class</span> <span class="nc">Scorer</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Scores hypotheses against references.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Scores hypotheses against references.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
 
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The scorer name.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The scorer name.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
 
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">scores_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The names of returned scores.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">}</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scores_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The names of returned scores.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">}</span>
 
-<div class="viewcode-block" id="Scorer.__call__"><a class="viewcode-back" href="../../../package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.__call__">[docs]</a>  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Scores hypotheses.</span>
+<div class="viewcode-block" id="Scorer.__call__"><a class="viewcode-back" href="../../../package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.__call__">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Scores hypotheses.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      ref_path: Path to the reference.</span>
-<span class="sd">      hyp_path: Path to the hypotheses.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          ref_path: Path to the reference.</span>
+<span class="sd">          hyp_path: Path to the hypotheses.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      The score or dictionary of scores.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+<span class="sd">        Returns:</span>
+<span class="sd">          The score or dictionary of scores.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Scorer.lower_is_better"><a class="viewcode-back" href="../../../package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.lower_is_better">[docs]</a>  <span class="k">def</span> <span class="nf">lower_is_better</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns ``True`` if a lower score is better.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="kc">False</span></div>
+<div class="viewcode-block" id="Scorer.lower_is_better"><a class="viewcode-back" href="../../../package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.lower_is_better">[docs]</a>    <span class="k">def</span> <span class="nf">lower_is_better</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns ``True`` if a lower score is better.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="Scorer.higher_is_better"><a class="viewcode-back" href="../../../package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.higher_is_better">[docs]</a>  <span class="k">def</span> <span class="nf">higher_is_better</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns ``True`` if a higher score is better.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="Scorer.higher_is_better"><a class="viewcode-back" href="../../../package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.higher_is_better">[docs]</a>    <span class="k">def</span> <span class="nf">higher_is_better</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns ``True`` if a higher score is better.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">()</span></div></div>
 
 
 <span class="n">_SCORERS_REGISTRY</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">ClassRegistry</span><span class="p">(</span><span class="n">base_class</span><span class="o">=</span><span class="n">Scorer</span><span class="p">)</span>
-<span class="n">register_scorer</span> <span class="o">=</span> <span class="n">_SCORERS_REGISTRY</span><span class="o">.</span><span class="n">register</span>  <span class="c1"># pylint: disable=invalid-name</span>
+<span class="n">register_scorer</span> <span class="o">=</span> <span class="n">_SCORERS_REGISTRY</span><span class="o">.</span><span class="n">register</span>
+
+
+<span class="k">def</span> <span class="nf">_get_lines</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">lines</span>
 
 
 <div class="viewcode-block" id="ROUGEScorer"><a class="viewcode-back" href="../../../package/opennmt.utils.ROUGEScorer.html#opennmt.utils.ROUGEScorer">[docs]</a><span class="nd">@register_scorer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;rouge&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ROUGEScorer</span><span class="p">(</span><span class="n">Scorer</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;ROUGE scorer based on https://github.com/pltrdy/rouge.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;ROUGE scorer based on https://github.com/pltrdy/rouge.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;rouge&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;rouge&quot;</span><span class="p">)</span>
 
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">scores_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;rouge-1&quot;</span><span class="p">,</span> <span class="s2">&quot;rouge-2&quot;</span><span class="p">,</span> <span class="s2">&quot;rouge-l&quot;</span><span class="p">}</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scores_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;rouge-1&quot;</span><span class="p">,</span> <span class="s2">&quot;rouge-2&quot;</span><span class="p">,</span> <span class="s2">&quot;rouge-l&quot;</span><span class="p">}</span>
 
-  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
-    <span class="n">scorer</span> <span class="o">=</span> <span class="n">FilesRouge</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scores_name</span><span class="p">))</span>
-    <span class="n">rouge_scores</span> <span class="o">=</span> <span class="n">scorer</span><span class="o">.</span><span class="n">get_scores</span><span class="p">(</span><span class="n">hyp_path</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">avg</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span><span class="n">rouge_scores</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;f&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scores_name</span><span class="p">}</span></div>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
+        <span class="n">scorer</span> <span class="o">=</span> <span class="n">FilesRouge</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scores_name</span><span class="p">))</span>
+        <span class="n">rouge_scores</span> <span class="o">=</span> <span class="n">scorer</span><span class="o">.</span><span class="n">get_scores</span><span class="p">(</span><span class="n">hyp_path</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">avg</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">rouge_scores</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;f&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scores_name</span><span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="BLEUScorer"><a class="viewcode-back" href="../../../package/opennmt.utils.BLEUScorer.html#opennmt.utils.BLEUScorer">[docs]</a><span class="nd">@register_scorer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;bleu&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">BLEUScorer</span><span class="p">(</span><span class="n">Scorer</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Scorer using sacreBLEU.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Scorer using sacreBLEU.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;bleu&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;bleu&quot;</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">ref_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">ref_stream</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">hyp_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">sys_stream</span><span class="p">:</span>
-      <span class="n">bleu</span> <span class="o">=</span> <span class="n">sacrebleu</span><span class="o">.</span><span class="n">corpus_bleu</span><span class="p">(</span><span class="n">sys_stream</span><span class="p">,</span> <span class="p">[</span><span class="n">ref_stream</span><span class="p">],</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-      <span class="k">return</span> <span class="n">bleu</span><span class="o">.</span><span class="n">score</span></div>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
+        <span class="n">sys_stream</span> <span class="o">=</span> <span class="n">_get_lines</span><span class="p">(</span><span class="n">hyp_path</span><span class="p">)</span>
+        <span class="n">ref_stream</span> <span class="o">=</span> <span class="n">_get_lines</span><span class="p">(</span><span class="n">ref_path</span><span class="p">)</span>
+        <span class="n">bleu</span> <span class="o">=</span> <span class="n">sacrebleu</span><span class="o">.</span><span class="n">corpus_bleu</span><span class="p">(</span><span class="n">sys_stream</span><span class="p">,</span> <span class="p">[</span><span class="n">ref_stream</span><span class="p">],</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bleu</span><span class="o">.</span><span class="n">score</span></div>
 
 
 <div class="viewcode-block" id="WERScorer"><a class="viewcode-back" href="../../../package/opennmt.utils.WERScorer.html#opennmt.utils.WERScorer">[docs]</a><span class="nd">@register_scorer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;wer&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">WERScorer</span><span class="p">(</span><span class="n">Scorer</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;WER scorer.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;WER scorer.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;wer&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;wer&quot;</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
-    <span class="n">wer_score</span> <span class="o">=</span> <span class="n">wer</span><span class="p">(</span><span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">wer_score</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
+        <span class="n">wer_score</span> <span class="o">=</span> <span class="n">wer</span><span class="p">(</span><span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">wer_score</span>
 
-<div class="viewcode-block" id="WERScorer.lower_is_better"><a class="viewcode-back" href="../../../package/opennmt.utils.WERScorer.html#opennmt.utils.WERScorer.lower_is_better">[docs]</a>  <span class="k">def</span> <span class="nf">lower_is_better</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="kc">True</span></div></div>
+<div class="viewcode-block" id="WERScorer.lower_is_better"><a class="viewcode-back" href="../../../package/opennmt.utils.WERScorer.html#opennmt.utils.WERScorer.lower_is_better">[docs]</a>    <span class="k">def</span> <span class="nf">lower_is_better</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
 
 
 <div class="viewcode-block" id="TERScorer"><a class="viewcode-back" href="../../../package/opennmt.utils.TERScorer.html#opennmt.utils.TERScorer">[docs]</a><span class="nd">@register_scorer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ter&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TERScorer</span><span class="p">(</span><span class="n">Scorer</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;TER scorer.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;TER scorer.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;ter&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;ter&quot;</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">ref_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">ref_stream</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">hyp_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">sys_stream</span><span class="p">:</span>
-      <span class="n">ter</span> <span class="o">=</span> <span class="n">sacrebleu</span><span class="o">.</span><span class="n">corpus_ter</span><span class="p">(</span><span class="n">sys_stream</span><span class="p">,</span> <span class="p">[</span><span class="n">ref_stream</span><span class="p">])</span>
-      <span class="k">return</span> <span class="n">ter</span><span class="o">.</span><span class="n">score</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
+        <span class="n">sys_stream</span> <span class="o">=</span> <span class="n">_get_lines</span><span class="p">(</span><span class="n">hyp_path</span><span class="p">)</span>
+        <span class="n">ref_stream</span> <span class="o">=</span> <span class="n">_get_lines</span><span class="p">(</span><span class="n">ref_path</span><span class="p">)</span>
+        <span class="n">ter</span> <span class="o">=</span> <span class="n">sacrebleu</span><span class="o">.</span><span class="n">corpus_ter</span><span class="p">(</span><span class="n">sys_stream</span><span class="p">,</span> <span class="p">[</span><span class="n">ref_stream</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">ter</span><span class="o">.</span><span class="n">score</span>
 
-<div class="viewcode-block" id="TERScorer.lower_is_better"><a class="viewcode-back" href="../../../package/opennmt.utils.TERScorer.html#opennmt.utils.TERScorer.lower_is_better">[docs]</a>  <span class="k">def</span> <span class="nf">lower_is_better</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="kc">True</span></div></div>
+<div class="viewcode-block" id="TERScorer.lower_is_better"><a class="viewcode-back" href="../../../package/opennmt.utils.TERScorer.html#opennmt.utils.TERScorer.lower_is_better">[docs]</a>    <span class="k">def</span> <span class="nf">lower_is_better</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
 
 
 <div class="viewcode-block" id="PRFScorer"><a class="viewcode-back" href="../../../package/opennmt.utils.PRFScorer.html#opennmt.utils.PRFScorer">[docs]</a><span class="nd">@register_scorer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;prfmeasure&quot;</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;prf&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">PRFScorer</span><span class="p">(</span><span class="n">Scorer</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;F-measure scorer.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F-measure scorer.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;prfmeasure&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;prfmeasure&quot;</span><span class="p">)</span>
 
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">scores_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;precision&quot;</span><span class="p">,</span> <span class="s2">&quot;recall&quot;</span><span class="p">,</span> <span class="s2">&quot;fmeasure&quot;</span><span class="p">}</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scores_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;precision&quot;</span><span class="p">,</span> <span class="s2">&quot;recall&quot;</span><span class="p">,</span> <span class="s2">&quot;fmeasure&quot;</span><span class="p">}</span>
 
-  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
-    <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">fmeasure_score</span> <span class="o">=</span> <span class="n">fmeasure</span><span class="p">(</span><span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;precision&quot;</span><span class="p">:</span> <span class="n">precision_score</span><span class="p">,</span>
-        <span class="s2">&quot;recall&quot;</span><span class="p">:</span> <span class="n">recall_score</span><span class="p">,</span>
-        <span class="s2">&quot;fmeasure&quot;</span><span class="p">:</span> <span class="n">fmeasure_score</span>
-    <span class="p">}</span></div>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
+        <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">fmeasure_score</span> <span class="o">=</span> <span class="n">fmeasure</span><span class="p">(</span><span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;precision&quot;</span><span class="p">:</span> <span class="n">precision_score</span><span class="p">,</span>
+            <span class="s2">&quot;recall&quot;</span><span class="p">:</span> <span class="n">recall_score</span><span class="p">,</span>
+            <span class="s2">&quot;fmeasure&quot;</span><span class="p">:</span> <span class="n">fmeasure_score</span><span class="p">,</span>
+        <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="make_scorers"><a class="viewcode-back" href="../../../package/opennmt.utils.make_scorers.html#opennmt.utils.make_scorers">[docs]</a><span class="k">def</span> <span class="nf">make_scorers</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Returns a list of scorers.</span>
+    <span class="sd">&quot;&quot;&quot;Returns a list of scorers.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    names: A list of scorer names or a single name.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      names: A list of scorer names or a single name.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    A list of :class:`opennmt.utils.Scorer` instances.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      A list of :class:`opennmt.utils.Scorer` instances.</span>
 
-<span class="sd">  Raises:</span>
-<span class="sd">    ValueError: if a scorer name is invalid.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">names</span><span class="p">]</span>
-  <span class="n">scorers</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
-    <span class="n">scorer_class</span> <span class="o">=</span> <span class="n">_SCORERS_REGISTRY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
-    <span class="k">if</span> <span class="n">scorer_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No scorer associated with the name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
-    <span class="n">scorers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scorer_class</span><span class="p">())</span>
-  <span class="k">return</span> <span class="n">scorers</span></div>
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if a scorer name is invalid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">names</span><span class="p">]</span>
+    <span class="n">scorers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">scorer_class</span> <span class="o">=</span> <span class="n">_SCORERS_REGISTRY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">scorer_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No scorer associated with the name: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">scorers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scorer_class</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">scorers</span></div>
 </pre></div>
 
            </div>

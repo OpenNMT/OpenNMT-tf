@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -191,132 +191,149 @@
 
 
 <div class="viewcode-block" id="Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.Exporter.html#opennmt.utils.Exporter">[docs]</a><span class="k">class</span> <span class="nc">Exporter</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Base class for model exporters.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Base class for model exporters.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Exporter.export"><a class="viewcode-back" href="../../../package/opennmt.utils.Exporter.html#opennmt.utils.Exporter.export">[docs]</a>  <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Exports :obj:`model` to :obj:`export_dir`.</span>
+<div class="viewcode-block" id="Exporter.export"><a class="viewcode-back" href="../../../package/opennmt.utils.Exporter.html#opennmt.utils.Exporter.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Exports :obj:`model` to :obj:`export_dir`.</span>
 
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if :obj:`model` is not supported by this exporter.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_export_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
-      <span class="n">extra_assets</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_assets</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">extra_assets</span><span class="p">:</span>
-        <span class="n">assets_extra</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="s2">&quot;assets.extra&quot;</span><span class="p">)</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">assets_extra</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">extra_assets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-          <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">assets_extra</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Extra assets written to: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">assets_extra</span><span class="p">)</span></div>
+<span class="sd">        Raises:</span>
+<span class="sd">          ValueError: if :obj:`model` is not supported by this exporter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_export_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
+            <span class="n">extra_assets</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_assets</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">extra_assets</span><span class="p">:</span>
+                <span class="n">assets_extra</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="s2">&quot;assets.extra&quot;</span><span class="p">)</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">assets_extra</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">extra_assets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
+                        <span class="n">path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">assets_extra</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Extra assets written to: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">assets_extra</span><span class="p">)</span></div>
 
-  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-  <span class="k">def</span> <span class="nf">_export_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_export_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
 <span class="n">_EXPORTERS_REGISTRY</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">ClassRegistry</span><span class="p">(</span><span class="n">base_class</span><span class="o">=</span><span class="n">Exporter</span><span class="p">)</span>
-<span class="n">register_exporter</span> <span class="o">=</span> <span class="n">_EXPORTERS_REGISTRY</span><span class="o">.</span><span class="n">register</span>  <span class="c1"># pylint: disable=invalid-name</span>
+<span class="n">register_exporter</span> <span class="o">=</span> <span class="n">_EXPORTERS_REGISTRY</span><span class="o">.</span><span class="n">register</span>
+
 
 <span class="k">def</span> <span class="nf">make_exporter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Creates a new exporter.</span>
+    <span class="sd">&quot;&quot;&quot;Creates a new exporter.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    name: The exporter name.</span>
-<span class="sd">    **kwargs: Additional arguments to pass to the exporter constructor.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      name: The exporter name.</span>
+<span class="sd">      **kwargs: Additional arguments to pass to the exporter constructor.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    A :class:`opennmt.utils.Exporter` instance.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      A :class:`opennmt.utils.Exporter` instance.</span>
 
-<span class="sd">  Raises:</span>
-<span class="sd">    ValueError: if :obj:`name` is invalid.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">exporter_class</span> <span class="o">=</span> <span class="n">_EXPORTERS_REGISTRY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-  <span class="k">if</span> <span class="n">exporter_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid exporter name: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">exporter_class</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`name` is invalid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">exporter_class</span> <span class="o">=</span> <span class="n">_EXPORTERS_REGISTRY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">exporter_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid exporter name: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">exporter_class</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
 
 <span class="k">def</span> <span class="nf">list_exporters</span><span class="p">():</span>
-  <span class="sd">&quot;&quot;&quot;Lists the name of registered exporters.&quot;&quot;&quot;</span>
-  <span class="k">return</span> <span class="n">_EXPORTERS_REGISTRY</span><span class="o">.</span><span class="n">class_names</span>
+    <span class="sd">&quot;&quot;&quot;Lists the name of registered exporters.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_EXPORTERS_REGISTRY</span><span class="o">.</span><span class="n">class_names</span>
 
 
 <div class="viewcode-block" id="SavedModelExporter"><a class="viewcode-back" href="../../../package/opennmt.utils.SavedModelExporter.html#opennmt.utils.SavedModelExporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;saved_model&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">SavedModelExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;SavedModel exporter.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;SavedModel exporter.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">_export_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
-    <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="n">signatures</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">serve_function</span><span class="p">())</span></div>
+    <span class="k">def</span> <span class="nf">_export_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="n">signatures</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">serve_function</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="CheckpointExporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CheckpointExporter.html#opennmt.utils.CheckpointExporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;checkpoint&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">CheckpointExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Checkpoint exporter.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Checkpoint exporter.&quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">_export_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
-    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Checkpoint</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
-    <span class="n">checkpoint</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="s2">&quot;ckpt&quot;</span><span class="p">))</span></div>
+    <span class="k">def</span> <span class="nf">_export_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
+        <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Checkpoint</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">checkpoint</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="s2">&quot;ckpt&quot;</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="CTranslate2Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Exporter.html#opennmt.utils.CTranslate2Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ctranslate2&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">CTranslate2Exporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;CTranslate2 exporter.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;CTranslate2 exporter.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="CTranslate2Exporter.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Exporter.html#opennmt.utils.CTranslate2Exporter.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the exporter.</span>
+<div class="viewcode-block" id="CTranslate2Exporter.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Exporter.html#opennmt.utils.CTranslate2Exporter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the exporter.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      quantization: Quantize model weights to this type when exporting the model.</span>
-<span class="sd">        Can be &quot;int8&quot;, &quot;int16&quot;, or &quot;float16&quot;. Default is no quantization.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          quantization: Quantize model weights to this type when exporting the model.</span>
+<span class="sd">            Can be &quot;int8&quot;, &quot;int16&quot;, or &quot;float16&quot;. Default is no quantization.</span>
 
-<span class="sd">    Raises:</span>
-<span class="sd">      ImportError: if the CTranslate2 package is missing.</span>
-<span class="sd">      ValueError: if :obj:`quantization` is invalid.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Fail now if ctranslate2 package is missing.</span>
-    <span class="kn">import</span> <span class="nn">ctranslate2</span>  <span class="c1"># pylint: disable=import-outside-toplevel,unused-import</span>
-    <span class="n">accepted_quantization</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;int8&quot;</span><span class="p">,</span> <span class="s2">&quot;int16&quot;</span><span class="p">,</span> <span class="s2">&quot;float16&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">quantization</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">quantization</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">accepted_quantization</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid quantization &#39;</span><span class="si">%s</span><span class="s2">&#39; for CTranslate2, accepted values are: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-          <span class="n">quantization</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">accepted_quantization</span><span class="p">)))</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_quantization</span> <span class="o">=</span> <span class="n">quantization</span></div>
+<span class="sd">        Raises:</span>
+<span class="sd">          ImportError: if the CTranslate2 package is missing.</span>
+<span class="sd">          ValueError: if :obj:`quantization` is invalid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Fail now if ctranslate2 package is missing.</span>
+        <span class="kn">import</span> <span class="nn">ctranslate2</span>
 
-  <span class="k">def</span> <span class="nf">_export_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
-    <span class="n">model_spec</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ctranslate2_spec</span>
-    <span class="k">if</span> <span class="n">model_spec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The model does not define an equivalent CTranslate2 model specification&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
-      <span class="n">model</span><span class="o">.</span><span class="n">create_variables</span><span class="p">()</span>
-    <span class="n">variables</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
-    <span class="n">variables</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/.ATTRIBUTES/VARIABLE_VALUE&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span><span class="n">value</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-    <span class="kn">import</span> <span class="nn">ctranslate2</span>  <span class="c1"># pylint: disable=import-outside-toplevel</span>
-    <span class="n">converter</span> <span class="o">=</span> <span class="n">ctranslate2</span><span class="o">.</span><span class="n">converters</span><span class="o">.</span><span class="n">OpenNMTTFConverter</span><span class="p">(</span>
-        <span class="n">src_vocab</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
-        <span class="n">tgt_vocab</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
-        <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span>
-    <span class="n">converter</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="n">model_spec</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_quantization</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="n">accepted_quantization</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;int8&quot;</span><span class="p">,</span> <span class="s2">&quot;int16&quot;</span><span class="p">,</span> <span class="s2">&quot;float16&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">quantization</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">quantization</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">accepted_quantization</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid quantization &#39;</span><span class="si">%s</span><span class="s2">&#39; for CTranslate2, accepted values are: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">quantization</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">accepted_quantization</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_quantization</span> <span class="o">=</span> <span class="n">quantization</span></div>
+
+    <span class="k">def</span> <span class="nf">_export_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
+        <span class="n">model_spec</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ctranslate2_spec</span>
+        <span class="k">if</span> <span class="n">model_spec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The model does not define an equivalent CTranslate2 model specification&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">create_variables</span><span class="p">()</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/.ATTRIBUTES/VARIABLE_VALUE&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span> <span class="n">value</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="kn">import</span> <span class="nn">ctranslate2</span>
+
+        <span class="n">converter</span> <span class="o">=</span> <span class="n">ctranslate2</span><span class="o">.</span><span class="n">converters</span><span class="o">.</span><span class="n">OpenNMTTFConverter</span><span class="p">(</span>
+            <span class="n">src_vocab</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
+            <span class="n">tgt_vocab</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
+            <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">converter</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span>
+            <span class="n">export_dir</span><span class="p">,</span> <span class="n">model_spec</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_quantization</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CTranslate2Int8Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Int8Exporter.html#opennmt.utils.CTranslate2Int8Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ctranslate2_int8&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">CTranslate2Int8Exporter</span><span class="p">(</span><span class="n">CTranslate2Exporter</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;CTranslate2 exporter with int8 quantization.&quot;&quot;&quot;</span>
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;int8&quot;</span><span class="p">)</span></div>
+    <span class="sd">&quot;&quot;&quot;CTranslate2 exporter with int8 quantization.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;int8&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CTranslate2Int16Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Int16Exporter.html#opennmt.utils.CTranslate2Int16Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ctranslate2_int16&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">CTranslate2Int16Exporter</span><span class="p">(</span><span class="n">CTranslate2Exporter</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;CTranslate2 exporter with int16 quantization.&quot;&quot;&quot;</span>
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;int16&quot;</span><span class="p">)</span></div>
+    <span class="sd">&quot;&quot;&quot;CTranslate2 exporter with int16 quantization.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;int16&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CTranslate2Float16Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Float16Exporter.html#opennmt.utils.CTranslate2Float16Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ctranslate2_float16&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">CTranslate2Float16Exporter</span><span class="p">(</span><span class="n">CTranslate2Exporter</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;CTranslate2 exporter with float16 quantization.&quot;&quot;&quot;</span>
-  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;float16&quot;</span><span class="p">)</span></div>
+    <span class="sd">&quot;&quot;&quot;CTranslate2 exporter with float16 quantization.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;float16&quot;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

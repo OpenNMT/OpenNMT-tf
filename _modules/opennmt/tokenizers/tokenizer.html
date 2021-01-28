@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.tokenizers.tokenizer &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.tokenizers.tokenizer &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -192,370 +192,394 @@
 
 
 <div class="viewcode-block" id="Tokenizer"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer">[docs]</a><span class="k">class</span> <span class="nc">Tokenizer</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Base class for tokenizers.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Base class for tokenizers.&quot;&quot;&quot;</span>
 
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">in_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns ``True`` if this tokenizer can be run in graph (i.e. uses TensorFlow ops).&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="kc">False</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">in_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns ``True`` if this tokenizer can be run in graph (i.e. uses TensorFlow ops).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="Tokenizer.export_assets"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.export_assets">[docs]</a>  <span class="k">def</span> <span class="nf">export_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
-    <span class="sd">&quot;&quot;&quot;Exports assets for this tokenizer.</span>
+<div class="viewcode-block" id="Tokenizer.export_assets"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.export_assets">[docs]</a>    <span class="k">def</span> <span class="nf">export_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">,</span> <span class="n">asset_prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Exports assets for this tokenizer.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      asset_dir: The directory where assets can be written.</span>
-<span class="sd">      asset_prefix: The prefix to attach to assets filename.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          asset_dir: The directory where assets can be written.</span>
+<span class="sd">          asset_prefix: The prefix to attach to assets filename.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      A dictionary containing additional assets used by the tokenizer.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">{}</span></div>
+<span class="sd">        Returns:</span>
+<span class="sd">          A dictionary containing additional assets used by the tokenizer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
 
-<div class="viewcode-block" id="Tokenizer.tokenize_stream"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.tokenize_stream">[docs]</a>  <span class="k">def</span> <span class="nf">tokenize_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">,</span> <span class="n">output_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Tokenizes a stream of sentences.</span>
+<div class="viewcode-block" id="Tokenizer.tokenize_stream"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.tokenize_stream">[docs]</a>    <span class="k">def</span> <span class="nf">tokenize_stream</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">input_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">,</span> <span class="n">output_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot; &quot;</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tokenizes a stream of sentences.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      input_stream: The input stream.</span>
-<span class="sd">      output_stream: The output stream.</span>
-<span class="sd">      delimiter: The token delimiter to use for text serialization.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">input_stream</span><span class="p">:</span>
-      <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-      <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-      <span class="n">merged_tokens</span> <span class="o">=</span> <span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-      <span class="n">misc</span><span class="o">.</span><span class="n">print_as_bytes</span><span class="p">(</span><span class="n">merged_tokens</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">output_stream</span><span class="p">)</span></div>
+<span class="sd">        Args:</span>
+<span class="sd">          input_stream: The input stream.</span>
+<span class="sd">          output_stream: The output stream.</span>
+<span class="sd">          delimiter: The token delimiter to use for text serialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">input_stream</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="n">merged_tokens</span> <span class="o">=</span> <span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+            <span class="n">misc</span><span class="o">.</span><span class="n">print_as_bytes</span><span class="p">(</span><span class="n">merged_tokens</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">output_stream</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Tokenizer.detokenize_stream"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.detokenize_stream">[docs]</a>  <span class="k">def</span> <span class="nf">detokenize_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">,</span> <span class="n">output_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Detokenizes a stream of sentences.</span>
+<div class="viewcode-block" id="Tokenizer.detokenize_stream"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.detokenize_stream">[docs]</a>    <span class="k">def</span> <span class="nf">detokenize_stream</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">input_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">,</span> <span class="n">output_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot; &quot;</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detokenizes a stream of sentences.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      input_stream: The input stream.</span>
-<span class="sd">      output_stream: The output stream.</span>
-<span class="sd">      delimiter: The token delimiter used for text serialization.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">input_stream</span><span class="p">:</span>
-      <span class="n">tokens</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">delimiter</span><span class="p">)</span>
-      <span class="n">string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-      <span class="n">misc</span><span class="o">.</span><span class="n">print_as_bytes</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">output_stream</span><span class="p">)</span></div>
+<span class="sd">        Args:</span>
+<span class="sd">          input_stream: The input stream.</span>
+<span class="sd">          output_stream: The output stream.</span>
+<span class="sd">          delimiter: The token delimiter used for text serialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">input_stream</span><span class="p">:</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">delimiter</span><span class="p">)</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+            <span class="n">misc</span><span class="o">.</span><span class="n">print_as_bytes</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">output_stream</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Tokenizer.tokenize"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.tokenize">[docs]</a>  <span class="k">def</span> <span class="nf">tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Tokenizes text.</span>
+<div class="viewcode-block" id="Tokenizer.tokenize"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.tokenize">[docs]</a>    <span class="k">def</span> <span class="nf">tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tokenizes text.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      text: A string or batch of strings to tokenize as a ``tf.Tensor`` or</span>
-<span class="sd">        Python values.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          text: A string or batch of strings to tokenize as a ``tf.Tensor`` or</span>
+<span class="sd">            Python values.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      - If :obj:`text` is a Python string, a list of Python strings.</span>
-<span class="sd">      - If :obj:`text` is a list of Python strings, a list of list of Python</span>
-<span class="sd">        strings.</span>
-<span class="sd">      - If :obj:`text` is a 0-D ``tf.Tensor``, a 1-D ``tf.Tensor``.</span>
-<span class="sd">      - If :obj:`text` is a 1-D ``tf.Tensor``, a 2-D ``tf.RaggedTensor``.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">          - If :obj:`text` is a Python string, a list of Python strings.</span>
+<span class="sd">          - If :obj:`text` is a list of Python strings, a list of list of Python</span>
+<span class="sd">            strings.</span>
+<span class="sd">          - If :obj:`text` is a 0-D ``tf.Tensor``, a 1-D ``tf.Tensor``.</span>
+<span class="sd">          - If :obj:`text` is a 1-D ``tf.Tensor``, a 2-D ``tf.RaggedTensor``.</span>
 
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if the rank of :obj:`text` is greater than 1.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu:0&quot;</span><span class="p">):</span>
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+<span class="sd">        Raises:</span>
+<span class="sd">          ValueError: if the rank of :obj:`text` is greater than 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu:0&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
 
-  <span class="k">def</span> <span class="nf">_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
-      <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-      <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_batch_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported tensor rank </span><span class="si">%d</span><span class="s2"> for tokenization&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-      <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenize</span><span class="p">,</span> <span class="n">text</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="n">text</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_string</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_batch_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported tensor rank </span><span class="si">%d</span><span class="s2"> for tokenization&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenize</span><span class="p">,</span> <span class="n">text</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_string</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Tokenizer.detokenize"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.detokenize">[docs]</a>  <span class="k">def</span> <span class="nf">detokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Detokenizes tokens.</span>
+<div class="viewcode-block" id="Tokenizer.detokenize"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.detokenize">[docs]</a>    <span class="k">def</span> <span class="nf">detokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detokenizes tokens.</span>
 
-<span class="sd">    The Tensor version supports batches of tokens.</span>
+<span class="sd">        The Tensor version supports batches of tokens.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      tokens: Tokens or batch of tokens as a ``tf.Tensor``, ``tf.RaggedTensor``,</span>
-<span class="sd">        or Python values.</span>
-<span class="sd">      sequence_length: The length of each sequence. Required if :obj:`tokens`</span>
-<span class="sd">        is a dense 2-D ``tf.Tensor``.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          tokens: Tokens or batch of tokens as a ``tf.Tensor``, ``tf.RaggedTensor``,</span>
+<span class="sd">            or Python values.</span>
+<span class="sd">          sequence_length: The length of each sequence. Required if :obj:`tokens`</span>
+<span class="sd">            is a dense 2-D ``tf.Tensor``.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      - If :obj:`tokens` is a list of list of Python strings, a list of Python strings.</span>
-<span class="sd">      - If :obj:`tokens` is a list of Python strings, a Python string.</span>
-<span class="sd">      - If :obj:`tokens` is a N-D ``tf.Tensor`` (or ``tf.RaggedTensor``), a</span>
-<span class="sd">        (N-1)-D ``tf.Tensor``.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">          - If :obj:`tokens` is a list of list of Python strings, a list of Python strings.</span>
+<span class="sd">          - If :obj:`tokens` is a list of Python strings, a Python string.</span>
+<span class="sd">          - If :obj:`tokens` is a N-D ``tf.Tensor`` (or ``tf.RaggedTensor``), a</span>
+<span class="sd">            (N-1)-D ``tf.Tensor``.</span>
 
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if the rank of :obj:`tokens` is greater than 2.</span>
-<span class="sd">      ValueError: if :obj:`tokens` is a 2-D dense ``tf.Tensor`` and</span>
-<span class="sd">        :obj:`sequence_length` is not set.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu:0&quot;</span><span class="p">):</span>
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span></div>
+<span class="sd">        Raises:</span>
+<span class="sd">          ValueError: if the rank of :obj:`tokens` is greater than 2.</span>
+<span class="sd">          ValueError: if :obj:`tokens` is a 2-D dense ``tf.Tensor`` and</span>
+<span class="sd">            :obj:`sequence_length` is not set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu:0&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span></div>
 
-  <span class="k">def</span> <span class="nf">_detokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="p">):</span>
-      <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-      <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported RaggedTensor rank </span><span class="si">%d</span><span class="s2"> for detokenization&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">tf</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
-      <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-      <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-          <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sequence_length is required for Tensor detokenization&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_batch_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported tensor rank </span><span class="si">%d</span><span class="s2"> for detokenization&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tokens</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
-      <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">detokenize</span><span class="p">,</span> <span class="n">tokens</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">]</span>
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_string</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_detokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="p">):</span>
+            <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Unsupported RaggedTensor rank </span><span class="si">%d</span><span class="s2"> for detokenization&quot;</span> <span class="o">%</span> <span class="n">rank</span>
+                <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">tf</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
+            <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;sequence_length is required for Tensor detokenization&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_batch_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported tensor rank </span><span class="si">%d</span><span class="s2"> for detokenization&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tokens</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">detokenize</span><span class="p">,</span> <span class="n">tokens</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_string</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_tokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Tokenizes a tensor.</span>
+    <span class="k">def</span> <span class="nf">_tokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tokenizes a tensor.</span>
 
-<span class="sd">    When not overriden, this default implementation calls the string-based</span>
-<span class="sd">    tokenization.</span>
+<span class="sd">        When not overriden, this default implementation calls the string-based</span>
+<span class="sd">        tokenization.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      text: A 1-D string ``tf.Tensor``.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          text: A 1-D string ``tf.Tensor``.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      A 1-D string ``tf.Tensor``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">_python_wrapper</span><span class="p">(</span><span class="n">string_t</span><span class="p">):</span>
-      <span class="n">string</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">string_t</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
-      <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_string</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
-      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
-    <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">_python_wrapper</span><span class="p">,</span> <span class="p">[</span><span class="n">text</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
-    <span class="n">tokens</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([</span><span class="kc">None</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">tokens</span>
+<span class="sd">        Returns:</span>
+<span class="sd">          A 1-D string ``tf.Tensor``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-  <span class="k">def</span> <span class="nf">_tokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Tokenizes a batch of texts.</span>
+        <span class="k">def</span> <span class="nf">_python_wrapper</span><span class="p">(</span><span class="n">string_t</span><span class="p">):</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">string_t</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_string</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
 
-<span class="sd">    When not overriden, this default implementation calls _tokenize_tensor on</span>
-<span class="sd">    each tensor within the batch.</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">_python_wrapper</span><span class="p">,</span> <span class="p">[</span><span class="n">text</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+        <span class="n">tokens</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([</span><span class="kc">None</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">tokens</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      text: A 1-D string ``tf.Tensor``.</span>
+    <span class="k">def</span> <span class="nf">_tokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tokenizes a batch of texts.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      A 2-D string ``tf.RaggedTensor``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># map_fn expects each output element to have the same shape, so join tokens with</span>
-    <span class="c1"># spaces first and then split on spaces with a function returning a RaggedTensor.</span>
-    <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">reduce_join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">),</span> <span class="n">text</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+<span class="sd">        When not overriden, this default implementation calls _tokenize_tensor on</span>
+<span class="sd">        each tensor within the batch.</span>
 
-  <span class="k">def</span> <span class="nf">_detokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Detokenizes tokens.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          text: A 1-D string ``tf.Tensor``.</span>
 
-<span class="sd">    When not overriden, this default implementation calls the string-based</span>
-<span class="sd">    detokenization.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">          A 2-D string ``tf.RaggedTensor``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># map_fn expects each output element to have the same shape, so join tokens with</span>
+        <span class="c1"># spaces first and then split on spaces with a function returning a RaggedTensor.</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">reduce_join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot; &quot;</span>
+            <span class="p">),</span>
+            <span class="n">text</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      tokens: A 1-D ``tf.Tensor``.</span>
+    <span class="k">def</span> <span class="nf">_detokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detokenizes tokens.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      A 0-D string ``tf.Tensor``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">_python_wrapper</span><span class="p">(</span><span class="n">tokens_t</span><span class="p">):</span>
-      <span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">tokens_t</span><span class="o">.</span><span class="n">numpy</span><span class="p">()]</span>
-      <span class="n">string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_string</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
-    <span class="n">text</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">_python_wrapper</span><span class="p">,</span> <span class="p">[</span><span class="n">tokens</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
-    <span class="n">text</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([])</span>
-    <span class="k">return</span> <span class="n">text</span>
+<span class="sd">        When not overriden, this default implementation calls the string-based</span>
+<span class="sd">        detokenization.</span>
 
-  <span class="k">def</span> <span class="nf">_detokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Detokenizes a batch of tokens.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          tokens: A 1-D ``tf.Tensor``.</span>
 
-<span class="sd">    When not overriden, this default implementation calls _detokenize_tensor on</span>
-<span class="sd">    each tensor within the batch.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">          A 0-D string ``tf.Tensor``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      tokens: A 2-D ``tf.Tensor``.</span>
+        <span class="k">def</span> <span class="nf">_python_wrapper</span><span class="p">(</span><span class="n">tokens_t</span><span class="p">):</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">as_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">tokens_t</span><span class="o">.</span><span class="n">numpy</span><span class="p">()]</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_string</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      A 1-D string ``tf.Tensor``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]]),</span>
-        <span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">),</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">_python_wrapper</span><span class="p">,</span> <span class="p">[</span><span class="n">tokens</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+        <span class="n">text</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([])</span>
+        <span class="k">return</span> <span class="n">text</span>
 
-  <span class="k">def</span> <span class="nf">_detokenize_ragged_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Detokenizes a batch of tokens as a ``tf.RaggedTensor``</span>
+    <span class="k">def</span> <span class="nf">_detokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detokenizes a batch of tokens.</span>
 
-<span class="sd">    When not overriden, this default implementation calls _detokenize_batch_tensor</span>
-<span class="sd">    on the dense representation.</span>
+<span class="sd">        When not overriden, this default implementation calls _detokenize_tensor on</span>
+<span class="sd">        each tensor within the batch.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      tokens: A 2-D ``tf.RaggedTensor``.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          tokens: A 2-D ``tf.Tensor``.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      A 1-D string ``tf.Tensor``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_batch_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(),</span> <span class="n">tokens</span><span class="o">.</span><span class="n">row_lengths</span><span class="p">())</span>
+<span class="sd">        Returns:</span>
+<span class="sd">          A 1-D string ``tf.Tensor``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]]),</span>
+            <span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span>
+        <span class="p">)</span>
 
-  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-  <span class="k">def</span> <span class="nf">_tokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Tokenizes a Python unicode string.</span>
+    <span class="k">def</span> <span class="nf">_detokenize_ragged_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detokenizes a batch of tokens as a ``tf.RaggedTensor``</span>
 
-<span class="sd">    This method should be thread-safe.</span>
+<span class="sd">        When not overriden, this default implementation calls _detokenize_batch_tensor</span>
+<span class="sd">        on the dense representation.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      text: A Python unicode string.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          tokens: A 2-D ``tf.RaggedTensor``.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      A list of Python unicode strings.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+<span class="sd">        Returns:</span>
+<span class="sd">          A 1-D string ``tf.Tensor``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_batch_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(),</span> <span class="n">tokens</span><span class="o">.</span><span class="n">row_lengths</span><span class="p">())</span>
 
-  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-  <span class="k">def</span> <span class="nf">_detokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Detokenizes tokens.</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_tokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tokenizes a Python unicode string.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      tokens: A list of Python unicode strings.</span>
+<span class="sd">        This method should be thread-safe.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      A unicode Python string.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+<span class="sd">        Args:</span>
+<span class="sd">          text: A Python unicode string.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          A list of Python unicode strings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_detokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detokenizes tokens.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          tokens: A list of Python unicode strings.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          A unicode Python string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
 <span class="n">_TOKENIZERS_REGISTRY</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">ClassRegistry</span><span class="p">(</span><span class="n">base_class</span><span class="o">=</span><span class="n">Tokenizer</span><span class="p">)</span>
 
-<span class="n">register_tokenizer</span> <span class="o">=</span> <span class="n">_TOKENIZERS_REGISTRY</span><span class="o">.</span><span class="n">register</span>  <span class="c1"># pylint: disable=invalid-name</span>
+<span class="n">register_tokenizer</span> <span class="o">=</span> <span class="n">_TOKENIZERS_REGISTRY</span><span class="o">.</span><span class="n">register</span>
+
 
 <div class="viewcode-block" id="make_tokenizer"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.make_tokenizer.html#opennmt.tokenizers.make_tokenizer">[docs]</a><span class="k">def</span> <span class="nf">make_tokenizer</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Creates a tokenizer instance from the configuration.</span>
+    <span class="sd">&quot;&quot;&quot;Creates a tokenizer instance from the configuration.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    config: Tokenization configuration as a Python dictionary, or a path to a</span>
-<span class="sd">      YAML configuration file, or a JSON string.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      config: Tokenization configuration as a Python dictionary, or a path to a</span>
+<span class="sd">        YAML configuration file, or a JSON string.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    A :class:`opennmt.tokenizers.Tokenizer` instance.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      A :class:`opennmt.tokenizers.Tokenizer` instance.</span>
 
-<span class="sd">  Raises:</span>
-<span class="sd">    ValueError: if :obj:`config` is invalid.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-      <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
-          <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">UnsafeLoader</span><span class="p">)</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-          <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
-          <span class="k">pass</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-      <span class="n">tokenizer_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">tokenizer_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">tokenizer_type</span> <span class="o">=</span> <span class="s2">&quot;OpenNMTTokenizer&quot;</span>
-        <span class="n">tokenizer_params</span> <span class="o">=</span> <span class="n">config</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="n">tokenizer_params</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="p">{})</span>
-      <span class="n">tokenizer_class</span> <span class="o">=</span> <span class="n">_TOKENIZERS_REGISTRY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tokenizer_type</span><span class="p">)</span>
-      <span class="k">if</span> <span class="n">tokenizer_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not in list of accepted tokenizers: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="n">tokenizer_type</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_TOKENIZERS_REGISTRY</span><span class="o">.</span><span class="n">class_names</span><span class="p">))))</span>
-      <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizer_class</span><span class="p">(</span><span class="o">**</span><span class="n">tokenizer_params</span><span class="p">)</span>
+<span class="sd">    Raises:</span>
+<span class="sd">      ValueError: if :obj:`config` is invalid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
+                    <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">UnsafeLoader</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">tokenizer_type</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tokenizer_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">tokenizer_type</span> <span class="o">=</span> <span class="s2">&quot;OpenNMTTokenizer&quot;</span>
+                <span class="n">tokenizer_params</span> <span class="o">=</span> <span class="n">config</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tokenizer_params</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">tokenizer_class</span> <span class="o">=</span> <span class="n">_TOKENIZERS_REGISTRY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tokenizer_type</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tokenizer_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not in list of accepted tokenizers: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span>
+                        <span class="n">tokenizer_type</span><span class="p">,</span>
+                        <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_TOKENIZERS_REGISTRY</span><span class="o">.</span><span class="n">class_names</span><span class="p">)),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizer_class</span><span class="p">(</span><span class="o">**</span><span class="n">tokenizer_params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid tokenization configuration: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid tokenization configuration: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
-  <span class="k">else</span><span class="p">:</span>
-    <span class="c1"># If the tokenization was not configured, we assume that an external tokenization</span>
-    <span class="c1"># was used and we don&#39;t include the tokenizer in the exported graph.</span>
-    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">SpaceTokenizer</span><span class="p">(</span><span class="n">in_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">tokenizer</span></div>
+        <span class="c1"># If the tokenization was not configured, we assume that an external tokenization</span>
+        <span class="c1"># was used and we don&#39;t include the tokenizer in the exported graph.</span>
+        <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">SpaceTokenizer</span><span class="p">(</span><span class="n">in_graph</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tokenizer</span></div>
+
 
 <div class="viewcode-block" id="SpaceTokenizer"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.SpaceTokenizer.html#opennmt.tokenizers.SpaceTokenizer">[docs]</a><span class="nd">@register_tokenizer</span>
 <span class="k">class</span> <span class="nc">SpaceTokenizer</span><span class="p">(</span><span class="n">Tokenizer</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;A tokenizer that splits on spaces.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A tokenizer that splits on spaces.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SpaceTokenizer.__init__"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.SpaceTokenizer.html#opennmt.tokenizers.SpaceTokenizer.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the tokenizer.</span>
+<div class="viewcode-block" id="SpaceTokenizer.__init__"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.SpaceTokenizer.html#opennmt.tokenizers.SpaceTokenizer.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the tokenizer.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      in_graph: If ``True``, this tokenizer should be integrated in the exported graph.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_in_graph</span> <span class="o">=</span> <span class="n">in_graph</span></div>
+<span class="sd">        Args:</span>
+<span class="sd">          in_graph: If ``True``, this tokenizer should be integrated in the exported graph.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_graph</span> <span class="o">=</span> <span class="n">in_graph</span></div>
 
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">in_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_graph</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">in_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_graph</span>
 
-  <span class="k">def</span> <span class="nf">_tokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_batch_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_tokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_batch_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_tokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_tokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_detokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_detokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_detokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
-    <span class="n">ragged</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">lengths</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">)</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">ragged</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_detokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
+        <span class="n">ragged</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">lengths</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">ragged</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_detokenize_ragged_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">reduce_join</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_detokenize_ragged_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">reduce_join</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_tokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_tokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
 
-  <span class="k">def</span> <span class="nf">_detokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
-    <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">_detokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CharacterTokenizer"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.CharacterTokenizer.html#opennmt.tokenizers.CharacterTokenizer">[docs]</a><span class="nd">@register_tokenizer</span>
 <span class="k">class</span> <span class="nc">CharacterTokenizer</span><span class="p">(</span><span class="n">Tokenizer</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;A tokenizer that splits unicode characters.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A tokenizer that splits unicode characters.&quot;&quot;&quot;</span>
 
-  <span class="nd">@property</span>
-  <span class="k">def</span> <span class="nf">in_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="k">return</span> <span class="kc">True</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">in_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
-  <span class="k">def</span> <span class="nf">_tokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_batch_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_tokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_batch_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_tokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="n">text</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">regex_replace</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;▁&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">unicode_split</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_tokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">regex_replace</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;▁&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">unicode_split</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_detokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_detokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_detokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
-    <span class="n">_</span> <span class="o">=</span> <span class="n">sequence_length</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_detokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">sequence_length</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_detokenize_ragged_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
-    <span class="n">text</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">reduce_join</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">regex_replace</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;▁&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_detokenize_ragged_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">reduce_join</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">regex_replace</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;▁&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
 
-  <span class="k">def</span> <span class="nf">_tokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="sa">u</span><span class="s2">&quot;▁&quot;</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">_tokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;▁&quot;</span><span class="p">))</span>
 
-  <span class="k">def</span> <span class="nf">_detokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
-    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot;▁&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">_detokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;▁&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -191,282 +191,286 @@
 
 
 <div class="viewcode-block" id="WordNoiser"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser">[docs]</a><span class="k">class</span> <span class="nc">WordNoiser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Applies noise to words sequences.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Applies noise to words sequences.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="WordNoiser.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noises</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subword_token</span><span class="o">=</span><span class="s2">&quot;￭&quot;</span><span class="p">,</span> <span class="n">is_spacer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the noising class.</span>
+<div class="viewcode-block" id="WordNoiser.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noises</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subword_token</span><span class="o">=</span><span class="s2">&quot;￭&quot;</span><span class="p">,</span> <span class="n">is_spacer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the noising class.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      noises: A list of :class:`opennmt.data.Noise` instances to apply</span>
-<span class="sd">        sequentially.</span>
-<span class="sd">      subword_token: The special token used by the subword tokenizer. This is</span>
-<span class="sd">        required when the noise should be applied at the word level and not the</span>
-<span class="sd">        subword level.</span>
-<span class="sd">      is_spacer: Whether :obj:`subword_token` is used as a spacer (as in</span>
-<span class="sd">        SentencePiece) or a joiner (as in BPE). If ``None``, will infer</span>
-<span class="sd">        directly from :obj:`subword_token`.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          noises: A list of :class:`opennmt.data.Noise` instances to apply</span>
+<span class="sd">            sequentially.</span>
+<span class="sd">          subword_token: The special token used by the subword tokenizer. This is</span>
+<span class="sd">            required when the noise should be applied at the word level and not the</span>
+<span class="sd">            subword level.</span>
+<span class="sd">          is_spacer: Whether :obj:`subword_token` is used as a spacer (as in</span>
+<span class="sd">            SentencePiece) or a joiner (as in BPE). If ``None``, will infer</span>
+<span class="sd">            directly from :obj:`subword_token`.</span>
 
-<span class="sd">    See Also:</span>
-<span class="sd">      :func:`opennmt.data.tokens_to_words`</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">noises</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="n">noises</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">noises</span> <span class="o">=</span> <span class="n">noises</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">subword_token</span> <span class="o">=</span> <span class="n">subword_token</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">is_spacer</span> <span class="o">=</span> <span class="n">is_spacer</span></div>
+<span class="sd">        See Also:</span>
+<span class="sd">          :func:`opennmt.data.tokens_to_words`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">noises</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">noises</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noises</span> <span class="o">=</span> <span class="n">noises</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subword_token</span> <span class="o">=</span> <span class="n">subword_token</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_spacer</span> <span class="o">=</span> <span class="n">is_spacer</span></div>
 
-<div class="viewcode-block" id="WordNoiser.add"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.add">[docs]</a>  <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noise</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Adds a noise to apply.&quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">noises</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span></div>
+<div class="viewcode-block" id="WordNoiser.add"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noise</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds a noise to apply.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noises</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WordNoiser.__call__"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.__call__">[docs]</a>  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Applies noise on :obj:`tokens`.</span>
+<div class="viewcode-block" id="WordNoiser.__call__"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Applies noise on :obj:`tokens`.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      tokens: A string ``tf.Tensor`` or batch of string ``tf.Tensor``.</span>
-<span class="sd">      sequence_length: When :obj:`tokens` is a batch, the length of each</span>
-<span class="sd">        sequence in the batch.</span>
-<span class="sd">      keep_shape: Ensure that the shape is kept. Otherwise, fit the shape to the</span>
-<span class="sd">        new lengths.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          tokens: A string ``tf.Tensor`` or batch of string ``tf.Tensor``.</span>
+<span class="sd">          sequence_length: When :obj:`tokens` is a batch, the length of each</span>
+<span class="sd">            sequence in the batch.</span>
+<span class="sd">          keep_shape: Ensure that the shape is kept. Otherwise, fit the shape to the</span>
+<span class="sd">            new lengths.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      A tuple with the noisy version of :obj:`tokens` and the new lengths.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">          A tuple with the noisy version of :obj:`tokens` and the new lengths.</span>
 
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if :obj:`tokens` is a batch of string but</span>
-<span class="sd">        :obj:`sequence_length` is not passed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu:0&quot;</span><span class="p">):</span>
-      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="p">)</span></div>
+<span class="sd">        Raises:</span>
+<span class="sd">          ValueError: if :obj:`tokens` is a batch of string but</span>
+<span class="sd">            :obj:`sequence_length` is not passed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu:0&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="p">)</span></div>
 
-  <span class="k">def</span> <span class="nf">_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="p">):</span>
-    <span class="n">rank</span> <span class="o">=</span> <span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span>
-    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-      <span class="n">input_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-      <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:</span><span class="n">sequence_length</span><span class="p">]</span>
-      <span class="k">else</span><span class="p">:</span>
-        <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">tokens</span><span class="p">)]</span>
-      <span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">tokens_to_words</span><span class="p">(</span>
-          <span class="n">tokens</span><span class="p">,</span>
-          <span class="n">subword_token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subword_token</span><span class="p">,</span>
-          <span class="n">is_spacer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_spacer</span><span class="p">)</span>
-      <span class="n">words</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">()</span>
-      <span class="k">for</span> <span class="n">noise</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">noises</span><span class="p">:</span>
-        <span class="n">words</span> <span class="o">=</span> <span class="n">noise</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
-      <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">flat_values</span>
-      <span class="n">output_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">outputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-      <span class="k">if</span> <span class="n">keep_shape</span><span class="p">:</span>
-        <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="n">input_length</span> <span class="o">-</span> <span class="n">output_length</span><span class="p">]])</span>
-      <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">output_length</span>
-    <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sequence_length must be passed for 2D inputs&quot;</span><span class="p">)</span>
-      <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
-          <span class="k">lambda</span> <span class="n">arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span><span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-          <span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">))</span>
-      <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_shape</span><span class="p">:</span>
-        <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:,</span> <span class="p">:</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">)]</span>
-      <span class="k">return</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span>
-    <span class="k">else</span><span class="p">:</span>
-      <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sequence_length must be passed for ND inputs&quot;</span><span class="p">)</span>
-      <span class="n">original_shape</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">shape_list</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-      <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
-      <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-      <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="n">keep_shape</span><span class="p">)</span>
-      <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-      <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-      <span class="k">return</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span></div>
+    <span class="k">def</span> <span class="nf">_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="p">):</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">input_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:</span><span class="n">sequence_length</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">tokens</span><span class="p">)]</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">tokens_to_words</span><span class="p">(</span>
+                <span class="n">tokens</span><span class="p">,</span> <span class="n">subword_token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subword_token</span><span class="p">,</span> <span class="n">is_spacer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_spacer</span>
+            <span class="p">)</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">noise</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">noises</span><span class="p">:</span>
+                <span class="n">words</span> <span class="o">=</span> <span class="n">noise</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">flat_values</span>
+            <span class="n">output_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">outputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">keep_shape</span><span class="p">:</span>
+                <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="n">input_length</span> <span class="o">-</span> <span class="n">output_length</span><span class="p">]])</span>
+            <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">output_length</span>
+        <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sequence_length must be passed for 2D inputs&quot;</span><span class="p">)</span>
+            <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span><span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_shape</span><span class="p">:</span>
+                <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:,</span> <span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sequence_length must be passed for ND inputs&quot;</span><span class="p">)</span>
+            <span class="n">original_shape</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">shape_list</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span>
+                <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="n">keep_shape</span>
+            <span class="p">)</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span></div>
 
 
 <div class="viewcode-block" id="Noise"><a class="viewcode-back" href="../../../package/opennmt.data.Noise.html#opennmt.data.Noise">[docs]</a><span class="k">class</span> <span class="nc">Noise</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Base class for noise modules.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Base class for noise modules.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Noise.__call__"><a class="viewcode-back" href="../../../package/opennmt.data.Noise.html#opennmt.data.Noise.__call__">[docs]</a>  <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Applies noise on a sequence of words.</span>
+<div class="viewcode-block" id="Noise.__call__"><a class="viewcode-back" href="../../../package/opennmt.data.Noise.html#opennmt.data.Noise.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Applies noise on a sequence of words.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      words: The sequence of words as a string ``tf.Tensor``. If it has 2</span>
-<span class="sd">        dimensions, each row represents a word that possibly contains multiple</span>
-<span class="sd">        tokens.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          words: The sequence of words as a string ``tf.Tensor``. If it has 2</span>
+<span class="sd">            dimensions, each row represents a word that possibly contains multiple</span>
+<span class="sd">            tokens.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      A noisy version of :obj:`words`.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">          A noisy version of :obj:`words`.</span>
 
-<span class="sd">    Raises:</span>
-<span class="sd">      ValueError: if :obj:`words` has a rank greater than 2.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">words</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Noise only supports tensors of rank 2 or less&quot;</span><span class="p">)</span>
-    <span class="n">inputs</span> <span class="o">=</span> <span class="n">words</span>
-    <span class="k">if</span> <span class="n">words</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-      <span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">num_words</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">num_words</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">inputs</span><span class="p">,</span>
-        <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply</span><span class="p">(</span><span class="n">inputs</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">words</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-      <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">outputs</span></div>
+<span class="sd">        Raises:</span>
+<span class="sd">          ValueError: if :obj:`words` has a rank greater than 2.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">words</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Noise only supports tensors of rank 2 or less&quot;</span><span class="p">)</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="n">words</span>
+        <span class="k">if</span> <span class="n">words</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">inputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">num_words</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">num_words</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">inputs</span><span class="p">,</span>
+            <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply</span><span class="p">(</span><span class="n">inputs</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">words</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">outputs</span></div>
 
-  <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-  <span class="k">def</span> <span class="nf">_apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Applies noise on a sequence of words.</span>
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Applies noise on a sequence of words.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">      words: A 2D string ``tf.Tensor`` where each row represents a word that</span>
-<span class="sd">        possibly contains multiple tokens.</span>
+<span class="sd">        Args:</span>
+<span class="sd">          words: A 2D string ``tf.Tensor`` where each row represents a word that</span>
+<span class="sd">            possibly contains multiple tokens.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">      A noisy version of :obj:`words`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+<span class="sd">        Returns:</span>
+<span class="sd">          A noisy version of :obj:`words`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="WordDropout"><a class="viewcode-back" href="../../../package/opennmt.data.WordDropout.html#opennmt.data.WordDropout">[docs]</a><span class="k">class</span> <span class="nc">WordDropout</span><span class="p">(</span><span class="n">Noise</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Randomly drops words in a sequence.</span>
+    <span class="sd">&quot;&quot;&quot;Randomly drops words in a sequence.</span>
 
-<span class="sd">  Example:</span>
+<span class="sd">    Example:</span>
 
-<span class="sd">    &gt;&gt;&gt; noise = opennmt.data.WordDropout(0.5)</span>
-<span class="sd">    &gt;&gt;&gt; words = tf.constant([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])</span>
-<span class="sd">    &gt;&gt;&gt; noise(words).numpy()</span>
-<span class="sd">    array([b&#39;a&#39;, b&#39;b&#39;], dtype=object)</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="WordDropout.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordDropout.html#opennmt.data.WordDropout.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dropout</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      dropout: The probability to drop word.</span>
+<span class="sd">      &gt;&gt;&gt; noise = opennmt.data.WordDropout(0.5)</span>
+<span class="sd">      &gt;&gt;&gt; words = tf.constant([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])</span>
+<span class="sd">      &gt;&gt;&gt; noise(words).numpy()</span>
+<span class="sd">      array([b&#39;a&#39;, b&#39;b&#39;], dtype=object)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span></div>
 
-  <span class="k">def</span> <span class="nf">_apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
-    <span class="n">num_words</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">out_type</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">keep_mask</span> <span class="o">=</span> <span class="n">random_mask</span><span class="p">([</span><span class="n">num_words</span><span class="p">],</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span>
-    <span class="n">keep_ind</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">keep_mask</span><span class="p">)</span>
-    <span class="c1"># Keep at least one word.</span>
-    <span class="n">keep_ind</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">keep_ind</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="n">maxval</span><span class="o">=</span><span class="n">num_words</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
-        <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">keep_ind</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">keep_ind</span><span class="p">)</span></div>
+<div class="viewcode-block" id="WordDropout.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordDropout.html#opennmt.data.WordDropout.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dropout</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          dropout: The probability to drop word.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span></div>
+
+    <span class="k">def</span> <span class="nf">_apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+        <span class="n">num_words</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">out_type</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">keep_mask</span> <span class="o">=</span> <span class="n">random_mask</span><span class="p">([</span><span class="n">num_words</span><span class="p">],</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">)</span>
+        <span class="n">keep_ind</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">keep_mask</span><span class="p">)</span>
+        <span class="c1"># Keep at least one word.</span>
+        <span class="n">keep_ind</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">keep_ind</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="n">maxval</span><span class="o">=</span><span class="n">num_words</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
+            <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">keep_ind</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">keep_ind</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WordOmission"><a class="viewcode-back" href="../../../package/opennmt.data.WordOmission.html#opennmt.data.WordOmission">[docs]</a><span class="k">class</span> <span class="nc">WordOmission</span><span class="p">(</span><span class="n">Noise</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Randomly omits words in a sequence.</span>
+    <span class="sd">&quot;&quot;&quot;Randomly omits words in a sequence.</span>
 
-<span class="sd">  This is different than :class:`opennmt.data.WordDropout` as it drops a</span>
-<span class="sd">  fixed number of words.</span>
+<span class="sd">    This is different than :class:`opennmt.data.WordDropout` as it drops a</span>
+<span class="sd">    fixed number of words.</span>
 
-<span class="sd">  Example:</span>
+<span class="sd">    Example:</span>
 
-<span class="sd">    &gt;&gt;&gt; noise = opennmt.data.WordOmission(1)</span>
-<span class="sd">    &gt;&gt;&gt; words = tf.constant([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])</span>
-<span class="sd">    &gt;&gt;&gt; noise(words).numpy()</span>
-<span class="sd">    array([b&#39;b&#39;, b&#39;c&#39;], dtype=object)</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="WordOmission.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordOmission.html#opennmt.data.WordOmission.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      count: The number of words to omit.</span>
+<span class="sd">      &gt;&gt;&gt; noise = opennmt.data.WordOmission(1)</span>
+<span class="sd">      &gt;&gt;&gt; words = tf.constant([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])</span>
+<span class="sd">      &gt;&gt;&gt; noise(words).numpy()</span>
+<span class="sd">      array([b&#39;b&#39;, b&#39;c&#39;], dtype=object)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="n">count</span></div>
 
-  <span class="k">def</span> <span class="nf">_apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
-    <span class="n">num_words</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">words</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">num_words</span><span class="p">)</span>
-    <span class="n">shuffle_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
-    <span class="n">keep_count</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">num_words</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">keep_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">shuffle_indices</span><span class="p">[:</span><span class="n">keep_count</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">keep_indices</span><span class="p">)</span></div>
+<div class="viewcode-block" id="WordOmission.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordOmission.html#opennmt.data.WordOmission.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          count: The number of words to omit.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="n">count</span></div>
+
+    <span class="k">def</span> <span class="nf">_apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+        <span class="n">num_words</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">words</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">num_words</span><span class="p">)</span>
+        <span class="n">shuffle_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+        <span class="n">keep_count</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">num_words</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">keep_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">shuffle_indices</span><span class="p">[:</span><span class="n">keep_count</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">keep_indices</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WordReplacement"><a class="viewcode-back" href="../../../package/opennmt.data.WordReplacement.html#opennmt.data.WordReplacement">[docs]</a><span class="k">class</span> <span class="nc">WordReplacement</span><span class="p">(</span><span class="n">Noise</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Randomly replaces words.</span>
+    <span class="sd">&quot;&quot;&quot;Randomly replaces words.</span>
 
-<span class="sd">  Example:</span>
+<span class="sd">    Example:</span>
 
-<span class="sd">    &gt;&gt;&gt; noise = opennmt.data.WordReplacement(0.5)</span>
-<span class="sd">    &gt;&gt;&gt; words = tf.constant([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])</span>
-<span class="sd">    &gt;&gt;&gt; noise(words).numpy()</span>
-<span class="sd">    array([b&#39;a&#39;, b&#39;&lt;unk&gt;&#39;, b&#39;c&#39;], dtype=object)</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="WordReplacement.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordReplacement.html#opennmt.data.WordReplacement.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probability</span><span class="p">,</span> <span class="n">filler</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">UNKNOWN_TOKEN</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      probability: The probability to replace words.</span>
-<span class="sd">      filler: The replacement token.</span>
+<span class="sd">      &gt;&gt;&gt; noise = opennmt.data.WordReplacement(0.5)</span>
+<span class="sd">      &gt;&gt;&gt; words = tf.constant([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;])</span>
+<span class="sd">      &gt;&gt;&gt; noise(words).numpy()</span>
+<span class="sd">      array([b&#39;a&#39;, b&#39;&lt;unk&gt;&#39;, b&#39;c&#39;], dtype=object)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">probability</span> <span class="o">=</span> <span class="n">probability</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">filler</span> <span class="o">=</span> <span class="n">filler</span></div>
 
-  <span class="k">def</span> <span class="nf">_apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">probability</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
-    <span class="n">replace_mask</span> <span class="o">=</span> <span class="n">random_mask</span><span class="p">(</span><span class="n">shape</span><span class="p">[:</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">probability</span><span class="p">)</span>
-    <span class="n">filler</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">fill</span><span class="p">([</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">filler</span><span class="p">)</span>
-    <span class="n">filler</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">filler</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]])</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-        <span class="n">tf</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">replace_mask</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">words</span><span class="p">)),</span>
-        <span class="n">x</span><span class="o">=</span><span class="n">filler</span><span class="p">,</span>
-        <span class="n">y</span><span class="o">=</span><span class="n">words</span><span class="p">)</span></div>
+<div class="viewcode-block" id="WordReplacement.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordReplacement.html#opennmt.data.WordReplacement.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probability</span><span class="p">,</span> <span class="n">filler</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">UNKNOWN_TOKEN</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          probability: The probability to replace words.</span>
+<span class="sd">          filler: The replacement token.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">probability</span> <span class="o">=</span> <span class="n">probability</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filler</span> <span class="o">=</span> <span class="n">filler</span></div>
+
+    <span class="k">def</span> <span class="nf">_apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">probability</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+        <span class="n">replace_mask</span> <span class="o">=</span> <span class="n">random_mask</span><span class="p">(</span><span class="n">shape</span><span class="p">[:</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">probability</span><span class="p">)</span>
+        <span class="n">filler</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">fill</span><span class="p">([</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">filler</span><span class="p">)</span>
+        <span class="n">filler</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">filler</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">replace_mask</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">words</span><span class="p">)),</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">filler</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">words</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WordPermutation"><a class="viewcode-back" href="../../../package/opennmt.data.WordPermutation.html#opennmt.data.WordPermutation">[docs]</a><span class="k">class</span> <span class="nc">WordPermutation</span><span class="p">(</span><span class="n">Noise</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Randomly permutes words in a sequence with a maximum distance.</span>
+    <span class="sd">&quot;&quot;&quot;Randomly permutes words in a sequence with a maximum distance.</span>
 
-<span class="sd">  Example:</span>
+<span class="sd">    Example:</span>
 
-<span class="sd">    &gt;&gt;&gt; noise = opennmt.data.WordPermutation(3)</span>
-<span class="sd">    &gt;&gt;&gt; words = tf.constant([&quot;0&quot;, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;])</span>
-<span class="sd">    &gt;&gt;&gt; noise(words).numpy()</span>
-<span class="sd">    array([b&#39;1&#39;, b&#39;0&#39;, b&#39;2&#39;, b&#39;4&#39;, b&#39;3&#39;, b&#39;6&#39;, b&#39;5&#39;], dtype=object)</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="WordPermutation.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordPermutation.html#opennmt.data.WordPermutation.__init__">[docs]</a>  <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_distance</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">      max_distance: The maximum permutation distance.</span>
+<span class="sd">      &gt;&gt;&gt; noise = opennmt.data.WordPermutation(3)</span>
+<span class="sd">      &gt;&gt;&gt; words = tf.constant([&quot;0&quot;, &quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;, &quot;5&quot;, &quot;6&quot;])</span>
+<span class="sd">      &gt;&gt;&gt; noise(words).numpy()</span>
+<span class="sd">      array([b&#39;1&#39;, b&#39;0&#39;, b&#39;2&#39;, b&#39;4&#39;, b&#39;3&#39;, b&#39;6&#39;, b&#39;5&#39;], dtype=object)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">max_distance</span> <span class="o">=</span> <span class="n">max_distance</span></div>
 
-  <span class="k">def</span> <span class="nf">_apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_distance</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
-    <span class="n">num_words</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">words</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">offset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="n">num_words</span><span class="p">],</span> <span class="n">maxval</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_distance</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">offset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">num_words</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="n">new_pos</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">num_words</span><span class="p">)</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">new_pos</span><span class="p">)</span></div>
+<div class="viewcode-block" id="WordPermutation.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.WordPermutation.html#opennmt.data.WordPermutation.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_distance</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the noise module.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          max_distance: The maximum permutation distance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_distance</span> <span class="o">=</span> <span class="n">max_distance</span></div>
+
+    <span class="k">def</span> <span class="nf">_apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_distance</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+        <span class="n">num_words</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">words</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">([</span><span class="n">num_words</span><span class="p">],</span> <span class="n">maxval</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_distance</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">num_words</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">new_pos</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">num_words</span><span class="p">)</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">new_pos</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">random_mask</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">probability</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Generates a random boolean mask.</span>
+    <span class="sd">&quot;&quot;&quot;Generates a random boolean mask.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    shape: The mask shape.</span>
-<span class="sd">    probability: The probability to select an element.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      shape: The mask shape.</span>
+<span class="sd">      probability: The probability to select an element.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    A boolean mask with shape :obj:`shape`.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-  <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">probability</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">mask</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      A boolean mask with shape :obj:`shape`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">less</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">probability</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mask</span>
 </pre></div>
 
            </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.tensor &mdash; OpenNMT-tf 2.14.0 documentation</title>
+  <title>opennmt.utils.tensor &mdash; OpenNMT-tf 2.15.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.14
+                2.15
               </div>
             
           
@@ -185,23 +185,23 @@
 
 
 <div class="viewcode-block" id="roll_sequence"><a class="viewcode-back" href="../../../package/opennmt.utils.roll_sequence.html#opennmt.utils.roll_sequence">[docs]</a><span class="k">def</span> <span class="nf">roll_sequence</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">offsets</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Shifts sequences by an offset.</span>
+    <span class="sd">&quot;&quot;&quot;Shifts sequences by an offset.</span>
 
-<span class="sd">  Args:</span>
-<span class="sd">    tensor: A ``tf.Tensor`` of shape :math:`[B, T, ...]`.</span>
-<span class="sd">    offsets : The offset of each sequence of shape :math:`[B]`.</span>
+<span class="sd">    Args:</span>
+<span class="sd">      tensor: A ``tf.Tensor`` of shape :math:`[B, T, ...]`.</span>
+<span class="sd">      offsets : The offset of each sequence of shape :math:`[B]`.</span>
 
-<span class="sd">  Returns:</span>
-<span class="sd">    A ``tf.Tensor`` with the same shape as :obj:`tensor` and with sequences</span>
-<span class="sd">    shifted by :obj:`offsets`.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tensor</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-  <span class="n">time</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tensor</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-  <span class="n">cols</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">time</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
-  <span class="n">cols</span> <span class="o">-=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">offsets</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-  <span class="n">cols</span> <span class="o">%=</span> <span class="n">time</span>
-  <span class="n">indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span></div>
+<span class="sd">    Returns:</span>
+<span class="sd">      A ``tf.Tensor`` with the same shape as :obj:`tensor` and with sequences</span>
+<span class="sd">      shifted by :obj:`offsets`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tensor</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tensor</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">cols</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">time</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">batch_size</span><span class="p">))</span>
+    <span class="n">cols</span> <span class="o">-=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">offsets</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">cols</span> <span class="o">%=</span> <span class="n">time</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
