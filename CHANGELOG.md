@@ -15,6 +15,24 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.15.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.15.0) (2021-01-28)
+
+### New features
+
+* Add sentence weighting: the data parameter `example_weights` accepts a file with one weight per line that are used to scale the loss of the corresponding training example
+* Summarize out of vocabulary tokens at the end of the training logs:
+  * ratio of OOV tokens in the training data
+  * 10 most frequent OOV tokens
+* [API] Add argument `fallback_to_cpu` to `Runner.train` to declare whether CPU training is allowed or not (defaults to `True` for backward compatibility)
+
+### Fixes and improvements
+
+* Fix error when computing BLEU score with SacreBLEU
+* Fix vocabulary generation when using SentencePiece with a pre-tokenization
+* Remove verbose checkpoint warnings when an exception occurs before checkpoint weights are actually loaded
+* Enable the `pyonmttok` and `ctranslate2` dependencies on macOS
+* Reformat the entire codebase with [Black](https://github.com/psf/black)
+
 ## [2.14.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.14.0) (2020-12-28)
 
 ### New features
