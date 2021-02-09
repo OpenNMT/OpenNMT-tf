@@ -106,11 +106,11 @@ def matmul_with_relative_representations(a, b, transpose_b=False):
     Returns:
       Tensor with shape :math:`[B, H, T, T]`.
     """
-    batch, head, time, _ = misc.shape_list(a)
+    batch, head, time, depth = misc.shape_list(a)
     a = tf.transpose(a, perm=[2, 0, 1, 3])
-    a = tf.reshape(a, [time, batch * head, -1])
+    a = tf.reshape(a, [time, batch * head, depth])
     c = tf.matmul(a, b, transpose_b=transpose_b)
-    c = tf.reshape(c, [time, batch, head, -1])
+    c = tf.reshape(c, [time, batch, head, c.shape[-1] or tf.shape(c)[-1]])
     c = tf.transpose(c, perm=[1, 2, 0, 3])
     return c
 

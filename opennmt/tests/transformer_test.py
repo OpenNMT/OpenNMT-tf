@@ -146,6 +146,12 @@ class TransformerTest(tf.test.TestCase):
         mask = tf.sequence_mask([9, 7])
         attention(x, mask=mask)
 
+    def testMultiHeadSelfAttentionRelativePositionsEmpty(self):
+        attention = transformer.MultiHeadAttention(4, 20, maximum_relative_position=6)
+        x = tf.random.uniform([1, 0, 10])
+        mask = tf.sequence_mask([0])
+        attention(x, mask=mask)
+
     def testMultiHeadSelfAttentionRelativePositionsWithCache(self):
         attention = transformer.MultiHeadAttention(4, 20, maximum_relative_position=6)
         x = tf.random.uniform([4, 1, 10])
