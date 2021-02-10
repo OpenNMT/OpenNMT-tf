@@ -150,7 +150,8 @@ class TransformerTest(tf.test.TestCase):
         attention = transformer.MultiHeadAttention(4, 20, maximum_relative_position=6)
         x = tf.random.uniform([1, 0, 10])
         mask = tf.sequence_mask([0])
-        attention(x, mask=mask)
+        y, _ = attention(x, mask=mask)
+        self.assertListEqual(y.shape.as_list(), [1, 0, 20])
 
     def testMultiHeadSelfAttentionRelativePositionsWithCache(self):
         attention = transformer.MultiHeadAttention(4, 20, maximum_relative_position=6)
