@@ -56,7 +56,7 @@ onmt-main [...] export --export_dir ~/my-models/ende --export_format ctranslate2
 
 ```yaml
 eval:
-  external_evaluators: bleu
+  scorers: bleu
   export_on_best: bleu
   export_format: ctranslate2
 ```

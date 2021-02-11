@@ -53,7 +53,7 @@ class Evaluator(object):
           scorers: A list of scorers, callables taking the path to the reference and
             the hypothesis and return one or more scores.
           save_predictions: Save evaluation predictions to a file. This is ``True``
-            when :obj:`external_evaluator` is set.
+            when :obj:`scorers` is set.
           early_stopping: An ``EarlyStopping`` instance.
           model_dir: The active model directory.
           export_on_best: Export a model when this evaluation metric has the
@@ -174,7 +174,10 @@ class Evaluator(object):
                 "features_file and labels_file should be both set for evaluation"
             )
         eval_config = config["eval"]
-        scorers = eval_config.get("external_evaluators")
+        scorers = eval_config.get("scorers")
+        if scorers is None:
+            # Backward compatibility with previous field name.
+            scorers = eval_config.get("external_evaluators")
         if scorers is not None:
             scorers = scorers_lib.make_scorers(scorers)
         early_stopping_config = eval_config.get("early_stopping")
