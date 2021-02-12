@@ -62,11 +62,17 @@ def get_sampling_probability(step, read_probability=None, schedule_type=None, k=
 class Decoder(tf.keras.layers.Layer):
     """Base class for decoders."""
 
-    def __init__(self, num_sources=1, **kwargs):
+    def __init__(self, num_sources=1, vocab_size=None, output_layer=None, **kwargs):
         """Initializes the decoder parameters.
+
+        If you don't set one of :obj:`vocab_size` or `output_layer` here,
+        you should later call the method :meth:`opennmt.decoders.Decoder.initialize`
+        to initialize this decoder instance.
 
         Args:
           num_sources: The number of source contexts expected by this decoder.
+          vocab_size: The output vocabulary size (optional if :obj:`output_layer` is set).
+          output_layer: The output projection layer (optional).
           **kwargs: Additional layer arguments.
 
         Raises:
@@ -84,6 +90,8 @@ class Decoder(tf.keras.layers.Layer):
         self.output_layer = None
         self.memory = None
         self.memory_sequence_length = None
+        if vocab_size is not None or output_layer is not None:
+            self.initialize(vocab_size=vocab_size, output_layer=output_layer)
 
     @property
     def minimum_sources(self):
@@ -116,6 +124,8 @@ class Decoder(tf.keras.layers.Layer):
         Raises:
           ValueError: if both :obj:`vocab_size` and :obj:`output_layer` are not set.
         """
+        if self.initialized:
+            return
         if output_layer is not None:
             self.output_layer = output_layer
         else:
