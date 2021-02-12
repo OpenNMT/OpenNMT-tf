@@ -51,7 +51,7 @@ Automatic evaluation can also export an inference model when a metric reaches it
 
 ```yaml
 eval:
-  external_evaluators: bleu
+  scorers: bleu
   export_on_best: bleu
 ```
 
@@ -65,7 +65,7 @@ For example, the following configuration stops the training when the BLEU score 
 
 ```yaml
 eval:
-  external_evaluators: bleu
+  scorers: bleu
   early_stopping:
     metric: bleu
     min_improvement: 0.2

@@ -12,7 +12,7 @@ params:
 train:
   # Training specific configuration (checkpoint frequency, number of training step, etc.)
 eval:
-  # Evaluation specific configuration (evaluation frequency, external evaluators.)
+  # Evaluation specific configuration (evaluation frequency, scorers, etc.)
 infer:
   # Inference specific configuration (output scores, alignments, etc.)
 score:
@@ -291,10 +291,10 @@ eval:
 
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
-  # (optional) Evalutator or list of evaluators that are called on the saved evaluation
+  # (optional) Scorer or list of scorers that are called on the saved evaluation
   # predictions.
-  # Available evaluators: bleu, rouge
-  external_evaluators: bleu
+  # Available scorers: bleu, rouge, wer, ter, prf
+  scorers: bleu
 
   # (optional) The width of the length buckets to select batch candidates from.
   # If set, the eval data will be sorted by length to increase the translation
