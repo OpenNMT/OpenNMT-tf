@@ -154,8 +154,7 @@ runner.train(num_devices=2, with_eval=True)
 Here is another example using OpenNMT-tf to run efficient beam search with a self-attentional decoder:
 
 ```python
-decoder = opennmt.decoders.SelfAttentionDecoder(num_layers=6)
-decoder.initialize(vocab_size=32000)
+decoder = opennmt.decoders.SelfAttentionDecoder(num_layers=6, vocab_size=32000)
 
 initial_state = decoder.initial_state(
     memory=memory, memory_sequence_length=memory_sequence_length
