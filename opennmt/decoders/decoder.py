@@ -401,8 +401,9 @@ class Decoder(tf.keras.layers.Layer):
         sampler=None,
         maximum_iterations=None,
         minimum_iterations=0,
+        tflite_output_size=None,
     ):
-        """Decodes dynamically from :obj:`start_ids`.
+      """Decodes dynamically from :obj:`start_ids`.
 
         Args:
           embeddings: Target embeddings or :class:`opennmt.inputters.WordEmbedder`
@@ -416,6 +417,7 @@ class Decoder(tf.keras.layers.Layer):
             predictions from the model output. Defaults to an argmax sampling.
           maximum_iterations: The maximum number of iterations to decode for.
           minimum_iterations: The minimum number of iterations to decode for.
+          tflite_output_size: If not None will run TFLite safe, is the size of 1D output tensor.
 
         Returns:
           A :class:`opennmt.utils.DecodingResult` instance.
@@ -423,30 +425,33 @@ class Decoder(tf.keras.layers.Layer):
         See Also:
           :func:`opennmt.utils.dynamic_decode`
         """
-        if isinstance(embeddings, text_inputter.WordEmbedder):
-            input_fn = lambda ids: embeddings({"ids": ids})
-        else:
-            input_fn = lambda ids: tf.nn.embedding_lookup(embeddings, ids)
+      if tflite_output_size is not None:
+          input_fn = lambda ids: embeddings.tflite_call(ids)
+      elif isinstance(embeddings, text_inputter.WordEmbedder):
+          input_fn = lambda ids: embeddings({"ids": ids})
+      else:
+          input_fn = lambda ids: tf.nn.embedding_lookup(embeddings, ids)
 
-        # TODO: find a better way to pass the state reorder flags.
-        if hasattr(decoding_strategy, "_set_state_reorder_flags"):
-            state_reorder_flags = self._get_state_reorder_flags()
-            decoding_strategy._set_state_reorder_flags(state_reorder_flags)
+    # TODO: find a better way to pass the state reorder flags.
+      if hasattr(decoding_strategy, "_set_state_reorder_flags"):
+          state_reorder_flags = self._get_state_reorder_flags()
+          decoding_strategy._set_state_reorder_flags(state_reorder_flags)
 
-        return decoding.dynamic_decode(
-            lambda ids, step, state: self(input_fn(ids), step, state),
-            start_ids,
-            end_id=end_id,
-            initial_state=initial_state,
-            decoding_strategy=decoding_strategy,
-            sampler=sampler,
-            maximum_iterations=maximum_iterations,
-            minimum_iterations=minimum_iterations,
-            attention_history=self.support_alignment_history,
-            attention_size=tf.shape(self.memory)[1]
-            if self.support_alignment_history
-            else None,
-        )
+      return decoding.dynamic_decode(
+          lambda ids, step, state: self(input_fn(ids), step, state),
+          start_ids,
+          end_id=end_id,
+          initial_state=initial_state,
+          decoding_strategy=decoding_strategy,
+          sampler=sampler,
+          maximum_iterations=maximum_iterations,
+          minimum_iterations=minimum_iterations,
+          attention_history=self.support_alignment_history,
+          attention_size=tf.shape(self.memory)[1]
+          if self.support_alignment_history
+          else None,
+          tflite_output_size=tflite_output_size,
+      )
 
     def map_v1_weights(self, weights):
         return self.output_layer.map_v1_weights(weights["dense"])

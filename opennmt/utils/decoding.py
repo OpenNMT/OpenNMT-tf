@@ -427,6 +427,7 @@ def dynamic_decode(
     minimum_iterations=0,
     attention_history=False,
     attention_size=None,
+    tflite_output_size=None,
 ):
     """Dynamic decoding.
 
@@ -445,6 +446,7 @@ def dynamic_decode(
       attention_history: Gather attention history during the decoding.
       attention_size: If known, the size of the attention vectors (i.e. the
         maximum source length).
+      tflite_output_size: If not None will run TFLite safe, is the size of 1D output tensor.
 
     Returns:
       A :class:`opennmt.utils.DecodingResult` instance.
@@ -531,53 +533,110 @@ def dynamic_decode(
     start_ids = tf.convert_to_tensor(start_ids)
     ids_dtype = start_ids.dtype
     start_ids = tf.cast(start_ids, tf.int32)
-    start_ids, finished, initial_log_probs, extra_vars = decoding_strategy.initialize(
-        start_ids, attention_size=attention_size
-    )
+    start_ids, finished, initial_log_probs, extra_vars = (
+      decoding_strategy.initialize(start_ids, attention_size=attention_size))
     step = tf.constant(0, dtype=tf.int32)
-    outputs = tf.TensorArray(tf.int32, size=0, dynamic_size=True)
-    attention = tf.TensorArray(tf.float32, size=0, dynamic_size=True)
+
+    def _tflite_body(step, finished, state, inputs, outputs, attention, cum_log_probs, extra_vars):
+        # Get log probs from the model.
+        result = symbols_to_logits_fn(inputs, step, state)
+        logits, state = result[0], result[1]
+        attn = result[2] if len(result) > 2 else None
+        logits = tf.cast(logits, tf.float32)
+
+        # Penalize or force EOS.
+        batch_size, vocab_size = misc.shape_list(logits)
+        eos_max_prob = tf.one_hot(
+            tf.fill([batch_size], end_id),
+            vocab_size,
+            on_value=logits.dtype.max,
+            off_value=logits.dtype.min)
+        logits = tf.cond(
+            step < minimum_iterations,
+            true_fn=lambda: _penalize_token(logits, end_id),
+            false_fn=lambda: tf.where(
+                tf.broadcast_to(tf.expand_dims(finished, -1), tf.shape(logits)),
+                x=eos_max_prob,
+                y=logits))
+        log_probs = tf.nn.log_softmax(logits)
+
+        # Run one decoding strategy step.
+        output, next_cum_log_probs, finished, state, extra_vars = (
+            decoding_strategy.step(
+                step,
+                sampler,
+                log_probs,
+                cum_log_probs,
+                finished,
+                state=state,
+                attention=attn,
+                **extra_vars))
+
+        outputs = outputs.write(step, output[0])  # For TensorArray assuming batch size of 1 to be TFlite safe
+        cum_log_probs = tf.where(finished, x=cum_log_probs, y=next_cum_log_probs)
+        finished = tf.logical_or(finished, tf.equal(output, end_id))
+        return step + 1, finished, state, output, outputs, attention, cum_log_probs, extra_vars
+
+    start_ids = tf.convert_to_tensor(start_ids)
+    ids_dtype = start_ids.dtype
+    start_ids = tf.cast(start_ids, tf.int32)
+    start_ids, finished, initial_log_probs, extra_vars = (
+      decoding_strategy.initialize(start_ids, attention_size=attention_size))
+    step = tf.constant(0, dtype=tf.int32)
+
+    is_tflite_run = tflite_output_size is not None
+    if is_tflite_run:
+        output_shape = tf.TensorShape(())
+        outputs = tf.TensorArray(tf.int32, size=tflite_output_size, dynamic_size=False, element_shape=output_shape)
+        attn_shape = tf.TensorShape(())
+        attention = tf.TensorArray(tf.float32, size=tflite_output_size, dynamic_size=False, element_shape=attn_shape)
+        body_loop = _tflite_body
+        maximum_iterations = tflite_output_size if maximum_iterations > tflite_output_size else maximum_iterations
+    else:
+        output_shape = tf.TensorShape(None)
+        outputs = tf.TensorArray(tf.int32, size=0, dynamic_size=True)
+        attn_shape = tf.TensorShape(None)
+        attention = tf.TensorArray(tf.float32, size=0, dynamic_size=True)
+        body_loop = _body
 
     _, _, state, _, outputs, attention, log_probs, extra_vars = tf.while_loop(
-        _cond,
-        _body,
-        loop_vars=(
-            step,
-            finished,
-            initial_state,
-            start_ids,
-            outputs,
-            attention,
-            initial_log_probs,
-            extra_vars,
-        ),
-        shape_invariants=(
-            step.shape,
-            finished.shape,
-            tf.nest.map_structure(_get_shape_invariants, initial_state),
-            start_ids.shape,
-            tf.TensorShape(None),
-            tf.TensorShape(None),
-            initial_log_probs.shape,
-            tf.nest.map_structure(_get_shape_invariants, extra_vars),
-        ),
-        parallel_iterations=1,
-        maximum_iterations=maximum_iterations,
-    )
-
+      _cond,
+      body_loop,
+      loop_vars=(
+          step,
+          finished,
+          initial_state,
+          start_ids,
+          outputs,
+          attention,
+          initial_log_probs,
+          extra_vars),
+      shape_invariants=(
+          step.shape,
+          finished.shape,
+          tf.nest.map_structure(_get_shape_invariants, initial_state),
+          start_ids.shape,
+          output_shape,
+          attn_shape,
+          initial_log_probs.shape,
+          tf.nest.map_structure(_get_shape_invariants, extra_vars)),
+      parallel_iterations=1,
+      maximum_iterations=maximum_iterations)
     ids, attention, lengths = decoding_strategy.finalize(
-        outputs,
-        end_id,
-        attention=attention if attention_history else None,
-        **extra_vars,
-    )
-    if attention is not None:
+      outputs,
+      end_id,
+      attention=attention if attention_history and not is_tflite_run else None,
+      **extra_vars)
+    if attention is not None and not is_tflite_run:
         attention = attention[:, :, :-1]  # Ignore attention for </s>.
     log_probs = tf.reshape(log_probs, [-1, decoding_strategy.num_hypotheses])
     ids = tf.cast(ids, ids_dtype)
     return DecodingResult(
-        ids=ids, lengths=lengths, log_probs=log_probs, attention=attention, state=state
-    )
+      ids=ids,
+      lengths=lengths,
+      log_probs=log_probs,
+      attention=attention,
+      state=state)
 
 
 def _reorder_state(state, indices, reorder_flags=None):

@@ -188,6 +188,30 @@ class SequenceToSequence(model.SequenceGenerator):
 
         return outputs, predictions
 
+    def infer_tflite(self, ids):
+        """Runs a prediction, returns a 1-dimensional Tensor with the target ids it predicted, is TFLite safe.
+        This is the function that gets converted was saving as a TFLite model
+
+        Args:
+          ids: A 1-dimensional tensor with the ids of the sentence you want to predict
+        """
+        ids = tf.expand_dims(ids, axis=0)
+        source_inputs = self.features_inputter.tflite_call(ids)
+        source_length = tf.convert_to_tensor([tf.math.count_nonzero(ids)])
+
+        encoder_outputs, encoder_state, encoder_sequence_length = self.encoder(
+          source_inputs, sequence_length=source_length, training=False)
+
+        predictions = self._dynamic_decode(
+          ids,
+          encoder_outputs,
+          encoder_state,
+          encoder_sequence_length,
+          tflite_run=True)
+
+        predictions = tf.squeeze(predictions, axis=1)
+        return predictions
+
     def _decode_target(
         self,
         labels,
@@ -242,8 +266,7 @@ class SequenceToSequence(model.SequenceGenerator):
         return outputs
 
     def _dynamic_decode(
-        self, features, encoder_outputs, encoder_state, encoder_sequence_length
-    ):
+        self, features, encoder_outputs, encoder_state, encoder_sequence_length, tflite_run=False):
         params = self.params
         batch_size = tf.shape(tf.nest.flatten(encoder_outputs)[0])[0]
         start_ids = tf.fill([batch_size], constants.START_OF_SENTENCE_ID)
@@ -266,14 +289,14 @@ class SequenceToSequence(model.SequenceGenerator):
         initial_state = self.decoder.initial_state(
             memory=encoder_outputs,
             memory_sequence_length=encoder_sequence_length,
-            initial_state=encoder_state,
+            initial_state=encoder_state
         )
         (
-            sampled_ids,
-            sampled_length,
-            log_probs,
-            alignment,
-            _,
+          sampled_ids,
+          sampled_length,
+          log_probs,
+          alignment,
+          _,
         ) = self.decoder.dynamic_decode(
             self.labels_inputter,
             start_ids,
@@ -282,9 +305,14 @@ class SequenceToSequence(model.SequenceGenerator):
             sampler=decoding.Sampler.from_params(params),
             maximum_iterations=params.get("maximum_decoding_length", 250),
             minimum_iterations=params.get("minimum_decoding_length", 0),
+            tflite_output_size=params.get("tflite_output_size", 250) if tflite_run else None,
         )
+
+        if tflite_run:
+          return sampled_ids
+
         target_tokens = self.labels_inputter.ids_to_tokens.lookup(
-            tf.cast(sampled_ids, tf.int64)
+          tf.cast(sampled_ids, tf.int64)
         )
 
         # Maybe replace unknown targets by the source tokens with the highest attention weight.

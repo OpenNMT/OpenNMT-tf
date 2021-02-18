@@ -231,6 +231,8 @@ params:
   contrastive_learning: false
   # (optional) The value of the parameter eta in the max-margin loss (default: 0.1).
   max_margin_eta: 0.1
+  # (optional) Size of input when saving a model as TFLite
+  tflite_output_size: 250
 
 
 # Training options.

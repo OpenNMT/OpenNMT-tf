@@ -4,6 +4,7 @@ from opennmt.models.catalog import GPT2Small
 from opennmt.models.catalog import ListenAttendSpell
 from opennmt.models.catalog import LstmCnnCrfTagger
 from opennmt.models.catalog import LuongAttention
+from opennmt.models.catalog import NMTBigV1
 from opennmt.models.catalog import TransformerBase
 from opennmt.models.catalog import TransformerBaseRelative
 from opennmt.models.catalog import TransformerBig
