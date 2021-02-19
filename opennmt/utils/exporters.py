@@ -93,7 +93,7 @@ class TFLiteExporter(Exporter):
             "tokens": tf.convert_to_tensor(
                 [["Hello", "World"]], dtype=tf.dtypes.string
             ),
-            "ids": tf.convert_to_tensor([[5, 10]], dtype=tf.dtypes.int32),
+            "ids": tf.convert_to_tensor([[0, 1]], dtype=tf.dtypes.int32),
         }
 
         # Check if regular inference works

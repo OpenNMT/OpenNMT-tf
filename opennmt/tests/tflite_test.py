@@ -2,10 +2,10 @@ import os
 
 import tensorflow as tf
 
-from opennmt import models
 from opennmt import data
 from opennmt.tests import test_util
-
+from opennmt.models import catalog
+from opennmt.utils import exporters
 
 def _create_vocab(temp_dir):
     vocab_path = os.path.join(temp_dir, "vocab.txt")
@@ -52,50 +52,45 @@ def _get_predictions(model, dataset, vocab_path):
     return pred_ids, tflite_pred_ids
 
 
-def _convert_tflite(model_template, tflite_model_path, temp_dir):
-    vocab, _ = _create_vocab(temp_dir)
+def _convert_tflite(model_template, export_dir):
+    vocab, _ = _create_vocab(export_dir)
     model = _make_model(model_template, vocab)
-    tflite_concrete_fn = tf.function(
-        model.infer_tflite,
-        input_signature=[tf.TensorSpec([None], dtype=tf.dtypes.int32, name="ids")],
-    ).get_concrete_function()
-    converter = tf.lite.TFLiteConverter.from_concrete_functions([tflite_concrete_fn])
-    converter.target_spec.supported_ops = [
-        tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops.
-        tf.lite.OpsSet.SELECT_TF_OPS,  # enable TensorFlow ops.
-    ]
-    converter.optimizations = [tf.lite.Optimize.DEFAULT]
-    converter.target_spec.supported_types = [tf.float16]
+    exporter = exporters.TFLiteExporter()
+    exporter.export(model, export_dir)
 
-    tflite_model = converter.convert()
-    with tf.io.gfile.GFile(tflite_model_path, "wb") as f:
-        f.write(tflite_model)
-
+def dir_has_tflite_file(check_dir):
+    extensions = ['.lite', '.tflite']
+    for file in os.listdir(check_dir):
+        for ext in extensions:
+            if file.endswith(ext):
+                return True
+    return False
 
 class TFLiteTest(tf.test.TestCase):
+
     def testLuongAttentionTFLiteOutput(self):
         vocab, vocab_path = _create_vocab(self.get_temp_dir())
-        model = _make_model(models.LuongAttention, vocab)
+        model = _make_model(catalog.LuongAttention, vocab)
         dataset = _create_dataset(model, self.get_temp_dir())
         pred, tflite_pred = _get_predictions(model, dataset, vocab_path)
         self.assertAllEqual(pred, tflite_pred)
 
     def testNMTBigV1TFLiteOutput(self):
         vocab, vocab_path = _create_vocab(self.get_temp_dir())
-        model = _make_model(models.NMTBigV1, vocab)
+        model = _make_model(catalog.NMTBigV1, vocab)
         dataset = _create_dataset(model, self.get_temp_dir())
         pred, tflite_pred = _get_predictions(model, dataset, vocab_path)
         self.assertAllEqual(pred, tflite_pred)
 
     def testLuongAttentionTFLiteFile(self):
-        tflite_model_path = os.path.join(self.get_temp_dir(), "opennmt.tflite")
-        _convert_tflite(models.LuongAttention, tflite_model_path, self.get_temp_dir())
-        self.assertTrue(os.path.isfile(tflite_model_path))
+        export_dir = self.get_temp_dir()
+        _convert_tflite(catalog.LuongAttention, export_dir)
+        self.assertTrue(dir_has_tflite_file(export_dir))
 
     def testNMTBigTFLiteFile(self):
-        tflite_model_path = os.path.join(self.get_temp_dir(), "opennmt.tflite")
-        _convert_tflite(models.NMTBigV1, tflite_model_path, self.get_temp_dir())
-        self.assertTrue(os.path.isfile(tflite_model_path))
+        export_dir = self.get_temp_dir()
+        _convert_tflite(catalog.NMTBigV1, export_dir)
+        self.assertTrue(dir_has_tflite_file(export_dir))
 
 
 if __name__ == "__main__":
