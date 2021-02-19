@@ -443,7 +443,8 @@ class WordEmbedder(TextInputter):
         return outputs
 
     def tflite_call(self, ids):
-        """Replicates call function and changes parameter, avoids a TFLite conversion issue, TensorFlow issue #42410
+        """Replicates call function and changes parameter.
+        Avoids a TFLite conversion issue, TensorFlow issue #42410
 
         Args:
         ids: A 1-dimensional tensor with the ids that you want to get word embeddings of"""

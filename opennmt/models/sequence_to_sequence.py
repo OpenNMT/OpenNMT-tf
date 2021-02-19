@@ -189,7 +189,7 @@ class SequenceToSequence(model.SequenceGenerator):
         return outputs, predictions
 
     def infer_tflite(self, ids):
-        """Runs a prediction, returns a 1-dimensional Tensor with the target ids it predicted, is TFLite safe.
+        """Runs a prediction, returns a 1-dim Tensor with the target ids it predicted, is TFLite safe.
         This is the function that gets converted was saving as a TFLite model
 
         Args:
