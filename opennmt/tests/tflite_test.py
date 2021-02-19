@@ -7,6 +7,7 @@ from opennmt.tests import test_util
 from opennmt.models import catalog
 from opennmt.utils import exporters
 
+
 def _create_vocab(temp_dir):
     vocab_path = os.path.join(temp_dir, "vocab.txt")
     vocab = test_util.make_vocab(vocab_path, ["a", "b", "c"])
@@ -58,16 +59,17 @@ def _convert_tflite(model_template, export_dir):
     exporter = exporters.TFLiteExporter()
     exporter.export(model, export_dir)
 
+
 def dir_has_tflite_file(check_dir):
-    extensions = ['.lite', '.tflite']
+    extensions = [".lite", ".tflite"]
     for file in os.listdir(check_dir):
         for ext in extensions:
             if file.endswith(ext):
                 return True
     return False
 
-class TFLiteTest(tf.test.TestCase):
 
+class TFLiteTest(tf.test.TestCase):
     def testLuongAttentionTFLiteOutput(self):
         vocab, vocab_path = _create_vocab(self.get_temp_dir())
         model = _make_model(catalog.LuongAttention, vocab)
