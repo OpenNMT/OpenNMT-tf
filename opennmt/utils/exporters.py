@@ -80,6 +80,56 @@ class CheckpointExporter(Exporter):
         checkpoint.write(os.path.join(export_dir, "ckpt"))
 
 
+@register_exporter(name="tflite")
+class TFLiteExporter(Exporter):
+    """TensorFlow Lite  exporter."""
+
+    def _export_model(self, model, export_dir):
+
+        if not model.built:
+            model.create_variables()
+        single_elem = {
+            "length": tf.convert_to_tensor([2], dtype=tf.dtypes.int32),
+            "tokens": tf.convert_to_tensor(
+                [["Hello", "World"]], dtype=tf.dtypes.string
+            ),
+            "ids": tf.convert_to_tensor([[5, 10]], dtype=tf.dtypes.int32),
+        }
+
+        # Check if regular inference works
+        model(single_elem)
+        elem_ids = tf.squeeze(single_elem["ids"])
+        model.infer_tflite(elem_ids)
+        # Tries to run prediction with TensorFlow Lite method it will convert
+        tflite_concrete_fn = tf.function(
+            model.infer_tflite,
+            input_signature=[tf.TensorSpec([None], dtype=tf.dtypes.int32, name="ids")],
+        ).get_concrete_function()
+
+        # Check TFLite function
+        tflite_concrete_fn(elem_ids)
+
+        # Saving
+        converter = tf.lite.TFLiteConverter.from_concrete_functions(
+            [tflite_concrete_fn]
+        )
+        converter.target_spec.supported_ops = [
+            tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops.
+            tf.lite.OpsSet.SELECT_TF_OPS,  # enable TensorFlow ops.
+        ]
+        converter.optimizations = [tf.lite.Optimize.DEFAULT]
+        converter.target_spec.supported_types = [tf.float16]
+
+        tflite_model_path = os.path.join(export_dir, "opennmt.tflite")
+        tflite_model = converter.convert()
+        with tf.io.gfile.GFile(tflite_model_path, "wb") as f:
+            f.write(tflite_model)
+        print(
+            "Finished Model Conversion, Converted model can be found at: "
+            + tflite_model_path.replace("\\", "/")
+        )
+
+
 @register_exporter(name="ctranslate2")
 class CTranslate2Exporter(Exporter):
     """CTranslate2 exporter."""
