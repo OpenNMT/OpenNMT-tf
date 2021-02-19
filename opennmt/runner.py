@@ -419,9 +419,7 @@ class Runner(object):
             log_time=log_time,
         )
 
-    def save_tflite(
-        self, output_dir
-    ):
+    def save_tflite(self, output_dir):
         """Saves model as a TensorFlow Lite model.
 
         Args:
@@ -432,25 +430,33 @@ class Runner(object):
         checkpoint = checkpoint_util.Checkpoint.from_config(config, model)
         checkpoint.restore(checkpoint_path=None, weights_only=True)
 
-        single_elem = {"length": tf.convert_to_tensor([2], dtype=tf.dtypes.int32),
-                       "tokens": tf.convert_to_tensor([["Hello", "World"]], dtype=tf.dtypes.string),
-                       "ids": tf.convert_to_tensor([[5, 10]], dtype=tf.dtypes.int32)}
+        single_elem = {
+            "length": tf.convert_to_tensor([2], dtype=tf.dtypes.int32),
+            "tokens": tf.convert_to_tensor(
+                [["Hello", "World"]], dtype=tf.dtypes.string
+            ),
+            "ids": tf.convert_to_tensor([[5, 10]], dtype=tf.dtypes.int32),
+        }
 
         # Check if regular inference works
         model(single_elem)
         elem_ids = tf.squeeze(single_elem["ids"])
         model.infer_tflite(elem_ids)
         # Now try running a prediction using the TensorFlow Lite method it will convert (Concrete function)
-        tflite_concrete_fn = tf.function(model.infer_tflite, input_signature=[tf.TensorSpec([None], dtype=tf.dtypes.int32,
-                                                                                            name="ids")]).get_concrete_function()
+        tflite_concrete_fn = tf.function(
+            model.infer_tflite,
+            input_signature=[tf.TensorSpec([None], dtype=tf.dtypes.int32, name="ids")],
+        ).get_concrete_function()
         # Check TFLite function
         tflite_concrete_fn(elem_ids)
 
         # Saving
-        converter = tf.lite.TFLiteConverter.from_concrete_functions([tflite_concrete_fn])
+        converter = tf.lite.TFLiteConverter.from_concrete_functions(
+            [tflite_concrete_fn]
+        )
         converter.target_spec.supported_ops = [
-          tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops.
-          tf.lite.OpsSet.SELECT_TF_OPS  # enable TensorFlow ops.
+            tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops.
+            tf.lite.OpsSet.SELECT_TF_OPS,  # enable TensorFlow ops.
         ]
         converter.optimizations = [tf.lite.Optimize.DEFAULT]
         converter.target_spec.supported_types = [tf.float16]
@@ -458,8 +464,11 @@ class Runner(object):
         tflite_model_path = os.path.join(output_dir, "opennmt.tflite")
         tflite_model = converter.convert()
         with tf.io.gfile.GFile(tflite_model_path, "wb") as f:
-          f.write(tflite_model)
-        print('Finished Model Conversion, Converted model can be found at: ' + tflite_model_path)
+            f.write(tflite_model)
+        print(
+            "Finished Model Conversion, Converted model can be found at: "
+            + tflite_model_path
+        )
 
     def export(self, export_dir, checkpoint_path=None, exporter=None):
         """Exports a model.

@@ -193,10 +193,13 @@ def main():
     )
 
     parser_save_tflite = subparsers.add_parser(
-      "save_tflite", help="Save as a TensorFlow Lite model")
+        "save_tflite", help="Save as a TensorFlow Lite model"
+    )
     parser_save_tflite.add_argument(
-      "--output_dir", required=True,
-      help="The output directory for the TensorFlow lite model.")
+        "--output_dir",
+        required=True,
+        help="The output directory for the TensorFlow lite model.",
+    )
     parser_export = subparsers.add_parser("export", help="Model export.")
     parser_export.add_argument(
         "--export_dir", required=True, help="The directory of the exported model."
@@ -360,11 +363,13 @@ def main():
             args.output_dir, src_vocab=args.src_vocab, tgt_vocab=args.tgt_vocab
         )
     elif args.run_type == "save_tflite":
-      supported_models = ["NMTSmallV1", "NMTMediumV1", "NMTBigV1", "LuongAttention"]
-      if args.model_type not in supported_models:
-        raise TypeError("Unsupported model to save to TFLite, supported models are:"
-                        "NMTSmallV1, NMTMediumV1, NMTBigV1")
-      runner.save_tflite(args.output_dir)
+        supported_models = ["NMTSmallV1", "NMTMediumV1", "NMTBigV1", "LuongAttention"]
+        if args.model_type not in supported_models:
+            raise TypeError(
+                "Unsupported model to save to TFLite, supported models are:"
+                "NMTSmallV1, NMTMediumV1, NMTBigV1"
+            )
+        runner.save_tflite(args.output_dir)
 
 
 if __name__ == "__main__":
