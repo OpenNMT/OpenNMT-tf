@@ -25,7 +25,7 @@ class SelfAttentionDecoder(decoder.Decoder):
         position_encoder_class=SinusoidalPositionEncoder,
         num_sources=1,
         maximum_relative_position=None,
-        return_attention=transformer.MultiHeadAttentionReturnPolicy.FIRST_HEAD_LAST_LAYER,
+        attention_reduction=transformer.MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER,
         **kwargs
     ):
         """Initializes the parameters of the decoder.
@@ -48,15 +48,15 @@ class SelfAttentionDecoder(decoder.Decoder):
           num_sources: The number of source contexts expected by this decoder.
           maximum_relative_position: Maximum relative position representation
             (from https://arxiv.org/abs/1803.02155).
-          return_attention: A :class:`opennmt.layers.MultiHeadAttentionReturnPolicy`
-            value to specify the attention vectors to return.
+          attention_reduction: A :class:`opennmt.layers.MultiHeadAttentionReduction`
+            value to specify how to reduce multi-head attention matrices.
           **kwargs: Additional layer arguments.
         """
         super().__init__(num_sources=num_sources, **kwargs)
         self.num_units = num_units
         self.num_heads = num_heads
         self.dropout = dropout
-        self.return_attention = return_attention
+        self.attention_reduction = attention_reduction
         self.position_encoder = None
         if position_encoder_class is not None:
             self.position_encoder = position_encoder_class()
@@ -156,9 +156,9 @@ class SelfAttentionDecoder(decoder.Decoder):
         # Convert list of shape num_layers x num_sources to num_sources x num_layers
         attention = list(map(list, zip(*attention)))
         if attention:
-            attention = transformer.MultiHeadAttentionReturnPolicy.reduce(
-                attention[0],
-                self.return_attention,
+            attention = transformer.MultiHeadAttentionReduction.reduce(
+                attention[0],  # Get attention to the first source.
+                self.attention_reduction,
             )
         else:
             attention = None

@@ -29,7 +29,7 @@ from opennmt.layers.rnn import make_rnn_cell
 
 from opennmt.layers.transformer import FeedForwardNetwork
 from opennmt.layers.transformer import MultiHeadAttention
-from opennmt.layers.transformer import MultiHeadAttentionReturnPolicy
+from opennmt.layers.transformer import MultiHeadAttentionReduction
 from opennmt.layers.transformer import SelfAttentionDecoderLayer
 from opennmt.layers.transformer import SelfAttentionEncoderLayer
 from opennmt.layers.transformer import TransformerLayerWrapper

@@ -158,22 +158,45 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
         return m
 
 
-class MultiHeadAttentionReturnPolicy(enum.Enum):
-    FIRST_HEAD_LAST_LAYER = 0
-    AVERAGE_LAST_LAYER = 1
-    AVERAGE_ALL_LAYERS = 2
+class MultiHeadAttentionReduction(enum.Enum):
+    """Enumeration defining how to reduce multi-head attention matrices into a
+    single attention matrix.
+
+    Possible values are:
+
+    * ``NONE``: do not reduce and return all attention heads.
+    * ``FIRST_HEAD_LAST_LAYER``: take the first attention head of the last layer.
+    * ``AVERAGE_LAST_LAYER``: average of all attention heads of the last layer.
+    * ``AVERAGE_ALL_LAYERS``: average of all attention heads.
+    """
+
+    NONE = 0
+    FIRST_HEAD_LAST_LAYER = 1
+    AVERAGE_LAST_LAYER = 2
+    AVERAGE_ALL_LAYERS = 3
 
     @staticmethod
     def reduce(attention, policy):
+        """Reduces a list of multi-head attention matrices into a single
+        attention matrix.
+
+        Args:
+          attention: A list of multi-head attention matrices, with shape
+            :math:`[B, H, T_t, T_s]`.
+          policy: A :class:`opennmt.layers.MultiHeadAttentionReduction` value.
+
+        Returns:
+          A single attention matrix with shape :math:`[B, T_t, T_s]`.
+        """
         if not isinstance(attention, list):
             raise ValueError(
                 "attention should be a list of attention tensors, one per layer"
             )
-        if policy == MultiHeadAttentionReturnPolicy.FIRST_HEAD_LAST_LAYER:
+        if policy == MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER:
             attention = attention[-1][:, 0]
-        elif policy == MultiHeadAttentionReturnPolicy.AVERAGE_LAST_LAYER:
+        elif policy == MultiHeadAttentionReduction.AVERAGE_LAST_LAYER:
             attention = tf.math.reduce_mean(attention[-1], axis=1)
-        elif policy == MultiHeadAttentionReturnPolicy.AVERAGE_ALL_LAYERS:
+        elif policy == MultiHeadAttentionReduction.AVERAGE_ALL_LAYERS:
             attention = tf.concat(attention, axis=1)
             attention = tf.math.reduce_mean(attention, axis=1)
         return attention
