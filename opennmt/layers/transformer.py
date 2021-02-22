@@ -1,5 +1,7 @@
 """Define layers related to the Google's Transformer model."""
 
+import enum
+
 import tensorflow as tf
 import numpy as np
 
@@ -156,6 +158,27 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
         return m
 
 
+class MultiHeadAttentionReturnPolicy(enum.Enum):
+    FIRST_HEAD_LAST_LAYER = 0
+    AVERAGE_LAST_LAYER = 1
+    AVERAGE_ALL_LAYERS = 2
+
+    @staticmethod
+    def reduce(attention, policy):
+        if not isinstance(attention, list):
+            raise ValueError(
+                "attention should be a list of attention tensors, one per layer"
+            )
+        if policy == MultiHeadAttentionReturnPolicy.FIRST_HEAD_LAST_LAYER:
+            attention = attention[-1][:, 0]
+        elif policy == MultiHeadAttentionReturnPolicy.AVERAGE_LAST_LAYER:
+            attention = tf.math.reduce_mean(attention[-1], axis=1)
+        elif policy == MultiHeadAttentionReturnPolicy.AVERAGE_ALL_LAYERS:
+            attention = tf.concat(attention, axis=1)
+            attention = tf.math.reduce_mean(attention, axis=1)
+        return attention
+
+
 class MultiHeadAttention(tf.keras.layers.Layer):
     """Computes the multi-head attention as described in
     https://arxiv.org/abs/1706.03762.
@@ -176,8 +199,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
           num_heads: The number of attention heads.
           num_units: The number of hidden units.
           dropout: The probability to drop units from the inputs.
-          return_attention: If ``True``, also return the attention weights of the
-            first head.
+          return_attention: If ``True``, also return the attention weights.
           maximum_relative_position: Maximum relative position representation
             (from https://arxiv.org/abs/1803.02155).
           kwargs: Additional layer arguments.
@@ -468,7 +490,7 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
         self.attention = []
         for i in range(num_sources):
             attention = MultiHeadAttention(
-                num_heads, num_units, dropout=attention_dropout, return_attention=i == 0
+                num_heads, num_units, dropout=attention_dropout, return_attention=True
             )
             attention = TransformerLayerWrapper(attention, dropout)
             self.attention.append(attention)
@@ -501,7 +523,7 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
             inputs, mask=mask, cache=cache.get("self_kv"), training=training
         )
 
-        attention = None
+        attention = []
         memory_kv = []
         if memory is not None:
             memory_cache = cache.get("memory_kv")
@@ -510,20 +532,14 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
             for layer, mem, mem_mask, mem_cache in zip(
                 self.attention, memory, memory_mask, memory_cache
             ):
-                result = layer(
+                outputs, memory_kv_i, attention_i = layer(
                     outputs,
                     memory=mem,
                     mask=mem_mask,
                     cache=mem_cache,
                     training=training,
                 )
-                if len(result) == 3:
-                    outputs, memory_kv_i, attention = result
-                    attention = attention[
-                        :, 0
-                    ]  # Use the first head for the attention vector.
-                else:
-                    outputs, memory_kv_i = result
+                attention.append(attention_i)
                 memory_kv.append(memory_kv_i)
 
         outputs = self.ffn(outputs, training=training)

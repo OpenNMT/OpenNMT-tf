@@ -25,6 +25,7 @@ class SelfAttentionDecoder(decoder.Decoder):
         position_encoder_class=SinusoidalPositionEncoder,
         num_sources=1,
         maximum_relative_position=None,
+        return_attention=transformer.MultiHeadAttentionReturnPolicy.FIRST_HEAD_LAST_LAYER,
         **kwargs
     ):
         """Initializes the parameters of the decoder.
@@ -47,12 +48,15 @@ class SelfAttentionDecoder(decoder.Decoder):
           num_sources: The number of source contexts expected by this decoder.
           maximum_relative_position: Maximum relative position representation
             (from https://arxiv.org/abs/1803.02155).
+          return_attention: A :class:`opennmt.layers.MultiHeadAttentionReturnPolicy`
+            value to specify the attention vectors to return.
           **kwargs: Additional layer arguments.
         """
         super().__init__(num_sources=num_sources, **kwargs)
         self.num_units = num_units
         self.num_heads = num_heads
         self.dropout = dropout
+        self.return_attention = return_attention
         self.position_encoder = None
         if position_encoder_class is not None:
             self.position_encoder = position_encoder_class()
@@ -135,8 +139,9 @@ class SelfAttentionDecoder(decoder.Decoder):
 
         # Run each layer.
         new_cache = []
+        attention = []
         for i, layer in enumerate(self.layers):
-            inputs, layer_cache, attention = layer(
+            inputs, layer_cache, layer_attention = layer(
                 inputs,
                 mask=mask,
                 memory=memory,
@@ -144,8 +149,18 @@ class SelfAttentionDecoder(decoder.Decoder):
                 cache=cache[i] if cache is not None else None,
                 training=training,
             )
+            attention.append(layer_attention)
             new_cache.append(layer_cache)
         outputs = self.layer_norm(inputs)
+
+        # Convert list of shape num_layers x num_sources to num_sources x num_layers
+        attention = list(map(list, zip(*attention)))
+        if attention:
+            attention = transformer.MultiHeadAttentionReturnPolicy.reduce(
+                attention[0],
+                self.return_attention,
+            )
+
         return outputs, new_cache, attention
 
     def forward(
