@@ -511,7 +511,7 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
         )
         self.self_attention = TransformerLayerWrapper(self.self_attention, dropout)
         self.attention = []
-        for i in range(num_sources):
+        for _ in range(num_sources):
             attention = MultiHeadAttention(
                 num_heads, num_units, dropout=attention_dropout, return_attention=True
             )
