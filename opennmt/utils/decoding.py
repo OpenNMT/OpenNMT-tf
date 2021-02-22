@@ -457,6 +457,7 @@ def dynamic_decode(
         decoding_strategy = GreedySearch()
     if sampler is None:
         sampler = BestSampler()
+    is_tflite_run = tflite_output_size is not None
 
     def _cond(
         step, finished, state, inputs, outputs, attention, cum_log_probs, extra_vars
@@ -509,14 +510,18 @@ def dynamic_decode(
             **extra_vars,
         )
 
-        # Update loop vars.
-        if attention_history:
-            if attn is None:
-                raise ValueError(
-                    "attention_history is set but the model did not return attention"
-                )
-            attention = attention.write(step, tf.cast(attn, tf.float32))
-        outputs = outputs.write(step, output)
+        # For TensorArray assuming batch size of 1 to be TFlite safe
+        if is_tflite_run:
+            outputs = outputs.write(step, output[0])
+        else:
+            # Update loop vars.
+            if attention_history:
+                if attn is None:
+                    raise ValueError(
+                        "attention_history is set but the model did not return attention"
+                    )
+                attention = attention.write(step, tf.cast(attn, tf.float32))
+            outputs = outputs.write(step, output)
         cum_log_probs = tf.where(finished, x=cum_log_probs, y=next_cum_log_probs)
         finished = tf.logical_or(finished, tf.equal(output, end_id))
         return (
@@ -538,77 +543,6 @@ def dynamic_decode(
     )
     step = tf.constant(0, dtype=tf.int32)
 
-    def _tflite_body(
-        step, finished, state, inputs, outputs, attention, cum_log_probs, extra_vars
-    ):
-        # Get log probs from the model.
-        result = symbols_to_logits_fn(inputs, step, state)
-        logits, state = result[0], result[1]
-        attn = result[2] if len(result) > 2 else None
-        logits = tf.cast(logits, tf.float32)
-
-        # Penalize or force EOS.
-        batch_size, vocab_size = misc.shape_list(logits)
-        eos_max_prob = tf.one_hot(
-            tf.fill([batch_size], end_id),
-            vocab_size,
-            on_value=logits.dtype.max,
-            off_value=logits.dtype.min,
-        )
-        logits = tf.cond(
-            step < minimum_iterations,
-            true_fn=lambda: _penalize_token(logits, end_id),
-            false_fn=lambda: tf.where(
-                tf.broadcast_to(tf.expand_dims(finished, -1), tf.shape(logits)),
-                x=eos_max_prob,
-                y=logits,
-            ),
-        )
-        log_probs = tf.nn.log_softmax(logits)
-
-        # Run one decoding strategy step.
-        (
-            output,
-            next_cum_log_probs,
-            finished,
-            state,
-            extra_vars,
-        ) = decoding_strategy.step(
-            step,
-            sampler,
-            log_probs,
-            cum_log_probs,
-            finished,
-            state=state,
-            attention=attn,
-            **extra_vars,
-        )
-
-        outputs = outputs.write(
-            step, output[0]
-        )  # For TensorArray assuming batch size of 1 to be TFlite safe
-        cum_log_probs = tf.where(finished, x=cum_log_probs, y=next_cum_log_probs)
-        finished = tf.logical_or(finished, tf.equal(output, end_id))
-        return (
-            step + 1,
-            finished,
-            state,
-            output,
-            outputs,
-            attention,
-            cum_log_probs,
-            extra_vars,
-        )
-
-    start_ids = tf.convert_to_tensor(start_ids)
-    ids_dtype = start_ids.dtype
-    start_ids = tf.cast(start_ids, tf.int32)
-    start_ids, finished, initial_log_probs, extra_vars = decoding_strategy.initialize(
-        start_ids, attention_size=attention_size
-    )
-    step = tf.constant(0, dtype=tf.int32)
-
-    is_tflite_run = tflite_output_size is not None
     if is_tflite_run:
         output_shape = tf.TensorShape(())
         outputs = tf.TensorArray(
@@ -624,7 +558,6 @@ def dynamic_decode(
             dynamic_size=False,
             element_shape=attn_shape,
         )
-        body_loop = _tflite_body
         maximum_iterations = (
             tflite_output_size
             if maximum_iterations > tflite_output_size
@@ -635,11 +568,10 @@ def dynamic_decode(
         outputs = tf.TensorArray(tf.int32, size=0, dynamic_size=True)
         attn_shape = tf.TensorShape(None)
         attention = tf.TensorArray(tf.float32, size=0, dynamic_size=True)
-        body_loop = _body
 
     _, _, state, _, outputs, attention, log_probs, extra_vars = tf.while_loop(
         _cond,
-        body_loop,
+        _body,
         loop_vars=(
             step,
             finished,
