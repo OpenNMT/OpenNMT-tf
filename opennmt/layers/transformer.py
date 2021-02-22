@@ -379,25 +379,37 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
 class TransformerLayerWrapper(common.LayerWrapper):
     """Layer wrapper that applies a standard Transformer preprocessing and
-    postprocessing:
+    postprocessing.
+
+    With ``pre_norm=True``:
 
     .. code-block:: text
 
         y = layer_norm(x)
         y = dropout(layer(y)) + x
+
+    With ``pre_norm=False``:
+
+    .. code-block:: text
+
+        y = dropout(layer(x)) + x
+        y = layer_norm(y)
     """
 
-    def __init__(self, layer, output_dropout, **kwargs):
+    def __init__(self, layer, output_dropout, pre_norm=True, **kwargs):
         """Initializes the wrapper.
 
         Args:
           layer: The Transformer layer to wrap.
           output_dropout: The dropout to apply on the layer output.
+          pre_norm: If ``True``, layer normalization is applied before calling
+            the layer. Otherwise it is applied after.
           **kwargs: Additional layer arguments.
         """
         super().__init__(
             layer,
-            normalize_input=True,
+            normalize_input=pre_norm,
+            normalize_output=not pre_norm,
             output_dropout=output_dropout,
             residual_connection=True,
             **kwargs,
@@ -423,6 +435,7 @@ class SelfAttentionEncoderLayer(tf.keras.layers.Layer):
         ffn_dropout=0.1,
         ffn_activation=tf.nn.relu,
         maximum_relative_position=None,
+        pre_norm=True,
         **kwargs
     ):
         """Initializes the layer.
@@ -440,7 +453,9 @@ class SelfAttentionEncoderLayer(tf.keras.layers.Layer):
             transformations of the feed forward layer.
           maximum_relative_position: Maximum relative position representation
             (from https://arxiv.org/abs/1803.02155).
-          kwargs: Additional layer arguments.
+          pre_norm: If ``True``, layer normalization is applied before each
+            sub-layer. Otherwise it is applied after.
+          **kwargs: Additional layer arguments.
         """
         super().__init__(**kwargs)
         self.self_attention = MultiHeadAttention(
@@ -449,11 +464,13 @@ class SelfAttentionEncoderLayer(tf.keras.layers.Layer):
             dropout=attention_dropout,
             maximum_relative_position=maximum_relative_position,
         )
-        self.self_attention = TransformerLayerWrapper(self.self_attention, dropout)
+        self.self_attention = TransformerLayerWrapper(
+            self.self_attention, dropout, pre_norm=pre_norm
+        )
         self.ffn = FeedForwardNetwork(
             ffn_inner_dim, num_units, dropout=ffn_dropout, activation=ffn_activation
         )
-        self.ffn = TransformerLayerWrapper(self.ffn, dropout)
+        self.ffn = TransformerLayerWrapper(self.ffn, dropout, pre_norm=pre_norm)
 
     def call(self, x, mask=None, training=None):
         """Runs the encoder layer."""
@@ -482,6 +499,7 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
         ffn_dropout=0.1,
         ffn_activation=tf.nn.relu,
         maximum_relative_position=None,
+        pre_norm=True,
         **kwargs
     ):
         """Initializes the layer.
@@ -500,6 +518,8 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
             transformations of the feed forward layer.
           maximum_relative_position: Maximum relative position representation
             (from https://arxiv.org/abs/1803.02155).
+          pre_norm: If ``True``, layer normalization is applied before each
+            sub-layer. Otherwise it is applied after.
           **kwargs: Additional layer arguments.
         """
         super().__init__(**kwargs)
@@ -509,18 +529,20 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
             dropout=attention_dropout,
             maximum_relative_position=maximum_relative_position,
         )
-        self.self_attention = TransformerLayerWrapper(self.self_attention, dropout)
+        self.self_attention = TransformerLayerWrapper(
+            self.self_attention, dropout, pre_norm=pre_norm
+        )
         self.attention = []
         for _ in range(num_sources):
             attention = MultiHeadAttention(
                 num_heads, num_units, dropout=attention_dropout, return_attention=True
             )
-            attention = TransformerLayerWrapper(attention, dropout)
+            attention = TransformerLayerWrapper(attention, dropout, pre_norm=pre_norm)
             self.attention.append(attention)
         self.ffn = FeedForwardNetwork(
             ffn_inner_dim, num_units, dropout=ffn_dropout, activation=ffn_activation
         )
-        self.ffn = TransformerLayerWrapper(self.ffn, dropout)
+        self.ffn = TransformerLayerWrapper(self.ffn, dropout, pre_norm=pre_norm)
 
     def map_v1_weights(self, weights):
         m = []
