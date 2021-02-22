@@ -160,6 +160,8 @@ class SelfAttentionDecoder(decoder.Decoder):
                 attention[0],
                 self.return_attention,
             )
+        else:
+            attention = None
 
         return outputs, new_cache, attention
 
