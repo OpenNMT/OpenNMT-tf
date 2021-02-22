@@ -677,9 +677,21 @@ class ModelTest(tf.test.TestCase):
     )
     def testCTranslate2Spec(self, model):
         try:
-            self.assertIsNotNone(model.ctranslate2_spec)
+            spec = model.ctranslate2_spec
+            self.assertIsNotNone(spec)
+            self.assertIs(spec.with_source_bos, False)
+            self.assertIs(spec.with_source_eos, False)
         except ImportError:
             self.skipTest("ctranslate2 module is not available")
+
+    def testCTranslate2SpecSequenceControls(self):
+        _, _, data_config = self._makeToyEnDeData()
+        data_config["source_sequence_controls"] = {"start": False, "end": True}
+        model = models.TransformerBase()
+        model.initialize(data_config)
+        spec = model.ctranslate2_spec
+        self.assertIs(spec.with_source_bos, False)
+        self.assertIs(spec.with_source_eos, True)
 
     def testTransformerWithDifferentEncoderDecoderLayers(self):
         model = models.Transformer(
