@@ -174,12 +174,13 @@ class TransformerTest(tf.test.TestCase):
         _compute_gradients_in_function(tf.random.uniform([4, 1, 10]))
 
     def testMultiHeadAttention(self):
-        attention = transformer.MultiHeadAttention(4, 20)
+        attention = transformer.MultiHeadAttention(4, 20, return_attention=True)
         queries = tf.random.uniform([4, 5, 10])
         memory = tf.random.uniform([4, 3, 10])
         mask = tf.sequence_mask([1, 3, 2, 2])
-        context, _ = attention(queries, memory=memory, mask=mask)
+        context, _, attention = attention(queries, memory=memory, mask=mask)
         self.assertListEqual(context.shape.as_list(), [4, 5, 20])
+        self.assertListEqual(attention.shape.as_list(), [4, 4, 5, 3])
 
     def testMultiHeadAttentionWithCache(self):
         cache = (tf.zeros([4, 4, 0, 5]), tf.zeros([4, 4, 0, 5]))

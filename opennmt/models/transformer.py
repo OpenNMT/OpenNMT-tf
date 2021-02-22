@@ -10,6 +10,7 @@ from opennmt.encoders.encoder import ParallelEncoder
 from opennmt.encoders.self_attention_encoder import SelfAttentionEncoder
 from opennmt.decoders.self_attention_decoder import SelfAttentionDecoder
 from opennmt.layers.position import SinusoidalPositionEncoder
+from opennmt.layers.transformer import MultiHeadAttentionReduction
 from opennmt.utils.misc import merge_dict
 
 
@@ -34,6 +35,7 @@ class Transformer(SequenceToSequence):
         share_embeddings=EmbeddingsSharingLevel.NONE,
         share_encoders=False,
         maximum_relative_position=None,
+        attention_reduction=MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER,
     ):
         """Initializes a Transformer model.
 
@@ -64,6 +66,9 @@ class Transformer(SequenceToSequence):
             separate encoders parameters or not.
           maximum_relative_position: Maximum relative position representation
             (from https://arxiv.org/abs/1803.02155).
+          attention_reduction: A :class:`opennmt.layers.MultiHeadAttentionReduction`
+            value to specify how to reduce target-source multi-head attention
+            matrices.
         """
         if isinstance(num_layers, (list, tuple)):
             num_encoder_layers, num_decoder_layers = num_layers
@@ -104,6 +109,7 @@ class Transformer(SequenceToSequence):
             position_encoder_class=position_encoder_class,
             num_sources=source_inputter.num_outputs,
             maximum_relative_position=maximum_relative_position,
+            attention_reduction=attention_reduction,
         )
 
         self._num_units = num_units
