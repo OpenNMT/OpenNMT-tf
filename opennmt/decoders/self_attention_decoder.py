@@ -26,6 +26,7 @@ class SelfAttentionDecoder(decoder.Decoder):
         num_sources=1,
         maximum_relative_position=None,
         attention_reduction=transformer.MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER,
+        pre_norm=True,
         **kwargs
     ):
         """Initializes the parameters of the decoder.
@@ -50,6 +51,8 @@ class SelfAttentionDecoder(decoder.Decoder):
             (from https://arxiv.org/abs/1803.02155).
           attention_reduction: A :class:`opennmt.layers.MultiHeadAttentionReduction`
             value to specify how to reduce multi-head attention matrices.
+          pre_norm: If ``True``, layer normalization is applied before each
+            sub-layer. Otherwise it is applied after.
           **kwargs: Additional layer arguments.
         """
         super().__init__(num_sources=num_sources, **kwargs)
@@ -60,7 +63,7 @@ class SelfAttentionDecoder(decoder.Decoder):
         self.position_encoder = None
         if position_encoder_class is not None:
             self.position_encoder = position_encoder_class()
-        self.layer_norm = common.LayerNorm()
+        self.layer_norm = common.LayerNorm() if pre_norm else None
         self.layers = [
             transformer.SelfAttentionDecoderLayer(
                 self.num_units,
@@ -72,6 +75,7 @@ class SelfAttentionDecoder(decoder.Decoder):
                 ffn_dropout=ffn_dropout,
                 ffn_activation=ffn_activation,
                 maximum_relative_position=maximum_relative_position,
+                pre_norm=pre_norm,
             )
             for i in range(num_layers)
         ]
@@ -151,7 +155,7 @@ class SelfAttentionDecoder(decoder.Decoder):
             )
             attention.append(layer_attention)
             new_cache.append(layer_cache)
-        outputs = self.layer_norm(inputs)
+        outputs = self.layer_norm(inputs) if self.layer_norm is not None else inputs
 
         # Convert list of shape num_layers x num_sources to num_sources x num_layers
         attention = list(map(list, zip(*attention)))

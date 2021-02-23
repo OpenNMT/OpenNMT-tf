@@ -26,6 +26,7 @@ class SelfAttentionEncoder(Encoder):
         ffn_activation=tf.nn.relu,
         position_encoder_class=SinusoidalPositionEncoder,
         maximum_relative_position=None,
+        pre_norm=True,
         **kwargs
     ):
         """Initializes the parameters of the encoder.
@@ -47,6 +48,8 @@ class SelfAttentionEncoder(Encoder):
             instance).
           maximum_relative_position: Maximum relative position representation
             (from https://arxiv.org/abs/1803.02155).
+          pre_norm: If ``True``, layer normalization is applied before each
+            sub-layer. Otherwise it is applied after.
           **kwargs: Additional layer arguments.
         """
         super().__init__(**kwargs)
@@ -55,7 +58,7 @@ class SelfAttentionEncoder(Encoder):
         self.position_encoder = None
         if position_encoder_class is not None:
             self.position_encoder = position_encoder_class()
-        self.layer_norm = common.LayerNorm()
+        self.layer_norm = common.LayerNorm() if pre_norm else None
         self.layers = [
             transformer.SelfAttentionEncoderLayer(
                 num_units,
@@ -66,6 +69,7 @@ class SelfAttentionEncoder(Encoder):
                 ffn_dropout=ffn_dropout,
                 ffn_activation=ffn_activation,
                 maximum_relative_position=maximum_relative_position,
+                pre_norm=pre_norm,
             )
             for i in range(num_layers)
         ]
@@ -78,7 +82,7 @@ class SelfAttentionEncoder(Encoder):
         mask = self.build_mask(inputs, sequence_length=sequence_length)
         for layer in self.layers:
             inputs = layer(inputs, mask=mask, training=training)
-        outputs = self.layer_norm(inputs)
+        outputs = self.layer_norm(inputs) if self.layer_norm is not None else inputs
         return outputs, None, sequence_length
 
     def map_v1_weights(self, weights):

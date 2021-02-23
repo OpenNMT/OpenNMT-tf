@@ -36,6 +36,7 @@ class Transformer(SequenceToSequence):
         share_encoders=False,
         maximum_relative_position=None,
         attention_reduction=MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER,
+        pre_norm=True,
     ):
         """Initializes a Transformer model.
 
@@ -69,6 +70,11 @@ class Transformer(SequenceToSequence):
           attention_reduction: A :class:`opennmt.layers.MultiHeadAttentionReduction`
             value to specify how to reduce target-source multi-head attention
             matrices.
+          pre_norm: If ``True``, layer normalization is applied before each
+            sub-layer. Otherwise it is applied after. The original paper uses
+            ``pre_norm=False``, but the authors later suggested that ``pre_norm=True``
+            "seems better for harder-to-learn models, so it should probably be the
+            default."
         """
         if isinstance(num_layers, (list, tuple)):
             num_encoder_layers, num_decoder_layers = num_layers
@@ -86,6 +92,7 @@ class Transformer(SequenceToSequence):
                 ffn_activation=ffn_activation,
                 position_encoder_class=position_encoder_class,
                 maximum_relative_position=maximum_relative_position,
+                pre_norm=pre_norm,
             )
             for _ in range(source_inputter.num_outputs)
         ]
@@ -110,6 +117,7 @@ class Transformer(SequenceToSequence):
             num_sources=source_inputter.num_outputs,
             maximum_relative_position=maximum_relative_position,
             attention_reduction=attention_reduction,
+            pre_norm=pre_norm,
         )
 
         self._num_units = num_units
@@ -119,6 +127,7 @@ class Transformer(SequenceToSequence):
         self._with_relative_position = maximum_relative_position is not None
         self._is_ct2_compatible = (
             isinstance(encoder, SelfAttentionEncoder)
+            and pre_norm
             and ffn_activation is tf.nn.relu
             and (
                 (self._with_relative_position and position_encoder_class is None)
