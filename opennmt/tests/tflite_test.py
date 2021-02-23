@@ -6,6 +6,7 @@ from opennmt import data
 from opennmt.tests import test_util
 from opennmt.models import catalog
 from opennmt.utils import exporters
+from parameterized import parameterized
 
 
 def _create_vocab(temp_dir):
@@ -70,28 +71,30 @@ def dir_has_tflite_file(check_dir):
 
 
 class TFLiteTest(tf.test.TestCase):
-    def testLuongAttentionTFLiteOutput(self):
+    @parameterized.expand(
+        [
+            [catalog.LuongAttention],
+            [catalog.NMTBigV1],
+        ]
+    )
+    def testTFLiteOutput(self, model):
+        print(model)
         vocab, vocab_path = _create_vocab(self.get_temp_dir())
-        model = _make_model(catalog.LuongAttention, vocab)
-        dataset = _create_dataset(model, self.get_temp_dir())
-        pred, tflite_pred = _get_predictions(model, dataset, vocab_path)
+        created_model = _make_model(model, vocab)
+        dataset = _create_dataset(created_model, self.get_temp_dir())
+        pred, tflite_pred = _get_predictions(created_model, dataset, vocab_path)
         self.assertAllEqual(pred, tflite_pred)
 
-    def testNMTBigV1TFLiteOutput(self):
-        vocab, vocab_path = _create_vocab(self.get_temp_dir())
-        model = _make_model(catalog.NMTBigV1, vocab)
-        dataset = _create_dataset(model, self.get_temp_dir())
-        pred, tflite_pred = _get_predictions(model, dataset, vocab_path)
-        self.assertAllEqual(pred, tflite_pred)
-
-    def testLuongAttentionTFLiteFile(self):
+    @parameterized.expand(
+        [
+            [catalog.LuongAttention],
+            [catalog.NMTBigV1],
+        ]
+    )
+    def testTFLiteOutputFile(self, model):
+        print(model)
         export_dir = self.get_temp_dir()
-        _convert_tflite(catalog.LuongAttention, export_dir)
-        self.assertTrue(dir_has_tflite_file(export_dir))
-
-    def testNMTBigTFLiteFile(self):
-        export_dir = self.get_temp_dir()
-        _convert_tflite(catalog.NMTBigV1, export_dir)
+        _convert_tflite(model, export_dir)
         self.assertTrue(dir_has_tflite_file(export_dir))
 
 

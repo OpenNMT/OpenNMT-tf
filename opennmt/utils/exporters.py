@@ -113,14 +113,6 @@ class TFLiteExporter(Exporter):
         if not model.built:
             model.create_variables()
 
-        single_elem = {
-            "length": tf.convert_to_tensor([2], dtype=tf.dtypes.int32),
-            "tokens": tf.convert_to_tensor(
-                [["Hello", "World"]], dtype=tf.dtypes.string
-            ),
-            "ids": tf.convert_to_tensor([[0, 1]], dtype=tf.dtypes.int32),
-        }
-
         # Tries to run prediction with TensorFlow Lite method it will convert
         tflite_concrete_fn = tf.function(
             model.infer_tflite,
