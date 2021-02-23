@@ -151,11 +151,14 @@ class Transformer(SequenceToSequence):
             return None
         import ctranslate2
 
-        return ctranslate2.specs.TransformerSpec(
+        model_spec = ctranslate2.specs.TransformerSpec(
             (self._num_encoder_layers, self._num_decoder_layers),
             self._num_heads,
             with_relative_position=self._with_relative_position,
         )
+        model_spec.with_source_bos = bool(self.features_inputter.mark_start)
+        model_spec.with_source_eos = bool(self.features_inputter.mark_end)
+        return model_spec
 
     def auto_config(self, num_replicas=1):
         config = super().auto_config(num_replicas=num_replicas)
