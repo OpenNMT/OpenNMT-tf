@@ -337,20 +337,6 @@ def main():
             log_time=args.log_prediction_time,
         )
     elif args.run_type == "export":
-        tflite_supported_models = [
-            "NMTSmallV1",
-            "NMTMediumV1",
-            "NMTBigV1",
-            "LuongAttention",
-        ]
-        if (
-            args.export_format in "tflite"
-            and args.model_type not in tflite_supported_models
-        ):
-            raise TypeError(
-                "Unsupported model to save to TFLite, supported models are:"
-                "NMTSmallV1, NMTMediumV1, NMTBigV1"
-            )
         runner.export(
             args.export_dir,
             checkpoint_path=args.checkpoint_path,
