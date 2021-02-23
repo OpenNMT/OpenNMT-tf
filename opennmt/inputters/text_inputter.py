@@ -447,7 +447,8 @@ class WordEmbedder(TextInputter):
         Avoids a TFLite conversion issue, TensorFlow issue #42410
 
         Args:
-        ids: A 1-dimensional tensor with the ids that you want to get word embeddings of"""
+          ids: A 1-dimensional tensor with the ids that you want to get word embeddings of.
+        """
         ids = tf.expand_dims(ids, axis=-1)
         return tf.gather_nd(self.embedding, ids)
 
