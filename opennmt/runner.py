@@ -42,6 +42,8 @@ _CONFIG_FALLBACK = {
         "batch_size": 16,
     },
     "score": {
+        "length_bucket_width": None,
+        "batch_type": "examples",
         "batch_size": 64,
     },
 }
@@ -456,6 +458,8 @@ class Runner(object):
             features_file,
             predictions_file,
             score_config["batch_size"],
+            batch_type=score_config["batch_type"],
+            length_bucket_width=score_config["length_bucket_width"],
             prefetch_buffer_size=score_config.get("prefetch_buffer_size"),
         )
         inference.score_dataset(
