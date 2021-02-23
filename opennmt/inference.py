@@ -114,12 +114,18 @@ def score_dataset(model, dataset, print_params=None, output_file=None):
     else:
         stream = sys.stdout
 
+    write_fn = lambda batch: (
+        model.print_score(batch, params=print_params, stream=stream)
+    )
+    index_fn = lambda batch: batch.get("index")
+    ordered_writer = misc.OrderRestorer(index_fn, write_fn)
+
     score_fn = tf.function(model.score, input_signature=dataset.element_spec)
     for features, labels in dataset:
         results = score_fn(features, labels)
         results = tf.nest.map_structure(lambda t: t.numpy(), results)
         for batch in misc.extract_batches(results):
-            model.print_score(batch, params=print_params, stream=stream)
+            ordered_writer.push(batch)
 
     if output_file:
         stream.close()

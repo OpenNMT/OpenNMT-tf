@@ -194,9 +194,13 @@ def main():
 
     parser_export = subparsers.add_parser("export", help="Model export.")
     parser_export.add_argument(
-        "--export_dir", required=True, help="The directory of the exported model."
+        "--output_dir",
+        "--export_dir",
+        required=True,
+        help="The directory of the exported model.",
     )
     parser_export.add_argument(
+        "--format",
         "--export_format",
         choices=exporters.list_exporters(),
         default="saved_model",
@@ -338,9 +342,9 @@ def main():
         )
     elif args.run_type == "export":
         runner.export(
-            args.export_dir,
+            args.output_dir,
             checkpoint_path=args.checkpoint_path,
-            exporter=exporters.make_exporter(args.export_format),
+            exporter=exporters.make_exporter(args.format),
         )
     elif args.run_type == "score":
         runner.score(

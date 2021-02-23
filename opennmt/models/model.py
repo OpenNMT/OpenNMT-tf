@@ -118,8 +118,7 @@ class Model(tf.keras.layers.Layer):
           The model predictions.
         """
         _, predictions = self(features)
-        if isinstance(features, dict) and "index" in features:
-            predictions["index"] = features["index"]
+        _forward_example_index(features, predictions)
         return predictions
 
     def evaluate(self, features, labels):
@@ -133,8 +132,7 @@ class Model(tf.keras.layers.Layer):
           A tuple with the loss and the model predictions.
         """
         outputs, predictions = self(features, labels=labels)
-        if isinstance(features, dict) and "index" in features:
-            predictions["index"] = features["index"]
+        _forward_example_index(features, predictions)
         loss = self.compute_loss(outputs, labels, training=False)
         return loss, predictions
 
@@ -419,6 +417,7 @@ class SequenceGenerator(Model):
         }
         if "attention" in outputs:
             results["attention"] = outputs["attention"]
+        _forward_example_index(features, results)
         return results
 
     def print_score(self, score, params=None, stream=None):
@@ -442,3 +441,8 @@ class SequenceGenerator(Model):
             alignment_type=alignment_type,
         )
         misc.print_as_bytes(sentence, stream=stream)
+
+
+def _forward_example_index(features, output):
+    if isinstance(features, dict) and isinstance(output, dict) and "index" in features:
+        output["index"] = features["index"]

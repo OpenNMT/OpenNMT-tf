@@ -351,6 +351,14 @@ infer:
 score:
   # (optional) The batch size to use (default: 64).
   batch_size: 64
+  # (optional) Batch size is the number of "examples" or "tokens" (default: "examples").
+  batch_type: examples
+
+  # (optional) The width of the length buckets to select batch candidates from.
+  # If set, the input file will be sorted by length to increase efficiency.
+  # The result will still be outputted in order as they are available (default: 0).
+  length_bucket_width: 0
+
   # (optional) Also report token-level cross entropy.
   with_token_level: false
   # (optional) Also output the alignments (can be: null, hard, soft, default: null).

@@ -120,6 +120,9 @@ class SequenceToSequence(model.SequenceGenerator):
                 "eval": {
                     "length_bucket_width": 5,
                 },
+                "score": {
+                    "length_bucket_width": 5,
+                },
                 "infer": {
                     "batch_size": 32,
                     "length_bucket_width": 5,
