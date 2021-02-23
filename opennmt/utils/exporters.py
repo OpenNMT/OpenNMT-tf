@@ -85,6 +85,9 @@ class CheckpointExporter(Exporter):
 class TFLiteExporter(Exporter):
     """TensorFlow Lite  exporter."""
 
+    def __init__(self, quantization=None):
+        self._quantization = quantization
+
     def _export_model(self, model, export_dir):
 
         # Models currently supported for TFLite exporting
@@ -140,7 +143,9 @@ class TFLiteExporter(Exporter):
             tf.lite.OpsSet.SELECT_TF_OPS,  # enable TensorFlow ops.
         ]
         converter.optimizations = [tf.lite.Optimize.DEFAULT]
-        converter.target_spec.supported_types = [tf.float16]
+
+        if self._quantization in "float16":
+            converter.target_spec.supported_types = [tf.float16]
 
         tflite_model_path = os.path.join(export_dir, "opennmt.tflite")
         tflite_model = converter.convert()
@@ -151,6 +156,12 @@ class TFLiteExporter(Exporter):
             + tflite_model_path.replace("\\", "/")
         )
 
+@register_exporter(name="ctranslate2_float16")
+class CTranslate2Int8Exporter(TFLiteExporter):
+    """TensorFlow Lite exporter with float16 quantization."""
+
+    def __init__(self):
+        super().__init__(quantization="float16")
 
 @register_exporter(name="ctranslate2")
 class CTranslate2Exporter(Exporter):
