@@ -20,7 +20,7 @@ toy-ende/export/
 Models can be manually exported using the `export` run type:
 
 ```bash
-onmt-main --config my_config.yml --auto_config export --export_dir ~/my-models/ende
+onmt-main --config my_config.yml --auto_config export --output_dir ~/my-models/ende
 ```
 
 Automatic evaluation during the training can also export models, see [Training](training.md) to learn more.
@@ -46,10 +46,10 @@ TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such
 
 Selected models can be exported to the CTranslate2 format directly from OpenNMT-tf by selecting the `ctranslate2` export format.
 
-**When using the `export` command line**, the `--export_format` option should be set:
+**When using the `export` command line**, the `--format` option should be set:
 
 ```bash
-onmt-main [...] export --export_dir ~/my-models/ende --export_format ctranslate2
+onmt-main [...] export --output_dir ~/my-models/ende --format ctranslate2
 ```
 
 **When using the automatic model evaluation and export during the training**, the `export_format` option should be configured in the `eval` block of the YAML configuration:
