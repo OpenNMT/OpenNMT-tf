@@ -144,8 +144,9 @@ class TFLiteExporter(Exporter):
         ]
         converter.optimizations = [tf.lite.Optimize.DEFAULT]
 
-        if self._quantization in "float16":
-            converter.target_spec.supported_types = [tf.float16]
+        if self._quantization is not None:
+            if self._quantization in "float16":
+                converter.target_spec.supported_types = [tf.float16]
 
         tflite_model_path = os.path.join(export_dir, "opennmt.tflite")
         tflite_model = converter.convert()
