@@ -156,12 +156,14 @@ class TFLiteExporter(Exporter):
             + tflite_model_path.replace("\\", "/")
         )
 
+
 @register_exporter(name="ctranslate2_float16")
 class CTranslate2Int8Exporter(TFLiteExporter):
     """TensorFlow Lite exporter with float16 quantization."""
 
     def __init__(self):
         super().__init__(quantization="float16")
+
 
 @register_exporter(name="ctranslate2")
 class CTranslate2Exporter(Exporter):
