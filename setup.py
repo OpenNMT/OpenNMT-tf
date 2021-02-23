@@ -51,7 +51,7 @@ setup(
         "ctranslate2>=1.7,<2;platform_system=='Linux'",
         "ctranslate2>=1.17,<2;platform_system=='Darwin'",
         "pyonmttok>=1.23.0,<2;platform_system=='Linux' or platform_system=='Darwin'",
-        "pyyaml>=5.3,<5.4",
+        "pyyaml>=5.3,<5.5",
         "rouge>=1.0,<2",
         "sacrebleu>=1.5.0,<1.6",
         "tensorflow>=2.3,<2.5",
