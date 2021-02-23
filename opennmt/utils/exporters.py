@@ -121,18 +121,11 @@ class TFLiteExporter(Exporter):
             "ids": tf.convert_to_tensor([[0, 1]], dtype=tf.dtypes.int32),
         }
 
-        # Check if regular inference works
-        model(single_elem)
-        elem_ids = tf.squeeze(single_elem["ids"])
-        model.infer_tflite(elem_ids)
         # Tries to run prediction with TensorFlow Lite method it will convert
         tflite_concrete_fn = tf.function(
             model.infer_tflite,
             input_signature=[tf.TensorSpec([None], dtype=tf.dtypes.int32, name="ids")],
         ).get_concrete_function()
-
-        # Check TFLite function
-        tflite_concrete_fn(elem_ids)
 
         # Saving
         converter = tf.lite.TFLiteConverter.from_concrete_functions(
