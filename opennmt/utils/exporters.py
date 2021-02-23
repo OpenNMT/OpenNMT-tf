@@ -157,8 +157,8 @@ class TFLiteExporter(Exporter):
         )
 
 
-@register_exporter(name="ctranslate2_float16")
-class CTranslate2Int8Exporter(TFLiteExporter):
+@register_exporter(name="tflite_float16")
+class TFLiteFloat16Exporter(TFLiteExporter):
     """TensorFlow Lite exporter with float16 quantization."""
 
     def __init__(self):
