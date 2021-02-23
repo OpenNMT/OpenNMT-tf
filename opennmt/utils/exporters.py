@@ -9,6 +9,7 @@ import tensorflow as tf
 from opennmt.utils import misc
 from opennmt.models import catalog
 
+
 class Exporter(abc.ABC):
     """Base class for model exporters."""
 
@@ -95,14 +96,17 @@ class TFLiteExporter(Exporter):
         ]
 
         # If it isn't any of the supported models, raise an exception
-        if not any([isinstance(model, supported_model) for supported_model in tflite_supported_models]):
+        if not any(
+            [
+                isinstance(model, supported_model)
+                for supported_model in tflite_supported_models
+            ]
+        ):
             raise TypeError(
                 "Unsupported model to export to TFLite, supported models are:"
                 "NMTSmallV1, NMTMediumV1, NMTBigV1, LuongAttention"
             )
-            print('Not valid model!')
-        else:
-            print('Valid model!')
+
         if not model.built:
             model.create_variables()
 
