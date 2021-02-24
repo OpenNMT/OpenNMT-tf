@@ -259,7 +259,7 @@ class Model(tf.keras.layers.Layer):
         """Returns the inference function that should be used for TensorFlow Lite.
 
         Returns:
-          A ``tf.function``
+          A ``tf.function``.
         """
         raise NotImplementedError(
             "This model does not define a function for TensorFlow Lite"
