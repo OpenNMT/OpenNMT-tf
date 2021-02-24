@@ -595,6 +595,7 @@ def dynamic_decode(
         parallel_iterations=1,
         maximum_iterations=maximum_iterations,
     )
+
     ids, attention, lengths = decoding_strategy.finalize(
         outputs,
         end_id,
