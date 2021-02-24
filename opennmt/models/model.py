@@ -255,6 +255,16 @@ class Model(tf.keras.layers.Layer):
 
         return _run
 
+    def tflite_function(self):
+        """Returns the inference function that should be used for TensorFlow Lite.
+
+        Returns:
+          A ``tf.function``
+        """
+        raise NotImplementedError(
+            "This model does not define a function for TensorFlow Lite"
+        )
+
     def export(self, export_dir, exporter=None):
         """Exports the model for serving.
 

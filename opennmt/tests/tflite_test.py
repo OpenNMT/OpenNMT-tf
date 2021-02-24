@@ -78,7 +78,6 @@ class TFLiteTest(tf.test.TestCase):
         ]
     )
     def testTFLiteOutput(self, model):
-        print(model)
         vocab, vocab_path = _create_vocab(self.get_temp_dir())
         created_model = _make_model(model, vocab)
         dataset = _create_dataset(created_model, self.get_temp_dir())
@@ -92,7 +91,6 @@ class TFLiteTest(tf.test.TestCase):
         ]
     )
     def testTFLiteOutputFile(self, model):
-        print(model)
         export_dir = self.get_temp_dir()
         _convert_tflite(model, export_dir)
         self.assertTrue(dir_has_tflite_file(export_dir))
