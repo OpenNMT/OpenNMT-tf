@@ -7,6 +7,7 @@ import tempfile
 import tensorflow as tf
 
 from opennmt.utils import misc
+from opennmt.models import catalog
 
 
 class Exporter(abc.ABC):
@@ -78,6 +79,76 @@ class CheckpointExporter(Exporter):
     def _export_model(self, model, export_dir):
         checkpoint = tf.train.Checkpoint(model=model)
         checkpoint.write(os.path.join(export_dir, "ckpt"))
+
+
+@register_exporter(name="tflite")
+class TFLiteExporter(Exporter):
+    """TensorFlow Lite exporter."""
+
+    def __init__(self, quantization=None):
+        self._quantization = quantization
+
+    def _export_model(self, model, export_dir):
+
+        # Models currently supported for TFLite exporting
+        tflite_supported_models = [
+            catalog.NMTSmallV1,
+            catalog.NMTMediumV1,
+            catalog.NMTBigV1,
+            catalog.LuongAttention,
+        ]
+
+        # If it isn't any of the supported models, raise an exception
+        if not any(
+            [
+                isinstance(model, supported_model)
+                for supported_model in tflite_supported_models
+            ]
+        ):
+            raise TypeError(
+                "Unsupported model to export to TFLite, supported models are:"
+                "NMTSmallV1, NMTMediumV1, NMTBigV1, LuongAttention"
+            )
+
+        if not model.built:
+            model.create_variables()
+
+        # Tries to run prediction with TensorFlow Lite method it will convert
+        tflite_concrete_fn = tf.function(
+            model.infer_tflite,
+            input_signature=[tf.TensorSpec([None], dtype=tf.dtypes.int32, name="ids")],
+        ).get_concrete_function()
+
+        # Saving
+        converter = tf.lite.TFLiteConverter.from_concrete_functions(
+            [tflite_concrete_fn]
+        )
+        converter.target_spec.supported_ops = [
+            tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops.
+            tf.lite.OpsSet.SELECT_TF_OPS,  # enable TensorFlow ops.
+        ]
+        converter.optimizations = [tf.lite.Optimize.DEFAULT]
+
+        if self._quantization is not None:
+            if self._quantization in "float16":
+                converter.target_spec.supported_types = [tf.float16]
+
+        tflite_model_path = os.path.join(export_dir, "opennmt.tflite")
+        tflite_model = converter.convert()
+        with tf.io.gfile.GFile(tflite_model_path, "wb") as f:
+            f.write(tflite_model)
+        print(
+            "Finished Model Conversion, Converted model can be found at: "
+            + tflite_model_path.replace("\\", "/")
+        )
+
+
+@register_exporter(name="tflite_float16")
+class TFLiteFloat16Exporter(TFLiteExporter):
+    """TensorFlow Lite exporter with float16 quantization."""
+
+    def __init__(self):
+        super().__init__(quantization="float16")
 
 
 @register_exporter(name="ctranslate2")

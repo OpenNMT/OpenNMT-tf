@@ -442,6 +442,16 @@ class WordEmbedder(TextInputter):
         outputs = common.dropout(outputs, self.dropout, training=training)
         return outputs
 
+    def tflite_call(self, ids):
+        """Replicates call function and changes parameter.
+        Avoids a TFLite conversion issue, TensorFlow issue #42410
+
+        Args:
+          ids: A 1-dimensional tensor with the ids that you want to get word embeddings of.
+        """
+        ids = tf.expand_dims(ids, axis=-1)
+        return tf.gather_nd(self.embedding, ids)
+
     def visualize(self, model_root, log_dir):
         save_embeddings_metadata(
             log_dir,

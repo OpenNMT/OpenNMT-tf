@@ -427,6 +427,7 @@ def dynamic_decode(
     minimum_iterations=0,
     attention_history=False,
     attention_size=None,
+    tflite_output_size=None,
 ):
     """Dynamic decoding.
 
@@ -445,6 +446,7 @@ def dynamic_decode(
       attention_history: Gather attention history during the decoding.
       attention_size: If known, the size of the attention vectors (i.e. the
         maximum source length).
+      tflite_output_size: If not None will run TFLite safe, is the size of 1D output tensor.
 
     Returns:
       A :class:`opennmt.utils.DecodingResult` instance.
@@ -455,6 +457,7 @@ def dynamic_decode(
         decoding_strategy = GreedySearch()
     if sampler is None:
         sampler = BestSampler()
+    is_tflite_run = tflite_output_size is not None
 
     def _cond(
         step, finished, state, inputs, outputs, attention, cum_log_probs, extra_vars
@@ -507,14 +510,18 @@ def dynamic_decode(
             **extra_vars,
         )
 
-        # Update loop vars.
-        if attention_history:
-            if attn is None:
-                raise ValueError(
-                    "attention_history is set but the model did not return attention"
-                )
-            attention = attention.write(step, tf.cast(attn, tf.float32))
-        outputs = outputs.write(step, output)
+        # For TensorArray assuming batch size of 1 to be TFlite safe
+        if is_tflite_run:
+            outputs = outputs.write(step, output[0])
+        else:
+            # Update loop vars.
+            if attention_history:
+                if attn is None:
+                    raise ValueError(
+                        "attention_history is set but the model did not return attention"
+                    )
+                attention = attention.write(step, tf.cast(attn, tf.float32))
+            outputs = outputs.write(step, output)
         cum_log_probs = tf.where(finished, x=cum_log_probs, y=next_cum_log_probs)
         finished = tf.logical_or(finished, tf.equal(output, end_id))
         return (
@@ -535,8 +542,32 @@ def dynamic_decode(
         start_ids, attention_size=attention_size
     )
     step = tf.constant(0, dtype=tf.int32)
-    outputs = tf.TensorArray(tf.int32, size=0, dynamic_size=True)
-    attention = tf.TensorArray(tf.float32, size=0, dynamic_size=True)
+
+    if is_tflite_run:
+        output_shape = tf.TensorShape(())
+        outputs = tf.TensorArray(
+            tf.int32,
+            size=tflite_output_size,
+            dynamic_size=False,
+            element_shape=output_shape,
+        )
+        attn_shape = tf.TensorShape(())
+        attention = tf.TensorArray(
+            tf.float32,
+            size=tflite_output_size,
+            dynamic_size=False,
+            element_shape=attn_shape,
+        )
+        maximum_iterations = (
+            tflite_output_size
+            if maximum_iterations > tflite_output_size
+            else maximum_iterations
+        )
+    else:
+        output_shape = tf.TensorShape(None)
+        outputs = tf.TensorArray(tf.int32, size=0, dynamic_size=True)
+        attn_shape = tf.TensorShape(None)
+        attention = tf.TensorArray(tf.float32, size=0, dynamic_size=True)
 
     _, _, state, _, outputs, attention, log_probs, extra_vars = tf.while_loop(
         _cond,
@@ -556,8 +587,8 @@ def dynamic_decode(
             finished.shape,
             tf.nest.map_structure(_get_shape_invariants, initial_state),
             start_ids.shape,
-            tf.TensorShape(None),
-            tf.TensorShape(None),
+            output_shape,
+            attn_shape,
             initial_log_probs.shape,
             tf.nest.map_structure(_get_shape_invariants, extra_vars),
         ),
@@ -568,10 +599,10 @@ def dynamic_decode(
     ids, attention, lengths = decoding_strategy.finalize(
         outputs,
         end_id,
-        attention=attention if attention_history else None,
+        attention=attention if attention_history and not is_tflite_run else None,
         **extra_vars,
     )
-    if attention is not None:
+    if attention is not None and not is_tflite_run:
         attention = attention[:, :, :-1]  # Ignore attention for </s>.
     log_probs = tf.reshape(log_probs, [-1, decoding_strategy.num_hypotheses])
     ids = tf.cast(ids, ids_dtype)
