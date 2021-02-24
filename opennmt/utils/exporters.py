@@ -85,6 +85,12 @@ class TFLiteExporter(Exporter):
     """TensorFlow Lite exporter."""
 
     def __init__(self, quantization=None):
+        accepted_quantization = ("float16",)
+        if quantization is not None and quantization not in accepted_quantization:
+            raise ValueError(
+                "Unsupported quantization '%s' for TensorFlow Lite, accepted values are: %s"
+                % (quantization, ", ".join(accepted_quantization))
+            )
         self._quantization = quantization
 
     def _export_model(self, model, export_dir):
@@ -100,10 +106,8 @@ class TFLiteExporter(Exporter):
             tf.lite.OpsSet.SELECT_TF_OPS,  # enable TensorFlow ops.
         ]
         converter.optimizations = [tf.lite.Optimize.DEFAULT]
-
-        if self._quantization is not None:
-            if self._quantization in "float16":
-                converter.target_spec.supported_types = [tf.float16]
+        if self._quantization == "float16":
+            converter.target_spec.supported_types = [tf.float16]
 
         tflite_model_path = os.path.join(export_dir, "opennmt.tflite")
         tflite_model = converter.convert()
