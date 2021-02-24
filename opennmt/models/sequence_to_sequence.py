@@ -217,6 +217,12 @@ class SequenceToSequence(model.SequenceGenerator):
         predictions = tf.squeeze(predictions, axis=1)
         return predictions
 
+    def tflite_function(self):
+        return tf.function(
+            self.infer_tflite,
+            input_signature=[tf.TensorSpec([None], dtype=tf.dtypes.int32, name="ids")],
+        )
+
     def _decode_target(
         self,
         labels,
