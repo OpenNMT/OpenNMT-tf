@@ -83,7 +83,7 @@ class CheckpointExporter(Exporter):
 
 @register_exporter(name="tflite")
 class TFLiteExporter(Exporter):
-    """TensorFlow Lite  exporter."""
+    """TensorFlow Lite exporter."""
 
     def __init__(self, quantization=None):
         self._quantization = quantization
