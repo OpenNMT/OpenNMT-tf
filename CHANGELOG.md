@@ -15,6 +15,28 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.16.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.16.0) (2021-02-25)
+
+### Changes (non breaking)
+
+* Rename evaluation parameter `external_evaluators` to `scorers`
+* Rename export command line option `--export_dir` to `--output_dir`
+* Rename export command line option `--export_format` to `--format`
+
+### New features
+
+* Add TensorFlow Lite exporters `tflite` and `tflite_float16` (only RNN-based sequence to sequence models are currently supported)
+* Add argument `pre_norm` in the Transformer constructor to disable the pre-norm architecture and use the post-norm architecture as described in the [original paper](https://arxiv.org/abs/1706.03762)
+* Add argument `attention_reduction` in the Transformer constructor to define how multi-head attention matrices are reduced into a single attention matrix
+* Support batch type "tokens" and length bucketing in score task
+* Support initializing the decoder output layer from its constructor (until now a separate call to `decoder.initialize(...)` was required)
+
+### Fixes and improvements
+
+* Fix error on 0-length inputs in `MultiHeadAttention` with relative position representations
+* Fix CTranslate2 export for models that enable BOS or EOS tokens on the source side (see `source_sequence_controls` data parameter)
+* Load YAML configuration with the `safe_load` function to prevent arbitrary code execution
+
 ## [2.15.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.15.0) (2021-01-28)
 
 ### New features
