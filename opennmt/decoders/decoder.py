@@ -65,7 +65,7 @@ class Decoder(tf.keras.layers.Layer):
     def __init__(self, num_sources=1, vocab_size=None, output_layer=None, **kwargs):
         """Initializes the decoder parameters.
 
-        If you don't set one of :obj:`vocab_size` or `output_layer` here,
+        If you don't set one of :obj:`vocab_size` or :obj:`output_layer` here,
         you should later call the method :meth:`opennmt.decoders.Decoder.initialize`
         to initialize this decoder instance.
 
