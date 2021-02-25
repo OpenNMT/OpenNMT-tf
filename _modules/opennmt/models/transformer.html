@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -191,6 +191,7 @@
 <span class="kn">from</span> <span class="nn">opennmt.encoders.self_attention_encoder</span> <span class="kn">import</span> <span class="n">SelfAttentionEncoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.decoders.self_attention_decoder</span> <span class="kn">import</span> <span class="n">SelfAttentionDecoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers.position</span> <span class="kn">import</span> <span class="n">SinusoidalPositionEncoder</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers.transformer</span> <span class="kn">import</span> <span class="n">MultiHeadAttentionReduction</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="kn">import</span> <span class="n">merge_dict</span>
 
 
@@ -215,6 +216,8 @@
         <span class="n">share_embeddings</span><span class="o">=</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
         <span class="n">share_encoders</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">maximum_relative_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">attention_reduction</span><span class="o">=</span><span class="n">MultiHeadAttentionReduction</span><span class="o">.</span><span class="n">FIRST_HEAD_LAST_LAYER</span><span class="p">,</span>
+        <span class="n">pre_norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes a Transformer model.</span>
 
@@ -245,6 +248,14 @@
 <span class="sd">            separate encoders parameters or not.</span>
 <span class="sd">          maximum_relative_position: Maximum relative position representation</span>
 <span class="sd">            (from https://arxiv.org/abs/1803.02155).</span>
+<span class="sd">          attention_reduction: A :class:`opennmt.layers.MultiHeadAttentionReduction`</span>
+<span class="sd">            value to specify how to reduce target-source multi-head attention</span>
+<span class="sd">            matrices.</span>
+<span class="sd">          pre_norm: If ``True``, layer normalization is applied before each</span>
+<span class="sd">            sub-layer. Otherwise it is applied after. The original paper uses</span>
+<span class="sd">            ``pre_norm=False``, but the authors later suggested that ``pre_norm=True``</span>
+<span class="sd">            &quot;seems better for harder-to-learn models, so it should probably be the</span>
+<span class="sd">            default.&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">num_layers</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="n">num_encoder_layers</span><span class="p">,</span> <span class="n">num_decoder_layers</span> <span class="o">=</span> <span class="n">num_layers</span>
@@ -262,6 +273,7 @@
                 <span class="n">ffn_activation</span><span class="o">=</span><span class="n">ffn_activation</span><span class="p">,</span>
                 <span class="n">position_encoder_class</span><span class="o">=</span><span class="n">position_encoder_class</span><span class="p">,</span>
                 <span class="n">maximum_relative_position</span><span class="o">=</span><span class="n">maximum_relative_position</span><span class="p">,</span>
+                <span class="n">pre_norm</span><span class="o">=</span><span class="n">pre_norm</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">source_inputter</span><span class="o">.</span><span class="n">num_outputs</span><span class="p">)</span>
         <span class="p">]</span>
@@ -285,6 +297,8 @@
             <span class="n">position_encoder_class</span><span class="o">=</span><span class="n">position_encoder_class</span><span class="p">,</span>
             <span class="n">num_sources</span><span class="o">=</span><span class="n">source_inputter</span><span class="o">.</span><span class="n">num_outputs</span><span class="p">,</span>
             <span class="n">maximum_relative_position</span><span class="o">=</span><span class="n">maximum_relative_position</span><span class="p">,</span>
+            <span class="n">attention_reduction</span><span class="o">=</span><span class="n">attention_reduction</span><span class="p">,</span>
+            <span class="n">pre_norm</span><span class="o">=</span><span class="n">pre_norm</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_units</span> <span class="o">=</span> <span class="n">num_units</span>
@@ -294,6 +308,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_with_relative_position</span> <span class="o">=</span> <span class="n">maximum_relative_position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_ct2_compatible</span> <span class="o">=</span> <span class="p">(</span>
             <span class="nb">isinstance</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">SelfAttentionEncoder</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">pre_norm</span>
             <span class="ow">and</span> <span class="n">ffn_activation</span> <span class="ow">is</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span>
             <span class="ow">and</span> <span class="p">(</span>
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_with_relative_position</span> <span class="ow">and</span> <span class="n">position_encoder_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
@@ -317,11 +332,14 @@
             <span class="k">return</span> <span class="kc">None</span>
         <span class="kn">import</span> <span class="nn">ctranslate2</span>
 
-        <span class="k">return</span> <span class="n">ctranslate2</span><span class="o">.</span><span class="n">specs</span><span class="o">.</span><span class="n">TransformerSpec</span><span class="p">(</span>
+        <span class="n">model_spec</span> <span class="o">=</span> <span class="n">ctranslate2</span><span class="o">.</span><span class="n">specs</span><span class="o">.</span><span class="n">TransformerSpec</span><span class="p">(</span>
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_encoder_layers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_decoder_layers</span><span class="p">),</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_num_heads</span><span class="p">,</span>
             <span class="n">with_relative_position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_with_relative_position</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">model_spec</span><span class="o">.</span><span class="n">with_source_bos</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">mark_start</span><span class="p">)</span>
+        <span class="n">model_spec</span><span class="o">.</span><span class="n">with_source_eos</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">mark_end</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model_spec</span>
 
 <div class="viewcode-block" id="Transformer.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.Transformer.html#opennmt.models.Transformer.auto_config">[docs]</a>    <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>

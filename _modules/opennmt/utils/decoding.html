@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -608,6 +608,7 @@
     <span class="n">minimum_iterations</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="n">attention_history</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">attention_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">tflite_output_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Dynamic decoding.</span>
 
@@ -626,6 +627,7 @@
 <span class="sd">      attention_history: Gather attention history during the decoding.</span>
 <span class="sd">      attention_size: If known, the size of the attention vectors (i.e. the</span>
 <span class="sd">        maximum source length).</span>
+<span class="sd">      tflite_output_size: If not None will run TFLite safe, is the size of 1D output tensor.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A :class:`opennmt.utils.DecodingResult` instance.</span>
@@ -636,6 +638,7 @@
         <span class="n">decoding_strategy</span> <span class="o">=</span> <span class="n">GreedySearch</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">sampler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">sampler</span> <span class="o">=</span> <span class="n">BestSampler</span><span class="p">()</span>
+    <span class="n">is_tflite_run</span> <span class="o">=</span> <span class="n">tflite_output_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_cond</span><span class="p">(</span>
         <span class="n">step</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">extra_vars</span>
@@ -688,14 +691,18 @@
             <span class="o">**</span><span class="n">extra_vars</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="c1"># Update loop vars.</span>
-        <span class="k">if</span> <span class="n">attention_history</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">attn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;attention_history is set but the model did not return attention&quot;</span>
-                <span class="p">)</span>
-            <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">attn</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
-        <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="c1"># For TensorArray assuming batch size of 1 to be TFlite safe</span>
+        <span class="k">if</span> <span class="n">is_tflite_run</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Update loop vars.</span>
+            <span class="k">if</span> <span class="n">attention_history</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">attn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;attention_history is set but the model did not return attention&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">attn</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
         <span class="n">cum_log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">finished</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">next_cum_log_probs</span><span class="p">)</span>
         <span class="n">finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">finished</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">end_id</span><span class="p">))</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -716,8 +723,32 @@
         <span class="n">start_ids</span><span class="p">,</span> <span class="n">attention_size</span><span class="o">=</span><span class="n">attention_size</span>
     <span class="p">)</span>
     <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-    <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_tflite_run</span><span class="p">:</span>
+        <span class="n">output_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(())</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">tflite_output_size</span><span class="p">,</span>
+            <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">element_shape</span><span class="o">=</span><span class="n">output_shape</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">attn_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(())</span>
+        <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">tflite_output_size</span><span class="p">,</span>
+            <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">element_shape</span><span class="o">=</span><span class="n">attn_shape</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">maximum_iterations</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">tflite_output_size</span>
+            <span class="k">if</span> <span class="n">maximum_iterations</span> <span class="o">&gt;</span> <span class="n">tflite_output_size</span>
+            <span class="k">else</span> <span class="n">maximum_iterations</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">attn_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">log_probs</span><span class="p">,</span> <span class="n">extra_vars</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">while_loop</span><span class="p">(</span>
         <span class="n">_cond</span><span class="p">,</span>
@@ -737,8 +768,8 @@
             <span class="n">finished</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
             <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="n">_get_shape_invariants</span><span class="p">,</span> <span class="n">initial_state</span><span class="p">),</span>
             <span class="n">start_ids</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
-            <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
-            <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
+            <span class="n">output_shape</span><span class="p">,</span>
+            <span class="n">attn_shape</span><span class="p">,</span>
             <span class="n">initial_log_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
             <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="n">_get_shape_invariants</span><span class="p">,</span> <span class="n">extra_vars</span><span class="p">),</span>
         <span class="p">),</span>
@@ -749,10 +780,10 @@
     <span class="n">ids</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">lengths</span> <span class="o">=</span> <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">finalize</span><span class="p">(</span>
         <span class="n">outputs</span><span class="p">,</span>
         <span class="n">end_id</span><span class="p">,</span>
-        <span class="n">attention</span><span class="o">=</span><span class="n">attention</span> <span class="k">if</span> <span class="n">attention_history</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">attention</span><span class="o">=</span><span class="n">attention</span> <span class="k">if</span> <span class="n">attention_history</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_tflite_run</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">extra_vars</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_tflite_run</span><span class="p">:</span>
         <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Ignore attention for &lt;/s&gt;.</span>
     <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">num_hypotheses</span><span class="p">])</span>
     <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">ids_dtype</span><span class="p">)</span>

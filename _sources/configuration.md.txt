@@ -12,7 +12,7 @@ params:
 train:
   # Training specific configuration (checkpoint frequency, number of training step, etc.)
 eval:
-  # Evaluation specific configuration (evaluation frequency, external evaluators.)
+  # Evaluation specific configuration (evaluation frequency, scorers, etc.)
 infer:
   # Inference specific configuration (output scores, alignments, etc.)
 score:
@@ -231,6 +231,8 @@ params:
   contrastive_learning: false
   # (optional) The value of the parameter eta in the max-margin loss (default: 0.1).
   max_margin_eta: 0.1
+  # (optional) Size of input when saving a model as TFLite
+  tflite_output_size: 250
 
 
 # Training options.
@@ -291,10 +293,10 @@ eval:
 
   # (optional) Save evaluation predictions in model_dir/eval/.
   save_eval_predictions: false
-  # (optional) Evalutator or list of evaluators that are called on the saved evaluation
+  # (optional) Scorer or list of scorers that are called on the saved evaluation
   # predictions.
-  # Available evaluators: bleu, rouge
-  external_evaluators: bleu
+  # Available scorers: bleu, rouge, wer, ter, prf
+  scorers: bleu
 
   # (optional) The width of the length buckets to select batch candidates from.
   # If set, the eval data will be sorted by length to increase the translation
@@ -349,6 +351,14 @@ infer:
 score:
   # (optional) The batch size to use (default: 64).
   batch_size: 64
+  # (optional) Batch size is the number of "examples" or "tokens" (default: "examples").
+  batch_type: examples
+
+  # (optional) The width of the length buckets to select batch candidates from.
+  # If set, the input file will be sorted by length to increase efficiency.
+  # The result will still be outputted in order as they are available (default: 0).
+  length_bucket_width: 0
+
   # (optional) Also report token-level cross entropy.
   with_token_level: false
   # (optional) Also output the alignments (can be: null, hard, soft, default: null).

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.SelfAttentionDecoder &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.decoders.SelfAttentionDecoder &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -210,13 +210,13 @@
 <h1>opennmt.decoders.SelfAttentionDecoder<a class="headerlink" href="#opennmt-decoders-selfattentiondecoder" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.decoders.SelfAttentionDecoder">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.decoders.</code><code class="sig-name descname">SelfAttentionDecoder</code><span class="sig-paren">(</span><em class="sig-param">num_layers</em>, <em class="sig-param">num_units=512</em>, <em class="sig-param">num_heads=8</em>, <em class="sig-param">ffn_inner_dim=2048</em>, <em class="sig-param">dropout=0.1</em>, <em class="sig-param">attention_dropout=0.1</em>, <em class="sig-param">ffn_dropout=0.1</em>, <em class="sig-param">ffn_activation=&lt;function relu&gt;</em>, <em class="sig-param">position_encoder_class=&lt;class 'opennmt.layers.position.SinusoidalPositionEncoder'&gt;</em>, <em class="sig-param">num_sources=1</em>, <em class="sig-param">maximum_relative_position=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/self_attention_decoder.html#SelfAttentionDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.SelfAttentionDecoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.decoders.</code><code class="sig-name descname">SelfAttentionDecoder</code><span class="sig-paren">(</span><em class="sig-param">num_layers</em>, <em class="sig-param">num_units=512</em>, <em class="sig-param">num_heads=8</em>, <em class="sig-param">ffn_inner_dim=2048</em>, <em class="sig-param">dropout=0.1</em>, <em class="sig-param">attention_dropout=0.1</em>, <em class="sig-param">ffn_dropout=0.1</em>, <em class="sig-param">ffn_activation=&lt;function relu&gt;</em>, <em class="sig-param">position_encoder_class=&lt;class 'opennmt.layers.position.SinusoidalPositionEncoder'&gt;</em>, <em class="sig-param">num_sources=1</em>, <em class="sig-param">maximum_relative_position=None</em>, <em class="sig-param">attention_reduction=&lt;MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER: 1&gt;</em>, <em class="sig-param">pre_norm=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/self_attention_decoder.html#SelfAttentionDecoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.SelfAttentionDecoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encoder using self-attention as described in
 <a class="reference external" href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a>.</p>
 <p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.decoders.Decoder.html#opennmt.decoders.Decoder" title="opennmt.decoders.Decoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.decoders.Decoder</span></code></a></p>
 <dl class="method">
 <dt id="opennmt.decoders.SelfAttentionDecoder.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">num_layers</em>, <em class="sig-param">num_units=512</em>, <em class="sig-param">num_heads=8</em>, <em class="sig-param">ffn_inner_dim=2048</em>, <em class="sig-param">dropout=0.1</em>, <em class="sig-param">attention_dropout=0.1</em>, <em class="sig-param">ffn_dropout=0.1</em>, <em class="sig-param">ffn_activation=&lt;function relu&gt;</em>, <em class="sig-param">position_encoder_class=&lt;class 'opennmt.layers.position.SinusoidalPositionEncoder'&gt;</em>, <em class="sig-param">num_sources=1</em>, <em class="sig-param">maximum_relative_position=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/self_attention_decoder.html#SelfAttentionDecoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.SelfAttentionDecoder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">num_layers</em>, <em class="sig-param">num_units=512</em>, <em class="sig-param">num_heads=8</em>, <em class="sig-param">ffn_inner_dim=2048</em>, <em class="sig-param">dropout=0.1</em>, <em class="sig-param">attention_dropout=0.1</em>, <em class="sig-param">ffn_dropout=0.1</em>, <em class="sig-param">ffn_activation=&lt;function relu&gt;</em>, <em class="sig-param">position_encoder_class=&lt;class 'opennmt.layers.position.SinusoidalPositionEncoder'&gt;</em>, <em class="sig-param">num_sources=1</em>, <em class="sig-param">maximum_relative_position=None</em>, <em class="sig-param">attention_reduction=&lt;MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER: 1&gt;</em>, <em class="sig-param">pre_norm=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/self_attention_decoder.html#SelfAttentionDecoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.SelfAttentionDecoder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the parameters of the decoder.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -238,6 +238,10 @@ instance).</p></li>
 <li><p><strong>num_sources</strong> – The number of source contexts expected by this decoder.</p></li>
 <li><p><strong>maximum_relative_position</strong> – Maximum relative position representation
 (from <a class="reference external" href="https://arxiv.org/abs/1803.02155">https://arxiv.org/abs/1803.02155</a>).</p></li>
+<li><p><strong>attention_reduction</strong> – A <a class="reference internal" href="opennmt.layers.MultiHeadAttentionReduction.html#opennmt.layers.MultiHeadAttentionReduction" title="opennmt.layers.MultiHeadAttentionReduction"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.MultiHeadAttentionReduction</span></code></a>
+value to specify how to reduce multi-head attention matrices.</p></li>
+<li><p><strong>pre_norm</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, layer normalization is applied before each
+sub-layer. Otherwise it is applied after.</p></li>
 <li><p><strong>**kwargs</strong> – Additional layer arguments.</p></li>
 </ul>
 </dd>

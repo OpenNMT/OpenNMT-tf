@@ -21,6 +21,7 @@ Classes
    opennmt.layers.LayerNorm
    opennmt.layers.LayerWrapper
    opennmt.layers.MultiHeadAttention
+   opennmt.layers.MultiHeadAttentionReduction
    opennmt.layers.MultiplyReducer
    opennmt.layers.PositionEmbedder
    opennmt.layers.PositionEncoder

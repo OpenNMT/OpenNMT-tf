@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.TransformerLayerWrapper &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.layers.TransformerLayerWrapper &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -210,23 +210,31 @@
 <h1>opennmt.layers.TransformerLayerWrapper<a class="headerlink" href="#opennmt-layers-transformerlayerwrapper" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.layers.TransformerLayerWrapper">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">TransformerLayerWrapper</code><span class="sig-paren">(</span><em class="sig-param">layer</em>, <em class="sig-param">output_dropout</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#TransformerLayerWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.TransformerLayerWrapper" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">TransformerLayerWrapper</code><span class="sig-paren">(</span><em class="sig-param">layer</em>, <em class="sig-param">output_dropout</em>, <em class="sig-param">pre_norm=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#TransformerLayerWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.TransformerLayerWrapper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Layer wrapper that applies a standard Transformer preprocessing and
-postprocessing:</p>
+postprocessing.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">pre_norm=True</span></code>:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>y = layer_norm(x)
 y = dropout(layer(y)) + x
+</pre></div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">pre_norm=False</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>y = dropout(layer(x)) + x
+y = layer_norm(y)
 </pre></div>
 </div>
 <p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.layers.LayerWrapper.html#opennmt.layers.LayerWrapper" title="opennmt.layers.LayerWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.LayerWrapper</span></code></a></p>
 <dl class="method">
 <dt id="opennmt.layers.TransformerLayerWrapper.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">layer</em>, <em class="sig-param">output_dropout</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#TransformerLayerWrapper.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.TransformerLayerWrapper.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">layer</em>, <em class="sig-param">output_dropout</em>, <em class="sig-param">pre_norm=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#TransformerLayerWrapper.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.TransformerLayerWrapper.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the wrapper.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>layer</strong> – The Transformer layer to wrap.</p></li>
 <li><p><strong>output_dropout</strong> – The dropout to apply on the layer output.</p></li>
+<li><p><strong>pre_norm</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, layer normalization is applied before calling
+the layer. Otherwise it is applied after.</p></li>
 <li><p><strong>**kwargs</strong> – Additional layer arguments.</p></li>
 </ul>
 </dd>

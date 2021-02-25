@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.data.WordDropout &mdash; OpenNMT-tf 2.16.0 documentation</title>
+  <title>opennmt.layers.MultiHeadAttentionReduction &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -39,8 +39,8 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.data.WordNoiser" href="opennmt.data.WordNoiser.html" />
-    <link rel="prev" title="opennmt.data.Vocab" href="opennmt.data.Vocab.html" /> 
+    <link rel="next" title="opennmt.layers.MultiplyReducer" href="opennmt.layers.MultiplyReducer.html" />
+    <link rel="prev" title="opennmt.layers.MultiHeadAttention" href="opennmt.layers.MultiHeadAttention.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -119,15 +119,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../api_examples.html">API examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="opennmt.data.html#classes">Classes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="opennmt.data.html#functions">Functions</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.layers.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="opennmt.layers.html#functions">Functions</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a></li>
@@ -187,9 +187,9 @@
         
           <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
         
-          <li><a href="opennmt.data.html">opennmt.data module</a> &raquo;</li>
+          <li><a href="opennmt.layers.html">opennmt.layers module</a> &raquo;</li>
         
-      <li>opennmt.data.WordDropout</li>
+      <li>opennmt.layers.MultiHeadAttentionReduction</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -206,30 +206,45 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="opennmt-data-worddropout">
-<h1>opennmt.data.WordDropout<a class="headerlink" href="#opennmt-data-worddropout" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="opennmt-layers-multiheadattentionreduction">
+<h1>opennmt.layers.MultiHeadAttentionReduction<a class="headerlink" href="#opennmt-layers-multiheadattentionreduction" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="opennmt.data.WordDropout">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.data.</code><code class="sig-name descname">WordDropout</code><span class="sig-paren">(</span><em class="sig-param">dropout</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/noise.html#WordDropout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.WordDropout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Randomly drops words in a sequence.</p>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">noise</span> <span class="o">=</span> <span class="n">opennmt</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">WordDropout</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">words</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">([</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">noise</span><span class="p">(</span><span class="n">words</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-<span class="go">array([b&#39;a&#39;, b&#39;b&#39;], dtype=object)</span>
-</pre></div>
-</div>
-<p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.data.Noise.html#opennmt.data.Noise" title="opennmt.data.Noise"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.data.Noise</span></code></a></p>
-<dl class="method">
-<dt id="opennmt.data.WordDropout.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">dropout</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/noise.html#WordDropout.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.data.WordDropout.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes the noise module.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dropout</strong> – The probability to drop word.</p>
-</dd>
-</dl>
-</dd></dl>
+<dt id="opennmt.layers.MultiHeadAttentionReduction">
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.layers.</code><code class="sig-name descname">MultiHeadAttentionReduction</code><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#MultiHeadAttentionReduction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.MultiHeadAttentionReduction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enumeration defining how to reduce multi-head attention matrices into a
+single attention matrix.</p>
+<p>Possible values are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">NONE</span></code>: do not reduce and return all attention heads.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FIRST_HEAD_LAST_LAYER</span></code>: take the first attention head of the last layer.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AVERAGE_LAST_LAYER</span></code>: average of all attention heads of the last layer.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AVERAGE_ALL_LAYERS</span></code>: average of all attention heads.</p></li>
+</ul>
+<p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<dl class="attribute">
+<dt id="opennmt.layers.MultiHeadAttentionReduction.NONE">
+<code class="sig-name descname">NONE</code><em class="property"> = 0</em><a class="headerlink" href="#opennmt.layers.MultiHeadAttentionReduction.NONE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opennmt.layers.MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER">
+<code class="sig-name descname">FIRST_HEAD_LAST_LAYER</code><em class="property"> = 1</em><a class="headerlink" href="#opennmt.layers.MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opennmt.layers.MultiHeadAttentionReduction.AVERAGE_LAST_LAYER">
+<code class="sig-name descname">AVERAGE_LAST_LAYER</code><em class="property"> = 2</em><a class="headerlink" href="#opennmt.layers.MultiHeadAttentionReduction.AVERAGE_LAST_LAYER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opennmt.layers.MultiHeadAttentionReduction.AVERAGE_ALL_LAYERS">
+<code class="sig-name descname">AVERAGE_ALL_LAYERS</code><em class="property"> = 3</em><a class="headerlink" href="#opennmt.layers.MultiHeadAttentionReduction.AVERAGE_ALL_LAYERS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="opennmt.layers.MultiHeadAttentionReduction.reduce">
+<code class="sig-name descname">reduce</code><em class="property"> = &lt;function MultiHeadAttentionReduction.reduce&gt;</em><a class="reference internal" href="../_modules/opennmt/layers/transformer.html#MultiHeadAttentionReduction.reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.layers.MultiHeadAttentionReduction.reduce" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -243,10 +258,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.data.WordNoiser.html" class="btn btn-neutral float-right" title="opennmt.data.WordNoiser" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.layers.MultiplyReducer.html" class="btn btn-neutral float-right" title="opennmt.layers.MultiplyReducer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="opennmt.data.Vocab.html" class="btn btn-neutral float-left" title="opennmt.data.Vocab" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="opennmt.layers.MultiHeadAttention.html" class="btn btn-neutral float-left" title="opennmt.layers.MultiHeadAttention" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -243,11 +243,17 @@
 <div class="viewcode-block" id="Decoder"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder">[docs]</a><span class="k">class</span> <span class="nc">Decoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base class for decoders.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Decoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_sources</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Decoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_sources</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">vocab_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
+
+<span class="sd">        If you don&#39;t set one of :obj:`vocab_size` or :obj:`output_layer` here,</span>
+<span class="sd">        you should later call the method :meth:`opennmt.decoders.Decoder.initialize`</span>
+<span class="sd">        to initialize this decoder instance.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          num_sources: The number of source contexts expected by this decoder.</span>
+<span class="sd">          vocab_size: The output vocabulary size (optional if :obj:`output_layer` is set).</span>
+<span class="sd">          output_layer: The output projection layer (optional).</span>
 <span class="sd">          **kwargs: Additional layer arguments.</span>
 
 <span class="sd">        Raises:</span>
@@ -264,7 +270,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span> <span class="o">=</span> <span class="n">num_sources</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">memory_sequence_length</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_sequence_length</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">vocab_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">vocab_size</span><span class="o">=</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">output_layer</span><span class="o">=</span><span class="n">output_layer</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">minimum_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -297,6 +305,8 @@
 <span class="sd">        Raises:</span>
 <span class="sd">          ValueError: if both :obj:`vocab_size` and :obj:`output_layer` are not set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span><span class="p">:</span>
+            <span class="k">return</span>
         <span class="k">if</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">output_layer</span>
         <span class="k">else</span><span class="p">:</span>
@@ -572,6 +582,7 @@
         <span class="n">sampler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">maximum_iterations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">minimum_iterations</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">tflite_output_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Decodes dynamically from :obj:`start_ids`.</span>
 
@@ -587,6 +598,7 @@
 <span class="sd">            predictions from the model output. Defaults to an argmax sampling.</span>
 <span class="sd">          maximum_iterations: The maximum number of iterations to decode for.</span>
 <span class="sd">          minimum_iterations: The minimum number of iterations to decode for.</span>
+<span class="sd">          tflite_output_size: If not None will run TFLite safe, is the size of 1D output tensor.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">          A :class:`opennmt.utils.DecodingResult` instance.</span>
@@ -594,7 +606,9 @@
 <span class="sd">        See Also:</span>
 <span class="sd">          :func:`opennmt.utils.dynamic_decode`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">text_inputter</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">tflite_output_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">input_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="n">embeddings</span><span class="o">.</span><span class="n">tflite_call</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">text_inputter</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
             <span class="n">input_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="n">embeddings</span><span class="p">({</span><span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="n">ids</span><span class="p">})</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">input_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">ids</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
@@ -617,6 +631,7 @@
             <span class="n">attention_size</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">support_alignment_history</span>
             <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">tflite_output_size</span><span class="o">=</span><span class="n">tflite_output_size</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Decoder.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.map_v1_weights">[docs]</a>    <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>

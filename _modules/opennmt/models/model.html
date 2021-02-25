@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.model &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.models.model &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -299,8 +299,7 @@
 <span class="sd">          The model predictions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;index&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
-            <span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span>
+        <span class="n">_forward_example_index</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">predictions</span></div>
 
 <div class="viewcode-block" id="Model.evaluate"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
@@ -314,8 +313,7 @@
 <span class="sd">          A tuple with the loss and the model predictions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">outputs</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;index&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
-            <span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span>
+        <span class="n">_forward_example_index</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
         <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_loss</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">predictions</span></div>
 
@@ -437,6 +435,16 @@
             <span class="k">return</span> <span class="n">predictions</span>
 
         <span class="k">return</span> <span class="n">_run</span></div>
+
+<div class="viewcode-block" id="Model.tflite_function"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.tflite_function">[docs]</a>    <span class="k">def</span> <span class="nf">tflite_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the inference function that should be used for TensorFlow Lite.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          A ``tf.function``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;This model does not define a function for TensorFlow Lite&quot;</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.export"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="n">exporter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Exports the model for serving.</span>
@@ -600,6 +608,7 @@
         <span class="p">}</span>
         <span class="k">if</span> <span class="s2">&quot;attention&quot;</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
             <span class="n">results</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;attention&quot;</span><span class="p">]</span>
+        <span class="n">_forward_example_index</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span></div>
 
 <div class="viewcode-block" id="SequenceGenerator.print_score"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator.print_score">[docs]</a>    <span class="k">def</span> <span class="nf">print_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -623,6 +632,11 @@
             <span class="n">alignment_type</span><span class="o">=</span><span class="n">alignment_type</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">misc</span><span class="o">.</span><span class="n">print_as_bytes</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_forward_example_index</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;index&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span>
 </pre></div>
 
            </div>

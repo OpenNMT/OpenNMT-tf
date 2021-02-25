@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.Model &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.models.Model &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -450,6 +450,17 @@ is configured.</p>
 <dt id="opennmt.models.Model.serve_function">
 <code class="sig-name descname">serve_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.serve_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.serve_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a function for serving this model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">tf.function</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.models.Model.tflite_function">
+<code class="sig-name descname">tflite_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.tflite_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.tflite_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the inference function that should be used for TensorFlow Lite.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">tf.function</span></code>.</p>

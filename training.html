@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Training &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>Training &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -241,7 +241,7 @@
 <h3>Export model on best metric<a class="headerlink" href="#export-model-on-best-metric" title="Permalink to this headline">¶</a></h3>
 <p>Automatic evaluation can also export an inference model when a metric reaches its best value so far. For example, the following configuration will make the training exports a model each time the evaluation scores the best BLEU score so far:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span>
-  <span class="nt">external_evaluators</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
+  <span class="nt">scorers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
   <span class="nt">export_on_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
 </pre></div>
 </div>
@@ -252,7 +252,7 @@
 <p>Early stopping is useful to stop the training automatically when the model performance is not improving anymore.</p>
 <p>For example, the following configuration stops the training when the BLEU score does not improve by more than 0.2 points in the last 4 evaluations:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span>
-  <span class="nt">external_evaluators</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
+  <span class="nt">scorers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
   <span class="nt">early_stopping</span><span class="p">:</span>
     <span class="nt">metric</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
     <span class="nt">min_improvement</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.2</span>

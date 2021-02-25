@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.SequenceToSequence &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.models.SequenceToSequence &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -332,6 +332,29 @@ layer instantiation and layer call.</p>
 <li><p>The model predictions.</p></li>
 </ul>
 </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.models.SequenceToSequence.infer_tflite">
+<code class="sig-name descname">infer_tflite</code><span class="sig-paren">(</span><em class="sig-param">ids</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequence.infer_tflite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.SequenceToSequence.infer_tflite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs a prediction, returns a 1-dim Tensor with the target ids it predicted, is TFLite safe.
+This is the function that gets converted was saving as a TFLite model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ids</strong> – A 1-dimensional tensor with the ids of the sentence you want to predict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.models.SequenceToSequence.tflite_function">
+<code class="sig-name descname">tflite_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequence.tflite_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.SequenceToSequence.tflite_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the inference function that should be used for TensorFlow Lite.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">tf.function</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>

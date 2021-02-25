@@ -1,0 +1,8 @@
+opennmt.layers.MultiHeadAttentionReduction
+==========================================
+
+.. autoclass:: opennmt.layers.MultiHeadAttentionReduction
+    :members:
+    :undoc-members:
+
+    **Inherits from:** :class:`enum.Enum`

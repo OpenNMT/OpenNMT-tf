@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.dynamic_decode &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.utils.dynamic_decode &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -210,7 +210,7 @@
 <h1>opennmt.utils.dynamic_decode<a class="headerlink" href="#opennmt-utils-dynamic-decode" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="opennmt.utils.dynamic_decode">
-<code class="sig-prename descclassname">opennmt.utils.</code><code class="sig-name descname">dynamic_decode</code><span class="sig-paren">(</span><em class="sig-param">symbols_to_logits_fn</em>, <em class="sig-param">start_ids</em>, <em class="sig-param">end_id=2</em>, <em class="sig-param">initial_state=None</em>, <em class="sig-param">decoding_strategy=None</em>, <em class="sig-param">sampler=None</em>, <em class="sig-param">maximum_iterations=None</em>, <em class="sig-param">minimum_iterations=0</em>, <em class="sig-param">attention_history=False</em>, <em class="sig-param">attention_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#dynamic_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.dynamic_decode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">opennmt.utils.</code><code class="sig-name descname">dynamic_decode</code><span class="sig-paren">(</span><em class="sig-param">symbols_to_logits_fn</em>, <em class="sig-param">start_ids</em>, <em class="sig-param">end_id=2</em>, <em class="sig-param">initial_state=None</em>, <em class="sig-param">decoding_strategy=None</em>, <em class="sig-param">sampler=None</em>, <em class="sig-param">maximum_iterations=None</em>, <em class="sig-param">minimum_iterations=0</em>, <em class="sig-param">attention_history=False</em>, <em class="sig-param">attention_size=None</em>, <em class="sig-param">tflite_output_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#dynamic_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.utils.dynamic_decode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dynamic decoding.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -229,6 +229,7 @@ predictions from the model output. Defaults to an argmax sampling.</p></li>
 <li><p><strong>attention_history</strong> – Gather attention history during the decoding.</p></li>
 <li><p><strong>attention_size</strong> – If known, the size of the attention vectors (i.e. the
 maximum source length).</p></li>
+<li><p><strong>tflite_output_size</strong> – If not None will run TFLite safe, is the size of 1D output tensor.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

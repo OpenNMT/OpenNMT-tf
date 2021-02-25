@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.decoders.Decoder &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.decoders.Decoder &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -210,7 +210,7 @@
 <h1>opennmt.decoders.Decoder<a class="headerlink" href="#opennmt-decoders-decoder" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="opennmt.decoders.Decoder">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.decoders.</code><code class="sig-name descname">Decoder</code><span class="sig-paren">(</span><em class="sig-param">num_sources=1</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.Decoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">opennmt.decoders.</code><code class="sig-name descname">Decoder</code><span class="sig-paren">(</span><em class="sig-param">num_sources=1</em>, <em class="sig-param">vocab_size=None</em>, <em class="sig-param">output_layer=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.Decoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for decoders.</p>
 <p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
 <p><strong>Extended by:</strong></p>
@@ -221,12 +221,17 @@
 </ul>
 <dl class="method">
 <dt id="opennmt.decoders.Decoder.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">num_sources=1</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.Decoder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">num_sources=1</em>, <em class="sig-param">vocab_size=None</em>, <em class="sig-param">output_layer=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.Decoder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the decoder parameters.</p>
+<p>If you don’t set one of <code class="xref py py-obj docutils literal notranslate"><span class="pre">vocab_size</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">output_layer</span></code> here,
+you should later call the method <a class="reference internal" href="#opennmt.decoders.Decoder.initialize" title="opennmt.decoders.Decoder.initialize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.decoders.Decoder.initialize()</span></code></a>
+to initialize this decoder instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_sources</strong> – The number of source contexts expected by this decoder.</p></li>
+<li><p><strong>vocab_size</strong> – The output vocabulary size (optional if <code class="xref py py-obj docutils literal notranslate"><span class="pre">output_layer</span></code> is set).</p></li>
+<li><p><strong>output_layer</strong> – The output projection layer (optional).</p></li>
 <li><p><strong>**kwargs</strong> – Additional layer arguments.</p></li>
 </ul>
 </dd>
@@ -404,7 +409,7 @@ vector.</p>
 
 <dl class="method">
 <dt id="opennmt.decoders.Decoder.dynamic_decode">
-<code class="sig-name descname">dynamic_decode</code><span class="sig-paren">(</span><em class="sig-param">embeddings</em>, <em class="sig-param">start_ids</em>, <em class="sig-param">end_id=2</em>, <em class="sig-param">initial_state=None</em>, <em class="sig-param">decoding_strategy=None</em>, <em class="sig-param">sampler=None</em>, <em class="sig-param">maximum_iterations=None</em>, <em class="sig-param">minimum_iterations=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.dynamic_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.Decoder.dynamic_decode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dynamic_decode</code><span class="sig-paren">(</span><em class="sig-param">embeddings</em>, <em class="sig-param">start_ids</em>, <em class="sig-param">end_id=2</em>, <em class="sig-param">initial_state=None</em>, <em class="sig-param">decoding_strategy=None</em>, <em class="sig-param">sampler=None</em>, <em class="sig-param">maximum_iterations=None</em>, <em class="sig-param">minimum_iterations=0</em>, <em class="sig-param">tflite_output_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/decoders/decoder.html#Decoder.dynamic_decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.decoders.Decoder.dynamic_decode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decodes dynamically from <code class="xref py py-obj docutils literal notranslate"><span class="pre">start_ids</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -420,6 +425,7 @@ instance that define the decoding logic. Defaults to a greedy search.</p></li>
 predictions from the model output. Defaults to an argmax sampling.</p></li>
 <li><p><strong>maximum_iterations</strong> – The maximum number of iterations to decode for.</p></li>
 <li><p><strong>minimum_iterations</strong> – The minimum number of iterations to decode for.</p></li>
+<li><p><strong>tflite_output_size</strong> – If not None will run TFLite safe, is the size of 1D output tensor.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

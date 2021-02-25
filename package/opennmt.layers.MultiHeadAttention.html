@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.MultiHeadAttention &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.layers.MultiHeadAttention &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -39,7 +39,7 @@
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.layers.MultiplyReducer" href="opennmt.layers.MultiplyReducer.html" />
+    <link rel="next" title="opennmt.layers.MultiHeadAttentionReduction" href="opennmt.layers.MultiHeadAttentionReduction.html" />
     <link rel="prev" title="opennmt.layers.LayerWrapper" href="opennmt.layers.LayerWrapper.html" /> 
 </head>
 
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -224,8 +224,7 @@
 <li><p><strong>num_heads</strong> – The number of attention heads.</p></li>
 <li><p><strong>num_units</strong> – The number of hidden units.</p></li>
 <li><p><strong>dropout</strong> – The probability to drop units from the inputs.</p></li>
-<li><p><strong>return_attention</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, also return the attention weights of the
-first head.</p></li>
+<li><p><strong>return_attention</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, also return the attention weights.</p></li>
 <li><p><strong>maximum_relative_position</strong> – Maximum relative position representation
 (from <a class="reference external" href="https://arxiv.org/abs/1803.02155">https://arxiv.org/abs/1803.02155</a>).</p></li>
 <li><p><strong>kwargs</strong> – Additional layer arguments.</p></li>
@@ -292,7 +291,7 @@ probabilities of the first head (if <code class="xref py py-obj docutils literal
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="opennmt.layers.MultiplyReducer.html" class="btn btn-neutral float-right" title="opennmt.layers.MultiplyReducer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="opennmt.layers.MultiHeadAttentionReduction.html" class="btn btn-neutral float-right" title="opennmt.layers.MultiHeadAttentionReduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="opennmt.layers.LayerWrapper.html" class="btn btn-neutral float-left" title="opennmt.layers.LayerWrapper" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

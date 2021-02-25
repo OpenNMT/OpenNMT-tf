@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>Index &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -382,8 +382,6 @@
       </ul></li>
       <li><a href="package/opennmt.decoders.AttentionalRNNDecoder.html#opennmt.decoders.AttentionalRNNDecoder">AttentionalRNNDecoder (class in opennmt.decoders)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.models.GPT2Small.html#opennmt.models.GPT2Small.auto_config">auto_config() (opennmt.models.GPT2Small method)</a>
 
       <ul>
@@ -400,6 +398,10 @@
         <li><a href="package/opennmt.models.Transformer.html#opennmt.models.Transformer.auto_config">(opennmt.models.Transformer method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.layers.MultiHeadAttentionReduction.html#opennmt.layers.MultiHeadAttentionReduction.AVERAGE_ALL_LAYERS">AVERAGE_ALL_LAYERS (opennmt.layers.MultiHeadAttentionReduction attribute)</a>
+</li>
       <li><a href="package/opennmt.utils.average_checkpoints.html#opennmt.utils.average_checkpoints">average_checkpoints() (in module opennmt.utils)</a>
 
       <ul>
@@ -407,6 +409,8 @@
 </li>
       </ul></li>
       <li><a href="package/opennmt.utils.average_checkpoints_into_layer.html#opennmt.utils.average_checkpoints_into_layer">average_checkpoints_into_layer() (in module opennmt.utils)</a>
+</li>
+      <li><a href="package/opennmt.layers.MultiHeadAttentionReduction.html#opennmt.layers.MultiHeadAttentionReduction.AVERAGE_LAST_LAYER">AVERAGE_LAST_LAYER (opennmt.layers.MultiHeadAttentionReduction attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -700,6 +704,8 @@
         <li><a href="package/opennmt.utils.GreedySearch.html#opennmt.utils.GreedySearch.finalize">(opennmt.utils.GreedySearch method)</a>
 </li>
       </ul></li>
+      <li><a href="package/opennmt.layers.MultiHeadAttentionReduction.html#opennmt.layers.MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER">FIRST_HEAD_LAST_LAYER (opennmt.layers.MultiHeadAttentionReduction attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.utils.format_translation_output.html#opennmt.utils.format_translation_output">format_translation_output() (in module opennmt.utils)</a>
@@ -812,6 +818,8 @@
         <li><a href="package/opennmt.Runner.html#opennmt.Runner.infer">(opennmt.Runner method)</a>
 </li>
       </ul></li>
+      <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.infer_tflite">infer_tflite() (opennmt.models.SequenceToSequence method)</a>
+</li>
       <li><a href="package/opennmt.data.inference_pipeline.html#opennmt.data.inference_pipeline">inference_pipeline() (in module opennmt.data)</a>
 </li>
       <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.initial_state">initial_state() (opennmt.decoders.Decoder method)</a>
@@ -1066,6 +1074,8 @@
 </li>
       <li><a href="package/opennmt.layers.MultiHeadAttention.html#opennmt.layers.MultiHeadAttention">MultiHeadAttention (class in opennmt.layers)</a>
 </li>
+      <li><a href="package/opennmt.layers.MultiHeadAttentionReduction.html#opennmt.layers.MultiHeadAttentionReduction">MultiHeadAttentionReduction (class in opennmt.layers)</a>
+</li>
       <li><a href="package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter">MultiInputter (class in opennmt.inputters)</a>
 </li>
       <li><a href="package/opennmt.layers.MultiplyReducer.html#opennmt.layers.MultiplyReducer">MultiplyReducer (class in opennmt.layers)</a>
@@ -1082,8 +1092,12 @@
 </li>
       <li><a href="package/opennmt.data.Noise.html#opennmt.data.Noise">Noise (class in opennmt.data)</a>
 </li>
-      <li><a href="package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel.NONE">NONE (opennmt.models.EmbeddingsSharingLevel attribute)</a>
+      <li><a href="package/opennmt.layers.MultiHeadAttentionReduction.html#opennmt.layers.MultiHeadAttentionReduction.NONE">NONE (opennmt.layers.MultiHeadAttentionReduction attribute)</a>
+
+      <ul>
+        <li><a href="package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel.NONE">(opennmt.models.EmbeddingsSharingLevel attribute)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch.num_hypotheses">num_hypotheses() (opennmt.utils.BeamSearch property)</a>
@@ -1186,6 +1200,8 @@
 </li>
       <li><a href="package/opennmt.utils.RandomSampler.html#opennmt.utils.RandomSampler">RandomSampler (class in opennmt.utils)</a>
 </li>
+      <li><a href="package/opennmt.layers.MultiHeadAttentionReduction.html#opennmt.layers.MultiHeadAttentionReduction.reduce">reduce (opennmt.layers.MultiHeadAttentionReduction attribute)</a>
+</li>
       <li><a href="package/opennmt.layers.ConcatReducer.html#opennmt.layers.ConcatReducer.reduce">reduce() (opennmt.layers.ConcatReducer method)</a>
 
       <ul>
@@ -1218,10 +1234,10 @@
 </li>
       <li><a href="package/opennmt.schedules.register_learning_rate_schedule.html#opennmt.schedules.register_learning_rate_schedule">register_learning_rate_schedule() (in module opennmt.schedules)</a>
 </li>
-      <li><a href="package/opennmt.models.register_model_in_catalog.html#opennmt.models.register_model_in_catalog">register_model_in_catalog() (in module opennmt.models)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.models.register_model_in_catalog.html#opennmt.models.register_model_in_catalog">register_model_in_catalog() (in module opennmt.models)</a>
+</li>
       <li><a href="package/opennmt.optimizers.register_optimizer.html#opennmt.optimizers.register_optimizer">register_optimizer() (in module opennmt.optimizers)</a>
 </li>
       <li><a href="package/opennmt.utils.register_scorer.html#opennmt.utils.register_scorer">register_scorer() (in module opennmt.utils)</a>
@@ -1382,6 +1398,14 @@
 </li>
       <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter">TextInputter (class in opennmt.inputters)</a>
 </li>
+      <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.tflite_call">tflite_call() (opennmt.inputters.WordEmbedder method)</a>
+</li>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.tflite_function">tflite_function() (opennmt.models.Model method)</a>
+
+      <ul>
+        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.tflite_function">(opennmt.models.SequenceToSequence method)</a>
+</li>
+      </ul></li>
       <li><a href="package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.tokenize">tokenize() (opennmt.tokenizers.Tokenizer method)</a>
 </li>
       <li><a href="package/opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer.tokenize_stream">tokenize_stream() (opennmt.tokenizers.Tokenizer method)</a>
@@ -1390,12 +1414,12 @@
 </li>
       <li><a href="package/opennmt.data.tokens_to_chars.html#opennmt.data.tokens_to_chars">tokens_to_chars() (in module opennmt.data)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.data.tokens_to_words.html#opennmt.data.tokens_to_words">tokens_to_words() (in module opennmt.data)</a>
 </li>
       <li><a href="package/opennmt.Runner.html#opennmt.Runner.train">train() (opennmt.Runner method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.data.training_pipeline.html#opennmt.data.training_pipeline">training_pipeline() (in module opennmt.data)</a>
 </li>
       <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.transfer_weights">transfer_weights() (opennmt.models.Model method)</a>

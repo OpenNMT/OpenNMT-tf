@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -301,6 +301,9 @@
                 <span class="s2">&quot;eval&quot;</span><span class="p">:</span> <span class="p">{</span>
                     <span class="s2">&quot;length_bucket_width&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
                 <span class="p">},</span>
+                <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;length_bucket_width&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                <span class="p">},</span>
                 <span class="s2">&quot;infer&quot;</span><span class="p">:</span> <span class="p">{</span>
                     <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
                     <span class="s2">&quot;length_bucket_width&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
@@ -369,6 +372,38 @@
 
         <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">predictions</span></div>
 
+<div class="viewcode-block" id="SequenceToSequence.infer_tflite"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.infer_tflite">[docs]</a>    <span class="k">def</span> <span class="nf">infer_tflite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs a prediction, returns a 1-dim Tensor with the target ids it predicted, is TFLite safe.</span>
+<span class="sd">        This is the function that gets converted was saving as a TFLite model</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          ids: A 1-dimensional tensor with the ids of the sentence you want to predict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">source_inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">tflite_call</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+        <span class="n">source_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">([</span><span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">ids</span><span class="p">)])</span>
+
+        <span class="n">encoder_outputs</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">encoder_sequence_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span>
+            <span class="n">source_inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="n">source_length</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynamic_decode</span><span class="p">(</span>
+            <span class="n">ids</span><span class="p">,</span>
+            <span class="n">encoder_outputs</span><span class="p">,</span>
+            <span class="n">encoder_state</span><span class="p">,</span>
+            <span class="n">encoder_sequence_length</span><span class="p">,</span>
+            <span class="n">tflite_run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">predictions</span></div>
+
+<div class="viewcode-block" id="SequenceToSequence.tflite_function"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.tflite_function">[docs]</a>    <span class="k">def</span> <span class="nf">tflite_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">function</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">infer_tflite</span><span class="p">,</span>
+            <span class="n">input_signature</span><span class="o">=</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">TensorSpec</span><span class="p">([</span><span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ids&quot;</span><span class="p">)],</span>
+        <span class="p">)</span></div>
+
     <span class="k">def</span> <span class="nf">_decode_target</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">labels</span><span class="p">,</span>
@@ -423,7 +458,12 @@
         <span class="k">return</span> <span class="n">outputs</span>
 
     <span class="k">def</span> <span class="nf">_dynamic_decode</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">encoder_sequence_length</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">,</span>
+        <span class="n">encoder_outputs</span><span class="p">,</span>
+        <span class="n">encoder_state</span><span class="p">,</span>
+        <span class="n">encoder_sequence_length</span><span class="p">,</span>
+        <span class="n">tflite_run</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
         <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">encoder_outputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
@@ -463,7 +503,14 @@
             <span class="n">sampler</span><span class="o">=</span><span class="n">decoding</span><span class="o">.</span><span class="n">Sampler</span><span class="o">.</span><span class="n">from_params</span><span class="p">(</span><span class="n">params</span><span class="p">),</span>
             <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;maximum_decoding_length&quot;</span><span class="p">,</span> <span class="mi">250</span><span class="p">),</span>
             <span class="n">minimum_iterations</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minimum_decoding_length&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">tflite_output_size</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tflite_output_size&quot;</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tflite_run</span>
+            <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tflite_run</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sampled_ids</span>
+
         <span class="n">target_tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">ids_to_tokens</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span>
             <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">sampled_ids</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
         <span class="p">)</span>

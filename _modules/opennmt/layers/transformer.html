@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -181,6 +181,8 @@
   <h1>Source code for opennmt.layers.transformer</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Define layers related to the Google&#39;s Transformer model.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">enum</span>
+
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -287,11 +289,11 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      Tensor with shape :math:`[B, H, T, T]`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">batch</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">shape_list</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">batch</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">depth</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">shape_list</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">[</span><span class="n">time</span><span class="p">,</span> <span class="n">batch</span> <span class="o">*</span> <span class="n">head</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">[</span><span class="n">time</span><span class="p">,</span> <span class="n">batch</span> <span class="o">*</span> <span class="n">head</span><span class="p">,</span> <span class="n">depth</span><span class="p">])</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">transpose_b</span><span class="o">=</span><span class="n">transpose_b</span><span class="p">)</span>
-    <span class="n">c</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">[</span><span class="n">time</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">[</span><span class="n">time</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">c</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">c</span>
 
@@ -337,6 +339,50 @@
         <span class="k">return</span> <span class="n">m</span></div></div>
 
 
+<div class="viewcode-block" id="MultiHeadAttentionReduction"><a class="viewcode-back" href="../../../package/opennmt.layers.MultiHeadAttentionReduction.html#opennmt.layers.MultiHeadAttentionReduction">[docs]</a><span class="k">class</span> <span class="nc">MultiHeadAttentionReduction</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enumeration defining how to reduce multi-head attention matrices into a</span>
+<span class="sd">    single attention matrix.</span>
+
+<span class="sd">    Possible values are:</span>
+
+<span class="sd">    * ``NONE``: do not reduce and return all attention heads.</span>
+<span class="sd">    * ``FIRST_HEAD_LAST_LAYER``: take the first attention head of the last layer.</span>
+<span class="sd">    * ``AVERAGE_LAST_LAYER``: average of all attention heads of the last layer.</span>
+<span class="sd">    * ``AVERAGE_ALL_LAYERS``: average of all attention heads.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NONE</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">FIRST_HEAD_LAST_LAYER</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">AVERAGE_LAST_LAYER</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">AVERAGE_ALL_LAYERS</span> <span class="o">=</span> <span class="mi">3</span>
+
+<div class="viewcode-block" id="MultiHeadAttentionReduction.reduce"><a class="viewcode-back" href="../../../package/opennmt.layers.MultiHeadAttentionReduction.html#opennmt.layers.MultiHeadAttentionReduction.reduce">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">policy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reduces a list of multi-head attention matrices into a single</span>
+<span class="sd">        attention matrix.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          attention: A list of multi-head attention matrices, with shape</span>
+<span class="sd">            :math:`[B, H, T_t, T_s]`.</span>
+<span class="sd">          policy: A :class:`opennmt.layers.MultiHeadAttentionReduction` value.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          A single attention matrix with shape :math:`[B, T_t, T_s]`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;attention should be a list of attention tensors, one per layer&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">policy</span> <span class="o">==</span> <span class="n">MultiHeadAttentionReduction</span><span class="o">.</span><span class="n">FIRST_HEAD_LAST_LAYER</span><span class="p">:</span>
+            <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">policy</span> <span class="o">==</span> <span class="n">MultiHeadAttentionReduction</span><span class="o">.</span><span class="n">AVERAGE_LAST_LAYER</span><span class="p">:</span>
+            <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">attention</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">policy</span> <span class="o">==</span> <span class="n">MultiHeadAttentionReduction</span><span class="o">.</span><span class="n">AVERAGE_ALL_LAYERS</span><span class="p">:</span>
+            <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">attention</span></div></div>
+
+
 <div class="viewcode-block" id="MultiHeadAttention"><a class="viewcode-back" href="../../../package/opennmt.layers.MultiHeadAttention.html#opennmt.layers.MultiHeadAttention">[docs]</a><span class="k">class</span> <span class="nc">MultiHeadAttention</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Computes the multi-head attention as described in</span>
 <span class="sd">    https://arxiv.org/abs/1706.03762.</span>
@@ -357,8 +403,7 @@
 <span class="sd">          num_heads: The number of attention heads.</span>
 <span class="sd">          num_units: The number of hidden units.</span>
 <span class="sd">          dropout: The probability to drop units from the inputs.</span>
-<span class="sd">          return_attention: If ``True``, also return the attention weights of the</span>
-<span class="sd">            first head.</span>
+<span class="sd">          return_attention: If ``True``, also return the attention weights.</span>
 <span class="sd">          maximum_relative_position: Maximum relative position representation</span>
 <span class="sd">            (from https://arxiv.org/abs/1803.02155).</span>
 <span class="sd">          kwargs: Additional layer arguments.</span>
@@ -515,25 +560,37 @@
 
 <div class="viewcode-block" id="TransformerLayerWrapper"><a class="viewcode-back" href="../../../package/opennmt.layers.TransformerLayerWrapper.html#opennmt.layers.TransformerLayerWrapper">[docs]</a><span class="k">class</span> <span class="nc">TransformerLayerWrapper</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">LayerWrapper</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Layer wrapper that applies a standard Transformer preprocessing and</span>
-<span class="sd">    postprocessing:</span>
+<span class="sd">    postprocessing.</span>
+
+<span class="sd">    With ``pre_norm=True``:</span>
 
 <span class="sd">    .. code-block:: text</span>
 
 <span class="sd">        y = layer_norm(x)</span>
 <span class="sd">        y = dropout(layer(y)) + x</span>
+
+<span class="sd">    With ``pre_norm=False``:</span>
+
+<span class="sd">    .. code-block:: text</span>
+
+<span class="sd">        y = dropout(layer(x)) + x</span>
+<span class="sd">        y = layer_norm(y)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="TransformerLayerWrapper.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.TransformerLayerWrapper.html#opennmt.layers.TransformerLayerWrapper.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">output_dropout</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="TransformerLayerWrapper.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.TransformerLayerWrapper.html#opennmt.layers.TransformerLayerWrapper.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">output_dropout</span><span class="p">,</span> <span class="n">pre_norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the wrapper.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          layer: The Transformer layer to wrap.</span>
 <span class="sd">          output_dropout: The dropout to apply on the layer output.</span>
+<span class="sd">          pre_norm: If ``True``, layer normalization is applied before calling</span>
+<span class="sd">            the layer. Otherwise it is applied after.</span>
 <span class="sd">          **kwargs: Additional layer arguments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">layer</span><span class="p">,</span>
-            <span class="n">normalize_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">normalize_input</span><span class="o">=</span><span class="n">pre_norm</span><span class="p">,</span>
+            <span class="n">normalize_output</span><span class="o">=</span><span class="ow">not</span> <span class="n">pre_norm</span><span class="p">,</span>
             <span class="n">output_dropout</span><span class="o">=</span><span class="n">output_dropout</span><span class="p">,</span>
             <span class="n">residual_connection</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -559,6 +616,7 @@
         <span class="n">ffn_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
         <span class="n">ffn_activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">,</span>
         <span class="n">maximum_relative_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pre_norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the layer.</span>
@@ -576,7 +634,9 @@
 <span class="sd">            transformations of the feed forward layer.</span>
 <span class="sd">          maximum_relative_position: Maximum relative position representation</span>
 <span class="sd">            (from https://arxiv.org/abs/1803.02155).</span>
-<span class="sd">          kwargs: Additional layer arguments.</span>
+<span class="sd">          pre_norm: If ``True``, layer normalization is applied before each</span>
+<span class="sd">            sub-layer. Otherwise it is applied after.</span>
+<span class="sd">          **kwargs: Additional layer arguments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span> <span class="o">=</span> <span class="n">MultiHeadAttention</span><span class="p">(</span>
@@ -585,11 +645,13 @@
             <span class="n">dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span>
             <span class="n">maximum_relative_position</span><span class="o">=</span><span class="n">maximum_relative_position</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span> <span class="o">=</span> <span class="n">TransformerLayerWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span><span class="p">,</span> <span class="n">dropout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span> <span class="o">=</span> <span class="n">TransformerLayerWrapper</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">pre_norm</span><span class="o">=</span><span class="n">pre_norm</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span> <span class="o">=</span> <span class="n">FeedForwardNetwork</span><span class="p">(</span>
             <span class="n">ffn_inner_dim</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">ffn_dropout</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">ffn_activation</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span> <span class="o">=</span> <span class="n">TransformerLayerWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ffn</span><span class="p">,</span> <span class="n">dropout</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span> <span class="o">=</span> <span class="n">TransformerLayerWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ffn</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">pre_norm</span><span class="o">=</span><span class="n">pre_norm</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SelfAttentionEncoderLayer.call"><a class="viewcode-back" href="../../../package/opennmt.layers.SelfAttentionEncoderLayer.html#opennmt.layers.SelfAttentionEncoderLayer.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Runs the encoder layer.&quot;&quot;&quot;</span>
@@ -618,6 +680,7 @@
         <span class="n">ffn_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
         <span class="n">ffn_activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">,</span>
         <span class="n">maximum_relative_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pre_norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the layer.</span>
@@ -636,6 +699,8 @@
 <span class="sd">            transformations of the feed forward layer.</span>
 <span class="sd">          maximum_relative_position: Maximum relative position representation</span>
 <span class="sd">            (from https://arxiv.org/abs/1803.02155).</span>
+<span class="sd">          pre_norm: If ``True``, layer normalization is applied before each</span>
+<span class="sd">            sub-layer. Otherwise it is applied after.</span>
 <span class="sd">          **kwargs: Additional layer arguments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -645,18 +710,20 @@
             <span class="n">dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span>
             <span class="n">maximum_relative_position</span><span class="o">=</span><span class="n">maximum_relative_position</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span> <span class="o">=</span> <span class="n">TransformerLayerWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span><span class="p">,</span> <span class="n">dropout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span> <span class="o">=</span> <span class="n">TransformerLayerWrapper</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">pre_norm</span><span class="o">=</span><span class="n">pre_norm</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">attention</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_sources</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_sources</span><span class="p">):</span>
             <span class="n">attention</span> <span class="o">=</span> <span class="n">MultiHeadAttention</span><span class="p">(</span>
-                <span class="n">num_heads</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span> <span class="n">return_attention</span><span class="o">=</span><span class="n">i</span> <span class="o">==</span> <span class="mi">0</span>
+                <span class="n">num_heads</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span> <span class="n">return_attention</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
-            <span class="n">attention</span> <span class="o">=</span> <span class="n">TransformerLayerWrapper</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">dropout</span><span class="p">)</span>
+            <span class="n">attention</span> <span class="o">=</span> <span class="n">TransformerLayerWrapper</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">pre_norm</span><span class="o">=</span><span class="n">pre_norm</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">attention</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attention</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span> <span class="o">=</span> <span class="n">FeedForwardNetwork</span><span class="p">(</span>
             <span class="n">ffn_inner_dim</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">ffn_dropout</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">ffn_activation</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span> <span class="o">=</span> <span class="n">TransformerLayerWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ffn</span><span class="p">,</span> <span class="n">dropout</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span> <span class="o">=</span> <span class="n">TransformerLayerWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ffn</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">pre_norm</span><span class="o">=</span><span class="n">pre_norm</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SelfAttentionDecoderLayer.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.layers.SelfAttentionDecoderLayer.html#opennmt.layers.SelfAttentionDecoderLayer.map_v1_weights">[docs]</a>    <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
         <span class="n">m</span> <span class="o">=</span> <span class="p">[]</span>
@@ -682,7 +749,7 @@
             <span class="n">inputs</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;self_kv&quot;</span><span class="p">),</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span>
         <span class="p">)</span>
 
-        <span class="n">attention</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">attention</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">memory_kv</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">memory_cache</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;memory_kv&quot;</span><span class="p">)</span>
@@ -691,20 +758,14 @@
             <span class="k">for</span> <span class="n">layer</span><span class="p">,</span> <span class="n">mem</span><span class="p">,</span> <span class="n">mem_mask</span><span class="p">,</span> <span class="n">mem_cache</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">attention</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">memory_mask</span><span class="p">,</span> <span class="n">memory_cache</span>
             <span class="p">):</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span>
+                <span class="n">outputs</span><span class="p">,</span> <span class="n">memory_kv_i</span><span class="p">,</span> <span class="n">attention_i</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span>
                     <span class="n">outputs</span><span class="p">,</span>
                     <span class="n">memory</span><span class="o">=</span><span class="n">mem</span><span class="p">,</span>
                     <span class="n">mask</span><span class="o">=</span><span class="n">mem_mask</span><span class="p">,</span>
                     <span class="n">cache</span><span class="o">=</span><span class="n">mem_cache</span><span class="p">,</span>
                     <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                    <span class="n">outputs</span><span class="p">,</span> <span class="n">memory_kv_i</span><span class="p">,</span> <span class="n">attention</span> <span class="o">=</span> <span class="n">result</span>
-                    <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="p">[</span>
-                        <span class="p">:,</span> <span class="mi">0</span>
-                    <span class="p">]</span>  <span class="c1"># Use the first head for the attention vector.</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">outputs</span><span class="p">,</span> <span class="n">memory_kv_i</span> <span class="o">=</span> <span class="n">result</span>
+                <span class="n">attention</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attention_i</span><span class="p">)</span>
                 <span class="n">memory_kv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">memory_kv_i</span><span class="p">)</span>
 
         <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>

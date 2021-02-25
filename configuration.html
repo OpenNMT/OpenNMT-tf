@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parameters &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>Parameters &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -197,7 +197,7 @@
 <span class="nt">train</span><span class="p">:</span>
   <span class="c1"># Training specific configuration (checkpoint frequency, number of training step, etc.)</span>
 <span class="nt">eval</span><span class="p">:</span>
-  <span class="c1"># Evaluation specific configuration (evaluation frequency, external evaluators.)</span>
+  <span class="c1"># Evaluation specific configuration (evaluation frequency, scorers, etc.)</span>
 <span class="nt">infer</span><span class="p">:</span>
   <span class="c1"># Inference specific configuration (output scores, alignments, etc.)</span>
 <span class="nt">score</span><span class="p">:</span>
@@ -407,6 +407,8 @@
   <span class="nt">contrastive_learning</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
   <span class="c1"># (optional) The value of the parameter eta in the max-margin loss (default: 0.1).</span>
   <span class="nt">max_margin_eta</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
+  <span class="c1"># (optional) Size of input when saving a model as TFLite</span>
+  <span class="nt">tflite_output_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">250</span>
 
 <span class="c1"># Training options.</span>
 <span class="nt">train</span><span class="p">:</span>
@@ -465,10 +467,10 @@
 
   <span class="c1"># (optional) Save evaluation predictions in model_dir/eval/.</span>
   <span class="nt">save_eval_predictions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
-  <span class="c1"># (optional) Evalutator or list of evaluators that are called on the saved evaluation</span>
+  <span class="c1"># (optional) Scorer or list of scorers that are called on the saved evaluation</span>
   <span class="c1"># predictions.</span>
-  <span class="c1"># Available evaluators: bleu, rouge</span>
-  <span class="nt">external_evaluators</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
+  <span class="c1"># Available scorers: bleu, rouge, wer, ter, prf</span>
+  <span class="nt">scorers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
 
   <span class="c1"># (optional) The width of the length buckets to select batch candidates from.</span>
   <span class="c1"># If set, the eval data will be sorted by length to increase the translation</span>
@@ -522,6 +524,14 @@
 <span class="nt">score</span><span class="p">:</span>
   <span class="c1"># (optional) The batch size to use (default: 64).</span>
   <span class="nt">batch_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">64</span>
+  <span class="c1"># (optional) Batch size is the number of &quot;examples&quot; or &quot;tokens&quot; (default: &quot;examples&quot;).</span>
+  <span class="nt">batch_type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">examples</span>
+
+  <span class="c1"># (optional) The width of the length buckets to select batch candidates from.</span>
+  <span class="c1"># If set, the input file will be sorted by length to increase efficiency.</span>
+  <span class="c1"># The result will still be outputted in order as they are available (default: 0).</span>
+  <span class="nt">length_bucket_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
+
   <span class="c1"># (optional) Also report token-level cross entropy.</span>
   <span class="nt">with_token_level</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
   <span class="c1"># (optional) Also output the alignments (can be: null, hard, soft, default: null).</span>

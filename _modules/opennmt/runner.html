@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.15.0 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.16.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.15
+                2.16
               </div>
             
           
@@ -223,6 +223,8 @@
         <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;length_bucket_width&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;batch_type&quot;</span><span class="p">:</span> <span class="s2">&quot;examples&quot;</span><span class="p">,</span>
         <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span>
@@ -637,6 +639,8 @@
             <span class="n">features_file</span><span class="p">,</span>
             <span class="n">predictions_file</span><span class="p">,</span>
             <span class="n">score_config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">],</span>
+            <span class="n">batch_type</span><span class="o">=</span><span class="n">score_config</span><span class="p">[</span><span class="s2">&quot;batch_type&quot;</span><span class="p">],</span>
+            <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">score_config</span><span class="p">[</span><span class="s2">&quot;length_bucket_width&quot;</span><span class="p">],</span>
             <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">score_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prefetch_buffer_size&quot;</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">inference</span><span class="o">.</span><span class="n">score_dataset</span><span class="p">(</span>
