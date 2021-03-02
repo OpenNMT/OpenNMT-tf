@@ -154,7 +154,9 @@ class RunnerTest(tf.test.TestCase):
     def testTrainMixedPrecision(self):
         if tf.config.functions_run_eagerly() and LooseVersion(tf.__version__) < "2.4.0":
             # TODO: remove this skipTest once TensorFlow requirement is updated to >=2.4.
-            self.skipTest("Mixed precision not working with TensorFlow 2.3 + eager execution")
+            self.skipTest(
+                "Mixed precision not working with TensorFlow 2.3 + eager execution"
+            )
         self.assertTrue(misc.mixed_precision_enabled())
         ar_file, en_file = self._makeTransliterationData()
         config = {
