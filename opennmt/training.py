@@ -9,6 +9,22 @@ import tensorflow as tf
 
 from opennmt.inputters import text_inputter
 from opennmt.optimizers import utils as optimizer_util
+from opennmt.utils import compat
+from opennmt.utils import misc
+
+
+def _add_mixed_precision_wrapper(optimizer):
+    # TODO: clean mixed precision API when TensorFlow requirement is updated to >=2.4.
+    wrapper_class = None
+    wrapper_kwargs = {}
+    if compat.tf_supports("keras.mixed_precision.LossScaleOptimizer"):
+        wrapper_class = tf.keras.mixed_precision.LossScaleOptimizer
+    else:
+        wrapper_class = tf.keras.mixed_precision.experimental.LossScaleOptimizer
+        wrapper_kwargs = dict(loss_scale="dynamic")
+    if not isinstance(optimizer, wrapper_class):
+        optimizer = wrapper_class(optimizer, **wrapper_kwargs)
+    return optimizer
 
 
 class Trainer:
@@ -33,17 +49,12 @@ class Trainer:
             self._summary_writer = tf.summary.create_noop_writer()
         self._training_stats = None
         self._gradient_accumulator = optimizer_util.GradientAccumulator()
+        self._mixed_precision = misc.mixed_precision_enabled()
 
         if optimizer is None:
             raise ValueError("No optimizer is defined")
-        graph_optimizer_options = tf.config.optimizer.get_experimental_options()
-        mixed_precision_enabled = graph_optimizer_options.get("auto_mixed_precision")
-        if mixed_precision_enabled and not isinstance(
-            optimizer, tf.keras.mixed_precision.experimental.LossScaleOptimizer
-        ):
-            optimizer = tf.keras.mixed_precision.experimental.LossScaleOptimizer(
-                optimizer, "dynamic"
-            )
+        if self._mixed_precision:
+            optimizer = _add_mixed_precision_wrapper(optimizer)
         self._optimizer = optimizer
 
     @property
@@ -316,11 +327,17 @@ class Trainer:
             if tf.executing_eagerly():
                 with tf.GradientTape() as tape:
                     training_loss, reported_loss = self._run_model(source, target)
+                    if self._mixed_precision:
+                        training_loss = self._optimizer.get_scaled_loss(training_loss)
                 gradients = tape.gradient(
                     training_loss, self._model.trainable_variables
                 )
+                if self._mixed_precision:
+                    gradients = self._optimizer.get_unscaled_gradients(gradients)
             else:
                 training_loss, reported_loss = self._run_model(source, target)
+                # In mixed precision training, LossScaleOptimizer.get_gradients takes care
+                # of loss scaling.
                 gradients = self._optimizer.get_gradients(
                     training_loss, self._model.trainable_variables
                 )

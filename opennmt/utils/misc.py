@@ -14,6 +14,8 @@ import tensorflow_addons as tfa
 
 from tensorflow.python.training.tracking import graph_view
 
+from opennmt.utils import compat
+
 
 def get_devices(count=1, fallback_to_cpu=True):
     """Gets devices.
@@ -46,6 +48,33 @@ def get_devices(count=1, fallback_to_cpu=True):
             )
         )
     return devices[0:count]
+
+
+# TODO: clean mixed precision API when TensorFlow requirement is updated to >=2.4.
+_set_global_policy = compat.tf_any(
+    "keras.mixed_precision.set_global_policy",
+    "keras.mixed_precision.experimental.set_policy",
+)
+_get_global_policy = compat.tf_any(
+    "keras.mixed_precision.global_policy",
+    "keras.mixed_precision.experimental.global_policy",
+)
+
+
+def enable_mixed_precision():
+    """Globally enables mixed precision."""
+    _set_global_policy("mixed_float16")
+
+
+def disable_mixed_precision():
+    """Gloabally disables mixed precision."""
+    _set_global_policy("float32")
+
+
+def mixed_precision_enabled():
+    """Returns ``True`` if mixed precision is enabled."""
+    policy = _get_global_policy()
+    return "float16" in policy.name
 
 
 def get_variables_name_mapping(root, root_key=None):
