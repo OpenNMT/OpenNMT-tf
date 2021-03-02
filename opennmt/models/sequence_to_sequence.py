@@ -198,6 +198,8 @@ class SequenceToSequence(model.SequenceGenerator):
         Args:
           ids: A 1-dimensional tensor with the ids of the sentence you want to predict
         """
+        if not self.built:
+            self.build(None)
         ids = tf.expand_dims(ids, axis=0)
         source_inputs = self.features_inputter.tflite_call(ids)
         source_length = tf.convert_to_tensor([tf.math.count_nonzero(ids)])

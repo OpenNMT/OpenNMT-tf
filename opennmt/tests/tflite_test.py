@@ -18,7 +18,6 @@ def _create_vocab(temp_dir):
 def _make_model(model_template, vocab):
     model = model_template()
     model.initialize(dict(source_vocabulary=vocab, target_vocabulary=vocab))
-    model.create_variables()
     return model
 
 
@@ -37,10 +36,7 @@ def _get_predictions(model, dataset, vocab_path):
 
     _, pred = model(elem)
     pred_ids = tf.squeeze(tokens_to_ids.lookup(pred["tokens"]))
-    tflite_concrete_fn = tf.function(
-        model.infer_tflite,
-        input_signature=[tf.TensorSpec([None], dtype=tf.dtypes.int32, name="ids")],
-    ).get_concrete_function()
+    tflite_concrete_fn = model.tflite_function().get_concrete_function()
     tflite_pred_ids = tflite_concrete_fn(elem_ids)
 
     # Modify tflite ids tensor to be the same size as normal model output
