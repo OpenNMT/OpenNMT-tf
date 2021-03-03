@@ -82,7 +82,7 @@ def run_with_mixed_precision(fn):
     """Enables mixed precision before running :obj:`fn`."""
 
     def decorator(*args, **kwargs):
-        misc.enable_mixed_precision()
+        misc.enable_mixed_precision(force=True)
         try:
             return fn(*args, **kwargs)
         finally:
