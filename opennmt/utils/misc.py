@@ -71,23 +71,26 @@ def enable_mixed_precision(force=False):
     Returns:
       A boolean to indicate whether mixed precision was enabled or not.
     """
-    gpu_devices = tf.config.get_visible_devices("GPU")
-    if not gpu_devices:
-        tf.get_logger().warning("Mixed precision not enabled: no GPU is detected")
-        return False
+    if not force:
+        gpu_devices = tf.config.get_visible_devices("GPU")
+        if not gpu_devices:
+            tf.get_logger().warning("Mixed precision not enabled: no GPU is detected")
+            return False
 
-    gpu_details = tf.config.experimental.get_device_details(gpu_devices[0])
-    compute_capability = gpu_details.get("compute_capability")
-    if compute_capability is None:
-        tf.get_logger().warning("Mixed precision not enabled: a NVIDIA GPU is required")
-        return False
-    if compute_capability < (7, 0):
-        tf.get_logger().warning(
-            "Mixed precision not enabled: a NVIDIA GPU with compute "
-            "capability 7.0 or above is required, but the detected GPU "
-            "has compute capability %d.%d" % compute_capability
-        )
-        return False
+        gpu_details = tf.config.experimental.get_device_details(gpu_devices[0])
+        compute_capability = gpu_details.get("compute_capability")
+        if compute_capability is None:
+            tf.get_logger().warning(
+                "Mixed precision not enabled: a NVIDIA GPU is required"
+            )
+            return False
+        if compute_capability < (7, 0):
+            tf.get_logger().warning(
+                "Mixed precision not enabled: a NVIDIA GPU with compute "
+                "capability 7.0 or above is required, but the detected GPU "
+                "has compute capability %d.%d" % compute_capability
+            )
+            return False
 
     _set_global_policy("mixed_float16")
     return True
