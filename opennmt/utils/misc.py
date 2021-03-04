@@ -97,7 +97,7 @@ def enable_mixed_precision(force=False):
 
 
 def disable_mixed_precision():
-    """Gloabally disables mixed precision."""
+    """Globally disables mixed precision."""
     _set_global_policy("float32")
 
 
