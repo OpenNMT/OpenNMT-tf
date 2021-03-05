@@ -73,7 +73,6 @@ setup(
     extras_require={
         "tensorflow": ["tensorflow" + tf_version_requirement],
         "tensorflow-cpu": ["tensorflow-cpu" + tf_version_requirement],
-        "tensorflow-gpu": ["tensorflow-gpu" + tf_version_requirement],
         "tests": tests_require,
     },
     tests_require=tests_require,
