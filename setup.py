@@ -2,6 +2,7 @@ import os
 
 from setuptools import setup, find_packages
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
 tests_require = [
     "black==20.8b1",
     "flake8==3.8.*",
@@ -11,14 +12,28 @@ tests_require = [
 
 
 def get_long_description():
-    readme_path = os.path.join(os.path.dirname(__file__), "README.md")
+    readme_path = os.path.join(base_dir, "README.md")
     with open(readme_path, encoding="utf-8") as readme_file:
         return readme_file.read()
 
 
+def get_project_version():
+    version = {}
+    with open(os.path.join(base_dir, "opennmt", "version.py"), encoding="utf-8") as fp:
+        exec(fp.read(), version)
+    return version
+
+
+version = get_project_version()
+tf_version_requirement = ">=%s,<%s" % (
+    version["INCLUSIVE_MIN_TF_VERSION"],
+    version["EXCLUSIVE_MAX_TF_VERSION"],
+)
+
+
 setup(
     name="OpenNMT-tf",
-    version="2.16.0",
+    version=version["__version__"],
     license="MIT",
     description="Neural machine translation and sequence learning using TensorFlow",
     long_description=get_long_description(),
@@ -53,10 +68,11 @@ setup(
         "pyyaml>=5.3,<5.5",
         "rouge>=1.0,<2",
         "sacrebleu>=1.5.0,<1.6",
-        "tensorflow>=2.3,<2.5",
         "tensorflow-addons>=0.12,<0.13",
     ],
     extras_require={
+        "tensorflow": ["tensorflow" + tf_version_requirement],
+        "tensorflow-cpu": ["tensorflow-cpu" + tf_version_requirement],
         "tests": tests_require,
     },
     tests_require=tests_require,

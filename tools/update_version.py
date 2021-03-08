@@ -5,7 +5,6 @@ import re
 
 SRC_DIR = "."
 VERSION_FILE = "%s/opennmt/version.py" % SRC_DIR
-SETUP_PY = "%s/setup.py" % SRC_DIR
 CHANGELOG = "%s/CHANGELOG.md" % SRC_DIR
 
 
@@ -37,9 +36,6 @@ def main():
         '__version__ = "%s"' % current_version,
         '__version__ = "%s"' % new_version,
         VERSION_FILE,
-    )
-    replace_string_in_file(
-        'version="%s"' % current_version, 'version="%s"' % new_version, SETUP_PY
     )
     replace_string_in_file(
         r"## \[Unreleased\]",
