@@ -94,6 +94,9 @@ class TFLiteExporter(Exporter):
         self._quantization = quantization
 
     def _export_model(self, model, export_dir):
+        if not model.built:
+            model.create_variables()
+
         # Tries to run prediction with TensorFlow Lite method it will convert
         tflite_concrete_fn = model.tflite_function().get_concrete_function()
 
