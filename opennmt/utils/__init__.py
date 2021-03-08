@@ -20,6 +20,8 @@ from opennmt.utils.exporters import CTranslate2Int8Exporter
 from opennmt.utils.exporters import CheckpointExporter
 from opennmt.utils.exporters import Exporter
 from opennmt.utils.exporters import SavedModelExporter
+from opennmt.utils.exporters import TFLiteExporter
+from opennmt.utils.exporters import TFLiteFloat16Exporter
 from opennmt.utils.exporters import register_exporter
 
 from opennmt.utils.losses import cross_entropy_loss
