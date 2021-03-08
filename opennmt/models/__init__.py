@@ -28,6 +28,3 @@ from opennmt.models.sequence_to_sequence import SequenceToSequence
 from opennmt.models.sequence_to_sequence import SequenceToSequenceInputter
 
 from opennmt.models.transformer import Transformer
-
-# Export TransformerRelative for backward compatibility.
-TransformerRelative = TransformerBaseRelative
