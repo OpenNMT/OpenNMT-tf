@@ -104,7 +104,7 @@ Mixed precision can be enabled with the `--mixed_precision` flag:
 onmt-main --model_type Transformer --auto_config --config data.yml --mixed_precision train
 ```
 
-It uses TensorFlow's `auto_mixed_precision` optimization which converts selected nodes in the graph to `float16`. During training, dynamic loss scaling is used.
+This mode enables the Keras "mixed\_float16" policy where layers use float16 computations and float32 variables. During training, dynamic loss scaling is used to prevent underflow in intermediate gradients. See the TensorFlow [mixed precision guide](https://www.tensorflow.org/guide/mixed_precision) for more information.
 
 ### Maximizing the FP16 performance
 

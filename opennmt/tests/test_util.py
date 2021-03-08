@@ -8,6 +8,7 @@ from tensorflow.python.framework import ops
 from opennmt import constants
 from opennmt.data import vocab
 from opennmt.utils import compat
+from opennmt.utils import misc
 
 
 def skip_if_unsupported(symbol):
@@ -73,5 +74,18 @@ def run_with_two_cpu_devices(fn):
             return fn(*args, **kwargs)
         finally:
             _reset_context()
+
+    return decorator
+
+
+def run_with_mixed_precision(fn):
+    """Enables mixed precision before running :obj:`fn`."""
+
+    def decorator(*args, **kwargs):
+        misc.enable_mixed_precision(force=True)
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            misc.disable_mixed_precision()
 
     return decorator

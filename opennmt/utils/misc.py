@@ -14,6 +14,8 @@ import tensorflow_addons as tfa
 
 from tensorflow.python.training.tracking import graph_view
 
+from opennmt.utils import compat
+
 
 def get_devices(count=1, fallback_to_cpu=True):
     """Gets devices.
@@ -46,6 +48,63 @@ def get_devices(count=1, fallback_to_cpu=True):
             )
         )
     return devices[0:count]
+
+
+# TODO: clean mixed precision API when TensorFlow requirement is updated to >=2.4.
+_set_global_policy = compat.tf_any(
+    "keras.mixed_precision.set_global_policy",
+    "keras.mixed_precision.experimental.set_policy",
+)
+_get_global_policy = compat.tf_any(
+    "keras.mixed_precision.global_policy",
+    "keras.mixed_precision.experimental.global_policy",
+)
+
+
+def enable_mixed_precision(force=False):
+    """Globally enables mixed precision if the detected harward supports it.
+
+    Args:
+      force: Set ``True`` to force mixed precision mode even if the hardware
+        does not support it.
+
+    Returns:
+      A boolean to indicate whether mixed precision was enabled or not.
+    """
+    if not force:
+        gpu_devices = tf.config.get_visible_devices("GPU")
+        if not gpu_devices:
+            tf.get_logger().warning("Mixed precision not enabled: no GPU is detected")
+            return False
+
+        gpu_details = tf.config.experimental.get_device_details(gpu_devices[0])
+        compute_capability = gpu_details.get("compute_capability")
+        if compute_capability is None:
+            tf.get_logger().warning(
+                "Mixed precision not enabled: a NVIDIA GPU is required"
+            )
+            return False
+        if compute_capability < (7, 0):
+            tf.get_logger().warning(
+                "Mixed precision not enabled: a NVIDIA GPU with compute "
+                "capability 7.0 or above is required, but the detected GPU "
+                "has compute capability %d.%d" % compute_capability
+            )
+            return False
+
+    _set_global_policy("mixed_float16")
+    return True
+
+
+def disable_mixed_precision():
+    """Globally disables mixed precision."""
+    _set_global_policy("float32")
+
+
+def mixed_precision_enabled():
+    """Returns ``True`` if mixed precision is enabled."""
+    policy = _get_global_policy()
+    return "float16" in policy.name
 
 
 def get_variables_name_mapping(root, root_key=None):

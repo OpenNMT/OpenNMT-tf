@@ -3,6 +3,7 @@ import os
 import unittest
 import shutil
 
+from distutils.version import LooseVersion
 from parameterized import parameterized, parameterized_class
 
 import tensorflow as tf
@@ -148,6 +149,27 @@ class RunnerTest(tf.test.TestCase):
         }
         runner = self._getTransliterationRunner(config)
         runner.train(num_devices=2)
+
+    @test_util.run_with_mixed_precision
+    def testTrainMixedPrecision(self):
+        if tf.config.functions_run_eagerly() and LooseVersion(tf.__version__) < "2.4.0":
+            # TODO: remove this skipTest once TensorFlow requirement is updated to >=2.4.
+            self.skipTest(
+                "Mixed precision not working with TensorFlow 2.3 + eager execution"
+            )
+        self.assertTrue(misc.mixed_precision_enabled())
+        ar_file, en_file = self._makeTransliterationData()
+        config = {
+            "data": {"train_features_file": ar_file, "train_labels_file": en_file},
+            "params": {"learning_rate": 0.0005, "optimizer": "Adam"},
+            "train": {
+                "batch_size": 2,
+                "length_bucket_width": None,
+                "max_step": 145003,
+            },
+        }
+        runner = self._getTransliterationRunner(config)
+        runner.train()
 
     def testTrainWithEval(self):
         ar_file, en_file = self._makeTransliterationData()

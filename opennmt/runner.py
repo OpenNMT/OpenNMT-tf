@@ -85,9 +85,9 @@ class Runner(object):
         self._optimizer = None
         self._config = copy.deepcopy(config)
         self._auto_config = auto_config
-        self._mixed_precision = mixed_precision
-        if mixed_precision:
-            tf.config.optimizer.set_experimental_options({"auto_mixed_precision": True})
+        self._mixed_precision = (
+            misc.enable_mixed_precision() if mixed_precision else False
+        )
         if seed is not None:
             np.random.seed(seed)
             random.seed(seed)
