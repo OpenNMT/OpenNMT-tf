@@ -564,6 +564,68 @@ class InputterTest(tf.test.TestCase):
         )
         self.assertIsInstance(dataset, tf.data.Dataset)
 
+    def testBatchAutotuneDataset(self):
+        vocab_file = self._makeTextFile("vocab.txt", ["1", "2", "3", "4"])
+        data_file = self._makeTextFile("data.txt", ["hello world !"])
+        source_inputter = text_inputter.WordEmbedder(embedding_size=10)
+        target_inputter = text_inputter.WordEmbedder(embedding_size=10)
+        target_inputter.set_decoder_mode(mark_start=True, mark_end=True)
+        example_inputter = inputter.ExampleInputter(source_inputter, target_inputter)
+        example_inputter.initialize(
+            {"source_vocabulary": vocab_file, "target_vocabulary": vocab_file}
+        )
+
+        dataset = example_inputter.make_training_dataset(
+            data_file,
+            data_file,
+            batch_size=1024,
+            batch_type="tokens",
+            maximum_features_length=100,
+            maximum_labels_length=120,
+            batch_autotune_mode=True,
+        )
+
+        source, target = next(iter(dataset))
+        self.assertListEqual(source["ids"].shape.as_list(), [8, 100])
+        self.assertListEqual(target["ids"].shape.as_list(), [8, 120])
+        self.assertListEqual(target["ids_out"].shape.as_list(), [8, 120])
+
+    def testBatchAutotuneDatasetMultiSource(self):
+        vocab_file = self._makeTextFile("vocab.txt", ["1", "2", "3", "4"])
+        data_file = self._makeTextFile("data.txt", ["hello world !"])
+        source_inputter = inputter.ParallelInputter(
+            [
+                text_inputter.WordEmbedder(embedding_size=10),
+                text_inputter.WordEmbedder(embedding_size=10),
+            ]
+        )
+        target_inputter = text_inputter.WordEmbedder(embedding_size=10)
+        target_inputter.set_decoder_mode(mark_start=True, mark_end=True)
+        example_inputter = inputter.ExampleInputter(source_inputter, target_inputter)
+        example_inputter.initialize(
+            {
+                "source_1_vocabulary": vocab_file,
+                "source_2_vocabulary": vocab_file,
+                "target_vocabulary": vocab_file,
+            }
+        )
+
+        dataset = example_inputter.make_training_dataset(
+            [data_file, data_file],
+            data_file,
+            batch_size=1024,
+            batch_type="tokens",
+            maximum_features_length=[100, 110],
+            maximum_labels_length=120,
+            batch_autotune_mode=True,
+        )
+
+        source, target = next(iter(dataset))
+        self.assertListEqual(source["inputter_0_ids"].shape.as_list(), [8, 100])
+        self.assertListEqual(source["inputter_1_ids"].shape.as_list(), [8, 110])
+        self.assertListEqual(target["ids"].shape.as_list(), [8, 120])
+        self.assertListEqual(target["ids_out"].shape.as_list(), [8, 120])
+
     def testExampleInputterAsset(self):
         vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
         source_inputter = text_inputter.WordEmbedder(embedding_size=10)

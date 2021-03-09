@@ -6,7 +6,6 @@ import sys
 import random
 import math
 import subprocess
-import time
 import tempfile
 import yaml
 
@@ -127,17 +126,23 @@ class Runner(object):
             # Auto tune batch size.
             if batch_size is None or batch_size == 0:
                 if train_config["batch_type"] == "examples":
-                    raise ValueError(
-                        'Batch size autotuning is only supported for the "tokens" batch type'
-                    )
-                max_batch_size = 16384
+                    min_batch_size = 1
+                    max_batch_size = 512
+                    min_range = 16
+                else:
+                    min_batch_size = 256
+                    max_batch_size = 16384
+                    min_range = 256
+
                 if train_config.get("effective_batch_size") is not None:
                     max_batch_size = min(
                         max_batch_size, train_config["effective_batch_size"]
                     )
                 train_config["batch_size"] = _auto_tune_batch_size(
                     config,
+                    min_batch_size=min_batch_size,
                     max_batch_size=max_batch_size,
+                    min_range=min_range,
                     num_devices=num_devices,
                     mixed_precision=self._mixed_precision,
                 )
@@ -222,6 +227,7 @@ class Runner(object):
                 prefetch_buffer_size=train_config.get("prefetch_buffer_size"),
                 cardinality_multiple=input_context.num_replicas_in_sync,
                 weights=data_config.get("train_files_weights"),
+                batch_autotune_mode=train_config.get("batch_autotune_mode"),
             )
         )
 
@@ -476,12 +482,12 @@ def _count_batch_accum(batch_size, target_batch_size, num_replicas=1):
 
 def _auto_tune_batch_size(
     config,
-    min_batch_size=1024,
-    max_batch_size=16384,
-    min_range=256,
-    sample_iterations=10,
+    min_batch_size,
+    max_batch_size,
+    min_range,
+    sample_iterations=5,
     num_devices=1,
-    scaling_factor=0.8,
+    scaling_factor=0.9,
     mixed_precision=False,
 ):
     """Find the largest token-based batch size that can be used with this
@@ -509,55 +515,51 @@ def _auto_tune_batch_size(
     Returns:
       The autotuned batch size.
     """
-    model_dir = config["model_dir"]
-    with tempfile.TemporaryDirectory() as tmpdir:
-        config = copy.deepcopy(config)
-        config["model_dir"] = tmpdir
-        config["train"]["save_checkpoints_steps"] = None
-        config["train"]["average_last_checkpoints"] = 0
-        config["train"]["max_step"] = sample_iterations
-        config_path = os.path.join(config["model_dir"], "batch_size_autotuner.yml")
-        model_description = os.path.join(model_dir, "model_description.py")
+    tf.get_logger().info(
+        "Searching the largest batch size between %d and %d with a precision of %d...",
+        min_batch_size,
+        max_batch_size,
+        min_range,
+    )
 
-        args = [
-            sys.executable or "python",
-            "-m",
-            "opennmt.bin.main",
-            "--config",
-            config_path,
-            "--model",
-            model_description,
-            "--checkpoint_path",
-            model_dir,
-        ]
-        if mixed_precision:
-            args.extend(["--mixed_precision"])
-        args.extend(
-            [
-                "train",
-                "--num_gpus",
-                str(num_devices),
-            ]
-        )
+    model_description = os.path.join(config["model_dir"], "model_description.py")
 
-        tf.get_logger().info(
-            "Searching the largest batch size between %d and %d with a precision of %d...",
-            min_batch_size,
-            max_batch_size,
-            min_range,
-        )
+    while max_batch_size - min_batch_size > min_range:
+        batch_size = (max_batch_size + min_batch_size) // 2
 
-        while max_batch_size - min_batch_size > min_range:
-            batch_size = (max_batch_size + min_batch_size) // 2
+        with tempfile.TemporaryDirectory() as tmpdir:
+            run_config = copy.deepcopy(config)
+            run_config["model_dir"] = tmpdir
+            run_config["train"]["batch_autotune_mode"] = True
+            run_config["train"]["batch_size"] = batch_size
+            run_config["train"]["save_checkpoints_steps"] = None
+            run_config["train"]["average_last_checkpoints"] = 0
+            run_config["train"]["max_step"] = sample_iterations
 
-            # Update configuration with current batch size and adjusted gradients
-            # accumulation.
-            config["train"]["batch_size"] = batch_size
+            config_path = os.path.join(tmpdir, "batch_size_autotuner.yml")
             with tf.io.gfile.GFile(config_path, mode="w") as config_file:
-                yaml.dump(config, config_file)
+                yaml.dump(run_config, config_file)
+
+            args = [
+                sys.executable or "python",
+                "-m",
+                "opennmt.bin.main",
+                "--config",
+                config_path,
+                "--model",
+                model_description,
+            ]
+            if mixed_precision:
+                args.extend(["--mixed_precision"])
+            args.extend(
+                [
+                    "train",
+                    "--num_gpus",
+                    str(num_devices),
+                ]
+            )
 
             tf.get_logger().info("Trying training with batch size %d...", batch_size)
-            time.sleep(1)
             with open(os.devnull, "w") as devnull:
                 process = subprocess.Popen(args, stdout=devnull, stderr=devnull)
                 exit_code = process.wait()
