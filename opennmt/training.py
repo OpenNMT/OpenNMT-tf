@@ -30,7 +30,7 @@ def _add_mixed_precision_wrapper(optimizer):
 class Trainer:
     """Base class for model trainer, implementing single-GPU training."""
 
-    def __init__(self, model, optimizer, checkpoint=None, is_master=True):
+    def __init__(self, model, optimizer, checkpoint=None):
         """Initializes the trainer.
 
         Args:
@@ -38,10 +38,8 @@ class Trainer:
           optimizer: A ``tf.keras.optimizers.Optimizer`` instance.
           checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance. If
             not set, no checkpoints will be saved.
-          is_master: Whether this trainer instance is the master trainer.
         """
         self._checkpoint = checkpoint
-        self._is_master = is_master
         self._model = model
         if checkpoint is not None:
             self._summary_writer = tf.summary.create_file_writer(checkpoint.model_dir)
@@ -56,6 +54,11 @@ class Trainer:
         if self._mixed_precision:
             optimizer = _add_mixed_precision_wrapper(optimizer)
         self._optimizer = optimizer
+
+    @property
+    def is_master(self):
+        """Master replica."""
+        return True
 
     @property
     def num_replicas(self):
@@ -122,7 +125,7 @@ class Trainer:
                 if tf.math.is_nan(loss):
                     raise RuntimeError("Model diverged with loss = NaN.")
 
-                if moving_average_decay is not None and self._is_master:
+                if moving_average_decay is not None and self.is_master:
                     if moving_average is None:
                         moving_average = MovingAverage(
                             self._model.trainable_variables,
@@ -135,7 +138,7 @@ class Trainer:
                 reset_throughput = False
                 self._training_stats.update_on_step(step, loss)
                 if step % report_steps == 0:
-                    self._training_stats.log(self._is_master)
+                    self._training_stats.log(self.is_master)
                     reset_throughput = True
                 if step == 1 or (save_steps is not None and step % save_steps == 0):
                     self._save_checkpoint(step, moving_average=moving_average)
@@ -163,7 +166,7 @@ class Trainer:
                     "consistent with your data."
                 )
 
-            self._training_stats.log_final(self._is_master)
+            self._training_stats.log_final(self.is_master)
             summary = self._training_stats.get_global_summary()
             self._save_checkpoint(step, moving_average=moving_average)
             self._evaluate(evaluator, step, moving_average=moving_average)
@@ -172,7 +175,7 @@ class Trainer:
     def _save_checkpoint(self, step, moving_average=None):
         """Saves a checkpoint for step."""
         if (
-            not self._is_master
+            not self.is_master
             or self._checkpoint is None
             or step == self._checkpoint.last_saved_step
         ):
@@ -188,7 +191,7 @@ class Trainer:
     def _evaluate(self, evaluator, step, moving_average=None):
         """Runs evaluation for step. Returns ``True`` is early conditions are met."""
         if (
-            not self._is_master
+            not self.is_master
             or evaluator is None
             or step == evaluator.last_evaluated_step
         ):
@@ -296,7 +299,7 @@ class Trainer:
             training_loss, variables=self._model.trainable_variables
         )
         self._training_stats.update_on_example(source, target)
-        if first_call and self._is_master:
+        if first_call and self.is_master:
             if self._checkpoint is not None:
                 self._model.visualize(self._checkpoint.model_dir)
             tf.get_logger().info(
@@ -312,7 +315,7 @@ class Trainer:
 
     def _should_record_summaries(self, report_steps, with_accum=False):
         """Returns a boolean tensor to be used in tf.summary.record_if."""
-        if report_steps is None or not self._is_master:
+        if report_steps is None or not self.is_master:
             return False
         record_summaries = tf.equal(self._optimizer.iterations % report_steps, 0)
         if with_accum:
@@ -405,10 +408,12 @@ class HorovodTrainer(Trainer):
           checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance. If
             not set, no checkpoints will be saved.
         """
-        super().__init__(
-            model, optimizer, checkpoint=checkpoint, is_master=hvd.rank() == 0
-        )
+        super().__init__(model, optimizer, checkpoint=checkpoint)
         self._hvd = hvd
+
+    @property
+    def is_master(self):
+        return self._hvd.rank() == 0
 
     @property
     def num_replicas(self):
