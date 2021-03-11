@@ -74,27 +74,29 @@ eval:
 
 ## Multi-GPU training
 
-OpenNMT-tf training can make use of multiple GPUs. In this mode, the graph is replicated over multiple devices and batches are processed in parallel. The resulting graph is equivalent to train with batches `N` times larger, where `N` is the number of used GPUs.
-
-For example, if your machine has 4 GPUs, simply add the `--num_gpus` option:
+OpenNMT-tf training can run on multiple GPUs. For example if your machine has 4 GPUs, simply add `--num_gpus 4` to the training command line:
 
 ```bash
 onmt-main [...] train --num_gpus 4
 ```
 
+Multi-GPU training uses data parallelism. Each GPU computes the gradients for a different batch and then gradients are reduced across all devices. The reduced gradients are used to update the model parameters. It is equivalent to train with batches `N` times larger, where `N` is the number of used GPUs.
+
 Note that evaluation and inference will run on a single device.
 
 ## Distributed training with Horovod
 
-The `--horovod` training flag enables distributed training with [Horovod](https://github.com/horovod/horovod):
+Multi-GPU and multi-node trainings are also supported with [Horovod](https://github.com/horovod/horovod), a popular and generic distributed training framework. Horovod can offer better performance and customization than the TensorFlow distributed framework.
+
+For example, the command below will start a local training on 4 GPUs (note the `--horovod` training flag):
 
 ```bash
-onmt-main [...] train --horovod
+horovodrun -np 4 -H localhost:4 onmt-main [...] train --horovod
 ```
 
 Similar to multi-GPU training, this is equivalent to train with batches `N` times larger, where `N` is the total number of Horovod processes.
 
-See the [Horovod documentation](https://horovod.readthedocs.io/en/latest/index.html) for more information about installation and usage.
+See the [Horovod documentation](https://horovod.readthedocs.io/en/stable/index.html) for more information about installation and usage.
 
 ## Mixed precision training
 
