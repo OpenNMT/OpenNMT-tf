@@ -15,6 +15,26 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.17.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.17.0) (2021-03-15)
+
+### Changes
+
+* The `tensorflow` package is no longer a direct dependency of OpenNMT-tf and should be installed separately. This is to facilitate support of other TensorFlow packages such as `intel-tensorflow`, `tensorflow-rocm`, etc. Use `pip install OpenNMT-tf[tensorflow]` to keep the previous behavior.
+
+### New features
+
+* Use the [Keras mixed precision API](https://www.tensorflow.org/guide/mixed_precision) instead of the `auto_mixed_precision` graph optimization pass
+* Support mixed precision training in eager execution (for debugging)
+* Support batch size autotuning with the "examples" batch type
+
+### Fixes and improvements
+
+* Fix some TensorFlow Lite conversion errors
+* Improve batch size autotuning accuracy by building batches with the maximum sequence lengths
+* Reduce batch size autotuning time by running less iterations and disabling dataset buffering
+* Scale the loss instead of the gradients when aggregating multiple batches
+* Address some deprecation warnings in TensorFlow 2.4
+
 ## [2.16.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.16.0) (2021-02-25)
 
 ### Changes (non breaking)
