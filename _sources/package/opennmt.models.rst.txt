@@ -29,7 +29,6 @@ Classes
    opennmt.models.TransformerBaseRelative
    opennmt.models.TransformerBig
    opennmt.models.TransformerBigRelative
-   opennmt.models.TransformerRelative
 
 Functions
 ---------

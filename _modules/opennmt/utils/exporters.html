@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.16.0 documentation</title>
+  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.17.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.16
+                2.17
               </div>
             
           
@@ -261,7 +261,7 @@
         <span class="n">checkpoint</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="s2">&quot;ckpt&quot;</span><span class="p">))</span></div>
 
 
-<span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;tflite&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="TFLiteExporter"><a class="viewcode-back" href="../../../package/opennmt.utils.TFLiteExporter.html#opennmt.utils.TFLiteExporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;tflite&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TFLiteExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;TensorFlow Lite exporter.&quot;&quot;&quot;</span>
 
@@ -275,6 +275,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_quantization</span> <span class="o">=</span> <span class="n">quantization</span>
 
     <span class="k">def</span> <span class="nf">_export_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">create_variables</span><span class="p">()</span>
+
         <span class="c1"># Tries to run prediction with TensorFlow Lite method it will convert</span>
         <span class="n">tflite_concrete_fn</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">tflite_function</span><span class="p">()</span><span class="o">.</span><span class="n">get_concrete_function</span><span class="p">()</span>
 
@@ -293,15 +296,15 @@
         <span class="n">tflite_model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="s2">&quot;opennmt.tflite&quot;</span><span class="p">)</span>
         <span class="n">tflite_model</span> <span class="o">=</span> <span class="n">converter</span><span class="o">.</span><span class="n">convert</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">tflite_model_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tflite_model</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tflite_model</span><span class="p">)</span></div>
 
 
-<span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;tflite_float16&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="TFLiteFloat16Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.TFLiteFloat16Exporter.html#opennmt.utils.TFLiteFloat16Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;tflite_float16&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TFLiteFloat16Exporter</span><span class="p">(</span><span class="n">TFLiteExporter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;TensorFlow Lite exporter with float16 quantization.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;float16&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;float16&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CTranslate2Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Exporter.html#opennmt.utils.CTranslate2Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ctranslate2&quot;</span><span class="p">)</span>

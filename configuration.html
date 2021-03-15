@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parameters &mdash; OpenNMT-tf 2.16.0 documentation</title>
+  <title>Parameters &mdash; OpenNMT-tf 2.17.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.16
+                2.17
               </div>
             
           
@@ -263,8 +263,8 @@
   <span class="nt">target_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/toy-ende/tgt-vocab.txt</span>
 
   <span class="c1"># (optional) During export save the vocabularies as model assets, otherwise embed</span>
-  <span class="c1"># them in the graph itself (default: True).</span>
-  <span class="nt">export_vocabulary_assets</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+  <span class="c1"># them in the graph itself (default: true).</span>
+  <span class="nt">export_vocabulary_assets</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
 
   <span class="c1"># (optional) Tokenization configuration (or path to a configuration file).</span>
   <span class="c1"># See also: https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md</span>
@@ -280,9 +280,9 @@
   <span class="c1"># (optional) Pretrained embedding configuration.</span>
   <span class="nt">source_embedding</span><span class="p">:</span>
     <span class="nt">path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">data/glove/glove-100000.txt</span>
-    <span class="nt">with_header</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
-    <span class="nt">case_insensitive</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
-    <span class="nt">trainable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
+    <span class="nt">with_header</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">case_insensitive</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">trainable</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
 
   <span class="c1"># (optional) For language models, configure sequence control tokens (usually</span>
   <span class="c1"># represented as &lt;s&gt; and &lt;/s&gt;). For example, enabling &quot;start&quot; and disabling &quot;end&quot;</span>

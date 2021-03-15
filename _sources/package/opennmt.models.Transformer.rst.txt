@@ -10,7 +10,6 @@ opennmt.models.Transformer
     **Extended by:**
 
     - :class:`opennmt.models.TransformerBase`
-    - :class:`opennmt.models.TransformerRelative`
+    - :class:`opennmt.models.TransformerBaseRelative`
     - :class:`opennmt.models.TransformerBig`
     - :class:`opennmt.models.TransformerBigRelative`
-    - :class:`opennmt.models.TransformerRelative`

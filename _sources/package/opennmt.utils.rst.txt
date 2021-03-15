@@ -28,6 +28,8 @@ Classes
    opennmt.utils.SavedModelExporter
    opennmt.utils.Scorer
    opennmt.utils.TERScorer
+   opennmt.utils.TFLiteExporter
+   opennmt.utils.TFLiteFloat16Exporter
    opennmt.utils.WERScorer
 
 Functions

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Training &mdash; OpenNMT-tf 2.16.0 documentation</title>
+  <title>Training &mdash; OpenNMT-tf 2.17.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.16
+                2.17
               </div>
             
           
@@ -263,21 +263,22 @@
 </div>
 <div class="section" id="multi-gpu-training">
 <h2>Multi-GPU training<a class="headerlink" href="#multi-gpu-training" title="Permalink to this headline">¶</a></h2>
-<p>OpenNMT-tf training can make use of multiple GPUs. In this mode, the graph is replicated over multiple devices and batches are processed in parallel. The resulting graph is equivalent to train with batches <code class="docutils literal notranslate"><span class="pre">N</span></code> times larger, where <code class="docutils literal notranslate"><span class="pre">N</span></code> is the number of used GPUs.</p>
-<p>For example, if your machine has 4 GPUs, simply add the <code class="docutils literal notranslate"><span class="pre">--num_gpus</span></code> option:</p>
+<p>OpenNMT-tf training can run on multiple GPUs. For example if your machine has 4 GPUs, simply add <code class="docutils literal notranslate"><span class="pre">--num_gpus</span> <span class="pre">4</span></code> to the training command line:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> train --num_gpus <span class="m">4</span>
 </pre></div>
 </div>
+<p>Multi-GPU training uses data parallelism. Each GPU computes the gradients for a different batch and then gradients are reduced across all devices. The reduced gradients are used to update the model parameters. It is equivalent to train with batches <code class="docutils literal notranslate"><span class="pre">N</span></code> times larger, where <code class="docutils literal notranslate"><span class="pre">N</span></code> is the number of used GPUs.</p>
 <p>Note that evaluation and inference will run on a single device.</p>
 </div>
 <div class="section" id="distributed-training-with-horovod">
 <h2>Distributed training with Horovod<a class="headerlink" href="#distributed-training-with-horovod" title="Permalink to this headline">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">--horovod</span></code> training flag enables distributed training with <a class="reference external" href="https://github.com/horovod/horovod">Horovod</a>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> train --horovod
+<p>Multi-GPU and multi-node trainings are also supported with <a class="reference external" href="https://github.com/horovod/horovod">Horovod</a>, a popular and generic distributed training framework. Horovod can offer better performance and customization than the TensorFlow distributed framework.</p>
+<p>For example, the command below will start a local training on 4 GPUs (note the <code class="docutils literal notranslate"><span class="pre">--horovod</span></code> training flag):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>horovodrun -np <span class="m">4</span> -H localhost:4 onmt-main <span class="o">[</span>...<span class="o">]</span> train --horovod
 </pre></div>
 </div>
 <p>Similar to multi-GPU training, this is equivalent to train with batches <code class="docutils literal notranslate"><span class="pre">N</span></code> times larger, where <code class="docutils literal notranslate"><span class="pre">N</span></code> is the total number of Horovod processes.</p>
-<p>See the <a class="reference external" href="https://horovod.readthedocs.io/en/latest/index.html">Horovod documentation</a> for more information about installation and usage.</p>
+<p>See the <a class="reference external" href="https://horovod.readthedocs.io/en/stable/index.html">Horovod documentation</a> for more information about installation and usage.</p>
 </div>
 <div class="section" id="mixed-precision-training">
 <h2>Mixed precision training<a class="headerlink" href="#mixed-precision-training" title="Permalink to this headline">¶</a></h2>
@@ -285,7 +286,7 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --model_type Transformer --auto_config --config data.yml --mixed_precision train
 </pre></div>
 </div>
-<p>It uses TensorFlow’s <code class="docutils literal notranslate"><span class="pre">auto_mixed_precision</span></code> optimization which converts selected nodes in the graph to <code class="docutils literal notranslate"><span class="pre">float16</span></code>. During training, dynamic loss scaling is used.</p>
+<p>This mode enables the Keras “mixed_float16” policy where layers use float16 computations and float32 variables. During training, dynamic loss scaling is used to prevent underflow in intermediate gradients. See the TensorFlow <a class="reference external" href="https://www.tensorflow.org/guide/mixed_precision">mixed precision guide</a> for more information.</p>
 <div class="section" id="maximizing-the-fp16-performance">
 <h3>Maximizing the FP16 performance<a class="headerlink" href="#maximizing-the-fp16-performance" title="Permalink to this headline">¶</a></h3>
 <p>Some extra steps may be required to ensure good FP16 performance:</p>

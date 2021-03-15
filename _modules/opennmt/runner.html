@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.16.0 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.17.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.16
+                2.17
               </div>
             
           
@@ -187,7 +187,6 @@
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 
@@ -266,9 +265,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_config</span> <span class="o">=</span> <span class="n">auto_config</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_mixed_precision</span> <span class="o">=</span> <span class="n">mixed_precision</span>
-        <span class="k">if</span> <span class="n">mixed_precision</span><span class="p">:</span>
-            <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">set_experimental_options</span><span class="p">({</span><span class="s2">&quot;auto_mixed_precision&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mixed_precision</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">misc</span><span class="o">.</span><span class="n">enable_mixed_precision</span><span class="p">()</span> <span class="k">if</span> <span class="n">mixed_precision</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
             <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
@@ -308,17 +307,23 @@
             <span class="c1"># Auto tune batch size.</span>
             <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">batch_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;batch_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;examples&quot;</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s1">&#39;Batch size autotuning is only supported for the &quot;tokens&quot; batch type&#39;</span>
-                    <span class="p">)</span>
-                <span class="n">max_batch_size</span> <span class="o">=</span> <span class="mi">16384</span>
+                    <span class="n">min_batch_size</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">max_batch_size</span> <span class="o">=</span> <span class="mi">512</span>
+                    <span class="n">min_range</span> <span class="o">=</span> <span class="mi">16</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">min_batch_size</span> <span class="o">=</span> <span class="mi">256</span>
+                    <span class="n">max_batch_size</span> <span class="o">=</span> <span class="mi">16384</span>
+                    <span class="n">min_range</span> <span class="o">=</span> <span class="mi">256</span>
+
                 <span class="k">if</span> <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;effective_batch_size&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">max_batch_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
                         <span class="n">max_batch_size</span><span class="p">,</span> <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;effective_batch_size&quot;</span><span class="p">]</span>
                     <span class="p">)</span>
                 <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_auto_tune_batch_size</span><span class="p">(</span>
                     <span class="n">config</span><span class="p">,</span>
+                    <span class="n">min_batch_size</span><span class="o">=</span><span class="n">min_batch_size</span><span class="p">,</span>
                     <span class="n">max_batch_size</span><span class="o">=</span><span class="n">max_batch_size</span><span class="p">,</span>
+                    <span class="n">min_range</span><span class="o">=</span><span class="n">min_range</span><span class="p">,</span>
                     <span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">,</span>
                     <span class="n">mixed_precision</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mixed_precision</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -403,6 +408,7 @@
                 <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prefetch_buffer_size&quot;</span><span class="p">),</span>
                 <span class="n">cardinality_multiple</span><span class="o">=</span><span class="n">input_context</span><span class="o">.</span><span class="n">num_replicas_in_sync</span><span class="p">,</span>
                 <span class="n">weights</span><span class="o">=</span><span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;train_files_weights&quot;</span><span class="p">),</span>
+                <span class="n">batch_autotune_mode</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;batch_autotune_mode&quot;</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
@@ -657,12 +663,12 @@
 
 <span class="k">def</span> <span class="nf">_auto_tune_batch_size</span><span class="p">(</span>
     <span class="n">config</span><span class="p">,</span>
-    <span class="n">min_batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
-    <span class="n">max_batch_size</span><span class="o">=</span><span class="mi">16384</span><span class="p">,</span>
-    <span class="n">min_range</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
-    <span class="n">sample_iterations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">min_batch_size</span><span class="p">,</span>
+    <span class="n">max_batch_size</span><span class="p">,</span>
+    <span class="n">min_range</span><span class="p">,</span>
+    <span class="n">sample_iterations</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
     <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">scaling_factor</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+    <span class="n">scaling_factor</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
     <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Find the largest token-based batch size that can be used with this</span>
@@ -690,55 +696,51 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      The autotuned batch size.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">model_dir</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">]</span>
-    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmpdir</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;save_checkpoints_steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;average_last_checkpoints&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;max_step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_iterations</span>
-        <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">],</span> <span class="s2">&quot;batch_size_autotuner.yml&quot;</span><span class="p">)</span>
-        <span class="n">model_description</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;model_description.py&quot;</span><span class="p">)</span>
+    <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Searching the largest batch size between </span><span class="si">%d</span><span class="s2"> and </span><span class="si">%d</span><span class="s2"> with a precision of </span><span class="si">%d</span><span class="s2">...&quot;</span><span class="p">,</span>
+        <span class="n">min_batch_size</span><span class="p">,</span>
+        <span class="n">max_batch_size</span><span class="p">,</span>
+        <span class="n">min_range</span><span class="p">,</span>
+    <span class="p">)</span>
 
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">executable</span> <span class="ow">or</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;opennmt.bin.main&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;--config&quot;</span><span class="p">,</span>
-            <span class="n">config_path</span><span class="p">,</span>
-            <span class="s2">&quot;--model&quot;</span><span class="p">,</span>
-            <span class="n">model_description</span><span class="p">,</span>
-            <span class="s2">&quot;--checkpoint_path&quot;</span><span class="p">,</span>
-            <span class="n">model_dir</span><span class="p">,</span>
-        <span class="p">]</span>
-        <span class="k">if</span> <span class="n">mixed_precision</span><span class="p">:</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--mixed_precision&quot;</span><span class="p">])</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="s2">&quot;train&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;--num_gpus&quot;</span><span class="p">,</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">num_devices</span><span class="p">),</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
+    <span class="n">model_description</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">],</span> <span class="s2">&quot;model_description.py&quot;</span><span class="p">)</span>
 
-        <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Searching the largest batch size between </span><span class="si">%d</span><span class="s2"> and </span><span class="si">%d</span><span class="s2"> with a precision of </span><span class="si">%d</span><span class="s2">...&quot;</span><span class="p">,</span>
-            <span class="n">min_batch_size</span><span class="p">,</span>
-            <span class="n">max_batch_size</span><span class="p">,</span>
-            <span class="n">min_range</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="k">while</span> <span class="n">max_batch_size</span> <span class="o">-</span> <span class="n">min_batch_size</span> <span class="o">&gt;</span> <span class="n">min_range</span><span class="p">:</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_batch_size</span> <span class="o">+</span> <span class="n">min_batch_size</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
 
-        <span class="k">while</span> <span class="n">max_batch_size</span> <span class="o">-</span> <span class="n">min_batch_size</span> <span class="o">&gt;</span> <span class="n">min_range</span><span class="p">:</span>
-            <span class="n">batch_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_batch_size</span> <span class="o">+</span> <span class="n">min_batch_size</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+            <span class="n">run_config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">run_config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmpdir</span>
+            <span class="n">run_config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;batch_autotune_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">run_config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;batch_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch_size</span>
+            <span class="n">run_config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;save_checkpoints_steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">run_config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;average_last_checkpoints&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">run_config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;max_step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_iterations</span>
 
-            <span class="c1"># Update configuration with current batch size and adjusted gradients</span>
-            <span class="c1"># accumulation.</span>
-            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;batch_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch_size</span>
+            <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">&quot;batch_size_autotuner.yml&quot;</span><span class="p">)</span>
             <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
-                <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">config_file</span><span class="p">)</span>
+                <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">run_config</span><span class="p">,</span> <span class="n">config_file</span><span class="p">)</span>
+
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">executable</span> <span class="ow">or</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;opennmt.bin.main&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;--config&quot;</span><span class="p">,</span>
+                <span class="n">config_path</span><span class="p">,</span>
+                <span class="s2">&quot;--model&quot;</span><span class="p">,</span>
+                <span class="n">model_description</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">mixed_precision</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;--mixed_precision&quot;</span><span class="p">])</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;train&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;--num_gpus&quot;</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">num_devices</span><span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
 
             <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Trying training with batch size </span><span class="si">%d</span><span class="s2">...&quot;</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">devnull</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">devnull</span><span class="p">:</span>
                 <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">devnull</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">devnull</span><span class="p">)</span>
                 <span class="n">exit_code</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>

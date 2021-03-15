@@ -1,0 +1,12 @@
+opennmt.utils.TFLiteExporter
+============================
+
+.. autoclass:: opennmt.utils.TFLiteExporter
+    :members:
+    :undoc-members:
+
+    **Inherits from:** :class:`opennmt.utils.Exporter`
+
+    **Extended by:**
+
+    - :class:`opennmt.utils.TFLiteFloat16Exporter`

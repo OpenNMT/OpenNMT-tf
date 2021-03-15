@@ -12,3 +12,4 @@ opennmt.utils.Exporter
     - :class:`opennmt.utils.CTranslate2Exporter`
     - :class:`opennmt.utils.CheckpointExporter`
     - :class:`opennmt.utils.SavedModelExporter`
+    - :class:`opennmt.utils.TFLiteExporter`

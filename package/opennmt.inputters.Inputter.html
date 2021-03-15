@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.inputters.Inputter &mdash; OpenNMT-tf 2.16.0 documentation</title>
+  <title>opennmt.inputters.Inputter &mdash; OpenNMT-tf 2.17.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.16
+                2.17
               </div>
             
           
@@ -348,6 +348,25 @@ inputter (e.g. &lt;s&gt; and/or &lt;/s&gt;).</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The length.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="opennmt.inputters.Inputter.get_padded_shapes">
+<code class="sig-name descname">get_padded_shapes</code><span class="sig-paren">(</span><em class="sig-param">element_spec</em>, <em class="sig-param">maximum_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.get_padded_shapes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.get_padded_shapes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the padded shapes for dataset elements.</p>
+<p>For example, this is used during batch size autotuning to pad all batches
+to the maximum sequence length.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element_spec</strong> – A nested structure of <code class="docutils literal notranslate"><span class="pre">tf.TensorSpec</span></code>.</p></li>
+<li><p><strong>maximum_length</strong> – Pad batches to this maximum length.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A nested structure of <code class="docutils literal notranslate"><span class="pre">tf.TensorShape</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>
