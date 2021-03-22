@@ -62,7 +62,7 @@ _get_global_policy = compat.tf_any(
 
 
 def enable_mixed_precision(force=False):
-    """Globally enables mixed precision if the detected harware supports it.
+    """Globally enables mixed precision if the detected hardware supports it.
 
     Args:
       force: Set ``True`` to force mixed precision mode even if the hardware
