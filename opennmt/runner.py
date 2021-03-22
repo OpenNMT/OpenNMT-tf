@@ -84,9 +84,7 @@ class Runner(object):
         self._optimizer = None
         self._config = copy.deepcopy(config)
         self._auto_config = auto_config
-        self._mixed_precision = (
-            misc.enable_mixed_precision() if mixed_precision else False
-        )
+        self._mixed_precision = mixed_precision
         if seed is not None:
             np.random.seed(seed)
             random.seed(seed)
@@ -197,6 +195,8 @@ class Runner(object):
         config = self._finalize_config(
             training=True, num_replicas=num_replicas, num_devices=num_devices
         )
+
+        mixed_precision = self._mixed_precision and misc.enable_mixed_precision()
         model = self._init_model(config)
         optimizer = model.get_optimizer()
 
@@ -205,10 +205,7 @@ class Runner(object):
         eval_config = config["eval"]
 
         batch_type = train_config["batch_type"]
-        if batch_type == "tokens" and self._mixed_precision:
-            batch_size_multiple = 8
-        else:
-            batch_size_multiple = 1
+        batch_size_multiple = 8 if mixed_precision and batch_type == "tokens" else 1
 
         dataset_fn = (
             lambda input_context: model.examples_inputter.make_training_dataset(
@@ -291,6 +288,9 @@ class Runner(object):
             )
         else:
             output_dir = checkpoint.model_dir
+
+        if mixed_precision:
+            misc.disable_mixed_precision()
 
         if return_summary:
             return output_dir, summary
