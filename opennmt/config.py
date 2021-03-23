@@ -14,6 +14,9 @@ from opennmt.schedules import lr_schedules as schedules_lib
 from opennmt.utils.misc import merge_dict
 
 
+MODEL_DESCRIPTION_FILENAME = "model_description.py"
+
+
 def load_model_module(path):
     """Loads a model configuration file.
 
@@ -102,7 +105,7 @@ def load_model(
     """
     if model_file and model_name:
         raise ValueError("only one of model_file and model_name should be set")
-    model_description_path = os.path.join(model_dir, "model_description.py")
+    model_description_path = os.path.join(model_dir, MODEL_DESCRIPTION_FILENAME)
 
     if model_file:
         model = load_model_from_file(model_file, as_builder=as_builder)

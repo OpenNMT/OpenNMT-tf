@@ -5,6 +5,7 @@ import os
 import sys
 import random
 import math
+import shutil
 import subprocess
 import tempfile
 import yaml
@@ -16,6 +17,7 @@ from opennmt import evaluation
 from opennmt import inference
 from opennmt import models
 from opennmt import training as training_util
+from opennmt.config import MODEL_DESCRIPTION_FILENAME
 from opennmt.utils import checkpoint as checkpoint_util
 from opennmt.utils import misc
 from opennmt.version import __version__
@@ -343,6 +345,7 @@ class Runner(object):
         output_dir = checkpoint_util.average_checkpoints(
             checkpoint.model_dir, output_dir, trackables, max_count=max_count
         )
+        _forward_model_description(self.model_dir, output_dir)
         self._config["model_dir"] = output_dir
         return output_dir
 
@@ -372,6 +375,7 @@ class Runner(object):
         )
         cur_checkpoint.restore()
         model.create_variables(optimizer=optimizer)
+        source_dir = self.model_dir
 
         self._config["model_dir"] = output_dir
         if src_vocab is not None:
@@ -391,6 +395,7 @@ class Runner(object):
         )
         new_optimizer.iterations.assign(optimizer.iterations)
         new_checkpoint.save()
+        _forward_model_description(source_dir, output_dir)
         return output_dir
 
     def infer(
@@ -473,6 +478,15 @@ class Runner(object):
         )
 
 
+def _forward_model_description(source, destination):
+    source = os.path.join(source, MODEL_DESCRIPTION_FILENAME)
+    if os.path.isfile(source):
+        if not os.path.isdir(destination):
+            os.makedirs(destination)
+        destination = os.path.join(destination, MODEL_DESCRIPTION_FILENAME)
+        shutil.copyfile(source, destination)
+
+
 def _count_batch_accum(batch_size, target_batch_size, num_replicas=1):
     """Given the current batch size, the number of replicas, and the requested
     effective batch size, returns the number of gradients to accumulate.
@@ -522,7 +536,7 @@ def _auto_tune_batch_size(
         min_range,
     )
 
-    model_description = os.path.join(config["model_dir"], "model_description.py")
+    model_description = os.path.join(config["model_dir"], MODEL_DESCRIPTION_FILENAME)
 
     while max_batch_size - min_batch_size > min_range:
         batch_size = (max_batch_size + min_batch_size) // 2
