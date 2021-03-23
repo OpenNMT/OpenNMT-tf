@@ -11,7 +11,7 @@ import tensorflow as tf
 from opennmt import decoders
 from opennmt import models
 from opennmt import Runner
-from opennmt.config import load_model
+from opennmt.config import load_model, MODEL_DESCRIPTION_FILENAME
 from opennmt.utils import exporters
 from opennmt.utils import misc
 from opennmt.tests import test_util
@@ -100,6 +100,9 @@ class RunnerTest(tf.test.TestCase):
         self.assertEndsWith(tf.train.latest_checkpoint(avg_dir), "145002")
         self.assertLen(
             tf.train.get_checkpoint_state(avg_dir).all_model_checkpoint_paths, 1
+        )
+        self.assertTrue(
+            os.path.isfile(os.path.join(avg_dir, MODEL_DESCRIPTION_FILENAME))
         )
         model_dir = os.path.dirname(avg_dir)
         self.assertEndsWith(tf.train.latest_checkpoint(model_dir), "145002")
@@ -270,6 +273,9 @@ class RunnerTest(tf.test.TestCase):
             runner.update_vocab(output_dir, tgt_vocab=new_en_vocab), output_dir
         )
         self.assertEqual(runner.model_dir, output_dir)
+        self.assertTrue(
+            os.path.isfile(os.path.join(output_dir, MODEL_DESCRIPTION_FILENAME))
+        )
 
         # Check that the translation is unchanged.
         en_file = os.path.join(self.get_temp_dir(), "output.txt")
