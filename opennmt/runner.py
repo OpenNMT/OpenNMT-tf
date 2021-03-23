@@ -172,7 +172,7 @@ class Runner(object):
         Args:
           num_devices: Number of devices to use for training.
           with_eval: Enable evaluation during training.
-          checkpoint_path: The checkpoint path to load the model weights from it.
+          checkpoint_path: The checkpoint path to load the model weights from.
           hvd: Optional Horovod module.
           return_summary: Return a summary of the training from this function.
           fallback_to_cpu: If no GPU is detected, allow the training to run on CPU.
@@ -306,7 +306,7 @@ class Runner(object):
             ``eval_features_file`` from the data configuration.
           labels_file: The output labels file to evaluate. If not set, will load
             ``eval_labels_file`` from the data configuration.
-          checkpoint_path: The checkpoint path to load the model weights from it.
+          checkpoint_path: The checkpoint path to load the model weights from.
 
         Returns:
           A dict of evaluation metrics.
@@ -407,7 +407,7 @@ class Runner(object):
           features_file: The file(s) to infer from.
           predictions_file: If set, predictions are saved in this file, otherwise
             they are printed on the standard output.
-          checkpoint_path: Path of a specific checkpoint to predict. If ``None``,
+          checkpoint_path: Path to a specific checkpoint to load. If ``None``,
             the latest is used.
           log_time: If ``True``, several time metrics will be printed in the logs at
             the end of the inference loop.
@@ -455,7 +455,7 @@ class Runner(object):
         Args:
           features_file: The input file.
           predictions_file: The predictions file to score.
-          checkpoint_path: Path of a specific checkpoint to use. If ``None``,
+          checkpoint_path: Path to specific checkpoint to load. If ``None``,
             the latest is used.
           output_file: The file where the scores are saved. Otherwise, they will be
             printed on the standard output.
