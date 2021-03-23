@@ -15,6 +15,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.17.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.17.1) (2021-03-23)
+
+### Fixes and improvements
+
+* Fix some cases where batch size autotuning failed
+* Raise an explicit error when batch size autotuning failed
+
 ## [2.17.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.17.0) (2021-03-15)
 
 ### Changes
