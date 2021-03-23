@@ -523,6 +523,7 @@ def _auto_tune_batch_size(
     )
 
     model_description = os.path.join(config["model_dir"], "model_description.py")
+    absolute_min_batch_size = min_batch_size
 
     while max_batch_size - min_batch_size > min_range:
         batch_size = (max_batch_size + min_batch_size) // 2
@@ -574,6 +575,13 @@ def _auto_tune_batch_size(
                 )
                 min_batch_size = batch_size
 
-    batch_size = int(scaling_factor * min_batch_size)
+    if min_batch_size == absolute_min_batch_size:
+        raise RuntimeError(
+            "Batch size autotuning failed: all training attempts exited with an error. "
+            "Either there is not enough memory to train this model, or unexpected errors "
+            "occured. Please try to set a fixed batch size in the training configuration."
+        )
+
+    batch_size = max(int(scaling_factor * min_batch_size), absolute_min_batch_size)
     tf.get_logger().info("Batch size auto tuned to %d.", batch_size)
     return batch_size
