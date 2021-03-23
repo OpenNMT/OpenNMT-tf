@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.17.0 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.17.1 documentation</title>
   
 
   
@@ -186,6 +186,7 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
@@ -197,6 +198,7 @@
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">inference</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">training</span> <span class="k">as</span> <span class="n">training_util</span>
+<span class="kn">from</span> <span class="nn">opennmt.config</span> <span class="kn">import</span> <span class="n">MODEL_DESCRIPTION_FILENAME</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">checkpoint</span> <span class="k">as</span> <span class="n">checkpoint_util</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
 <span class="kn">from</span> <span class="nn">opennmt.version</span> <span class="kn">import</span> <span class="n">__version__</span>
@@ -265,9 +267,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_config</span> <span class="o">=</span> <span class="n">auto_config</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_mixed_precision</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">misc</span><span class="o">.</span><span class="n">enable_mixed_precision</span><span class="p">()</span> <span class="k">if</span> <span class="n">mixed_precision</span> <span class="k">else</span> <span class="kc">False</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mixed_precision</span> <span class="o">=</span> <span class="n">mixed_precision</span>
         <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
             <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
@@ -353,7 +353,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">          num_devices: Number of devices to use for training.</span>
 <span class="sd">          with_eval: Enable evaluation during training.</span>
-<span class="sd">          checkpoint_path: The checkpoint path to load the model weights from it.</span>
+<span class="sd">          checkpoint_path: The checkpoint path to load the model weights from.</span>
 <span class="sd">          hvd: Optional Horovod module.</span>
 <span class="sd">          return_summary: Return a summary of the training from this function.</span>
 <span class="sd">          fallback_to_cpu: If no GPU is detected, allow the training to run on CPU.</span>
@@ -378,6 +378,8 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_finalize_config</span><span class="p">(</span>
             <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span>
         <span class="p">)</span>
+
+        <span class="n">mixed_precision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mixed_precision</span> <span class="ow">and</span> <span class="n">misc</span><span class="o">.</span><span class="n">enable_mixed_precision</span><span class="p">()</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_model</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="n">optimizer</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_optimizer</span><span class="p">()</span>
 
@@ -386,10 +388,7 @@
         <span class="n">eval_config</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;eval&quot;</span><span class="p">]</span>
 
         <span class="n">batch_type</span> <span class="o">=</span> <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;batch_type&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="s2">&quot;tokens&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mixed_precision</span><span class="p">:</span>
-            <span class="n">batch_size_multiple</span> <span class="o">=</span> <span class="mi">8</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">batch_size_multiple</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">batch_size_multiple</span> <span class="o">=</span> <span class="mi">8</span> <span class="k">if</span> <span class="n">mixed_precision</span> <span class="ow">and</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="s2">&quot;tokens&quot;</span> <span class="k">else</span> <span class="mi">1</span>
 
         <span class="n">dataset_fn</span> <span class="o">=</span> <span class="p">(</span>
             <span class="k">lambda</span> <span class="n">input_context</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">make_training_dataset</span><span class="p">(</span>
@@ -473,6 +472,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">output_dir</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">model_dir</span>
 
+        <span class="k">if</span> <span class="n">mixed_precision</span><span class="p">:</span>
+            <span class="n">misc</span><span class="o">.</span><span class="n">disable_mixed_precision</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">return_summary</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">summary</span>
         <span class="k">return</span> <span class="n">output_dir</span></div>
@@ -485,7 +487,7 @@
 <span class="sd">            ``eval_features_file`` from the data configuration.</span>
 <span class="sd">          labels_file: The output labels file to evaluate. If not set, will load</span>
 <span class="sd">            ``eval_labels_file`` from the data configuration.</span>
-<span class="sd">          checkpoint_path: The checkpoint path to load the model weights from it.</span>
+<span class="sd">          checkpoint_path: The checkpoint path to load the model weights from.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">          A dict of evaluation metrics.</span>
@@ -524,6 +526,7 @@
         <span class="n">output_dir</span> <span class="o">=</span> <span class="n">checkpoint_util</span><span class="o">.</span><span class="n">average_checkpoints</span><span class="p">(</span>
             <span class="n">checkpoint</span><span class="o">.</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">trackables</span><span class="p">,</span> <span class="n">max_count</span><span class="o">=</span><span class="n">max_count</span>
         <span class="p">)</span>
+        <span class="n">_forward_model_description</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_dir</span>
         <span class="k">return</span> <span class="n">output_dir</span></div>
 
@@ -553,6 +556,7 @@
         <span class="p">)</span>
         <span class="n">cur_checkpoint</span><span class="o">.</span><span class="n">restore</span><span class="p">()</span>
         <span class="n">model</span><span class="o">.</span><span class="n">create_variables</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">)</span>
+        <span class="n">source_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_dir</span>
         <span class="k">if</span> <span class="n">src_vocab</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -572,6 +576,7 @@
         <span class="p">)</span>
         <span class="n">new_optimizer</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">optimizer</span><span class="o">.</span><span class="n">iterations</span><span class="p">)</span>
         <span class="n">new_checkpoint</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">_forward_model_description</span><span class="p">(</span><span class="n">source_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">output_dir</span></div>
 
 <div class="viewcode-block" id="Runner.infer"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.infer">[docs]</a>    <span class="k">def</span> <span class="nf">infer</span><span class="p">(</span>
@@ -583,7 +588,7 @@
 <span class="sd">          features_file: The file(s) to infer from.</span>
 <span class="sd">          predictions_file: If set, predictions are saved in this file, otherwise</span>
 <span class="sd">            they are printed on the standard output.</span>
-<span class="sd">          checkpoint_path: Path of a specific checkpoint to predict. If ``None``,</span>
+<span class="sd">          checkpoint_path: Path to a specific checkpoint to load. If ``None``,</span>
 <span class="sd">            the latest is used.</span>
 <span class="sd">          log_time: If ``True``, several time metrics will be printed in the logs at</span>
 <span class="sd">            the end of the inference loop.</span>
@@ -631,7 +636,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">          features_file: The input file.</span>
 <span class="sd">          predictions_file: The predictions file to score.</span>
-<span class="sd">          checkpoint_path: Path of a specific checkpoint to use. If ``None``,</span>
+<span class="sd">          checkpoint_path: Path to specific checkpoint to load. If ``None``,</span>
 <span class="sd">            the latest is used.</span>
 <span class="sd">          output_file: The file where the scores are saved. Otherwise, they will be</span>
 <span class="sd">            printed on the standard output.</span>
@@ -652,6 +657,15 @@
         <span class="n">inference</span><span class="o">.</span><span class="n">score_dataset</span><span class="p">(</span>
             <span class="n">model</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">print_params</span><span class="o">=</span><span class="n">score_config</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="n">output_file</span>
         <span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_forward_model_description</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">):</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">MODEL_DESCRIPTION_FILENAME</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span> <span class="n">MODEL_DESCRIPTION_FILENAME</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_count_batch_accum</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">target_batch_size</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -703,7 +717,8 @@
         <span class="n">min_range</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">model_description</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">],</span> <span class="s2">&quot;model_description.py&quot;</span><span class="p">)</span>
+    <span class="n">model_description</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">],</span> <span class="n">MODEL_DESCRIPTION_FILENAME</span><span class="p">)</span>
+    <span class="n">absolute_min_batch_size</span> <span class="o">=</span> <span class="n">min_batch_size</span>
 
     <span class="k">while</span> <span class="n">max_batch_size</span> <span class="o">-</span> <span class="n">min_batch_size</span> <span class="o">&gt;</span> <span class="n">min_range</span><span class="p">:</span>
         <span class="n">batch_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_batch_size</span> <span class="o">+</span> <span class="n">min_batch_size</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
@@ -755,7 +770,14 @@
                 <span class="p">)</span>
                 <span class="n">min_batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
 
-    <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">scaling_factor</span> <span class="o">*</span> <span class="n">min_batch_size</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">min_batch_size</span> <span class="o">==</span> <span class="n">absolute_min_batch_size</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;Batch size autotuning failed: all training attempts exited with an error. &quot;</span>
+            <span class="s2">&quot;Either there is not enough memory to train this model, or unexpected errors &quot;</span>
+            <span class="s2">&quot;occured. Please try to set a fixed batch size in the training configuration.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">scaling_factor</span> <span class="o">*</span> <span class="n">min_batch_size</span><span class="p">),</span> <span class="n">absolute_min_batch_size</span><span class="p">)</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Batch size auto tuned to </span><span class="si">%d</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">batch_size</span>
 </pre></div>

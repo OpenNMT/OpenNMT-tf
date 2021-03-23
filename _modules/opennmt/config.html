@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.config &mdash; OpenNMT-tf 2.17.0 documentation</title>
+  <title>opennmt.config &mdash; OpenNMT-tf 2.17.1 documentation</title>
   
 
   
@@ -195,6 +195,9 @@
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="kn">import</span> <span class="n">merge_dict</span>
 
 
+<span class="n">MODEL_DESCRIPTION_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;model_description.py&quot;</span>
+
+
 <span class="k">def</span> <span class="nf">load_model_module</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Loads a model configuration file.</span>
 
@@ -283,7 +286,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">model_file</span> <span class="ow">and</span> <span class="n">model_name</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;only one of model_file and model_name should be set&quot;</span><span class="p">)</span>
-    <span class="n">model_description_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;model_description.py&quot;</span><span class="p">)</span>
+    <span class="n">model_description_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">MODEL_DESCRIPTION_FILENAME</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">model_file</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_from_file</span><span class="p">(</span><span class="n">model_file</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="n">as_builder</span><span class="p">)</span>

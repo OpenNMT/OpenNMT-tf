@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.Runner &mdash; OpenNMT-tf 2.17.0 documentation</title>
+  <title>opennmt.Runner &mdash; OpenNMT-tf 2.17.1 documentation</title>
   
 
   
@@ -242,7 +242,7 @@ returns such instance.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>num_devices</strong> – Number of devices to use for training.</p></li>
 <li><p><strong>with_eval</strong> – Enable evaluation during training.</p></li>
-<li><p><strong>checkpoint_path</strong> – The checkpoint path to load the model weights from it.</p></li>
+<li><p><strong>checkpoint_path</strong> – The checkpoint path to load the model weights from.</p></li>
 <li><p><strong>hvd</strong> – Optional Horovod module.</p></li>
 <li><p><strong>return_summary</strong> – Return a summary of the training from this function.</p></li>
 <li><p><strong>fallback_to_cpu</strong> – If no GPU is detected, allow the training to run on CPU.</p></li>
@@ -266,7 +266,7 @@ a dictionary with various training statistics.</p>
 <code class="docutils literal notranslate"><span class="pre">eval_features_file</span></code> from the data configuration.</p></li>
 <li><p><strong>labels_file</strong> – The output labels file to evaluate. If not set, will load
 <code class="docutils literal notranslate"><span class="pre">eval_labels_file</span></code> from the data configuration.</p></li>
-<li><p><strong>checkpoint_path</strong> – The checkpoint path to load the model weights from it.</p></li>
+<li><p><strong>checkpoint_path</strong> – The checkpoint path to load the model weights from.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -320,7 +320,7 @@ a dictionary with various training statistics.</p>
 <li><p><strong>features_file</strong> – The file(s) to infer from.</p></li>
 <li><p><strong>predictions_file</strong> – If set, predictions are saved in this file, otherwise
 they are printed on the standard output.</p></li>
-<li><p><strong>checkpoint_path</strong> – Path of a specific checkpoint to predict. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+<li><p><strong>checkpoint_path</strong> – Path to a specific checkpoint to load. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
 the latest is used.</p></li>
 <li><p><strong>log_time</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, several time metrics will be printed in the logs at
 the end of the inference loop.</p></li>
@@ -354,7 +354,7 @@ the end of the inference loop.</p></li>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>features_file</strong> – The input file.</p></li>
 <li><p><strong>predictions_file</strong> – The predictions file to score.</p></li>
-<li><p><strong>checkpoint_path</strong> – Path of a specific checkpoint to use. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+<li><p><strong>checkpoint_path</strong> – Path to specific checkpoint to load. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
 the latest is used.</p></li>
 <li><p><strong>output_file</strong> – The file where the scores are saved. Otherwise, they will be
 printed on the standard output.</p></li>
