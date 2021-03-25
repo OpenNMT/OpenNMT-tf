@@ -144,6 +144,7 @@ class Runner(object):
                     max_batch_size=max_batch_size,
                     min_range=min_range,
                     num_devices=num_devices,
+                    scaling_factor=train_config.get("batch_size_autotune_scale", 0.8),
                     mixed_precision=self._mixed_precision,
                 )
 
@@ -501,7 +502,7 @@ def _auto_tune_batch_size(
     min_range,
     sample_iterations=5,
     num_devices=1,
-    scaling_factor=0.9,
+    scaling_factor=0.8,
     mixed_precision=False,
 ):
     """Find the largest token-based batch size that can be used with this
