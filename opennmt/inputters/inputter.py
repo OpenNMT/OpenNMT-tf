@@ -801,7 +801,7 @@ class ExampleInputterAdapter:
             else:
                 constant_length_fn = lambda x: maximum_features_length
 
-            # The length dimension is set the maximum length in the padded shapes.
+            # The length dimension is set to the maximum length in the padded shapes.
             padded_shapes = self.get_padded_shapes(
                 dataset.element_spec, maximum_length=maximum_length
             )
