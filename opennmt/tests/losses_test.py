@@ -38,10 +38,11 @@ class LossesTest(tf.test.TestCase):
         labels = tf.constant([[2, 1, 0], [1, 0, 2]], dtype=tf.int32)
         lengths = tf.constant([2, 1], dtype=tf.int32)
 
-        loss, _, stats_norm = losses.cross_entropy_sequence_loss(
+        loss, train_norm, stats_norm = losses.cross_entropy_sequence_loss(
             logits, labels, sequence_length=lengths, training=True
         )
         self.assertNear(loss, 1.22118, 1e-5)
+        self.assertEqual(train_norm, 2)
         self.assertEqual(stats_norm, 3)
 
     def testWeightedAndMaskedCrossEntropySequenceLoss(self):
@@ -55,7 +56,7 @@ class LossesTest(tf.test.TestCase):
         lengths = tf.constant([3, 2], dtype=tf.int32)
         weights = tf.constant([0.6, 1.2])
 
-        loss, _, _ = losses.cross_entropy_sequence_loss(
+        loss, train_norm, stats_norm = losses.cross_entropy_sequence_loss(
             logits,
             labels,
             sequence_length=lengths,
@@ -63,6 +64,12 @@ class LossesTest(tf.test.TestCase):
             training=True,
         )
         self.assertNear(loss, 1.77306, 1e-5)
+        self.assertNear(train_norm, tf.reduce_sum(weights), 1e-5)
+        self.assertNear(
+            stats_norm,
+            tf.reduce_sum(tf.cast(lengths, tf.float32) * weights),
+            1e-5,
+        )
 
     @parameterized.expand(
         [
