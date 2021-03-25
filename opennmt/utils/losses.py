@@ -51,23 +51,26 @@ def cross_entropy_sequence_loss(
     cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, training)
     dtype = cross_entropy.dtype
 
+    shape = tf.shape(logits)
+    batch_size = shape[0]
+    max_time = shape[1]
+
+    if sequence_length is None:
+        sequence_length = tf.fill([batch_size], max_time)
+
+    weight = tf.sequence_mask(sequence_length, maxlen=max_time, dtype=dtype)
     if sequence_weight is not None:
-        cross_entropy *= tf.expand_dims(tf.cast(sequence_weight, dtype), 1)
+        sequence_weight = tf.cast(sequence_weight, dtype)
+        weight *= tf.expand_dims(sequence_weight, 1)
 
-    if sequence_length is not None:
-        max_time = tf.shape(logits)[1]
-        mask = tf.sequence_mask(sequence_length, maxlen=max_time, dtype=dtype)
-        cross_entropy *= mask
-        loss_token_normalizer = tf.reduce_sum(mask)
-    else:
-        loss_token_normalizer = tf.cast(tf.size(labels), dtype)
+    loss = tf.reduce_sum(cross_entropy * weight)
 
-    loss = tf.reduce_sum(cross_entropy)
-
+    loss_token_normalizer = tf.reduce_sum(weight)
     if average_in_time or not training:
         loss_normalizer = loss_token_normalizer
+    elif sequence_weight is not None:
+        loss_normalizer = tf.reduce_sum(sequence_weight)
     else:
-        batch_size = tf.shape(logits)[0]
         loss_normalizer = tf.cast(batch_size, dtype)
 
     return loss, loss_normalizer, loss_token_normalizer
@@ -87,10 +90,16 @@ def cross_entropy_loss(logits, labels, label_smoothing=0.0, training=None, weigh
       The cumulated loss and the loss normalizer.
     """
     cross_entropy = _softmax_cross_entropy(logits, labels, label_smoothing, training)
+
     if weight is not None:
-        cross_entropy *= tf.cast(weight, cross_entropy.dtype)
+        weight = tf.cast(weight, cross_entropy.dtype)
+        cross_entropy *= weight
+        loss_normalizer = tf.reduce_sum(weight)
+    else:
+        batch_size = tf.shape(cross_entropy)[0]
+        loss_normalizer = tf.cast(batch_size, cross_entropy.dtype)
+
     loss = tf.reduce_sum(cross_entropy)
-    loss_normalizer = tf.cast(tf.shape(cross_entropy)[0], loss.dtype)
     return loss, loss_normalizer
 
 
