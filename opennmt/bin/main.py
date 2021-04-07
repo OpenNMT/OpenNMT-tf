@@ -24,8 +24,22 @@ _PYTHON_TO_TENSORFLOW_LOGGING_LEVEL = {
 }
 
 
-def _set_log_level(log_level):
-    tf.get_logger().setLevel(log_level)
+def _initialize_logging(log_level):
+    logger = tf.get_logger()
+    logger.setLevel(log_level)
+
+    # Configure the TensorFlow logger to use the same log format as the TensorFlow C++ logs.
+    for handler in list(logger.handlers):
+        logger.removeHandler(handler)
+    formatter = logging.Formatter(
+        fmt="%(asctime)s.%(msecs)03d000: %(levelname).1s %(filename)s:%(lineno)d] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    # Align the TensorFlow C++ log level with the Python level.
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = str(
         _PYTHON_TO_TENSORFLOW_LOGGING_LEVEL[log_level]
     )
@@ -264,7 +278,7 @@ def main():
     ):
         args.features_file = args.features_file[0]
 
-    _set_log_level(getattr(logging, args.log_level))
+    _initialize_logging(getattr(logging, args.log_level))
     tf.config.threading.set_intra_op_parallelism_threads(
         args.intra_op_parallelism_threads
     )
