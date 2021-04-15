@@ -291,7 +291,7 @@ class LstmCnnCrfTagger(sequence_tagger.SequenceTagger):
 
 
 class _DefaultTransformer(transformer.Transformer):
-    def __init__(self, big=False, relative=False):
+    def __init__(self, big=False, relative=False, shared_embeddings=False):
         if big:
             num_units = 1024
             num_heads = 16
@@ -317,18 +317,33 @@ class _DefaultTransformer(transformer.Transformer):
             attention_dropout=0.1,
             ffn_dropout=0.1,
             position_encoder_class=position_encoder_class,
+            share_embeddings=(
+                sequence_to_sequence.EmbeddingsSharingLevel.ALL
+                if shared_embeddings
+                else sequence_to_sequence.EmbeddingsSharingLevel.NONE
+            ),
             maximum_relative_position=maximum_relative_position,
         )
 
 
 @register_model_in_catalog(alias="Transformer")
 class TransformerBase(_DefaultTransformer):
-    """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
+    """Defines a base Transformer model as described in https://arxiv.org/abs/1706.03762."""
+
+
+@register_model_in_catalog()
+class TransformerBaseSharedEmbeddings(_DefaultTransformer):
+    """Defines a base Transformer model with shared embeddings as described in
+    https://arxiv.org/abs/1706.03762.
+    """
+
+    def __init__(self):
+        super().__init__(shared_embeddings=True)
 
 
 @register_model_in_catalog(alias="TransformerRelative")
 class TransformerBaseRelative(_DefaultTransformer):
-    """Defines a Transformer model using relative position representations as
+    """Defines a base Transformer model using relative position representations as
     described in https://arxiv.org/abs/1803.02155.
     """
 
@@ -343,15 +358,25 @@ TransformerRelative = TransformerBaseRelative
 
 @register_model_in_catalog
 class TransformerBig(_DefaultTransformer):
-    """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
+    """Defines a big Transformer model as described in https://arxiv.org/abs/1706.03762."""
 
     def __init__(self):
         super().__init__(big=True)
 
 
 @register_model_in_catalog
+class TransformerBigSharedEmbeddings(_DefaultTransformer):
+    """Defines a big Transformer model with shared embeddings as described in
+    https://arxiv.org/abs/1706.03762.
+    """
+
+    def __init__(self):
+        super().__init__(big=True, shared_embeddings=True)
+
+
+@register_model_in_catalog
 class TransformerBigRelative(_DefaultTransformer):
-    """Defines a large Transformer model using relative position representations as
+    """Defines a big Transformer model using relative position representations as
     described in https://arxiv.org/abs/1803.02155.
     """
 
