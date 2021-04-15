@@ -6,8 +6,10 @@ from opennmt.models.catalog import LstmCnnCrfTagger
 from opennmt.models.catalog import LuongAttention
 from opennmt.models.catalog import TransformerBase
 from opennmt.models.catalog import TransformerBaseRelative
+from opennmt.models.catalog import TransformerBaseSharedEmbeddings
 from opennmt.models.catalog import TransformerBig
 from opennmt.models.catalog import TransformerBigRelative
+from opennmt.models.catalog import TransformerBigSharedEmbeddings
 from opennmt.models.catalog import get_model_from_catalog
 from opennmt.models.catalog import register_model_in_catalog
 
