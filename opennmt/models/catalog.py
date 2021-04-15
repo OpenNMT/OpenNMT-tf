@@ -333,8 +333,8 @@ class TransformerBase(_DefaultTransformer):
 
 @register_model_in_catalog()
 class TransformerBaseSharedEmbeddings(_DefaultTransformer):
-    """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762
-    with shared embeddings.
+    """Defines a Transformer model with shared embeddings as decribed in
+    https://arxiv.org/abs/1706.03762.
     """
 
     def __init__(self):
@@ -366,8 +366,8 @@ class TransformerBig(_DefaultTransformer):
 
 @register_model_in_catalog
 class TransformerBigSharedEmbeddings(_DefaultTransformer):
-    """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762
-    with shared embeddings.
+    """Defines a large Transformer model with shared embeddings as decribed in
+    https://arxiv.org/abs/1706.03762.
     """
 
     def __init__(self):
