@@ -328,12 +328,12 @@ class _DefaultTransformer(transformer.Transformer):
 
 @register_model_in_catalog(alias="Transformer")
 class TransformerBase(_DefaultTransformer):
-    """Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
+    """Defines a base Transformer model as described in https://arxiv.org/abs/1706.03762."""
 
 
 @register_model_in_catalog()
 class TransformerBaseSharedEmbeddings(_DefaultTransformer):
-    """Defines a Transformer model with shared embeddings as decribed in
+    """Defines a base Transformer model with shared embeddings as described in
     https://arxiv.org/abs/1706.03762.
     """
 
@@ -343,7 +343,7 @@ class TransformerBaseSharedEmbeddings(_DefaultTransformer):
 
 @register_model_in_catalog(alias="TransformerRelative")
 class TransformerBaseRelative(_DefaultTransformer):
-    """Defines a Transformer model using relative position representations as
+    """Defines a base Transformer model using relative position representations as
     described in https://arxiv.org/abs/1803.02155.
     """
 
@@ -358,7 +358,7 @@ TransformerRelative = TransformerBaseRelative
 
 @register_model_in_catalog
 class TransformerBig(_DefaultTransformer):
-    """Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762."""
+    """Defines a big Transformer model as described in https://arxiv.org/abs/1706.03762."""
 
     def __init__(self):
         super().__init__(big=True)
@@ -366,7 +366,7 @@ class TransformerBig(_DefaultTransformer):
 
 @register_model_in_catalog
 class TransformerBigSharedEmbeddings(_DefaultTransformer):
-    """Defines a large Transformer model with shared embeddings as decribed in
+    """Defines a big Transformer model with shared embeddings as described in
     https://arxiv.org/abs/1706.03762.
     """
 
@@ -376,7 +376,7 @@ class TransformerBigSharedEmbeddings(_DefaultTransformer):
 
 @register_model_in_catalog
 class TransformerBigRelative(_DefaultTransformer):
-    """Defines a large Transformer model using relative position representations as
+    """Defines a big Transformer model using relative position representations as
     described in https://arxiv.org/abs/1803.02155.
     """
 
