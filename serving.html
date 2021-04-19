@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Serving &mdash; OpenNMT-tf 2.17.1 documentation</title>
+  <title>Serving &mdash; OpenNMT-tf 2.18.0 documentation</title>
   
 
   
@@ -67,7 +68,7 @@
             
             
               <div class="version">
-                2.17
+                2.18
               </div>
             
           
@@ -91,12 +92,12 @@
               
             
             
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+              <p><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
@@ -106,7 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p><span class="caption-text">Usage</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
@@ -123,7 +124,7 @@
 <li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
@@ -189,11 +190,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="serving">
+  <section id="serving">
 <h1>Serving<a class="headerlink" href="#serving" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="tensorflow">
+<section id="tensorflow">
 <h2>TensorFlow<a class="headerlink" href="#tensorflow" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="exporting-a-savedmodel">
+<section id="exporting-a-savedmodel">
 <h3>Exporting a SavedModel<a class="headerlink" href="#exporting-a-savedmodel" title="Permalink to this headline">¶</a></h3>
 <p>OpenNMT-tf can export <a class="reference external" href="https://www.tensorflow.org/guide/saved_model">SavedModel</a> packages for inference in other environments, for example with <a class="reference external" href="https://www.tensorflow.org/serving/">TensorFlow Serving</a>. A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>toy-ende/export/
@@ -211,8 +212,8 @@
 </pre></div>
 </div>
 <p>Automatic evaluation during the training can also export models, see <a class="reference internal" href="training.html"><span class="doc">Training</span></a> to learn more.</p>
-</div>
-<div class="section" id="running-a-savedmodel">
+</section>
+<section id="running-a-savedmodel">
 <h3>Running a SavedModel<a class="headerlink" href="#running-a-savedmodel" title="Permalink to this headline">¶</a></h3>
 <p>Once a SavedModel is exported, OpenNMT-tf is no longer needed to run it. However, you will need to know the input and output nodes of your model. You can use the <a class="reference external" href="https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel"><code class="docutils literal notranslate"><span class="pre">saved_model_cli</span></code></a> script provided by TensorFlow for inspection, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>saved_model_cli show --dir ~/my-models/ende <span class="se">\</span>
@@ -220,13 +221,13 @@
 </pre></div>
 </div>
 <p>Some examples using exported models are available in the <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving"><code class="docutils literal notranslate"><span class="pre">examples/serving</span></code></a> directory.</p>
-</div>
-<div class="section" id="input-preprocessing-and-tokenization">
+</section>
+<section id="input-preprocessing-and-tokenization">
 <h3>Input preprocessing and tokenization<a class="headerlink" href="#input-preprocessing-and-tokenization" title="Permalink to this headline">¶</a></h3>
 <p>TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is sometimes not implemented in terms of TensorFlow ops (see <a class="reference internal" href="tokenization.html"><span class="doc">Tokenization</span></a> for more details). In this case, these functions should be run outside of the TensorFlow runtime, either by the client or a proxy server.</p>
-</div>
-</div>
-<div class="section" id="ctranslate2">
+</section>
+</section>
+<section id="ctranslate2">
 <h2>CTranslate2<a class="headerlink" href="#ctranslate2" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="https://github.com/OpenNMT/CTranslate2">CTranslate2</a> is an optimized inference engine for OpenNMT models that is typically faster, lighter, and more customizable than the TensorFlow runtime.</p>
 <p>Selected models can be exported to the CTranslate2 format directly from OpenNMT-tf by selecting the <code class="docutils literal notranslate"><span class="pre">ctranslate2</span></code> export format.</p>
@@ -247,8 +248,8 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">ctranslate2_int16</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ctranslate2_float16</span></code></p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

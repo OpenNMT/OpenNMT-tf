@@ -27,8 +27,10 @@ Classes
    opennmt.models.Transformer
    opennmt.models.TransformerBase
    opennmt.models.TransformerBaseRelative
+   opennmt.models.TransformerBaseSharedEmbeddings
    opennmt.models.TransformerBig
    opennmt.models.TransformerBigRelative
+   opennmt.models.TransformerBigSharedEmbeddings
 
 Functions
 ---------

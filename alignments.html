@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Alignments &mdash; OpenNMT-tf 2.17.1 documentation</title>
+  <title>Alignments &mdash; OpenNMT-tf 2.18.0 documentation</title>
   
 
   
@@ -67,7 +68,7 @@
             
             
               <div class="version">
-                2.17
+                2.18
               </div>
             
           
@@ -91,12 +92,12 @@
               
             
             
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+              <p><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p><span class="caption-text">Configuration</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
@@ -109,7 +110,7 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
@@ -117,7 +118,7 @@
 <li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
@@ -183,7 +184,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="alignments">
+  <section id="alignments">
 <h1>Alignments<a class="headerlink" href="#alignments" title="Permalink to this headline">¶</a></h1>
 <p>Target to source alignments are returned as part of the translation API. They are also used by some decoding features such as <code class="docutils literal notranslate"><span class="pre">replace_unknown_target</span></code>.</p>
 <p>To improve their quality, OpenNMT-tf supports <a class="reference external" href="https://arxiv.org/abs/1607.01628">guided alignment</a> training. It is a supervised approach to constrain one or more attention heads by alignments produced by external tools such as <a class="reference external" href="https://github.com/clab/fast_align">fast_align</a>.</p>
@@ -203,11 +204,11 @@
 </pre></div>
 </div>
 <p>where a pair <code class="docutils literal notranslate"><span class="pre">i-j</span></code> indicates that the <code class="docutils literal notranslate"><span class="pre">i</span></code>th word of the source sentence is aligned with the <code class="docutils literal notranslate"><span class="pre">j</span></code>th word of the target sentence (zero-indexed).</p>
-<div class="section" id="alignments-and-transformer-models">
+<section id="alignments-and-transformer-models">
 <h2>Alignments and Transformer models<a class="headerlink" href="#alignments-and-transformer-models" title="Permalink to this headline">¶</a></h2>
 <p>Since Transfomer models have multiple attention heads, training with guided alignment (see above) is required to get usable alignments. The current implementation will constrain and return <strong>the first attention head of the last decoder layer</strong>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

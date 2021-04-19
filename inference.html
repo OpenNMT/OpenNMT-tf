@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Inference &mdash; OpenNMT-tf 2.17.1 documentation</title>
+  <title>Inference &mdash; OpenNMT-tf 2.18.0 documentation</title>
   
 
   
@@ -67,7 +68,7 @@
             
             
               <div class="version">
-                2.17
+                2.18
               </div>
             
           
@@ -91,12 +92,12 @@
               
             
             
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+              <p><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
@@ -106,7 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p><span class="caption-text">Usage</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Inference</a><ul>
@@ -121,7 +122,7 @@
 <li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
@@ -187,7 +188,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="inference">
+  <section id="inference">
 <h1>Inference<a class="headerlink" href="#inference" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main infer -h
 </pre></div>
@@ -196,7 +197,7 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --config data.yml --auto_config infer --features_file src-test.txt
 </pre></div>
 </div>
-<div class="section" id="checkpoints-averaging">
+<section id="checkpoints-averaging">
 <h2>Checkpoints averaging<a class="headerlink" href="#checkpoints-averaging" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">average_checkpoints</span></code> run type can be used to average the parameters of several checkpoints, usually increasing the model performance. For example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="se">\</span>
@@ -222,8 +223,8 @@
   <span class="nt">keep_checkpoint_max</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="random-sampling">
+</section>
+<section id="random-sampling">
 <h2>Random sampling<a class="headerlink" href="#random-sampling" title="Permalink to this headline">¶</a></h2>
 <p>Sampling predictions from the output distribution can be an effective decoding strategy for back-translation, as described by <a class="reference external" href="https://arxiv.org/abs/1808.09381">Edunov et al. 2018</a>. To enable this feature, you should configure the parameter <code class="docutils literal notranslate"><span class="pre">sampling_topk</span></code>. Possible values are:</p>
 <ul class="simple">
@@ -238,8 +239,8 @@
   <span class="nt">sampling_temperature</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="noising">
+</section>
+<section id="noising">
 <h2>Noising<a class="headerlink" href="#noising" title="Permalink to this headline">¶</a></h2>
 <p>Noising the decoded output is also a possible decoding strategy for back-translation, as described in <a class="reference external" href="https://arxiv.org/abs/1808.09381">Edunov et al. 2018</a>. 3 types of noise are currently implemented:</p>
 <ul class="simple">
@@ -257,8 +258,8 @@
 </pre></div>
 </div>
 <p>The parameter <code class="docutils literal notranslate"><span class="pre">decoding_subword_token</span></code> (here set to the SentencePiece spacer) is useful to apply noise at the word level instead of the subword level.</p>
-</div>
-<div class="section" id="n-best-list">
+</section>
+<section id="n-best-list">
 <h2>N-best list<a class="headerlink" href="#n-best-list" title="Permalink to this headline">¶</a></h2>
 <p>A n-best list can be generated for models using beam search. You can configure it in your configuration file:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">infer</span><span class="p">:</span>
@@ -267,8 +268,8 @@
 </div>
 <p>With this option, each input line will simply generate N consecutive lines in the output, ordered from best to worst.</p>
 <p><em>Note that N can not be greater than the configured <code class="docutils literal notranslate"><span class="pre">beam_width</span></code>.</em></p>
-</div>
-<div class="section" id="scoring">
+</section>
+<section id="scoring">
 <h2>Scoring<a class="headerlink" href="#scoring" title="Permalink to this headline">¶</a></h2>
 <p>The main OpenNMT-tf script can also be used to score existing translations via the <code class="docutils literal notranslate"><span class="pre">score</span></code> run type. It requires 2 command line options to be set:</p>
 <ul class="simple">
@@ -289,8 +290,8 @@
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">&lt;score&gt;</span></code> is the negative log likelihood of the provided translation.</p>
 <p><strong>Tip:</strong> combining the n-best list generation and the scoring can be used for reranking translations.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

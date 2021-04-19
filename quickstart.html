@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quickstart &mdash; OpenNMT-tf 2.17.1 documentation</title>
+  <title>Quickstart &mdash; OpenNMT-tf 2.18.0 documentation</title>
   
 
   
@@ -67,7 +68,7 @@
             
             
               <div class="version">
-                2.17
+                2.18
               </div>
             
           
@@ -91,7 +92,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+              <p><span class="caption-text">Getting started</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#step-0-install-opennmt-tf">Step 0: Install OpenNMT-tf</a></li>
@@ -103,7 +104,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
@@ -113,7 +114,7 @@
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
@@ -121,7 +122,7 @@
 <li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
@@ -187,17 +188,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="quickstart">
+  <section id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
 <p>This page presents a minimal workflow to get you started in using OpenNMT-tf. The goal is <strong>not</strong> to produce a ready-to-use translation model but to familiarize yourself with the main OpenNMT-tf concepts.</p>
-<div class="section" id="step-0-install-opennmt-tf">
+<section id="step-0-install-opennmt-tf">
 <h2>Step 0: Install OpenNMT-tf<a class="headerlink" href="#step-0-install-opennmt-tf" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install --upgrade pip
 pip install OpenNMT-tf<span class="o">[</span>tensorflow<span class="o">]</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="step-1-prepare-the-data">
+</section>
+<section id="step-1-prepare-the-data">
 <h2>Step 1: Prepare the data<a class="headerlink" href="#step-1-prepare-the-data" title="Permalink to this headline">¶</a></h2>
 <p>To get started, we propose to download a toy English-German dataset for machine translation containing 10k <strong>tokenized</strong> sentences:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://s3.amazonaws.com/opennmt-trainingdata/toy-ende.tar.gz
@@ -222,8 +223,8 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
   <span class="nt">target_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tgt-vocab.txt</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="step-2-train-the-model">
+</section>
+<section id="step-2-train-the-model">
 <h2>Step 2: Train the model<a class="headerlink" href="#step-2-train-the-model" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">onmt</span><span class="o">-</span><span class="n">main</span> <span class="o">--</span><span class="n">model_type</span> <span class="n">Transformer</span> <span class="o">--</span><span class="n">config</span> <span class="n">data</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">auto_config</span> <span class="n">train</span> <span class="o">--</span><span class="n">with_eval</span>
 </pre></div>
@@ -233,16 +234,16 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tensorboard --logdir<span class="o">=</span><span class="s2">&quot;run&quot;</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="step-3-translate">
+</section>
+<section id="step-3-translate">
 <h2>Step 3: Translate<a class="headerlink" href="#step-3-translate" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">onmt</span><span class="o">-</span><span class="n">main</span> <span class="o">--</span><span class="n">config</span> <span class="n">data</span><span class="o">.</span><span class="n">yml</span> <span class="o">--</span><span class="n">auto_config</span> <span class="n">infer</span> <span class="o">--</span><span class="n">features_file</span> <span class="n">src</span><span class="o">-</span><span class="n">test</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 <p>This command can be executed as soon as a checkpoint is saved by the training; the most recent checkpoint will be used by default. The predictions will be printed on the standard output.</p>
 <p><strong>That’s it! You successfully executed the 3 main steps to prepare, run, and evaluate an OpenNMT-tf training.</strong></p>
-</div>
-<div class="section" id="going-further">
+</section>
+<section id="going-further">
 <h2>Going further<a class="headerlink" href="#going-further" title="Permalink to this headline">¶</a></h2>
 <p>While this example gave you a quick overview of a typical OpenNMT-tf workflow, it will not produce state of the art results. The selected dataset is too small for this task.</p>
 <p>To go further, here are some pointers:</p>
@@ -252,8 +253,8 @@ onmt-build-vocab --size <span class="m">50000</span> --save_vocab tgt-vocab.txt 
 <li><p>Discover the <a class="reference internal" href="configuration.html"><span class="doc">configuration reference</span></a> to tune hyperparameters</p></li>
 <li><p>Explore the other sections to learn about advanced topics</p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

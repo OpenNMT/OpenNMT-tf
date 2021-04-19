@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>2.0 Transition Guide &mdash; OpenNMT-tf 2.17.1 documentation</title>
+  <title>2.0 Transition Guide &mdash; OpenNMT-tf 2.18.0 documentation</title>
   
 
   
@@ -67,7 +68,7 @@
             
             
               <div class="version">
-                2.17
+                2.18
               </div>
             
           
@@ -91,12 +92,12 @@
               
             
             
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+              <p><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
@@ -106,7 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p><span class="caption-text">Usage</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
@@ -127,7 +128,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
@@ -193,16 +194,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="transition-guide">
+  <section id="transition-guide">
 <h1>2.0 Transition Guide<a class="headerlink" href="#transition-guide" title="Permalink to this headline">¶</a></h1>
 <p>This document details some changes introduced in OpenNMT-tf 2.0 and actions required by the user.</p>
-<div class="section" id="new-requirements">
+<section id="new-requirements">
 <h2>New requirements<a class="headerlink" href="#new-requirements" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="python-3">
+<section id="python-3">
 <h3>Python 3<a class="headerlink" href="#python-3" title="Permalink to this headline">¶</a></h3>
 <p>Python 3.5 (or above) is now required by OpenNMT-tf. See <a class="reference external" href="https://python3statement.org/">python3statement.org</a> for more context about this decision.</p>
-</div>
-<div class="section" id="tensorflow-2-0">
+</section>
+<section id="tensorflow-2-0">
 <h3>TensorFlow 2.0<a class="headerlink" href="#tensorflow-2-0" title="Permalink to this headline">¶</a></h3>
 <p>OpenNMT-tf has been completely redesigned for TensorFlow 2.0 which is now the minimal required TensorFlow version.</p>
 <p>The correct TensorFlow version is declared as a dependency of OpenNMT-tf and will be automatically installed as part of the <code class="docutils literal notranslate"><span class="pre">pip</span></code> installation:</p>
@@ -210,9 +211,9 @@
 pip install OpenNMT-tf
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="changed-checkpoint-layout">
+</section>
+</section>
+<section id="changed-checkpoint-layout">
 <h2>Changed checkpoint layout<a class="headerlink" href="#changed-checkpoint-layout" title="Permalink to this headline">¶</a></h2>
 <p>TensorFlow 2.0 introduced a new way to save checkpoints: variables are no longer matched by their name but by where they are stored relative to the root model object. Consequently, OpenNMT-tf V1 checkpoints are no longer compatible without conversion.</p>
 <p>To smooth this transition, V1 checkpoints of the following models are automatically upgraded on load:</p>
@@ -223,8 +224,8 @@ pip install OpenNMT-tf
 <li><p>Transformer</p></li>
 <li><p>TransformerBig</p></li>
 </ul>
-</div>
-<div class="section" id="improved-main-script-command-line">
+</section>
+<section id="improved-main-script-command-line">
 <h2>Improved main script command line<a class="headerlink" href="#improved-main-script-command-line" title="Permalink to this headline">¶</a></h2>
 <p>The command line parser has been improved to better manage task specifc options that are now located after the run type:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>onmt-main &lt;general options&gt; train &lt;train options&gt;
@@ -238,8 +239,8 @@ pip install OpenNMT-tf
 <li><p><code class="docutils literal notranslate"><span class="pre">--session_config</span></code> has been removed as no longer applicable in TensorFlow 2.0</p></li>
 </ul>
 <p>See <code class="docutils literal notranslate"><span class="pre">onmt-main</span> <span class="pre">-h</span></code> for more details.</p>
-</div>
-<div class="section" id="changed-vocabulary-configuration">
+</section>
+<section id="changed-vocabulary-configuration">
 <h2>Changed vocabulary configuration<a class="headerlink" href="#changed-vocabulary-configuration" title="Permalink to this headline">¶</a></h2>
 <p>In OpenNMT-tf V1, models were responsible to declare the name of the vocabulary to look for, e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># V1 model inputter.</span>
@@ -287,8 +288,8 @@ pip install OpenNMT-tf
   <span class="nt">source_2_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_2_vocab.txt</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="changed-predefined-models">
+</section>
+<section id="changed-predefined-models">
 <h2>Changed predefined models<a class="headerlink" href="#changed-predefined-models" title="Permalink to this headline">¶</a></h2>
 <p>Predefined models do not require a model definition file and can be directly set to the <code class="docutils literal notranslate"><span class="pre">--model_type</span></code> command line argument. Some of them have been changed for clarity:</p>
 <table border="1" class="docutils">
@@ -336,8 +337,8 @@ pip install OpenNMT-tf
 <td>Use <code>Transformer</code> with <code>--mixed_precision</code> flag on the command line</td>
 </tr>
 </tbody>
-</table></div>
-<div class="section" id="changed-parameters">
+</table></section>
+<section id="changed-parameters">
 <h2>Changed parameters<a class="headerlink" href="#changed-parameters" title="Permalink to this headline">¶</a></h2>
 <p>Some parameters in the YAML configuration have been renamed or removed:</p>
 <table border="1" class="docutils">
@@ -435,16 +436,16 @@ pip install OpenNMT-tf
 <li><p><code class="docutils literal notranslate"><span class="pre">params/optimizer</span></code> and <code class="docutils literal notranslate"><span class="pre">params/optimizer_params</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">params/decay_type</span></code> and <code class="docutils literal notranslate"><span class="pre">params/decay_params</span></code></p></li>
 </ul>
-</div>
-<div class="section" id="new-mixed-precision-workflow">
+</section>
+<section id="new-mixed-precision-workflow">
 <h2>New mixed precision workflow<a class="headerlink" href="#new-mixed-precision-workflow" title="Permalink to this headline">¶</a></h2>
 <p>OpenNMT-tf 2.0 is using the newly introduced <a class="reference external" href="https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/train/experimental/enable_mixed_precision_graph_rewrite">graph rewriter</a> to automatically convert parts of the graph from <code class="docutils literal notranslate"><span class="pre">float32</span></code> to <code class="docutils literal notranslate"><span class="pre">float16</span></code>.</p>
 <p>Variables are casted on the fly and checkpoints no longer need to be converted for inference or to continue training in <code class="docutils literal notranslate"><span class="pre">float32</span></code>. This means mixed precision is no longer a property of the model but should be enabled on the command line instead, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --model_type Transformer --config data.yml --auto_config --mixed_precision train
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

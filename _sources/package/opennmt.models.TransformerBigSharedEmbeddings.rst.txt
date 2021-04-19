@@ -1,0 +1,8 @@
+opennmt.models.TransformerBigSharedEmbeddings
+=============================================
+
+.. autoclass:: opennmt.models.TransformerBigSharedEmbeddings
+    :members:
+    :undoc-members:
+
+    **Inherits from:** :class:`opennmt.models.Transformer`

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.catalog &mdash; OpenNMT-tf 2.17.1 documentation</title>
+  <title>opennmt.models.catalog &mdash; OpenNMT-tf 2.18.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.17
+                2.18
               </div>
             
           
@@ -89,12 +89,12 @@
               
             
             
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+              <p><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
@@ -104,7 +104,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
@@ -112,7 +112,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
@@ -472,7 +472,7 @@
 
 
 <span class="k">class</span> <span class="nc">_DefaultTransformer</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">big</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">big</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">shared_embeddings</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">big</span><span class="p">:</span>
             <span class="n">num_units</span> <span class="o">=</span> <span class="mi">1024</span>
             <span class="n">num_heads</span> <span class="o">=</span> <span class="mi">16</span>
@@ -498,18 +498,33 @@
             <span class="n">attention_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
             <span class="n">ffn_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
             <span class="n">position_encoder_class</span><span class="o">=</span><span class="n">position_encoder_class</span><span class="p">,</span>
+            <span class="n">share_embeddings</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">sequence_to_sequence</span><span class="o">.</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">ALL</span>
+                <span class="k">if</span> <span class="n">shared_embeddings</span>
+                <span class="k">else</span> <span class="n">sequence_to_sequence</span><span class="o">.</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">NONE</span>
+            <span class="p">),</span>
             <span class="n">maximum_relative_position</span><span class="o">=</span><span class="n">maximum_relative_position</span><span class="p">,</span>
         <span class="p">)</span>
 
 
 <div class="viewcode-block" id="TransformerBase"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBase.html#opennmt.models.TransformerBase">[docs]</a><span class="nd">@register_model_in_catalog</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;Transformer&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TransformerBase</span><span class="p">(</span><span class="n">_DefaultTransformer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a Transformer model as decribed in https://arxiv.org/abs/1706.03762.&quot;&quot;&quot;</span></div>
+    <span class="sd">&quot;&quot;&quot;Defines a base Transformer model as described in https://arxiv.org/abs/1706.03762.&quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="TransformerBaseSharedEmbeddings"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBaseSharedEmbeddings.html#opennmt.models.TransformerBaseSharedEmbeddings">[docs]</a><span class="nd">@register_model_in_catalog</span><span class="p">()</span>
+<span class="k">class</span> <span class="nc">TransformerBaseSharedEmbeddings</span><span class="p">(</span><span class="n">_DefaultTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a base Transformer model with shared embeddings as described in</span>
+<span class="sd">    https://arxiv.org/abs/1706.03762.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">shared_embeddings</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TransformerBaseRelative"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBaseRelative.html#opennmt.models.TransformerBaseRelative">[docs]</a><span class="nd">@register_model_in_catalog</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;TransformerRelative&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TransformerBaseRelative</span><span class="p">(</span><span class="n">_DefaultTransformer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a Transformer model using relative position representations as</span>
+    <span class="sd">&quot;&quot;&quot;Defines a base Transformer model using relative position representations as</span>
 <span class="sd">    described in https://arxiv.org/abs/1803.02155.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -524,15 +539,25 @@
 
 <div class="viewcode-block" id="TransformerBig"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBig.html#opennmt.models.TransformerBig">[docs]</a><span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">TransformerBig</span><span class="p">(</span><span class="n">_DefaultTransformer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a large Transformer model as decribed in https://arxiv.org/abs/1706.03762.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Defines a big Transformer model as described in https://arxiv.org/abs/1706.03762.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">big</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="TransformerBigSharedEmbeddings"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBigSharedEmbeddings.html#opennmt.models.TransformerBigSharedEmbeddings">[docs]</a><span class="nd">@register_model_in_catalog</span>
+<span class="k">class</span> <span class="nc">TransformerBigSharedEmbeddings</span><span class="p">(</span><span class="n">_DefaultTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a big Transformer model with shared embeddings as described in</span>
+<span class="sd">    https://arxiv.org/abs/1706.03762.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">big</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">shared_embeddings</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="TransformerBigRelative"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBigRelative.html#opennmt.models.TransformerBigRelative">[docs]</a><span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">TransformerBigRelative</span><span class="p">(</span><span class="n">_DefaultTransformer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a large Transformer model using relative position representations as</span>
+    <span class="sd">&quot;&quot;&quot;Defines a big Transformer model using relative position representations as</span>
 <span class="sd">    described in https://arxiv.org/abs/1803.02155.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 

@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Frequently Asked Questions &mdash; OpenNMT-tf 2.17.1 documentation</title>
+  <title>Frequently Asked Questions &mdash; OpenNMT-tf 2.18.0 documentation</title>
   
 
   
@@ -67,7 +68,7 @@
             
             
               <div class="version">
-                2.17
+                2.18
               </div>
             
           
@@ -91,12 +92,12 @@
               
             
             
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+              <p><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
@@ -106,7 +107,7 @@
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p><span class="caption-text">Usage</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
@@ -119,7 +120,7 @@
 </ul>
 </li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
@@ -185,9 +186,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="frequently-asked-questions">
+  <section id="frequently-asked-questions">
 <h1>Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="how-to-count-the-number-of-epochs">
+<section id="how-to-count-the-number-of-epochs">
 <h2>How to count the number of epochs?<a class="headerlink" href="#how-to-count-the-number-of-epochs" title="Permalink to this headline">¶</a></h2>
 <p>OpenNMT-tf uses a step-based training that makes it difficult to track the number of epochs over the dataset. However, it is possible to run the training epoch by epoch with the following configuration:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">train</span><span class="p">:</span>
@@ -202,23 +203,23 @@ onmt-main [...] train  # 2nd epoch
 </pre></div>
 </div>
 <p>which you can wrap in a shell loop for example.</p>
-</div>
-<div class="section" id="how-to-continue-training-with-different-optimization-settings">
+</section>
+<section id="how-to-continue-training-with-different-optimization-settings">
 <h2>How to continue training with different optimization settings?<a class="headerlink" href="#how-to-continue-training-with-different-optimization-settings" title="Permalink to this headline">¶</a></h2>
 <p>By default, OpenNMT-tf continues the training where it left off, including the state of the optimizer. To change the optimization settings, the recommended approach is to start a fresh training and only load the model weights from the previous checkpoint:</p>
 <ol class="simple">
 <li><p>In your configuration, set <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> to a new directory to start a new training</p></li>
 <li><p>On the command line, set <code class="docutils literal notranslate"><span class="pre">--checkpoint_path</span></code> to the checkpoint from where to load the model weights</p></li>
 </ol>
-</div>
-<div class="section" id="how-can-i-restrict-the-tensorflow-runtime-to-specific-gpu">
+</section>
+<section id="how-can-i-restrict-the-tensorflow-runtime-to-specific-gpu">
 <h2>How can I restrict the TensorFlow runtime to specific GPU?<a class="headerlink" href="#how-can-i-restrict-the-tensorflow-runtime-to-specific-gpu" title="Permalink to this headline">¶</a></h2>
 <p>Use the <a class="reference external" href="https://devblogs.nvidia.com/cuda-pro-tip-control-gpu-visibility-cuda_visible_devices/"><code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code></a> environment variable, e.g.:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span> <span class="n">onmt</span><span class="o">-</span><span class="n">main</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

@@ -11,5 +11,7 @@ opennmt.models.Transformer
 
     - :class:`opennmt.models.TransformerBase`
     - :class:`opennmt.models.TransformerBaseRelative`
+    - :class:`opennmt.models.TransformerBaseSharedEmbeddings`
     - :class:`opennmt.models.TransformerBig`
     - :class:`opennmt.models.TransformerBigRelative`
+    - :class:`opennmt.models.TransformerBigSharedEmbeddings`

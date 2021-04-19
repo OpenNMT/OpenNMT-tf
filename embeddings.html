@@ -5,10 +5,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Embeddings &mdash; OpenNMT-tf 2.17.1 documentation</title>
+  <title>Embeddings &mdash; OpenNMT-tf 2.18.0 documentation</title>
   
 
   
@@ -67,7 +68,7 @@
             
             
               <div class="version">
-                2.17
+                2.18
               </div>
             
           
@@ -91,12 +92,12 @@
               
             
             
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+              <p><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p><span class="caption-text">Configuration</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
@@ -110,7 +111,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
@@ -118,7 +119,7 @@
 <li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
@@ -184,9 +185,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="embeddings">
+  <section id="embeddings">
 <h1>Embeddings<a class="headerlink" href="#embeddings" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="pretrained">
+<section id="pretrained">
 <h2>Pretrained<a class="headerlink" href="#pretrained" title="Permalink to this headline">¶</a></h2>
 <p>Pretrained embeddings can be configured in the <code class="docutils literal notranslate"><span class="pre">data</span></code> section of the YAML configuration, e.g.:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
@@ -201,13 +202,13 @@
 </div>
 <p>The format of the embedding file and the options are described in the <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.load_pretrained_embeddings.html"><code class="docutils literal notranslate"><span class="pre">opennmt.inputters.load_pretrained_embeddings</span></code></a> function.</p>
 <p>Pretrained embeddings are only loaded when initializing the model weights. If you continue the training with from a checkpoint, this configuration is ignored and the embeddings values are loaded from the checkpoint.</p>
-</div>
-<div class="section" id="sharing">
+</section>
+<section id="sharing">
 <h2>Sharing<a class="headerlink" href="#sharing" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">SequenceToSequence</span></code> models take a <code class="docutils literal notranslate"><span class="pre">share_embeddings</span></code> argument in the constructor that accepts a <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.models.EmbeddingsSharingLevel"><code class="docutils literal notranslate"><span class="pre">EmbeddingsSharingLevel</span></code></a> value to enable different level of embeddings sharing.</p>
 <p>See for example the custom model definition <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/blob/master/config/models/transformer_shared_embedding.py"><code class="docutils literal notranslate"><span class="pre">transformer_shared_embedding.py</span></code></a> that shares all embeddings, including the output softmax weights, for a Transformer model.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

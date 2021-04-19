@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.17.1 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.18.0 documentation</title>
   
 
   
@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                2.17
+                2.18
               </div>
             
           
@@ -89,12 +89,12 @@
               
             
             
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+              <p><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../configuration.html">Parameters</a></li>
@@ -104,7 +104,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../inference.html">Inference</a></li>
@@ -112,7 +112,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../package/opennmt.html">opennmt module</a></li>
@@ -325,6 +325,7 @@
                     <span class="n">max_batch_size</span><span class="o">=</span><span class="n">max_batch_size</span><span class="p">,</span>
                     <span class="n">min_range</span><span class="o">=</span><span class="n">min_range</span><span class="p">,</span>
                     <span class="n">num_devices</span><span class="o">=</span><span class="n">num_devices</span><span class="p">,</span>
+                    <span class="n">scaling_factor</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;batch_size_autotune_scale&quot;</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span>
                     <span class="n">mixed_precision</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_mixed_precision</span><span class="p">,</span>
                 <span class="p">)</span>
 
@@ -682,7 +683,7 @@
     <span class="n">min_range</span><span class="p">,</span>
     <span class="n">sample_iterations</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
     <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">scaling_factor</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+    <span class="n">scaling_factor</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
     <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Find the largest token-based batch size that can be used with this</span>
