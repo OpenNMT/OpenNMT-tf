@@ -15,6 +15,18 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.18.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.18.0) (2021-04-19)
+
+### New features
+
+* Add `TransformerBaseSharedEmbeddings` and `TransformerBigSharedEmbeddings` in the model catalog
+
+### Fixes and improvements
+
+* Fix loss normalization when using sentence weighting
+* Tune the automatic batch size selection to avoid some out of memory errors
+* Harmonize training logs format when using `onmt-main`
+
 ## [2.17.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.17.1) (2021-03-23)
 
 ### Fixes and improvements
