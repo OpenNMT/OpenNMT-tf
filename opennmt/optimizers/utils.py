@@ -136,6 +136,4 @@ class GradientAccumulator(object):
             return
         self._accum_steps.assign(0)
         for gradient in self._gradients:
-            gradient.assign(
-                tf.zeros(gradient.shape, dtype=gradient.dtype), read_value=False
-            )
+            gradient.assign(tf.zeros_like(gradient), read_value=False)
