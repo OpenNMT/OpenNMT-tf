@@ -159,20 +159,6 @@ class TransformerTest(tf.test.TestCase):
         cache = (tf.zeros([4, 4, 0, 5]), tf.zeros([4, 4, 0, 5]))
         _, cache = attention(x, cache=cache)
 
-    def testMultiHeadSelfAttentionRelativeGradients(self):
-        attention = transformer.MultiHeadAttention(4, 20, maximum_relative_position=6)
-
-        @tf.function
-        def _compute_gradients_in_function(x):
-            with tf.GradientTape() as tape:
-                y, _ = attention(x)
-                loss = tf.math.reduce_sum(y)
-            gradients = tape.gradient(loss, attention.weights)
-            for gradient in gradients:
-                self.assertTrue(gradient.shape.is_fully_defined())
-
-        _compute_gradients_in_function(tf.random.uniform([4, 1, 10]))
-
     def testMultiHeadAttention(self):
         attention = transformer.MultiHeadAttention(4, 20, return_attention=True)
         queries = tf.random.uniform([4, 5, 10])
