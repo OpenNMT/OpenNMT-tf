@@ -15,6 +15,14 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.18.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.18.1) (2021-04-27)
+
+### Fixes and improvements
+
+* Fix vocabulary update for models with shared embeddings
+* Fix a compatibility issue with TensorFlow 2.5 for early users
+* When all training attempts fail in batch size autotuning, log the error message of the last attempt
+
 ## [2.18.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.18.0) (2021-04-19)
 
 ### New features
