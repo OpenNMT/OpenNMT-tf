@@ -486,47 +486,55 @@ class SequenceToSequence(model.SequenceGenerator):
     ):
         updated_variables = []
 
-        def _map_variables(inputter_fn, vars_fn):
-            mapping, _ = vocab.get_mapping(
-                inputter_fn(self).vocabulary_file,
-                inputter_fn(new_model).vocabulary_file,
-            )
-            vars_a, vocab_axes = vars_fn(self)
-            vars_b, _ = vars_fn(new_model)
-            for var_a, var_b, vocab_axis in zip(vars_a, vars_b, vocab_axes):
-                if new_optimizer is not None and optimizer is not None:
-                    variables = vocab.update_variable_and_slots(
-                        var_a,
-                        var_b,
-                        optimizer,
-                        new_optimizer,
-                        mapping,
-                        vocab_axis=vocab_axis,
-                    )
-                else:
-                    variables = [
-                        vocab.update_variable(
-                            var_a, var_b, mapping, vocab_axis=vocab_axis
-                        )
-                    ]
-                updated_variables.extend(variables)
-            return vars_b
+        def _map_variable(mapping, var_a, var_b, axis=0):
+            if new_optimizer is not None and optimizer is not None:
+                variables = vocab.update_variable_and_slots(
+                    var_a,
+                    var_b,
+                    optimizer,
+                    new_optimizer,
+                    mapping,
+                    vocab_axis=axis,
+                )
+            else:
+                variables = [
+                    vocab.update_variable(var_a, var_b, mapping, vocab_axis=axis)
+                ]
+            updated_variables.extend(variables)
 
-        _map_variables(
-            lambda model: model.features_inputter,
-            lambda model: ([model.features_inputter.embedding], [0]),
+        source_mapping, _ = vocab.get_mapping(
+            self.features_inputter.vocabulary_file,
+            new_model.features_inputter.vocabulary_file,
         )
-        _map_variables(
-            lambda model: model.labels_inputter,
-            lambda model: (
-                [
-                    model.labels_inputter.embedding,
-                    model.decoder.output_layer.kernel,
-                    model.decoder.output_layer.bias,
-                ],
-                [0, 1, 0],
-            ),
+        target_mapping, _ = vocab.get_mapping(
+            self.labels_inputter.vocabulary_file,
+            new_model.labels_inputter.vocabulary_file,
         )
+
+        _map_variable(
+            source_mapping,
+            self.features_inputter.embedding,
+            new_model.features_inputter.embedding,
+        )
+        _map_variable(
+            target_mapping,
+            self.decoder.output_layer.bias,
+            new_model.decoder.output_layer.bias,
+        )
+
+        if not EmbeddingsSharingLevel.share_input_embeddings(self.share_embeddings):
+            _map_variable(
+                target_mapping,
+                self.labels_inputter.embedding,
+                new_model.labels_inputter.embedding,
+            )
+        if not EmbeddingsSharingLevel.share_target_embeddings(self.share_embeddings):
+            _map_variable(
+                target_mapping,
+                self.decoder.output_layer.kernel,
+                new_model.decoder.output_layer.kernel,
+                axis=1,
+            )
 
         return super().transfer_weights(
             new_model,

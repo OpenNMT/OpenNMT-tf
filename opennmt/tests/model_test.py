@@ -13,12 +13,17 @@ from opennmt.tests import test_util
 from opennmt.utils import misc
 
 
-def _seq2seq_model(training=None):
+def _seq2seq_model(training=None, shared_embeddings=False):
     model = models.SequenceToSequence(
         inputters.WordEmbedder(16),
         inputters.WordEmbedder(16),
         encoders.SelfAttentionEncoder(2, 16, 4, 32),
         decoders.SelfAttentionDecoder(2, 16, 4, 32),
+        share_embeddings=(
+            models.sequence_to_sequence.EmbeddingsSharingLevel.ALL
+            if shared_embeddings
+            else models.EmbeddingsSharingLevel.NONE
+        ),
     )
     params = {}
     if training:
@@ -587,9 +592,12 @@ class ModelTest(tf.test.TestCase):
         self.assertEqual(model.encoder.layers[0].ffn.output_dropout, 0)
         self.assertEqual(model.encoder.layers[0].self_attention.output_dropout, 0)
 
-    def testTransferWeightsNewVocab(self):
+    @parameterized.expand([[True], [False]])
+    def testTransferWeightsNewVocab(self, shared_embeddings):
         def _make_model(name, src_vocab, tgt_vocab, random_slots=False):
-            model, _ = _seq2seq_model(training=True)
+            model, _ = _seq2seq_model(
+                training=True, shared_embeddings=shared_embeddings
+            )
             optimizer = tf.keras.optimizers.Adam()
             data = {}
             data["source_vocabulary"] = test_util.make_data_file(
@@ -607,17 +615,30 @@ class ModelTest(tf.test.TestCase):
                         slot.assign(tf.random.uniform(slot.shape))
             return model, optimizer
 
+        cur_src_vocab = ["a", "b", "c", "d", "e"]
+        new_src_vocab = ["c", "a", "e", "f"]
+        src_mapping = [2, 0, 4, -1]
+
+        if shared_embeddings:
+            cur_tgt_vocab = cur_src_vocab
+            new_tgt_vocab = new_src_vocab
+            tgt_mapping = src_mapping
+        else:
+            cur_tgt_vocab = ["1", "2", "3", "4", "5", "6"]
+            new_tgt_vocab = ["1", "3", "2", "6", "7"]
+            tgt_mapping = [0, 2, 1, 5, -1]
+
         model_a, optimizer_a = _make_model(
             "a",
-            ["a", "b", "c", "d", "e"],
-            ["1", "2", "3", "4", "5", "6"],
+            cur_src_vocab,
+            cur_tgt_vocab,
             random_slots=True,
         )
         model_b, optimizer_b = _make_model(
-            "b", ["c", "a", "e", "f"], ["1", "3", "2", "6", "7"]
+            "b",
+            new_src_vocab,
+            new_tgt_vocab,
         )
-        src_mapping = [2, 0, 4, -1]
-        tgt_mapping = [0, 2, 1, 5, -1]
 
         def _check_weight(weight_a, weight_b, mapping, vocab_axis=0):
             weight_a = self.evaluate(weight_a)
@@ -644,18 +665,38 @@ class ModelTest(tf.test.TestCase):
         model_a.transfer_weights(
             model_b, new_optimizer=optimizer_b, optimizer=optimizer_a
         )
+
+        self.assertEqual(len(model_a.variables), len(model_b.variables))
+        self.assertEqual(len(optimizer_a.variables()), len(optimizer_b.variables()))
+
         _check_weight_and_slots(
             lambda model: model.features_inputter.embedding, src_mapping
         )
         _check_weight_and_slots(
-            lambda model: model.labels_inputter.embedding, tgt_mapping
-        )
-        _check_weight_and_slots(
             lambda model: model.decoder.output_layer.bias, tgt_mapping
         )
-        _check_weight_and_slots(
-            lambda model: model.decoder.output_layer.kernel, tgt_mapping, vocab_axis=1
-        )
+
+        if shared_embeddings:
+            self.assertIs(
+                model_b.features_inputter.embedding,
+                model_b.labels_inputter.embedding,
+            )
+            self.assertIs(
+                model_b.features_inputter.embedding,
+                model_b.decoder.output_layer.kernel,
+            )
+        else:
+            _check_weight_and_slots(
+                lambda model: model.labels_inputter.embedding, tgt_mapping
+            )
+            _check_weight_and_slots(
+                lambda model: model.decoder.output_layer.bias, tgt_mapping
+            )
+            _check_weight_and_slots(
+                lambda model: model.decoder.output_layer.kernel,
+                tgt_mapping,
+                vocab_axis=1,
+            )
 
     @parameterized.expand(
         [
