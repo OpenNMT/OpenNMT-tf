@@ -14,16 +14,6 @@ from opennmt.config import load_model, load_config
 from opennmt.utils import exporters
 
 
-_PYTHON_TO_TENSORFLOW_LOGGING_LEVEL = {
-    logging.CRITICAL: 3,
-    logging.ERROR: 2,
-    logging.WARNING: 1,
-    logging.INFO: 0,
-    logging.DEBUG: 0,
-    logging.NOTSET: 0,
-}
-
-
 def _initialize_logging(log_level):
     logger = tf.get_logger()
     logger.setLevel(log_level)
@@ -38,11 +28,6 @@ def _initialize_logging(log_level):
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-
-    # Align the TensorFlow C++ log level with the Python level.
-    os.environ["TF_CPP_MIN_LOG_LEVEL"] = str(
-        _PYTHON_TO_TENSORFLOW_LOGGING_LEVEL[log_level]
-    )
 
 
 def _prefix_paths(prefix, paths):
