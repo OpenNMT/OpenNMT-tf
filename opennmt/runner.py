@@ -539,6 +539,7 @@ def _auto_tune_batch_size(
 
     model_description = os.path.join(config["model_dir"], MODEL_DESCRIPTION_FILENAME)
     absolute_min_batch_size = min_batch_size
+    stderr_data = None
 
     while max_batch_size - min_batch_size > min_range:
         batch_size = (max_batch_size + min_batch_size) // 2
@@ -556,10 +557,15 @@ def _auto_tune_batch_size(
             with tf.io.gfile.GFile(config_path, mode="w") as config_file:
                 yaml.dump(run_config, config_file)
 
+            env = {
+                "TF_CPP_MIN_LOG_LEVEL": "2",
+            }
             args = [
                 sys.executable or "python",
                 "-m",
                 "opennmt.bin.main",
+                "--log_level",
+                "ERROR",
                 "--config",
                 config_path,
                 "--model",
@@ -577,10 +583,15 @@ def _auto_tune_batch_size(
 
             tf.get_logger().info("Trying training with batch size %d...", batch_size)
             with open(os.devnull, "w") as devnull:
-                process = subprocess.Popen(args, stdout=devnull, stderr=devnull)
-                exit_code = process.wait()
+                process = subprocess.Popen(
+                    args,
+                    stdout=devnull,
+                    stderr=subprocess.PIPE,
+                    env=env,
+                )
+                _, stderr_data = process.communicate()
 
-            if exit_code != 0:
+            if process.returncode != 0:
                 tf.get_logger().info("... failed.")
                 max_batch_size = batch_size - 1
             else:
@@ -591,10 +602,16 @@ def _auto_tune_batch_size(
                 min_batch_size = batch_size
 
     if min_batch_size == absolute_min_batch_size:
+        if stderr_data is not None:
+            tf.get_logger().error(
+                'Last training attempt exited with an error:\n\n"""\n%s"""\n'
+                % stderr_data.decode("utf-8")
+            )
         raise RuntimeError(
-            "Batch size autotuning failed: all training attempts exited with an error. "
-            "Either there is not enough memory to train this model, or unexpected errors "
-            "occured. Please try to set a fixed batch size in the training configuration."
+            "Batch size autotuning failed: all training attempts exited with an error "
+            "(see last error above). Either there is not enough memory to train this "
+            "model, or unexpected errors occured. Please try to set a fixed batch size "
+            "in the training configuration."
         )
 
     batch_size = max(int(scaling_factor * min_batch_size), absolute_min_batch_size)
