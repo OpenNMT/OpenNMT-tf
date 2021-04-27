@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.optimizers.utils &mdash; OpenNMT-tf 2.18.0 documentation</title>
+  <title>opennmt.optimizers.utils &mdash; OpenNMT-tf 2.18.1 documentation</title>
   
 
   
@@ -317,9 +317,12 @@
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">gradient</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">:</span>
-            <span class="n">gradient</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">gradient</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">gradient</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">False</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">gradient</span><span class="o">.</span><span class="n">shape</span>
+                <span class="k">if</span> <span class="n">gradient</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">is_fully_defined</span><span class="p">()</span>
+                <span class="k">else</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">gradient</span><span class="p">)</span>
             <span class="p">)</span>
+            <span class="n">gradient</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">gradient</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
            </div>

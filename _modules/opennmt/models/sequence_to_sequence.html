@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.18.0 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.18.1 documentation</title>
   
 
   
@@ -667,47 +667,55 @@
     <span class="p">):</span>
         <span class="n">updated_variables</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="k">def</span> <span class="nf">_map_variables</span><span class="p">(</span><span class="n">inputter_fn</span><span class="p">,</span> <span class="n">vars_fn</span><span class="p">):</span>
-            <span class="n">mapping</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">vocab</span><span class="o">.</span><span class="n">get_mapping</span><span class="p">(</span>
-                <span class="n">inputter_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
-                <span class="n">inputter_fn</span><span class="p">(</span><span class="n">new_model</span><span class="p">)</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">vars_a</span><span class="p">,</span> <span class="n">vocab_axes</span> <span class="o">=</span> <span class="n">vars_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="n">vars_b</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">vars_fn</span><span class="p">(</span><span class="n">new_model</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">var_a</span><span class="p">,</span> <span class="n">var_b</span><span class="p">,</span> <span class="n">vocab_axis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">vars_a</span><span class="p">,</span> <span class="n">vars_b</span><span class="p">,</span> <span class="n">vocab_axes</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">new_optimizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">optimizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">variables</span> <span class="o">=</span> <span class="n">vocab</span><span class="o">.</span><span class="n">update_variable_and_slots</span><span class="p">(</span>
-                        <span class="n">var_a</span><span class="p">,</span>
-                        <span class="n">var_b</span><span class="p">,</span>
-                        <span class="n">optimizer</span><span class="p">,</span>
-                        <span class="n">new_optimizer</span><span class="p">,</span>
-                        <span class="n">mapping</span><span class="p">,</span>
-                        <span class="n">vocab_axis</span><span class="o">=</span><span class="n">vocab_axis</span><span class="p">,</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span>
-                        <span class="n">vocab</span><span class="o">.</span><span class="n">update_variable</span><span class="p">(</span>
-                            <span class="n">var_a</span><span class="p">,</span> <span class="n">var_b</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">vocab_axis</span><span class="o">=</span><span class="n">vocab_axis</span>
-                        <span class="p">)</span>
-                    <span class="p">]</span>
-                <span class="n">updated_variables</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">vars_b</span>
+        <span class="k">def</span> <span class="nf">_map_variable</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="n">var_a</span><span class="p">,</span> <span class="n">var_b</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">new_optimizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">optimizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">variables</span> <span class="o">=</span> <span class="n">vocab</span><span class="o">.</span><span class="n">update_variable_and_slots</span><span class="p">(</span>
+                    <span class="n">var_a</span><span class="p">,</span>
+                    <span class="n">var_b</span><span class="p">,</span>
+                    <span class="n">optimizer</span><span class="p">,</span>
+                    <span class="n">new_optimizer</span><span class="p">,</span>
+                    <span class="n">mapping</span><span class="p">,</span>
+                    <span class="n">vocab_axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">vocab</span><span class="o">.</span><span class="n">update_variable</span><span class="p">(</span><span class="n">var_a</span><span class="p">,</span> <span class="n">var_b</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">vocab_axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="n">updated_variables</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
 
-        <span class="n">_map_variables</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">model</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">features_inputter</span><span class="p">,</span>
-            <span class="k">lambda</span> <span class="n">model</span><span class="p">:</span> <span class="p">([</span><span class="n">model</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+        <span class="n">source_mapping</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">vocab</span><span class="o">.</span><span class="n">get_mapping</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
+            <span class="n">new_model</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">_map_variables</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">model</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">labels_inputter</span><span class="p">,</span>
-            <span class="k">lambda</span> <span class="n">model</span><span class="p">:</span> <span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">model</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
-                    <span class="n">model</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span>
-                    <span class="n">model</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">bias</span><span class="p">,</span>
-                <span class="p">],</span>
-                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-            <span class="p">),</span>
+        <span class="n">target_mapping</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">vocab</span><span class="o">.</span><span class="n">get_mapping</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
+            <span class="n">new_model</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
         <span class="p">)</span>
+
+        <span class="n">_map_variable</span><span class="p">(</span>
+            <span class="n">source_mapping</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
+            <span class="n">new_model</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">_map_variable</span><span class="p">(</span>
+            <span class="n">target_mapping</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">bias</span><span class="p">,</span>
+            <span class="n">new_model</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">bias</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">share_input_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">share_embeddings</span><span class="p">):</span>
+            <span class="n">_map_variable</span><span class="p">(</span>
+                <span class="n">target_mapping</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
+                <span class="n">new_model</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">share_target_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">share_embeddings</span><span class="p">):</span>
+            <span class="n">_map_variable</span><span class="p">(</span>
+                <span class="n">target_mapping</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span>
+                <span class="n">new_model</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">transfer_weights</span><span class="p">(</span>
             <span class="n">new_model</span><span class="p">,</span>
