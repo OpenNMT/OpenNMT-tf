@@ -31,7 +31,11 @@ class Tokenizer(abc.ABC):
         return {}
 
     def tokenize_stream(
-        self, input_stream=sys.stdin, output_stream=sys.stdout, delimiter=" "
+        self,
+        input_stream=sys.stdin,
+        output_stream=sys.stdout,
+        delimiter=" ",
+        training=True,
     ):
         """Tokenizes a stream of sentences.
 
@@ -39,15 +43,19 @@ class Tokenizer(abc.ABC):
           input_stream: The input stream.
           output_stream: The output stream.
           delimiter: The token delimiter to use for text serialization.
+          training: Set to ``False`` to tokenize for inference.
         """
         for line in input_stream:
             line = line.strip()
-            tokens = self.tokenize(line)
+            tokens = self.tokenize(line, training=training)
             merged_tokens = delimiter.join(tokens)
             misc.print_as_bytes(merged_tokens, stream=output_stream)
 
     def detokenize_stream(
-        self, input_stream=sys.stdin, output_stream=sys.stdout, delimiter=" "
+        self,
+        input_stream=sys.stdin,
+        output_stream=sys.stdout,
+        delimiter=" ",
     ):
         """Detokenizes a stream of sentences.
 
@@ -61,12 +69,13 @@ class Tokenizer(abc.ABC):
             string = self.detokenize(tokens)
             misc.print_as_bytes(string, stream=output_stream)
 
-    def tokenize(self, text):
+    def tokenize(self, text, training=True):
         """Tokenizes text.
 
         Args:
           text: A string or batch of strings to tokenize as a ``tf.Tensor`` or
             Python values.
+          training: Set to ``False`` to tokenize for inference.
 
         Returns:
           - If :obj:`text` is a Python string, a list of Python strings.
@@ -79,22 +88,22 @@ class Tokenizer(abc.ABC):
           ValueError: if the rank of :obj:`text` is greater than 1.
         """
         with tf.device("cpu:0"):
-            return self._tokenize(text)
+            return self._tokenize(text, training)
 
-    def _tokenize(self, text):
+    def _tokenize(self, text, training):
         if tf.is_tensor(text):
             rank = len(text.shape)
             if rank == 0:
-                return self._tokenize_tensor(text)
+                return self._tokenize_tensor(text, training)
             elif rank == 1:
-                return self._tokenize_batch_tensor(text)
+                return self._tokenize_batch_tensor(text, training)
             else:
                 raise ValueError("Unsupported tensor rank %d for tokenization" % rank)
         elif isinstance(text, list):
-            return list(map(self.tokenize, text))
+            return list(map(lambda t: self._tokenize(t, training), text))
         else:
             text = tf.compat.as_text(text)
-            return self._tokenize_string(text)
+            return self._tokenize_string(text, training)
 
     def detokenize(self, tokens, sequence_length=None):
         """Detokenizes tokens.
@@ -150,7 +159,7 @@ class Tokenizer(abc.ABC):
             tokens = [tf.compat.as_text(token) for token in tokens]
             return self._detokenize_string(tokens)
 
-    def _tokenize_tensor(self, text):
+    def _tokenize_tensor(self, text, training):
         """Tokenizes a tensor.
 
         When not overriden, this default implementation calls the string-based
@@ -158,6 +167,7 @@ class Tokenizer(abc.ABC):
 
         Args:
           text: A 1-D string ``tf.Tensor``.
+          training: Set to ``False`` to tokenize for inference.
 
         Returns:
           A 1-D string ``tf.Tensor``.
@@ -165,14 +175,14 @@ class Tokenizer(abc.ABC):
 
         def _python_wrapper(string_t):
             string = tf.compat.as_text(string_t.numpy())
-            tokens = self._tokenize_string(string)
+            tokens = self._tokenize_string(string, training)
             return tf.constant(tokens, dtype=tf.string)
 
         tokens = tf.py_function(_python_wrapper, [text], tf.string)
         tokens.set_shape([None])
         return tokens
 
-    def _tokenize_batch_tensor(self, text):
+    def _tokenize_batch_tensor(self, text, training):
         """Tokenizes a batch of texts.
 
         When not overriden, this default implementation calls _tokenize_tensor on
@@ -180,6 +190,7 @@ class Tokenizer(abc.ABC):
 
         Args:
           text: A 1-D string ``tf.Tensor``.
+          training: Set to ``False`` to tokenize for inference.
 
         Returns:
           A 2-D string ``tf.RaggedTensor``.
@@ -188,7 +199,7 @@ class Tokenizer(abc.ABC):
         # spaces first and then split on spaces with a function returning a RaggedTensor.
         tokens = tf.map_fn(
             lambda x: tf.strings.reduce_join(
-                self._tokenize_tensor(x), axis=0, separator=" "
+                self._tokenize_tensor(x, training), axis=0, separator=" "
             ),
             text,
         )
@@ -249,13 +260,14 @@ class Tokenizer(abc.ABC):
         return self._detokenize_batch_tensor(tokens.to_tensor(), tokens.row_lengths())
 
     @abc.abstractmethod
-    def _tokenize_string(self, text):
+    def _tokenize_string(self, text, training):
         """Tokenizes a Python unicode string.
 
         This method should be thread-safe.
 
         Args:
           text: A Python unicode string.
+          training: Set to ``False`` to tokenize for inference.
 
         Returns:
           A list of Python unicode strings.
@@ -345,10 +357,10 @@ class SpaceTokenizer(Tokenizer):
     def in_graph(self):
         return self._in_graph
 
-    def _tokenize_tensor(self, text):
-        return self._tokenize_batch_tensor(text)
+    def _tokenize_tensor(self, text, training):
+        return self._tokenize_batch_tensor(text, training)
 
-    def _tokenize_batch_tensor(self, text):
+    def _tokenize_batch_tensor(self, text, _):
         return tf.strings.split(text)
 
     def _detokenize_tensor(self, tokens):
@@ -361,7 +373,7 @@ class SpaceTokenizer(Tokenizer):
     def _detokenize_ragged_tensor(self, tokens):
         return tf.strings.reduce_join(tokens, axis=tokens.shape.rank - 1, separator=" ")
 
-    def _tokenize_string(self, text):
+    def _tokenize_string(self, text, _):
         return text.split()
 
     def _detokenize_string(self, tokens):
@@ -376,10 +388,10 @@ class CharacterTokenizer(Tokenizer):
     def in_graph(self):
         return True
 
-    def _tokenize_tensor(self, text):
-        return self._tokenize_batch_tensor(text)
+    def _tokenize_tensor(self, text, training):
+        return self._tokenize_batch_tensor(text, training)
 
-    def _tokenize_batch_tensor(self, text):
+    def _tokenize_batch_tensor(self, text, _):
         text = tf.strings.regex_replace(text, " ", "▁")
         return tf.strings.unicode_split(text, "UTF-8")
 
@@ -394,7 +406,7 @@ class CharacterTokenizer(Tokenizer):
         text = tf.strings.reduce_join(tokens, axis=tokens.shape.rank - 1)
         return tf.strings.regex_replace(text, "▁", " ")
 
-    def _tokenize_string(self, text):
+    def _tokenize_string(self, text, _):
         return list(text.replace(" ", "▁"))
 
     def _detokenize_string(self, tokens):

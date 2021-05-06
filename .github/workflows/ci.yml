@@ -60,6 +60,7 @@ jobs:
           wget https://s3.amazonaws.com/opennmt-models/transliteration-aren-v2.tar.gz
           mkdir -p testdata
           tar xf transliteration-aren-v2.tar.gz -C testdata
+          wget -P testdata https://opennmt-trainingdata.s3.amazonaws.com/wmtende.model
 
       - name: Run tests
         run: |

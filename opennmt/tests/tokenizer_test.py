@@ -1,37 +1,42 @@
 import os
 import yaml
+import unittest
 
 import tensorflow as tf
 
 from opennmt import tokenizers
+from opennmt.tests import test_util
+
+
+sp_model = os.path.join(test_util.get_test_data_dir(), "wmtende.model")
 
 
 class TokenizerTest(tf.test.TestCase):
-    def _testTokenizerOnTensor(self, tokenizer, text, ref_tokens):
+    def _testTokenizerOnTensor(self, tokenizer, text, ref_tokens, training):
         ref_tokens = [tf.compat.as_bytes(token) for token in ref_tokens]
         text = tf.constant(text)
-        tokens = tokenizer.tokenize(text)
+        tokens = tokenizer.tokenize(text, training=training)
         self.assertIsInstance(tokens, tf.Tensor)
         self.assertAllEqual(ref_tokens, self.evaluate(tokens))
 
-    def _testTokenizerOnBatchTensor(self, tokenizer, text, ref_tokens):
+    def _testTokenizerOnBatchTensor(self, tokenizer, text, ref_tokens, training):
         text = tf.constant(text)
-        tokens = tokenizer.tokenize(text)
+        tokens = tokenizer.tokenize(text, training=training)
         self.assertIsInstance(tokens, tf.RaggedTensor)
         self.assertAllEqual(
             tokens.to_list(), tf.nest.map_structure(tf.compat.as_bytes, ref_tokens)
         )
 
-    def _testTokenizerOnString(self, tokenizer, text, ref_tokens):
-        tokens = tokenizer.tokenize(text)
+    def _testTokenizerOnString(self, tokenizer, text, ref_tokens, training):
+        tokens = tokenizer.tokenize(text, training=training)
         self.assertAllEqual(ref_tokens, tokens)
 
-    def _testTokenizer(self, tokenizer, text, ref_tokens):
-        self.assertAllEqual(tokenizer.tokenize(text), ref_tokens)
-        self._testTokenizerOnBatchTensor(tokenizer, text, ref_tokens)
+    def _testTokenizer(self, tokenizer, text, ref_tokens, training=True):
+        self.assertAllEqual(tokenizer.tokenize(text, training), ref_tokens)
+        self._testTokenizerOnBatchTensor(tokenizer, text, ref_tokens, training)
         for txt, ref in zip(text, ref_tokens):
-            self._testTokenizerOnTensor(tokenizer, txt, ref)
-            self._testTokenizerOnString(tokenizer, txt, ref)
+            self._testTokenizerOnTensor(tokenizer, txt, ref, training)
+            self._testTokenizerOnString(tokenizer, txt, ref, training)
 
     def _testDetokenizerOnTensor(self, tokenizer, tokens, ref_text):
         ref_text = tf.compat.as_bytes(ref_text)
@@ -139,6 +144,16 @@ class TokenizerTest(tf.test.TestCase):
         self._testTokenizer(
             tokenizer, ["Hello World-s"], [["Hello", "▁", "World", "-", "s"]]
         )
+
+    @unittest.skipIf(not os.path.isfile(sp_model), "Missing SentencePiece model")
+    def testOpenNMTTokenizerInferenceMode(self):
+        tokenizer = tokenizers.OpenNMTTokenizer(
+            mode="none",
+            sp_model_path=sp_model,
+            sp_nbest_size=64,
+            sp_alpha=0.1,
+        )
+        self._testTokenizer(tokenizer, ["appealing"], [["▁appealing"]], training=False)
 
     def testOpenNMTTokenizerAssets(self):
         asset_dir = self.get_temp_dir()

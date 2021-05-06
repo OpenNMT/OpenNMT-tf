@@ -1,3 +1,4 @@
+import os
 import unittest
 
 import tensorflow as tf
@@ -13,6 +14,13 @@ from opennmt.utils import misc
 
 def skip_if_unsupported(symbol):
     return unittest.skipIf(not compat.tf_supports(symbol), "tf.%s is not supported")
+
+
+def get_test_data_dir():
+    test_dir = os.path.dirname(os.path.realpath(__file__))
+    root_dir = os.path.join(test_dir, "..", "..")
+    test_data = os.path.join(root_dir, "testdata")
+    return test_data
 
 
 def make_data_file(path, lines):
