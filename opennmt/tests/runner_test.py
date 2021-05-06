@@ -17,9 +17,7 @@ from opennmt.utils import misc
 from opennmt.tests import test_util
 
 
-test_dir = os.path.dirname(os.path.realpath(__file__))
-root_dir = os.path.join(test_dir, "..", "..")
-test_data = os.path.join(root_dir, "testdata")
+test_data = test_util.get_test_data_dir()
 
 
 def _get_test_class_name(cls, num, params_dict):

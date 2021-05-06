@@ -52,8 +52,8 @@ class OpenNMTTokenizer(tokenizer.Tokenizer):
 
         return assets
 
-    def _tokenize_string(self, text):
-        tokens, _ = self._tokenizer.tokenize(text)
+    def _tokenize_string(self, text, training):
+        tokens, _ = self._tokenizer.tokenize(text, training=training)
         return tokens
 
     def _detokenize_string(self, tokens):
