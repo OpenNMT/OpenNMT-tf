@@ -186,7 +186,7 @@ class Trainer:
             self._checkpoint.save(step)
 
     def _evaluate(self, evaluator, step, moving_average=None):
-        """Runs evaluation for step. Returns ``True`` is early conditions are met."""
+        """Runs evaluation for step. Returns ``True`` if early conditions are met."""
         if (
             not self.is_master
             or evaluator is None
