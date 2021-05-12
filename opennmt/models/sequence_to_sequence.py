@@ -75,9 +75,7 @@ class SequenceToSequence(model.SequenceGenerator):
         Raises:
           TypeError: if :obj:`target_inputter` is not a
             :class:`opennmt.inputters.WordEmbedder` (same for
-            :obj:`source_inputter` when embeddings sharing is enabled) or if
-            :obj:`source_inputter` and :obj:`target_inputter` do not have the same
-            ``dtype``.
+            :obj:`source_inputter` when embeddings sharing is enabled).
         """
         if not isinstance(target_inputter, inputters.WordEmbedder):
             raise TypeError("Target inputter must be a WordEmbedder")
