@@ -431,13 +431,13 @@ def disable_tfa_custom_ops(func):
     """A decorator that disables TensorFlow Addons custom ops in a function."""
 
     def _wrapper(*args, **kwargs):
-        previous_value = tfa.options.TF_ADDONS_PY_OPS
-        tfa.options.TF_ADDONS_PY_OPS = True
+        if tfa.options.is_custom_kernel_disabled():
+            return func(*args, **kwargs)
+        tfa.options.disable_custom_kernel()
         try:
-            outputs = func(*args, **kwargs)
+            return func(*args, **kwargs)
         finally:
-            tfa.options.TF_ADDONS_PY_OPS = previous_value
-        return outputs
+            tfa.options.enable_custom_kernel()
 
     return _wrapper
 
