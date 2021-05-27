@@ -382,6 +382,19 @@ class ModelTest(tf.test.TestCase):
         op_types = set(op.type for op in concrete_function.graph.get_operations())
         self.assertNotIn("Addons>GatherTree", op_types)
 
+    @test_util.run_with_mixed_precision
+    def testRNNWithMixedPrecision(self):
+        features_file, labels_file, data_config = self._makeToyEnDeData()
+        model = models.LuongAttention()
+        model.initialize(data_config)
+        dataset = model.examples_inputter.make_training_dataset(
+            features_file, labels_file, 16
+        )
+        features, labels = next(iter(dataset))
+        outputs, _ = model(features, labels=labels, training=True)
+        self.assertEqual(outputs["logits"].dtype, tf.float16)
+        self.assertEqual(outputs["attention"].dtype, tf.float16)
+
     @parameterized.expand(
         [
             [tf.estimator.ModeKeys.TRAIN],

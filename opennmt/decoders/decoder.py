@@ -341,7 +341,7 @@ class Decoder(tf.keras.layers.Layer):
 
         step = tf.constant(0, dtype=tf.int32)
         outputs_ta = tf.TensorArray(inputs.dtype, size=max_step)
-        attention_ta = tf.TensorArray(tf.float32, size=max_step)
+        attention_ta = tf.TensorArray(inputs.dtype, size=max_step)
 
         _, state, _, outputs_ta, attention_ta = tf.while_loop(
             lambda *arg: True,
