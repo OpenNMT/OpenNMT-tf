@@ -1,43 +1,44 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
   
-  <title>Tokenization &mdash; OpenNMT-tf 2.18.1 documentation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-
+  <title>Tokenization &mdash; OpenNMT-tf 2.19.0 documentation</title>
   
-  
-    <link rel="shortcut icon" href="_static/favicon.png"/>
-  
-  
-  
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Embeddings" href="embeddings.html" />
@@ -68,7 +69,7 @@
             
             
               <div class="version">
-                2.18
+                2.19
               </div>
             
           
@@ -85,6 +86,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -92,12 +94,12 @@
               
             
             
-              <p><span class="caption-text">Getting started</span></p>
+              <p class="caption"><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
-<p><span class="caption-text">Configuration</span></p>
+<p class="caption"><span class="caption-text">Configuration</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
@@ -113,7 +115,7 @@
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
-<p><span class="caption-text">Usage</span></p>
+<p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
@@ -121,7 +123,7 @@
 <li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p><span class="caption-text">API</span></p>
+<p class="caption"><span class="caption-text">API</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
@@ -130,6 +132,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -164,18 +167,20 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Tokenization</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
         
       </li>
     
@@ -187,7 +192,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="tokenization">
+  <div class="section" id="tokenization">
 <h1>Tokenization<a class="headerlink" href="#tokenization" title="Permalink to this headline">¶</a></h1>
 <p>By default, OpenNMT-tf <strong>expects and generates tokenized text</strong>. The users are thus responsible to tokenize the input and detokenize the output with the tool of their choice.</p>
 <p>However, OpenNMT-tf provides tokenization tools based on the OpenNMT <a class="reference external" href="https://github.com/OpenNMT/Tokenizer">Tokenizer</a> that can be used in 2 ways:</p>
@@ -196,7 +201,7 @@
 <li><p><em>online</em>: configure the execution to apply tokenization and detokenization on-the-fly</p></li>
 </ul>
 <p><em>Note: the <code class="docutils literal notranslate"><span class="pre">pyonmttok</span></code> package is currently not available on Windows.</em></p>
-<section id="configuration-files">
+<div class="section" id="configuration-files">
 <h2>Configuration files<a class="headerlink" href="#configuration-files" title="Permalink to this headline">¶</a></h2>
 <p>YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. For example, this configuration defines a simple word-based tokenization using the OpenNMT tokenizer:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">OpenNMTTokenizer</span>
@@ -213,16 +218,16 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">CharacterTokenizer</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SpaceTokenizer</span></code> (default tokenizer)</p></li>
 </ul>
-</section>
-<section id="offline-tokenization">
+</div>
+<div class="section" id="offline-tokenization">
 <h2>Offline tokenization<a class="headerlink" href="#offline-tokenization" title="Permalink to this headline">¶</a></h2>
 <p>You can invoke the <code class="docutils literal notranslate"><span class="pre">onmt-tokenize-text</span></code> script directly and pass the tokenizer configuration:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;Hello world!&quot;</span> <span class="p">|</span> onmt-tokenize-text --tokenizer_config config/tokenization/aggressive.yml
 Hello world ￭!
 </pre></div>
 </div>
-</section>
-<section id="online-tokenization">
+</div>
+<div class="section" id="online-tokenization">
 <h2>Online tokenization<a class="headerlink" href="#online-tokenization" title="Permalink to this headline">¶</a></h2>
 <p>A key feature is the possibility to tokenize the data on-the-fly during the training. This avoids the need of storing tokenized files and also increases the consistency of your preprocessing pipeline.</p>
 <p>Here is an example workflow:</p>
@@ -238,8 +243,8 @@ onmt-build-vocab --tokenizer_config config/tokenization/aggressive.yml --size <s
   <span class="nt">target_tokenization</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config/tokenization/aggressive.yml</span>
 </pre></div>
 </div>
-</section>
-<section id="exported-graph">
+</div>
+<div class="section" id="exported-graph">
 <h2>Exported graph<a class="headerlink" href="#exported-graph" title="Permalink to this headline">¶</a></h2>
 <p>Only TensorFlow ops can be exported to graphs and used for serving. When a tokenizer is not implemented in terms of TensorFlow ops such as the OpenNMT tokenizer, it will not be part of the exported graph. The model will then expects tokenized inputs during serving.</p>
 <p><strong>In-graph tokenizers:</strong></p>
@@ -254,24 +259,18 @@ onmt-build-vocab --tokenizer_config config/tokenization/aggressive.yml --size <s
 </ul>
 <p>Model inputs: <code class="docutils literal notranslate"><span class="pre">tokens</span></code> (2D string tensor), <code class="docutils literal notranslate"><span class="pre">length</span></code> (1D int32 tensor)</p>
 <p>(*) During model export, tokenization resources used by the OpenNMT tokenizer (configuration, subword models, etc.) are registered as additional assets in the <code class="docutils literal notranslate"><span class="pre">SavedModel</span></code>’s <code class="docutils literal notranslate"><span class="pre">assets.extra</span></code> directory.</p>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="embeddings.html" class="btn btn-neutral float-right" title="Embeddings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="vocabulary.html" class="btn btn-neutral float-left" title="Vocabulary" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="embeddings.html" class="btn btn-neutral float-right" title="Embeddings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="vocabulary.html" class="btn btn-neutral float-left" title="Vocabulary" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
@@ -282,7 +281,6 @@ onmt-build-vocab --tokenizer_config config/tokenization/aggressive.yml --size <s
   </div> 
 
 </footer>
-
         </div>
       </div>
 
@@ -290,7 +288,6 @@ onmt-build-vocab --tokenizer_config config/tokenization/aggressive.yml --size <s
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

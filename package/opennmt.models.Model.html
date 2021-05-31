@@ -1,43 +1,44 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
   
-  <title>opennmt.models.Model &mdash; OpenNMT-tf 2.18.1 documentation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-
+  <title>opennmt.models.Model &mdash; OpenNMT-tf 2.19.0 documentation</title>
   
-  
-    <link rel="shortcut icon" href="../_static/favicon.png"/>
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="opennmt.models.SequenceClassifier" href="opennmt.models.SequenceClassifier.html" />
@@ -68,7 +69,7 @@
             
             
               <div class="version">
-                2.18
+                2.19
               </div>
             
           
@@ -85,6 +86,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -92,12 +94,12 @@
               
             
             
-              <p><span class="caption-text">Getting started</span></p>
+              <p class="caption"><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p><span class="caption-text">Configuration</span></p>
+<p class="caption"><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
@@ -107,7 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../alignments.html">Alignments</a></li>
 </ul>
-<p><span class="caption-text">Usage</span></p>
+<p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
@@ -115,7 +117,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p><span class="caption-text">API</span></p>
+<p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../api_examples.html">API examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
@@ -146,6 +148,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -180,11 +183,13 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
         
@@ -195,7 +200,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
         
       </li>
     
@@ -207,11 +212,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="opennmt-models-model">
+  <div class="section" id="opennmt-models-model">
 <h1>opennmt.models.Model<a class="headerlink" href="#opennmt-models-model" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="opennmt.models.Model">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.models.</code><code class="sig-name descname">Model</code><span class="sig-paren">(</span><em class="sig-param">examples_inputter</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">opennmt.models.</span></code><code class="sig-name descname"><span class="pre">Model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for models.</p>
 <p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
 <p><strong>Extended by:</strong></p>
@@ -220,39 +225,39 @@
 <li><p><a class="reference internal" href="opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator" title="opennmt.models.SequenceGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.SequenceGenerator</span></code></a></p></li>
 <li><p><a class="reference internal" href="opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger" title="opennmt.models.SequenceTagger"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.SequenceTagger</span></code></a></p></li>
 </ul>
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.unsupervised">
-<em class="property">property </em><code class="sig-name descname">unsupervised</code><a class="headerlink" href="#opennmt.models.Model.unsupervised" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">unsupervised</span></code><a class="headerlink" href="#opennmt.models.Model.unsupervised" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unsupervised model.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.features_inputter">
-<em class="property">property </em><code class="sig-name descname">features_inputter</code><a class="headerlink" href="#opennmt.models.Model.features_inputter" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">features_inputter</span></code><a class="headerlink" href="#opennmt.models.Model.features_inputter" title="Permalink to this definition">¶</a></dt>
 <dd><p>The inputter producing features.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.labels_inputter">
-<em class="property">property </em><code class="sig-name descname">labels_inputter</code><a class="headerlink" href="#opennmt.models.Model.labels_inputter" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels_inputter</span></code><a class="headerlink" href="#opennmt.models.Model.labels_inputter" title="Permalink to this definition">¶</a></dt>
 <dd><p>The inputter producing labels.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.ctranslate2_spec">
-<em class="property">property </em><code class="sig-name descname">ctranslate2_spec</code><a class="headerlink" href="#opennmt.models.Model.ctranslate2_spec" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">ctranslate2_spec</span></code><a class="headerlink" href="#opennmt.models.Model.ctranslate2_spec" title="Permalink to this definition">¶</a></dt>
 <dd><p>The equivalent CTranslate2 model specification.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.__repr__">
-<code class="sig-name descname">__repr__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.__repr__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.__repr__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">__repr__</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.__repr__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.__repr__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a description of the model and its submodules.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.auto_config">
-<code class="sig-name descname">auto_config</code><span class="sig-paren">(</span><em class="sig-param">num_replicas=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.auto_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.auto_config" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">auto_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_replicas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.auto_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.auto_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns automatic configuration values specific to this model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -265,9 +270,9 @@ training.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.initialize">
-<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param">data_config</em>, <em class="sig-param">params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">initialize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the model from the data configuration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -281,9 +286,9 @@ etc.).</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.build">
-<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param">input_shape</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.build" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">build</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.build" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the variables of the layer (optional, for subclass implementers).</p>
 <p>This is a method that implementers of subclasses of <cite>Layer</cite> or <cite>Model</cite>
 can override if they need a state-creation step in-between
@@ -298,9 +303,9 @@ layer instantiation and layer call.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.call">
-<em class="property">abstract </em><code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">labels=None</em>, <em class="sig-param">training=None</em>, <em class="sig-param">step=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.call" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -322,9 +327,9 @@ layer instantiation and layer call.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.infer">
-<code class="sig-name descname">infer</code><span class="sig-paren">(</span><em class="sig-param">features</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.infer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.infer" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">infer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.infer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.infer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs inference on <code class="xref py py-obj docutils literal notranslate"><span class="pre">features</span></code>.</p>
 <p>This is a small convenience wrapper around
 <a class="reference internal" href="#opennmt.models.Model.call" title="opennmt.models.Model.call"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.models.Model.call()</span></code></a>.</p>
@@ -338,9 +343,9 @@ layer instantiation and layer call.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.evaluate">
-<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">labels</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.evaluate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">evaluate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.evaluate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates <code class="xref py py-obj docutils literal notranslate"><span class="pre">features</span></code> predictions against <cite>labels</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -355,9 +360,9 @@ layer instantiation and layer call.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.score">
-<code class="sig-name descname">score</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">labels</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.score" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scores labels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -372,9 +377,9 @@ layer instantiation and layer call.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.compute_loss">
-<em class="property">abstract </em><code class="sig-name descname">compute_loss</code><span class="sig-paren">(</span><em class="sig-param">outputs</em>, <em class="sig-param">labels</em>, <em class="sig-param">training=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.compute_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.compute_loss" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">compute_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.compute_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.compute_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the loss.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -392,9 +397,9 @@ batch-normalized for training vs. token-normalized for reporting).</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.regularize_loss">
-<code class="sig-name descname">regularize_loss</code><span class="sig-paren">(</span><em class="sig-param">loss</em>, <em class="sig-param">variables=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.regularize_loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.regularize_loss" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">regularize_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loss</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.regularize_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.regularize_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Regularizes the loss.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -409,9 +414,9 @@ batch-normalized for training vs. token-normalized for reporting).</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.get_metrics">
-<code class="sig-name descname">get_metrics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.get_metrics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.get_metrics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_metrics</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.get_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.get_metrics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the metrics for this model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -420,9 +425,9 @@ batch-normalized for training vs. token-normalized for reporting).</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.update_metrics">
-<code class="sig-name descname">update_metrics</code><span class="sig-paren">(</span><em class="sig-param">metrics</em>, <em class="sig-param">predictions</em>, <em class="sig-param">labels</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.update_metrics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.update_metrics" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">update_metrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.update_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.update_metrics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes additional metrics on the predictions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -435,9 +440,9 @@ batch-normalized for training vs. token-normalized for reporting).</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.get_optimizer">
-<code class="sig-name descname">get_optimizer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.get_optimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.get_optimizer" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_optimizer</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.get_optimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.get_optimizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the optimizer for this model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -447,9 +452,9 @@ is configured.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.serve_function">
-<code class="sig-name descname">serve_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.serve_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.serve_function" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">serve_function</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.serve_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.serve_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a function for serving this model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -458,9 +463,9 @@ is configured.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.tflite_function">
-<code class="sig-name descname">tflite_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.tflite_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.tflite_function" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">tflite_function</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.tflite_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.tflite_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the inference function that should be used for TensorFlow Lite.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -469,9 +474,9 @@ is configured.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.export">
-<code class="sig-name descname">export</code><span class="sig-paren">(</span><em class="sig-param">export_dir</em>, <em class="sig-param">exporter=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.export" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">export</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">export_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exporter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.export" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exports the model for serving.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -484,9 +489,9 @@ is configured.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.create_variables">
-<code class="sig-name descname">create_variables</code><span class="sig-paren">(</span><em class="sig-param">optimizer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.create_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.create_variables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">create_variables</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.create_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.create_variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the model variables by running it once.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -495,9 +500,9 @@ is configured.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.transfer_weights">
-<code class="sig-name descname">transfer_weights</code><span class="sig-paren">(</span><em class="sig-param">new_model</em>, <em class="sig-param">new_optimizer=None</em>, <em class="sig-param">optimizer=None</em>, <em class="sig-param">ignore_weights=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.transfer_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.transfer_weights" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">transfer_weights</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.transfer_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.transfer_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transfers weights (and optionally optimizer slots) from this model to
 another.</p>
 <p>This default implementation assumes that <code class="xref py py-obj docutils literal notranslate"><span class="pre">self</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">new_model</span></code>
@@ -518,9 +523,9 @@ with a different vocabulary.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.map_v1_weights">
-<code class="sig-name descname">map_v1_weights</code><span class="sig-paren">(</span><em class="sig-param">weights</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.map_v1_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.map_v1_weights" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">map_v1_weights</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.map_v1_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.map_v1_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maps current weights to V1 weights.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -534,9 +539,9 @@ slots.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.export_assets">
-<code class="sig-name descname">export_assets</code><span class="sig-paren">(</span><em class="sig-param">asset_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.export_assets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.export_assets" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">export_assets</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">asset_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.export_assets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.export_assets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exports additional assets used by this model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -548,9 +553,9 @@ slots.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.visualize">
-<code class="sig-name descname">visualize</code><span class="sig-paren">(</span><em class="sig-param">log_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.visualize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.visualize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">visualize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.visualize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.visualize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Setups model visualization (e.g. word embedding projections).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -559,9 +564,9 @@ slots.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.print_prediction">
-<code class="sig-name descname">print_prediction</code><span class="sig-paren">(</span><em class="sig-param">prediction</em>, <em class="sig-param">params=None</em>, <em class="sig-param">stream=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.print_prediction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.print_prediction" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">print_prediction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.print_prediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.print_prediction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints the model prediction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -574,9 +579,9 @@ slots.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.models.Model.print_score">
-<code class="sig-name descname">print_score</code><span class="sig-paren">(</span><em class="sig-param">score</em>, <em class="sig-param">params=None</em>, <em class="sig-param">stream=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.print_score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.models.Model.print_score" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">print_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.print_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.print_score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints the score result.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -591,23 +596,17 @@ slots.</p>
 
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="opennmt.models.SequenceClassifier.html" class="btn btn-neutral float-right" title="opennmt.models.SequenceClassifier" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="opennmt.models.LuongAttention.html" class="btn btn-neutral float-left" title="opennmt.models.LuongAttention" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="opennmt.models.SequenceClassifier.html" class="btn btn-neutral float-right" title="opennmt.models.SequenceClassifier" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="opennmt.models.LuongAttention.html" class="btn btn-neutral float-left" title="opennmt.models.LuongAttention" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
@@ -618,7 +617,6 @@ slots.</p>
   </div> 
 
 </footer>
-
         </div>
       </div>
 
@@ -626,7 +624,6 @@ slots.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

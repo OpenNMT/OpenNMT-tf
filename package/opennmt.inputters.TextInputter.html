@@ -1,43 +1,44 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
   
-  <title>opennmt.inputters.TextInputter &mdash; OpenNMT-tf 2.18.1 documentation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-
+  <title>opennmt.inputters.TextInputter &mdash; OpenNMT-tf 2.19.0 documentation</title>
   
-  
-    <link rel="shortcut icon" href="../_static/favicon.png"/>
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="opennmt.inputters.WordEmbedder" href="opennmt.inputters.WordEmbedder.html" />
@@ -68,7 +69,7 @@
             
             
               <div class="version">
-                2.18
+                2.19
               </div>
             
           
@@ -85,6 +86,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -92,12 +94,12 @@
               
             
             
-              <p><span class="caption-text">Getting started</span></p>
+              <p class="caption"><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p><span class="caption-text">Configuration</span></p>
+<p class="caption"><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
@@ -107,7 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../alignments.html">Alignments</a></li>
 </ul>
-<p><span class="caption-text">Usage</span></p>
+<p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
@@ -115,7 +117,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p><span class="caption-text">API</span></p>
+<p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../api_examples.html">API examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
@@ -146,6 +148,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -180,11 +183,13 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
         
@@ -195,7 +200,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
         
       </li>
     
@@ -207,11 +212,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="opennmt-inputters-textinputter">
+  <div class="section" id="opennmt-inputters-textinputter">
 <h1>opennmt.inputters.TextInputter<a class="headerlink" href="#opennmt-inputters-textinputter" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="opennmt.inputters.TextInputter">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">TextInputter</code><span class="sig-paren">(</span><em class="sig-param">num_oov_buckets=1</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">opennmt.inputters.</span></code><code class="sig-name descname"><span class="pre">TextInputter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.TextInputter" title="Permalink to this definition">¶</a></dt>
 <dd><p>An abstract inputter that processes text.</p>
 <p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.inputters.Inputter.html#opennmt.inputters.Inputter" title="opennmt.inputters.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter</span></code></a></p>
 <p><strong>Extended by:</strong></p>
@@ -219,9 +224,9 @@
 <li><p><a class="reference internal" href="opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder" title="opennmt.inputters.CharEmbedder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.CharEmbedder</span></code></a></p></li>
 <li><p><a class="reference internal" href="opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder" title="opennmt.inputters.WordEmbedder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.WordEmbedder</span></code></a></p></li>
 </ul>
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.TextInputter.initialize">
-<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param">data_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">initialize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the inputter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -231,9 +236,9 @@ by the user.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.TextInputter.set_noise">
-<code class="sig-name descname">set_noise</code><span class="sig-paren">(</span><em class="sig-param">noiser</em>, <em class="sig-param">in_place=True</em>, <em class="sig-param">probability=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.set_noise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.set_noise" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_noise</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">noiser</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_place</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.set_noise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.set_noise" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enables noise to be applied to the input features.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -252,9 +257,9 @@ noise.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.TextInputter.export_assets">
-<code class="sig-name descname">export_assets</code><span class="sig-paren">(</span><em class="sig-param">asset_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.export_assets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.export_assets" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">export_assets</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">asset_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.export_assets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.export_assets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exports assets used by this tokenizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -266,9 +271,9 @@ noise.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.TextInputter.make_dataset">
-<code class="sig-name descname">make_dataset</code><span class="sig-paren">(</span><em class="sig-param">data_file</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.make_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.make_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">make_dataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.make_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.make_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the base dataset required by this inputter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -283,9 +288,9 @@ noise.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.TextInputter.get_dataset_size">
-<code class="sig-name descname">get_dataset_size</code><span class="sig-paren">(</span><em class="sig-param">data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.get_dataset_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_dataset_size</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.get_dataset_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the dataset size.</p>
 <p>If the inputter can efficiently compute the dataset size from a training
 file on disk, it can optionally override this method. Otherwise, we may
@@ -301,37 +306,31 @@ the dataset instance).</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.TextInputter.make_features">
-<code class="sig-name descname">make_features</code><span class="sig-paren">(</span><em class="sig-param">element=None</em>, <em class="sig-param">features=None</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.make_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.make_features" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">make_features</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.make_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.make_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tokenizes raw text.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.TextInputter.input_signature">
-<code class="sig-name descname">input_signature</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.input_signature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.input_signature" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">input_signature</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.input_signature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.input_signature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the input signature of this inputter.</p>
 </dd></dl>
 
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="opennmt.inputters.WordEmbedder.html" class="btn btn-neutral float-right" title="opennmt.inputters.WordEmbedder" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="opennmt.inputters.SequenceRecordInputter.html" class="btn btn-neutral float-left" title="opennmt.inputters.SequenceRecordInputter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="opennmt.inputters.WordEmbedder.html" class="btn btn-neutral float-right" title="opennmt.inputters.WordEmbedder" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="opennmt.inputters.SequenceRecordInputter.html" class="btn btn-neutral float-left" title="opennmt.inputters.SequenceRecordInputter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
@@ -342,7 +341,6 @@ the dataset instance).</p>
   </div> 
 
 </footer>
-
         </div>
       </div>
 
@@ -350,7 +348,6 @@ the dataset instance).</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

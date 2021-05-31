@@ -1,43 +1,44 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
   
-  <title>opennmt.inputters.Inputter &mdash; OpenNMT-tf 2.18.1 documentation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-
+  <title>opennmt.inputters.Inputter &mdash; OpenNMT-tf 2.19.0 documentation</title>
   
-  
-    <link rel="shortcut icon" href="../_static/favicon.png"/>
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.png"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="opennmt.inputters.MixedInputter" href="opennmt.inputters.MixedInputter.html" />
@@ -68,7 +69,7 @@
             
             
               <div class="version">
-                2.18
+                2.19
               </div>
             
           
@@ -85,6 +86,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -92,12 +94,12 @@
               
             
             
-              <p><span class="caption-text">Getting started</span></p>
+              <p class="caption"><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p><span class="caption-text">Configuration</span></p>
+<p class="caption"><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
@@ -107,7 +109,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../alignments.html">Alignments</a></li>
 </ul>
-<p><span class="caption-text">Usage</span></p>
+<p class="caption"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
@@ -115,7 +117,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p><span class="caption-text">API</span></p>
+<p class="caption"><span class="caption-text">API</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../api_examples.html">API examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
@@ -146,6 +148,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -180,11 +183,13 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
         
@@ -195,7 +200,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
         
       </li>
     
@@ -207,11 +212,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="opennmt-inputters-inputter">
+  <div class="section" id="opennmt-inputters-inputter">
 <h1>opennmt.inputters.Inputter<a class="headerlink" href="#opennmt-inputters-inputter" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
+<dl class="py class">
 <dt id="opennmt.inputters.Inputter">
-<em class="property">class </em><code class="sig-prename descclassname">opennmt.inputters.</code><code class="sig-name descname">Inputter</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">opennmt.inputters.</span></code><code class="sig-name descname"><span class="pre">Inputter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.Inputter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for inputters.</p>
 <p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
 <p><strong>Extended by:</strong></p>
@@ -220,9 +225,9 @@
 <li><p><a class="reference internal" href="opennmt.inputters.SequenceRecordInputter.html#opennmt.inputters.SequenceRecordInputter" title="opennmt.inputters.SequenceRecordInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.SequenceRecordInputter</span></code></a></p></li>
 <li><p><a class="reference internal" href="opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter" title="opennmt.inputters.TextInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.TextInputter</span></code></a></p></li>
 </ul>
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.asset_prefix">
-<em class="property">property </em><code class="sig-name descname">asset_prefix</code><a class="headerlink" href="#opennmt.inputters.Inputter.asset_prefix" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">asset_prefix</span></code><a class="headerlink" href="#opennmt.inputters.Inputter.asset_prefix" title="Permalink to this definition">¶</a></dt>
 <dd><p>The asset prefix is used to differentiate resources of parallel inputters.
 The most basic examples are the “source_” and “target_” prefixes.</p>
 <ul class="simple">
@@ -232,15 +237,15 @@ start with this prefix (e.g. “source_vocabulary”).</p></li>
 </ul>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.num_outputs">
-<em class="property">property </em><code class="sig-name descname">num_outputs</code><a class="headerlink" href="#opennmt.inputters.Inputter.num_outputs" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">num_outputs</span></code><a class="headerlink" href="#opennmt.inputters.Inputter.num_outputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of parallel outputs produced by this inputter.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.initialize">
-<code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param">data_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.initialize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">initialize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.Inputter.initialize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the inputter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -250,9 +255,9 @@ by the user.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.export_assets">
-<code class="sig-name descname">export_assets</code><span class="sig-paren">(</span><em class="sig-param">asset_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.export_assets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.export_assets" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">export_assets</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">asset_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.export_assets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.Inputter.export_assets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exports assets used by this tokenizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -264,9 +269,9 @@ by the user.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.make_dataset">
-<em class="property">abstract </em><code class="sig-name descname">make_dataset</code><span class="sig-paren">(</span><em class="sig-param">data_file</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.make_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.make_dataset" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">make_dataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.make_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.Inputter.make_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the base dataset required by this inputter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -281,9 +286,9 @@ by the user.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.get_dataset_size">
-<code class="sig-name descname">get_dataset_size</code><span class="sig-paren">(</span><em class="sig-param">data_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.get_dataset_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_dataset_size</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.get_dataset_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.Inputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the dataset size.</p>
 <p>If the inputter can efficiently compute the dataset size from a training
 file on disk, it can optionally override this method. Otherwise, we may
@@ -299,9 +304,9 @@ the dataset instance).</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.make_inference_dataset">
-<code class="sig-name descname">make_inference_dataset</code><span class="sig-paren">(</span><em class="sig-param">features_file</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">batch_type='examples'</em>, <em class="sig-param">length_bucket_width=None</em>, <em class="sig-param">num_threads=1</em>, <em class="sig-param">prefetch_buffer_size=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.make_inference_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.make_inference_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">make_inference_dataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'examples'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_bucket_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_threads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefetch_buffer_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.make_inference_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.Inputter.make_inference_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds a dataset to be used for inference.</p>
 <p>For evaluation and training datasets, see
 <a class="reference internal" href="opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter" title="opennmt.inputters.ExampleInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.ExampleInputter</span></code></a>.</p>
@@ -329,15 +334,15 @@ formation.</p></li>
 </div>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.input_signature">
-<em class="property">abstract </em><code class="sig-name descname">input_signature</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.input_signature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.input_signature" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">input_signature</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.input_signature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.Inputter.input_signature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the input signature of this inputter.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.get_length">
-<code class="sig-name descname">get_length</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">ignore_special_tokens=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.get_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.get_length" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_length</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_special_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.get_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.Inputter.get_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the length of the input features, if defined.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -353,9 +358,9 @@ inputter (e.g. &lt;s&gt; and/or &lt;/s&gt;).</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.get_padded_shapes">
-<code class="sig-name descname">get_padded_shapes</code><span class="sig-paren">(</span><em class="sig-param">element_spec</em>, <em class="sig-param">maximum_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.get_padded_shapes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.get_padded_shapes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_padded_shapes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.get_padded_shapes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.Inputter.get_padded_shapes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the padded shapes for dataset elements.</p>
 <p>For example, this is used during batch size autotuning to pad all batches
 to the maximum sequence length.</p>
@@ -372,9 +377,9 @@ to the maximum sequence length.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.make_features">
-<em class="property">abstract </em><code class="sig-name descname">make_features</code><span class="sig-paren">(</span><em class="sig-param">element=None</em>, <em class="sig-param">features=None</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.make_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.make_features" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">make_features</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.make_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.Inputter.make_features" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates features from data.</p>
 <p>This is typically called in a data pipeline (such as <code class="docutils literal notranslate"><span class="pre">Dataset.map</span></code>).
 Common transformation includes tokenization, parsing, vocabulary lookup,
@@ -397,9 +402,9 @@ augment.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.keep_for_training">
-<code class="sig-name descname">keep_for_training</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">maximum_length=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.keep_for_training"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.keep_for_training" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">keep_for_training</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.keep_for_training"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.Inputter.keep_for_training" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if this example should be kept for training.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -414,9 +419,9 @@ augment.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.call">
-<code class="sig-name descname">call</code><span class="sig-paren">(</span><em class="sig-param">features</em>, <em class="sig-param">training=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.call" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.Inputter.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the model input from the features (e.g. word embeddings).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -432,9 +437,9 @@ augment.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="opennmt.inputters.Inputter.visualize">
-<code class="sig-name descname">visualize</code><span class="sig-paren">(</span><em class="sig-param">model_root</em>, <em class="sig-param">log_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.visualize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opennmt.inputters.Inputter.visualize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">visualize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#Inputter.visualize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.Inputter.visualize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Visualizes the transformation, usually embeddings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -448,23 +453,17 @@ augment.</p></li>
 
 </dd></dl>
 
-</section>
+</div>
 
 
            </div>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="opennmt.inputters.MixedInputter.html" class="btn btn-neutral float-right" title="opennmt.inputters.MixedInputter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="opennmt.inputters.ExampleInputterAdapter.html" class="btn btn-neutral float-left" title="opennmt.inputters.ExampleInputterAdapter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="opennmt.inputters.MixedInputter.html" class="btn btn-neutral float-right" title="opennmt.inputters.MixedInputter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="opennmt.inputters.ExampleInputterAdapter.html" class="btn btn-neutral float-left" title="opennmt.inputters.ExampleInputterAdapter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
@@ -475,7 +474,6 @@ augment.</p></li>
   </div> 
 
 </footer>
-
         </div>
       </div>
 
@@ -483,7 +481,6 @@ augment.</p></li>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
