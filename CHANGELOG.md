@@ -15,6 +15,18 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.19.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.19.0) (2021-05-31)
+
+### New features
+
+* Support TensorFlow 2.5
+
+### Fixes and improvements
+
+* Fix dtype error in RNN decoder when enabling mixed precision
+* Pass training flag to tokenizers to disable subword regularization in inference
+* Update Sphinx from 2.3 to 3.5 to generate the documentation
+
 ## [2.18.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.18.1) (2021-04-27)
 
 ### Fixes and improvements
