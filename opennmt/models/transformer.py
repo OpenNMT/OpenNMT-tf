@@ -120,6 +120,7 @@ class Transformer(SequenceToSequence):
             pre_norm=pre_norm,
         )
 
+        self._pre_norm = pre_norm
         self._num_units = num_units
         self._num_encoder_layers = num_encoder_layers
         self._num_decoder_layers = num_decoder_layers
@@ -127,7 +128,6 @@ class Transformer(SequenceToSequence):
         self._with_relative_position = maximum_relative_position is not None
         self._is_ct2_compatible = (
             isinstance(encoder, SelfAttentionEncoder)
-            and pre_norm
             and ffn_activation is tf.nn.relu
             and (
                 (self._with_relative_position and position_encoder_class is None)
@@ -155,6 +155,7 @@ class Transformer(SequenceToSequence):
             (self._num_encoder_layers, self._num_decoder_layers),
             self._num_heads,
             with_relative_position=self._with_relative_position,
+            pre_norm=self._pre_norm,
         )
         model_spec.with_source_bos = bool(self.features_inputter.mark_start)
         model_spec.with_source_eos = bool(self.features_inputter.mark_end)

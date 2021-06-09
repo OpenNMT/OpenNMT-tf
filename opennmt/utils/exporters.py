@@ -168,13 +168,12 @@ class CTranslate2Exporter(Exporter):
         import ctranslate2
 
         converter = ctranslate2.converters.OpenNMTTFConverter(
-            src_vocab=model.features_inputter.vocabulary_file,
-            tgt_vocab=model.labels_inputter.vocabulary_file,
+            model_spec,
+            model.features_inputter.vocabulary_file,
+            model.labels_inputter.vocabulary_file,
             variables=variables,
         )
-        converter.convert(
-            export_dir, model_spec, quantization=self._quantization, force=True
-        )
+        converter.convert(export_dir, quantization=self._quantization, force=True)
 
 
 @register_exporter(name="ctranslate2_int8")
