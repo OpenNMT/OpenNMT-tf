@@ -51,11 +51,15 @@ class Checkpoint(object):
         train_config = config.get("train")
         if train_config is None:
             train_config = {}
+        keep_checkpoint_max = max(
+            train_config.get("keep_checkpoint_max", 8),
+            train_config.get("average_last_checkpoints", 0),
+        )
         return cls(
             model,
             optimizer=optimizer,
             model_dir=config.get("model_dir"),
-            keep_checkpoint_max=train_config.get("keep_checkpoint_max", 8),
+            keep_checkpoint_max=keep_checkpoint_max,
         )
 
     @property
