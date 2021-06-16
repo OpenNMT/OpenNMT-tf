@@ -504,6 +504,7 @@ def _auto_tune_batch_size(
     num_devices=1,
     scaling_factor=0.7,
     mixed_precision=False,
+    timeout=15 * 60,
 ):
     """Find the largest token-based batch size that can be used with this
     configuration.
@@ -526,6 +527,7 @@ def _auto_tune_batch_size(
       num_devices: The number of devices to use.
       scaling_factor: Scale the found batch size by this value.
       mixed_precision: If ``True``, run the autotuning with mixed precision.
+      timeout: Consider the training attempt as failed after this many seconds.
 
     Returns:
       The autotuned batch size.
@@ -589,17 +591,22 @@ def _auto_tune_batch_size(
                     stderr=subprocess.PIPE,
                     env=env,
                 )
-                _, stderr_data = process.communicate()
-
-            if process.returncode != 0:
-                tf.get_logger().info("... failed.")
-                max_batch_size = batch_size - 1
-            else:
-                tf.get_logger().info(
-                    "... succeeded, continue until the search range is smaller than %d.",
-                    min_range,
-                )
-                min_batch_size = batch_size
+                try:
+                    _, stderr_data = process.communicate(timeout=timeout)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    tf.get_logger().info("... failed (timeout).")
+                    max_batch_size = batch_size - 1
+                else:
+                    if process.returncode != 0:
+                        tf.get_logger().info("... failed.")
+                        max_batch_size = batch_size - 1
+                    else:
+                        tf.get_logger().info(
+                            "... succeeded, continue until the search range is smaller than %d.",
+                            min_range,
+                        )
+                        min_batch_size = batch_size
 
     if min_batch_size == absolute_min_batch_size:
         if stderr_data is not None:
