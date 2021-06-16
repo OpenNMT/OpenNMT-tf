@@ -294,7 +294,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
         Returns:
           A tuple with the attention context, the updated cache and the attention
-          probabilities of the first head (if :obj:`return_attention` is ``True``).
+          weights (if :obj:`return_attention` is ``True``).
         """
 
         def _compute_kv(x):
