@@ -15,6 +15,18 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.20.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.20.0) (2021-06-17)
+
+### New features
+
+* Update the minimum required CTranslate2 version to 2.0
+
+### Fixes and improvements
+
+* Set a timeout for each training attempt when autotuning the batch size
+* Set `keep_checkpoint_max` to `average_last_checkpoints` if the later value is larger
+* Update the minimum required pyonmttok version to include the latest fixes
+
 ## [2.19.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.19.0) (2021-05-31)
 
 ### New features
