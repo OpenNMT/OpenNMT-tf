@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.19.0 documentation</title>
+  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.20.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.19
+                2.20
               </div>
             
           
@@ -355,13 +355,12 @@
         <span class="kn">import</span> <span class="nn">ctranslate2</span>
 
         <span class="n">converter</span> <span class="o">=</span> <span class="n">ctranslate2</span><span class="o">.</span><span class="n">converters</span><span class="o">.</span><span class="n">OpenNMTTFConverter</span><span class="p">(</span>
-            <span class="n">src_vocab</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
-            <span class="n">tgt_vocab</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
+            <span class="n">model_spec</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">vocabulary_file</span><span class="p">,</span>
             <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">converter</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span>
-            <span class="n">export_dir</span><span class="p">,</span> <span class="n">model_spec</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_quantization</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span>
-        <span class="p">)</span></div>
+        <span class="n">converter</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_quantization</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CTranslate2Int8Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Int8Exporter.html#opennmt.utils.CTranslate2Int8Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ctranslate2_int8&quot;</span><span class="p">)</span>

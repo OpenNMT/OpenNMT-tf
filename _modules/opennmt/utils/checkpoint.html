@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.19.0 documentation</title>
+  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.20.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.19
+                2.20
               </div>
             
           
@@ -238,11 +238,15 @@
         <span class="n">train_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">train_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">train_config</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">keep_checkpoint_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;keep_checkpoint_max&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+            <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;average_last_checkpoints&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">model</span><span class="p">,</span>
             <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
             <span class="n">model_dir</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model_dir&quot;</span><span class="p">),</span>
-            <span class="n">keep_checkpoint_max</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;keep_checkpoint_max&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+            <span class="n">keep_checkpoint_max</span><span class="o">=</span><span class="n">keep_checkpoint_max</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="nd">@property</span>

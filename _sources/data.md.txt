@@ -149,8 +149,3 @@ data:
   train_features_file: s3://namebucket/toy-ende/src-train.txt
   train_labels_file: hdfs://namenode:8020/toy-ende/tgt-train.txt
 ```
-
-For more information, see the TensorFlow documentation:
-
-* [How to run TensorFlow on Hadoop](https://www.tensorflow.org/deploy/hadoop)
-* [How to run TensorFlow on S3](https://www.tensorflow.org/deploy/s3)
