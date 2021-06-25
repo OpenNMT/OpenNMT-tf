@@ -7,8 +7,8 @@ import pyonmttok
 
 class EnDeTranslator(object):
     def __init__(self, export_dir):
-        imported = tf.saved_model.load(export_dir)
-        self._translate_fn = imported.signatures["serving_default"]
+        self._imported = tf.saved_model.load(export_dir)
+        self._translate_fn = self._imported.signatures["serving_default"]
         sp_model_path = os.path.join(export_dir, "assets.extra", "wmtende.model")
         self._tokenizer = pyonmttok.Tokenizer("none", sp_model_path=sp_model_path)
 
