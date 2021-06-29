@@ -323,6 +323,10 @@ class TextInputter(Inputter):
             )
 
 
+def _format_bool(b):
+    return "yes" if b else "no"
+
+
 class WordEmbedder(TextInputter):
     """Simple word embedder."""
 
@@ -393,6 +397,16 @@ class WordEmbedder(TextInputter):
         if sequence_controls:
             self.mark_start = sequence_controls.get("start")
             self.mark_end = sequence_controls.get("end")
+
+        tf.get_logger().info(
+            "Initialized %s input layer:", self.asset_prefix.strip("_")
+        )
+        tf.get_logger().info(" - vocabulary size: %d", self.vocabulary_size)
+        tf.get_logger().info(
+            " - special tokens: BOS=%s, EOS=%s",
+            _format_bool(self.mark_start),
+            _format_bool(self.mark_end),
+        )
 
     def make_features(self, element=None, features=None, training=None):
         """Converts words tokens to ids."""
