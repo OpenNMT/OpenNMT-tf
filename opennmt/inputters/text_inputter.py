@@ -192,12 +192,12 @@ def add_sequence_controls(ids, length, start_id=None, end_id=None):
         return tf.expand_dims(value, -1)
 
     if start_id is not None:
-        start_ids = _make_column(constants.START_OF_SENTENCE_ID)
+        start_ids = _make_column(start_id)
         ids = tf.concat([start_ids, ids], axis=-1)
         length += 1
 
     if end_id is not None:
-        end_ids = _make_column(constants.END_OF_SENTENCE_ID)
+        end_ids = _make_column(end_id)
         if batch_size is not None:
             # Run concat on RaggedTensor to handle sequences with variable length.
             ids = tf.RaggedTensor.from_tensor(ids, lengths=length)
