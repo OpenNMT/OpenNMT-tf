@@ -305,8 +305,11 @@ class Evaluator(object):
         if self._save_predictions:
             output_path = os.path.join(self._eval_dir, "predictions.txt.%d" % step)
             output_file = tf.io.gfile.GFile(output_path, "w")
+            params = {"n_best": 1}
             write_fn = lambda prediction: (
-                self._model.print_prediction(prediction, stream=output_file)
+                self._model.print_prediction(
+                    prediction, params=params, stream=output_file
+                )
             )
             index_fn = lambda prediction: prediction.get("index")
             ordered_writer = misc.OrderRestorer(index_fn, write_fn)
