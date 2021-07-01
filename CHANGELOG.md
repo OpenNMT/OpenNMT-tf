@@ -15,6 +15,16 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.20.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.20.1) (2021-07-01)
+
+### Fixes and improvements
+
+* Fix missing environment variables in the child process when autotuning the batch size
+* Fix error during evaluation when setting the inference parameter `n_best` > 1
+* Fix error in Python serving example when using TensorFlow 2.5
+* Log some information about the input layer after initialization (vocabulary size, special tokens, etc.)
+* Update the minimum required pyonmttok version to 1.26.4 to include the latest fixes
+
 ## [2.20.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.20.0) (2021-06-17)
 
 ### New features
@@ -25,7 +35,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 * Set a timeout for each training attempt when autotuning the batch size
 * Set `keep_checkpoint_max` to `average_last_checkpoints` if the later value is larger
-* Update the minimum required pyonmttok version to include the latest fixes
+* Update the minimum required pyonmttok version to 1.26.2 to include the latest fixes
 
 ## [2.19.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.19.0) (2021-05-31)
 
