@@ -457,7 +457,7 @@ class SequenceToSequence(model.SequenceGenerator):
             raise ValueError(
                 "with_alignments is set but the model did not return alignment information"
             )
-        num_hypotheses = len(prediction["log_probs"])
+        num_hypotheses = params.get("n_best", len(prediction["log_probs"]))
         for i in range(num_hypotheses):
             if "tokens" in prediction:
                 target_length = prediction["length"][i]
