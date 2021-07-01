@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.20.0 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.20.1 documentation</title>
   
 
   
@@ -644,7 +644,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;with_alignments is set but the model did not return alignment information&quot;</span>
             <span class="p">)</span>
-        <span class="n">num_hypotheses</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;log_probs&quot;</span><span class="p">])</span>
+        <span class="n">num_hypotheses</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;n_best&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;log_probs&quot;</span><span class="p">]))</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_hypotheses</span><span class="p">):</span>
             <span class="k">if</span> <span class="s2">&quot;tokens&quot;</span> <span class="ow">in</span> <span class="n">prediction</span><span class="p">:</span>
                 <span class="n">target_length</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 2.20.0 documentation</title>
+  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 2.20.1 documentation</title>
   
 
   
@@ -379,12 +379,12 @@
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">start_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">start_ids</span> <span class="o">=</span> <span class="n">_make_column</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">START_OF_SENTENCE_ID</span><span class="p">)</span>
+        <span class="n">start_ids</span> <span class="o">=</span> <span class="n">_make_column</span><span class="p">(</span><span class="n">start_id</span><span class="p">)</span>
         <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">start_ids</span><span class="p">,</span> <span class="n">ids</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">length</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="k">if</span> <span class="n">end_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">end_ids</span> <span class="o">=</span> <span class="n">_make_column</span><span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">END_OF_SENTENCE_ID</span><span class="p">)</span>
+        <span class="n">end_ids</span> <span class="o">=</span> <span class="n">_make_column</span><span class="p">(</span><span class="n">end_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Run concat on RaggedTensor to handle sequences with variable length.</span>
             <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">lengths</span><span class="o">=</span><span class="n">length</span><span class="p">)</span>
@@ -510,6 +510,10 @@
             <span class="p">)</span></div>
 
 
+<span class="k">def</span> <span class="nf">_format_bool</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;yes&quot;</span> <span class="k">if</span> <span class="n">b</span> <span class="k">else</span> <span class="s2">&quot;no&quot;</span>
+
+
 <div class="viewcode-block" id="WordEmbedder"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder">[docs]</a><span class="k">class</span> <span class="nc">WordEmbedder</span><span class="p">(</span><span class="n">TextInputter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Simple word embedder.&quot;&quot;&quot;</span>
 
@@ -579,7 +583,17 @@
         <span class="n">sequence_controls</span> <span class="o">=</span> <span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sequence_controls&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sequence_controls</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mark_start</span> <span class="o">=</span> <span class="n">sequence_controls</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mark_end</span> <span class="o">=</span> <span class="n">sequence_controls</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mark_end</span> <span class="o">=</span> <span class="n">sequence_controls</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">)</span>
+
+        <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Initialized </span><span class="si">%s</span><span class="s2"> input layer:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">asset_prefix</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; - vocabulary size: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">)</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot; - special tokens: BOS=</span><span class="si">%s</span><span class="s2">, EOS=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">_format_bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mark_start</span><span class="p">),</span>
+            <span class="n">_format_bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mark_end</span><span class="p">),</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="WordEmbedder.make_features"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.make_features">[docs]</a>    <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Converts words tokens to ids.&quot;&quot;&quot;</span>

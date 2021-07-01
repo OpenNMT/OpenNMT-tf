@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.20.0 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.20.1 documentation</title>
   
 
   
@@ -746,9 +746,8 @@
             <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
                 <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">run_config</span><span class="p">,</span> <span class="n">config_file</span><span class="p">)</span>
 
-            <span class="n">env</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span>
-            <span class="p">}</span>
+            <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">env</span><span class="p">[</span><span class="s2">&quot;TF_CPP_MIN_LOG_LEVEL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;2&quot;</span>
             <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">sys</span><span class="o">.</span><span class="n">executable</span> <span class="ow">or</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;-m&quot;</span><span class="p">,</span>
