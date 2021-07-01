@@ -559,9 +559,8 @@ def _auto_tune_batch_size(
             with tf.io.gfile.GFile(config_path, mode="w") as config_file:
                 yaml.dump(run_config, config_file)
 
-            env = {
-                "TF_CPP_MIN_LOG_LEVEL": "2",
-            }
+            env = os.environ.copy()
+            env["TF_CPP_MIN_LOG_LEVEL"] = "2"
             args = [
                 sys.executable or "python",
                 "-m",
