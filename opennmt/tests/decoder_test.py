@@ -165,6 +165,23 @@ class DecoderTest(tf.test.TestCase):
         )
         self._testDecoder(decoder, num_sources=num_sources)
 
+    def testSelfAttentionDecoderWithoutSourceLength(self):
+        batch_size = 4
+        depth = 6
+        decoder = decoders.SelfAttentionDecoder(
+            num_layers=2,
+            num_units=depth,
+            num_heads=2,
+            ffn_inner_dim=depth * 2,
+            vocab_size=10,
+        )
+
+        memory, _, _ = _generate_source_context(batch_size, depth)
+        inputs = tf.random.uniform([batch_size, depth])
+        step = tf.constant(0)
+        initial_state = decoder.initial_state(memory)
+        decoder(inputs, step, state=initial_state)
+
 
 if __name__ == "__main__":
     tf.test.main()
