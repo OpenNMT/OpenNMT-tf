@@ -21,6 +21,9 @@ Pretrained embeddings are only loaded when initializing the model weights. If yo
 
 ## Sharing
 
-`SequenceToSequence` models take a `share_embeddings` argument in the constructor that accepts a [`EmbeddingsSharingLevel`](https://opennmt.net/OpenNMT-tf/package/opennmt.models.EmbeddingsSharingLevel) value to enable different level of embeddings sharing.
+The following model types are configured to share embeddings by default:
 
-See for example the custom model definition [`transformer_shared_embedding.py`](https://github.com/OpenNMT/OpenNMT-tf/blob/master/config/models/transformer_shared_embedding.py) that shares all embeddings, including the output softmax weights, for a Transformer model.
+* `TransformerBaseSharedEmbeddings`
+* `TransformerBigSharedEmbeddings`
+
+For custom models, see the values in [`EmbeddingsSharingLevel`](https://opennmt.net/OpenNMT-tf/package/opennmt.models.EmbeddingsSharingLevel) that can be passed to the [`SequenceToSequence`](https://opennmt.net/OpenNMT-tf/package/opennmt.models.SequenceToSequence.html) constructor.
