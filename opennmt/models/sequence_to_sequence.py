@@ -587,8 +587,8 @@ def replace_unknown_target(
     attention.
 
     Args:
-      target_tokens: A a string ``tf.Tensor`` of shape :math:`[B, T_t]`.
-      source_tokens: A a string ``tf.Tensor`` of shape :math:`[B, T_s]`.
+      target_tokens: A string ``tf.Tensor`` of shape :math:`[B, T_t]`.
+      source_tokens: A string ``tf.Tensor`` of shape :math:`[B, T_s]`.
       attention: The attention vector of shape :math:`[B, T_t, T_s]`.
       unknown_token: The target token to replace.
 
