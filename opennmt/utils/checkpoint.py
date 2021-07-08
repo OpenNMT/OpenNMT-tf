@@ -46,7 +46,7 @@ class Checkpoint(object):
           optimizer: The optimizer instance.
 
         Returns:
-          A :class:`openmt.utils.Checkpoint` instance.
+          A :class:`opennmt.utils.Checkpoint` instance.
         """
         train_config = config.get("train")
         if train_config is None:
