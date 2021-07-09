@@ -347,6 +347,14 @@ class InputterTest(tf.test.TestCase):
         with self.assertRaisesRegex(RuntimeError, "initialize"):
             embedder.make_features("Hello world !")
 
+    def testWordEmbedderBatchElement(self):
+        vocab_file = self._makeTextFile("vocab.txt", list(map(str, range(10))))
+        embedder = text_inputter.WordEmbedder(32)
+        embedder.initialize(dict(vocabulary=vocab_file))
+        features = embedder.make_features(["1 2 3", "1 2 3 4"])
+        self.assertAllEqual(features["length"], [3, 4])
+        self.assertAllEqual(features["ids"].shape.as_list(), [2, 4])
+
     def testCharConvEmbedder(self):
         vocab_file = self._makeTextFile("vocab.txt", ["h", "e", "l", "w", "o"])
         data_file = self._makeTextFile("data.txt", ["hello world !"])

@@ -279,6 +279,7 @@ class TextInputter(Inputter):
             return features
         if "text" in features:
             element = features.pop("text")
+        element = tf.convert_to_tensor(element, dtype=tf.string)
         tokens = self.tokenizer.tokenize(element, training=training)
         if isinstance(tokens, tf.RaggedTensor):
             length = tokens.row_lengths()
