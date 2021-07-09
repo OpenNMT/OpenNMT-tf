@@ -148,6 +148,30 @@ class Model(tf.keras.layers.Layer):
         """
         raise NotImplementedError("This model does not define a score function")
 
+    def compute_training_loss(self, features, labels, step=None):
+        """Computes the training loss for a batch of examples.
+
+        Args:
+          features: A nested structure of features ``tf.Tensor``.
+          labels: A nested structure of labels ``tf.Tensor``.
+          step: The current training step.
+
+        Returns:
+          A tuple containing,
+
+          - The loss to optimize.
+          - The loss to report.
+        """
+        outputs, _ = self(features, labels, training=True, step=step)
+        loss = self.compute_loss(outputs, labels, training=True)
+        if isinstance(loss, tuple):
+            train_loss = loss[0] / loss[1]
+            report_loss = loss[0] / loss[2] if len(loss) > 2 else train_loss
+        else:
+            train_loss, report_loss = loss, loss
+        train_loss = self.regularize_loss(train_loss, variables=self.trainable_weights)
+        return train_loss, report_loss
+
     @abc.abstractmethod
     def compute_loss(self, outputs, labels, training=True):
         """Computes the loss.

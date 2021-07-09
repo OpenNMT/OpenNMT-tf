@@ -290,17 +290,10 @@ class Trainer:
           - The loss to report.
         """
         first_call = not self._model.built
-        outputs, _ = self._model(
-            source, labels=target, training=True, step=self._optimizer.iterations
-        )
-        loss = self._model.compute_loss(outputs, target, training=True)
-        if isinstance(loss, tuple):
-            training_loss = loss[0] / loss[1]
-            reported_loss = loss[0] / loss[2] if len(loss) > 2 else training_loss
-        else:
-            training_loss, reported_loss = loss, loss
-        training_loss = self._model.regularize_loss(
-            training_loss, variables=self._model.trainable_variables
+        training_loss, reported_loss = self._model.compute_training_loss(
+            source,
+            target,
+            step=self._optimizer.iterations,
         )
         loss_scale = accum_steps * self.num_replicas
         training_loss /= loss_scale
