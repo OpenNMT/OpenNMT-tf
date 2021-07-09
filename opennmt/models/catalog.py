@@ -362,6 +362,19 @@ class TransformerBigRelative(transformer.Transformer):
 
 
 @register_model_in_catalog
+class TransformerTiny(transformer.Transformer):
+    """Defines a tiny Transformer model."""
+
+    def __init__(self):
+        super().__init__(
+            num_layers=2,
+            num_units=64,
+            num_heads=2,
+            ffn_inner_dim=64,
+        )
+
+
+@register_model_in_catalog
 class GPT2Small(language_model.LanguageModel):
     """GPT-2 language model (small version) as described in:
 
