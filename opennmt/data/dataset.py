@@ -3,6 +3,7 @@
 import numpy as np
 import tensorflow as tf
 
+from opennmt.utils import compat
 from opennmt.utils import misc
 
 
@@ -460,6 +461,13 @@ def batch_sequence_dataset(
             size = size + required_multiple - size % required_multiple
         return tf.cast(tf.maximum(size, required_multiple), tf.int64)
 
+    def _group_by_window(*args, **kwargs):
+        # TODO: clean this API when TensorFlow requirement is updated to >=2.6.
+        if compat.tf_supports("data.Dataset.group_by_window"):
+            return lambda dataset: dataset.group_by_window(*args, **kwargs)
+        else:
+            return tf.data.experimental.group_by_window(*args, **kwargs)
+
     if length_bucket_width is None:
         if batch_type == "tokens":
             raise ValueError(
@@ -469,11 +477,9 @@ def batch_sequence_dataset(
         return batch_dataset(batch_size, padded_shapes=padded_shapes)
 
     if batch_type == "examples":
-        return tf.data.experimental.group_by_window(
-            _key_func, _reduce_func, window_size=batch_size
-        )
+        return _group_by_window(_key_func, _reduce_func, window_size=batch_size)
     elif batch_type == "tokens":
-        return tf.data.experimental.group_by_window(
+        return _group_by_window(
             _key_func, _reduce_func, window_size_func=_window_size_func
         )
     else:
