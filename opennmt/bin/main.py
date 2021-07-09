@@ -213,6 +213,7 @@ def main():
     parser_score.add_argument(
         "--predictions_file", default=None, help="Predictions to score."
     )
+    parser_score.add_argument("--output_file", default=None, help="Output file.")
 
     parser_average_checkpoints = subparsers.add_parser(
         "average_checkpoints", help="Checkpoint averaging."
@@ -350,6 +351,7 @@ def main():
             args.features_file,
             args.predictions_file,
             checkpoint_path=args.checkpoint_path,
+            output_file=args.output_file,
         )
     elif args.run_type == "average_checkpoints":
         runner.average_checkpoints(args.output_dir, max_count=args.max_count)
