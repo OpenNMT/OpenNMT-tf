@@ -283,7 +283,7 @@ class TextInputter(Inputter):
         tokens = self.tokenizer.tokenize(element, training=training)
         if isinstance(tokens, tf.RaggedTensor):
             length = tokens.row_lengths()
-            tokens = tokens.to_tensor()
+            tokens = tokens.to_tensor(default_value=constants.PADDING_TOKEN)
         else:
             length = tf.shape(tokens)[0]
         if training and self.noiser is not None:
@@ -426,8 +426,17 @@ class WordEmbedder(TextInputter):
                     end_id=constants.END_OF_SENTENCE_ID if self.mark_end else None,
                 )
         if self.decoder_mode:
-            features["ids_out"] = features["ids"][1:]
-            features["ids"] = features["ids"][:-1]
+            ids = features["ids"]
+            length = features["length"]
+            if ids.shape.rank == 2:
+                mask = tf.sequence_mask(
+                    length - 1, maxlen=tf.shape(ids)[1], dtype=ids.dtype
+                )
+                features["ids"] = (ids * mask)[:, :-1]
+                features["ids_out"] = ids[:, 1:]
+            else:
+                features["ids"] = ids[:-1]
+                features["ids_out"] = ids[1:]
             features["length"] -= 1
         return features
 

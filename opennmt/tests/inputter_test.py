@@ -348,12 +348,20 @@ class InputterTest(tf.test.TestCase):
             embedder.make_features("Hello world !")
 
     def testWordEmbedderBatchElement(self):
-        vocab_file = self._makeTextFile("vocab.txt", list(map(str, range(10))))
+        vocab_file = self._makeTextFile(
+            "vocab.txt", ["<blank>", "<s>", "</s>"] + list(map(str, range(10)))
+        )
         embedder = text_inputter.WordEmbedder(32)
         embedder.initialize(dict(vocabulary=vocab_file))
         features = embedder.make_features(["1 2 3", "1 2 3 4"])
         self.assertAllEqual(features["length"], [3, 4])
-        self.assertAllEqual(features["ids"].shape.as_list(), [2, 4])
+        self.assertAllEqual(features["ids"], [[4, 5, 6, 0], [4, 5, 6, 7]])
+
+        embedder.set_decoder_mode(mark_start=True, mark_end=True)
+        features = embedder.make_features(["1 2 3", "1 2 3 4"])
+        self.assertAllEqual(features["length"], [4, 5])
+        self.assertAllEqual(features["ids"], [[1, 4, 5, 6, 0], [1, 4, 5, 6, 7]])
+        self.assertAllEqual(features["ids_out"], [[4, 5, 6, 2, 0], [4, 5, 6, 7, 2]])
 
     def testCharConvEmbedder(self):
         vocab_file = self._makeTextFile("vocab.txt", ["h", "e", "l", "w", "o"])

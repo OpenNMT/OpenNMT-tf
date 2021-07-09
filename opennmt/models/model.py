@@ -149,6 +149,28 @@ class Model(tf.keras.layers.Layer):
         """
         raise NotImplementedError("This model does not define a score function")
 
+    def train(self, features, labels, optimizer, loss_scale=None):
+        """Computes and applies the gradients for a batch of examples.
+
+        Args:
+          features: A nested structure of features ``tf.Tensor``.
+          labels: A nested structure of labels ``tf.Tensor``.
+          optimizer: The optimizer instance
+            (``tf.keras.mixed_precision.LossScaleOptimizer`` is supported).
+          loss_scale: An optional loss scaling factor.
+
+        Returns:
+          The loss.
+        """
+        loss, gradients = self.compute_gradients(
+            features,
+            labels,
+            optimizer,
+            loss_scale=loss_scale,
+        )
+        optimizer.apply_gradients(list(zip(gradients, self.trainable_weights)))
+        return loss
+
     def compute_gradients(self, features, labels, optimizer, loss_scale=None):
         """Computes the gradients for a batch of examples.
 

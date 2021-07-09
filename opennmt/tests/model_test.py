@@ -784,6 +784,21 @@ class ModelTest(tf.test.TestCase):
         model.initialize(data_config, params=params)
         model.serve_function().get_concrete_function()
 
+    def testTrainModelOnBatch(self):
+        _, _, data_config = self._makeToyEnDeData()
+        optimizer = tf.keras.optimizers.Adam()
+        model = models.TransformerTiny()
+        model.initialize(data_config)
+        features = model.features_inputter.make_features(
+            ["hello world !", "how are you ?"]
+        )
+        labels = model.labels_inputter.make_features(
+            ["hallo welt !", "wie geht es dir ?"]
+        )
+        loss1 = model.train(features, labels, optimizer)
+        loss2 = model.train(features, labels, optimizer)
+        self.assertLess(loss2, loss1)
+
 
 if __name__ == "__main__":
     tf.test.main()
