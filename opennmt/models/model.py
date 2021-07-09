@@ -6,6 +6,7 @@ import tensorflow as tf
 
 from opennmt import optimizers
 from opennmt import schedules
+from opennmt.utils import compat
 from opennmt.utils import exporters
 from opennmt.utils import losses
 from opennmt.utils import misc
@@ -147,6 +148,55 @@ class Model(tf.keras.layers.Layer):
           The score results.
         """
         raise NotImplementedError("This model does not define a score function")
+
+    def compute_gradients(self, features, labels, optimizer, loss_scale=None):
+        """Computes the gradients for a batch of examples.
+
+        Args:
+          features: A nested structure of features ``tf.Tensor``.
+          labels: A nested structure of labels ``tf.Tensor``.
+          optimizer: The optimizer instance
+            (``tf.keras.mixed_precision.LossScaleOptimizer`` is supported).
+          loss_scale: An optional loss scaling factor.
+
+        Returns:
+          A tuple containing,
+
+          - The loss.
+          - The gradients.
+        """
+        # TODO: clean mixed precision API when TensorFlow requirement is updated to >=2.4.
+        loss_scale_optimizer = compat.tf_any(
+            "keras.mixed_precision.LossScaleOptimizer",
+            "keras.mixed_precision.experimental.LossScaleOptimizer",
+        )
+
+        def _compute_loss():
+            train_loss, report_loss = self.compute_training_loss(
+                features,
+                labels,
+                step=optimizer.iterations,
+            )
+            if loss_scale is not None:
+                train_loss /= loss_scale
+                report_loss /= loss_scale
+            return train_loss, report_loss
+
+        if tf.executing_eagerly():
+            with tf.GradientTape() as tape:
+                train_loss, report_loss = _compute_loss()
+                if isinstance(optimizer, loss_scale_optimizer):
+                    train_loss = optimizer.get_scaled_loss(train_loss)
+            gradients = tape.gradient(train_loss, self.trainable_weights)
+            if isinstance(optimizer, loss_scale_optimizer):
+                gradients = optimizer.get_unscaled_gradients(gradients)
+
+        else:
+            train_loss, report_loss = _compute_loss()
+            # LossScaleOptimizer.get_gradients takes care of loss scaling.
+            gradients = optimizer.get_gradients(train_loss, self.trainable_weights)
+
+        return report_loss, gradients
 
     def compute_training_loss(self, features, labels, step=None):
         """Computes the training loss for a batch of examples.

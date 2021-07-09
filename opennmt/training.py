@@ -119,9 +119,12 @@ class Trainer:
 
             step = None
             moving_average = None
-            for loss in self._steps(
-                dataset, accum_steps=accum_steps, report_steps=report_steps
+            for i, loss in enumerate(
+                self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps)
             ):
+                if i == 0:
+                    self._log_model_info()
+
                 if moving_average_decay is not None and self.is_master:
                     if moving_average is None:
                         moving_average = MovingAverage(
@@ -275,43 +278,21 @@ class Trainer:
                 yield step_loss
                 step_loss = 0
 
-    def _run_model(self, source, target, accum_steps=1):
-        """Computes the loss of the given source and target pair.
-
-        Args:
-          source: A nested structure of tensors.
-          target: A nested structure of tensors.
-          accum_steps: The number of gradient accumulation steps.
-
-        Returns:
-          A tuple containing,
-
-          - The loss to compute the gradients.
-          - The loss to report.
-        """
-        first_call = not self._model.built
-        training_loss, reported_loss = self._model.compute_training_loss(
-            source,
-            target,
-            step=self._optimizer.iterations,
+    def _log_model_info(self):
+        """Logs some information about the model being trained."""
+        if not self.is_master:
+            return
+        if self._checkpoint is not None:
+            self._model.visualize(self._checkpoint.model_dir)
+        tf.get_logger().info(
+            "Number of model parameters: %d", self._model.count_params()
         )
-        loss_scale = accum_steps * self.num_replicas
-        training_loss /= loss_scale
-        reported_loss /= loss_scale
-        self._training_stats.update_on_example(source, target)
-        if first_call and self.is_master:
-            if self._checkpoint is not None:
-                self._model.visualize(self._checkpoint.model_dir)
-            tf.get_logger().info(
-                "Number of model parameters: %d", self._model.count_params()
-            )
-            tf.get_logger().info(
-                "Number of model weights: %d (trainable = %d, non trainable = %d)",
-                len(self._model.weights),
-                len(self._model.trainable_weights),
-                len(self._model.non_trainable_weights),
-            )
-        return training_loss, reported_loss
+        tf.get_logger().info(
+            "Number of model weights: %d (trainable = %d, non trainable = %d)",
+            len(self._model.weights),
+            len(self._model.trainable_weights),
+            len(self._model.non_trainable_weights),
+        )
 
     def _should_record_summaries(self, accum_steps, report_steps):
         """Returns a boolean tensor to be used in tf.summary.record_if."""
@@ -328,27 +309,13 @@ class Trainer:
         """Computes the gradient of a training example."""
         record_summaries = self._should_record_summaries(accum_steps, report_steps)
         with tf.summary.record_if(record_summaries):
-            if tf.executing_eagerly():
-                with tf.GradientTape() as tape:
-                    training_loss, reported_loss = self._run_model(
-                        source, target, accum_steps=accum_steps
-                    )
-                    if self._mixed_precision:
-                        training_loss = self._optimizer.get_scaled_loss(training_loss)
-                gradients = tape.gradient(
-                    training_loss, self._model.trainable_variables
-                )
-                if self._mixed_precision:
-                    gradients = self._optimizer.get_unscaled_gradients(gradients)
-            else:
-                training_loss, reported_loss = self._run_model(
-                    source, target, accum_steps=accum_steps
-                )
-                # In mixed precision training, LossScaleOptimizer.get_gradients takes care
-                # of loss scaling.
-                gradients = self._optimizer.get_gradients(
-                    training_loss, self._model.trainable_variables
-                )
+            reported_loss, gradients = self._model.compute_gradients(
+                source,
+                target,
+                self._optimizer,
+                loss_scale=accum_steps * self.num_replicas,
+            )
+            self._training_stats.update_on_example(source, target)
             _summarize_gradients(gradients, record_summaries)
         return reported_loss, gradients
 
