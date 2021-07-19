@@ -147,7 +147,7 @@ def get_variable_name(variable, root, model_key="model"):
 
 
 def print_as_bytes(text, stream=None):
-    """Prints a string as bytes to non rely on :obj:`stream` default encoding.
+    """Prints a string as bytes to not rely on :obj:`stream` default encoding.
 
     Args:
       text: The text to print.
