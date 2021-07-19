@@ -12,9 +12,15 @@ from opennmt.tokenizers import tokenizer
 
 @tokenizer.register_tokenizer
 class OpenNMTTokenizer(tokenizer.Tokenizer):
-    """Uses the OpenNMT tokenizer."""
+    """Tokenizer based on the OpenNMT Tokenizer: https://github.com/OpenNMT/Tokenizer."""
 
     def __init__(self, **kwargs):
+        """Initializes the tokenizer.
+
+        Args:
+          **kwargs: Tokenization options, see
+            https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md.
+        """
         case_feature = kwargs.get("case_feature")
         if case_feature:
             raise ValueError("case_feature is not supported with OpenNMT-tf")

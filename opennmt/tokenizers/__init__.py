@@ -9,6 +9,11 @@ try:
 except ImportError:
     pass
 
+try:
+    from opennmt.tokenizers.sentencepiece_tokenizer import SentencePieceTokenizer
+except ImportError:
+    pass
+
 from opennmt.tokenizers.tokenizer import Tokenizer
 from opennmt.tokenizers.tokenizer import SpaceTokenizer
 from opennmt.tokenizers.tokenizer import CharacterTokenizer
