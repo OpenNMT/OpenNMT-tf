@@ -300,19 +300,19 @@ def _process_stream_as_dataset(
     batch_size=512,
     num_parallel_calls=4,
 ):
-    input_spec = tf.TensorSpec(shape=(), dtype=tf.string)
-    output_spec = tf.TensorSpec(shape=(None,), dtype=tf.string)
-
     dataset = tf.data.Dataset.from_generator(
         lambda: input_stream,
-        output_signature=input_spec,
+        output_types=tf.string,
+        output_shapes=tf.TensorShape([]),
     )
     dataset = dataset.batch(batch_size)
     dataset = dataset.map(map_func, num_parallel_calls=num_parallel_calls)
-    if dataset.element_spec != output_spec:
+
+    expected_spec = tf.TensorSpec(shape=[None], dtype=tf.string)
+    if dataset.element_spec != expected_spec:
         raise TypeError(
             "Expected map_func to produce elements with spec %s, but got spec %s instead"
-            % (output_spec, dataset.element_spec)
+            % (expected_spec, dataset.element_spec)
         )
 
     for lines in dataset.as_numpy_iterator():
