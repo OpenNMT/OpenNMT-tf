@@ -293,6 +293,86 @@ def make_tokenizer(config=None):
     return tokenizer
 
 
+def _process_stream_as_dataset(
+    input_stream,
+    output_stream,
+    map_func,
+    batch_size=512,
+    num_parallel_calls=4,
+):
+    dataset = tf.data.Dataset.from_generator(
+        lambda: input_stream,
+        output_types=tf.string,
+        output_shapes=tf.TensorShape([]),
+    )
+    dataset = dataset.batch(batch_size)
+    dataset = dataset.map(map_func, num_parallel_calls=num_parallel_calls)
+
+    expected_spec = tf.TensorSpec(shape=[None], dtype=tf.string)
+    if dataset.element_spec != expected_spec:
+        raise TypeError(
+            "Expected map_func to produce elements with spec %s, but got spec %s instead"
+            % (expected_spec, dataset.element_spec)
+        )
+
+    for lines in dataset.as_numpy_iterator():
+        for line in lines:
+            misc.print_as_bytes(line, stream=output_stream)
+
+
+class TensorFlowTokenizer(tf.Module, Tokenizer):
+    """Base class for tokenizers using only TensorFlow ops."""
+
+    @property
+    def in_graph(self):
+        return True
+
+    def tokenize_stream(
+        self,
+        input_stream=sys.stdin,
+        output_stream=sys.stdout,
+        delimiter=" ",
+        training=True,
+    ):
+        def _map_func(line):
+            line = tf.strings.strip(line)
+            tokens = self._tokenize_tensor(line, training)
+            return tf.strings.reduce_join(
+                tokens, axis=tokens.shape.rank - 1, separator=delimiter
+            )
+
+        _process_stream_as_dataset(input_stream, output_stream, _map_func)
+
+    def detokenize_stream(
+        self,
+        input_stream=sys.stdin,
+        output_stream=sys.stdout,
+        delimiter=" ",
+    ):
+        def _map_func(line):
+            line = tf.strings.strip(line)
+            tokens = tf.strings.split(line, sep=delimiter)
+            return self._detokenize_tensor(tokens)
+
+        _process_stream_as_dataset(input_stream, output_stream, _map_func)
+
+    @abc.abstractmethod
+    def _tokenize_tensor(self, text, training):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def _detokenize_tensor(self, tokens):
+        raise NotImplementedError()
+
+    def _tokenize_string(self, text, training):
+        tokens = self._tokenize_tensor(tf.constant(text, dtype=tf.string), training)
+        return [token.decode("utf-8") for token in tokens.numpy()]
+
+    def _detokenize_string(self, tokens):
+        text = self._detokenize_tensor(tf.constant(tokens, dtype=tf.string))
+        return text.numpy().decode("utf-8")
+
+
 @register_tokenizer
 class SpaceTokenizer(Tokenizer):
     """A tokenizer that splits on spaces."""

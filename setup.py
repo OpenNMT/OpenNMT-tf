@@ -72,8 +72,10 @@ setup(
         "tensorflow-addons>=0.13,<0.14",
     ],
     extras_require={
-        "tensorflow": ["tensorflow" + tf_version_requirement],
-        "tensorflow-cpu": ["tensorflow-cpu" + tf_version_requirement],
+        "tensorflow": [
+            "tensorflow" + tf_version_requirement,
+            "tensorflow-text" + tf_version_requirement,
+        ],
         "tests": tests_require,
     },
     tests_require=tests_require,
