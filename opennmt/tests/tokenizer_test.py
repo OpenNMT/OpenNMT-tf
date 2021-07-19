@@ -151,7 +151,7 @@ class TokenizerTest(tf.test.TestCase):
 
             @tf.function(input_signature=[tf.TensorSpec(shape=[None], dtype=tf.string)])
             def call(self, text):
-                return self._tokenizer.tokenize(text)
+                return self._tokenizer.tokenize(text).to_tensor()
 
         # Use a temporary model file to make sure the exported model is self-contained.
         tmp_model_path = os.path.join(self.get_temp_dir(), "sp.model")
@@ -164,9 +164,7 @@ class TokenizerTest(tf.test.TestCase):
         imported = tf.saved_model.load(export_dir)
         func = imported.signatures["serving_default"]
         outputs = func(tf.constant(text))["output_0"]
-        self.assertAllEqual(
-            outputs.to_list(), tf.nest.map_structure(tf.compat.as_bytes, tokens)
-        )
+        self.assertAllEqual(outputs, tf.nest.map_structure(tf.compat.as_bytes, tokens))
 
     def testOpenNMTTokenizer(self):
         self._testTokenizer(
