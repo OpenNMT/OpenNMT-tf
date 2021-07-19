@@ -3,7 +3,7 @@ import numpy
 
 
 def wer(ref_path, hyp_path):
-    """ Compute Word Error Rate between two files """
+    """Compute Word Error Rate between two files"""
     with open(ref_path) as ref_fp, open(hyp_path) as hyp_fp:
         ref_line = ref_fp.readline()
         hyp_line = hyp_fp.readline()
@@ -23,7 +23,7 @@ def wer(ref_path, hyp_path):
 
 
 def sentence_wer(ref_sent, hyp_sent):
-    """ Compute Word Error Rate between two sentences (as list of words) """
+    """Compute Word Error Rate between two sentences (as list of words)"""
     mwer = numpy.zeros(
         (len(ref_sent) + 1) * (len(hyp_sent) + 1), dtype=numpy.uint8
     ).reshape((len(ref_sent) + 1, len(hyp_sent) + 1))
