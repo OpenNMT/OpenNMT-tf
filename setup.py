@@ -4,8 +4,8 @@ from setuptools import setup, find_packages
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 tests_require = [
-    "black==20.8b1",
-    "flake8==3.8.*",
+    "black==21.7b0",
+    "flake8==3.9.*",
     "parameterized==0.8.1",
     "pytest-cov",
 ]
