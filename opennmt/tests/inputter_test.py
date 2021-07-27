@@ -702,6 +702,28 @@ class InputterTest(tf.test.TestCase):
         self.assertAllEqual([vector], features["tensor"])
         self.assertAllEqual([vector], transformed)
 
+    def testSequenceRecordBatch(self):
+        vectors = [
+            np.random.rand(3, 2),
+            np.random.rand(6, 2),
+            np.random.rand(1, 2),
+        ]
+
+        record_file = os.path.join(self.get_temp_dir(), "data.records")
+        record_inputter.create_sequence_records(vectors, record_file)
+
+        inputter = record_inputter.SequenceRecordInputter(2)
+        dataset = inputter.make_dataset(record_file)
+        dataset = dataset.batch(3)
+        dataset = dataset.map(inputter.make_features)
+
+        features = next(iter(dataset))
+        lengths = features["length"]
+        tensors = features["tensor"]
+        self.assertAllEqual(lengths, [3, 6, 1])
+        for length, tensor, expected_vector in zip(lengths, tensors, vectors):
+            self.assertAllClose(tensor[:length], expected_vector)
+
     def testSequenceRecordWithCompression(self):
         vector = np.array([[0.2, 0.3], [0.4, 0.5]], dtype=np.float32)
         compression = "GZIP"
