@@ -73,9 +73,8 @@ def normalize_weights(datasets, weights=None, sizes=None):
     weights = [weight * (size / total_size) for weight, size in zip(weights, sizes)]
 
     # Convert weights to probabilities.
-    logits = tf.math.log(tf.constant(weights, dtype=tf.float32))
-    probabilities = tf.nn.softmax(logits).numpy().tolist()
-    return probabilities
+    total_weights = sum(weights)
+    return [weight / total_weights for weight in weights]
 
 
 def _get_output_shapes(dataset):
