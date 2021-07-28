@@ -1,6 +1,6 @@
-from parameterized import parameterized
-
 import tensorflow as tf
+
+from parameterized import parameterized
 
 from opennmt import encoders
 from opennmt.layers import reducer

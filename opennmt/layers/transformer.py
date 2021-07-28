@@ -2,8 +2,8 @@
 
 import enum
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 from opennmt.layers import common
 from opennmt.utils import misc

@@ -2,11 +2,12 @@ import os
 
 import tensorflow as tf
 
-from opennmt import data
-from opennmt.tests import test_util
-from opennmt.models import catalog
-from opennmt.utils import exporters
 from parameterized import parameterized
+
+from opennmt import data
+from opennmt.models import catalog
+from opennmt.tests import test_util
+from opennmt.utils import exporters
 
 
 def _create_vocab(temp_dir):

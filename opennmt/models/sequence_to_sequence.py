@@ -3,18 +3,12 @@
 import tensorflow as tf
 import tensorflow_addons as tfa
 
-from opennmt import constants
-from opennmt import inputters
-
-from opennmt.data import noise
-from opennmt.data import text
-from opennmt.data import vocab
+from opennmt import constants, inputters
+from opennmt.data import noise, text, vocab
+from opennmt.decoders import decoder as decoder_util
 from opennmt.layers import reducer
 from opennmt.models import model
-from opennmt.utils import decoding
-from opennmt.utils import losses
-from opennmt.utils import misc
-from opennmt.decoders import decoder as decoder_util
+from opennmt.utils import decoding, losses, misc
 
 
 class EmbeddingsSharingLevel(object):

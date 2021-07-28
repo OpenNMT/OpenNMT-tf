@@ -2,11 +2,9 @@
 
 import tensorflow as tf
 
-from opennmt.layers import transformer
-
 from opennmt.encoders.encoder import Encoder
+from opennmt.layers import common, transformer
 from opennmt.layers.position import SinusoidalPositionEncoder
-from opennmt.layers import common
 
 
 class SelfAttentionEncoder(Encoder):

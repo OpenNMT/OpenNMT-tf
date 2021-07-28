@@ -1,27 +1,24 @@
 """Main library entrypoint."""
 
 import copy
-import os
-import sys
-import random
 import math
+import os
+import random
 import shutil
 import subprocess
+import sys
 import tempfile
-import yaml
 
 import numpy as np
 import tensorflow as tf
+import yaml
 
-from opennmt import evaluation
-from opennmt import inference
-from opennmt import models
+from opennmt import evaluation, inference, models
 from opennmt import training as training_util
 from opennmt.config import MODEL_DESCRIPTION_FILENAME
 from opennmt.utils import checkpoint as checkpoint_util
 from opennmt.utils import misc
 from opennmt.version import __version__
-
 
 # These options require a value but we can fallback to a default one.
 _CONFIG_FALLBACK = {

@@ -1,11 +1,11 @@
 import copy
-import os
 import filecmp
+import os
+
+import tensorflow as tf
 import yaml
 
 from parameterized import parameterized
-
-import tensorflow as tf
 
 from opennmt import config
 from opennmt.models.model import Model

@@ -3,12 +3,8 @@ import os
 
 import tensorflow as tf
 
-from opennmt import evaluation
-from opennmt import inputters
-from opennmt import models
-from opennmt.utils import exporters
-from opennmt.utils import scorers
-
+from opennmt import evaluation, inputters, models
+from opennmt.utils import exporters, scorers
 
 # Define some dummy components to simply return the loss and metrics we want to test.
 

@@ -3,17 +3,15 @@
 import tensorflow as tf
 import tensorflow_addons as tfa
 
-from opennmt import decoders
-from opennmt import encoders
-from opennmt import inputters
-from opennmt import layers
-from opennmt.models import language_model
-from opennmt.models import model
-from opennmt.models import sequence_tagger
-from opennmt.models import sequence_to_sequence
-from opennmt.models import transformer
+from opennmt import decoders, encoders, inputters, layers
+from opennmt.models import (
+    language_model,
+    model,
+    sequence_tagger,
+    sequence_to_sequence,
+    transformer,
+)
 from opennmt.utils import misc
-
 
 _CATALOG_MODELS_REGISTRY = misc.ClassRegistry(base_class=model.Model)
 

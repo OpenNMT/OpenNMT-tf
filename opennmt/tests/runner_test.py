@@ -1,21 +1,18 @@
 import copy
 import os
-import unittest
 import shutil
+import unittest
 
 from distutils.version import LooseVersion
-from parameterized import parameterized, parameterized_class
 
 import tensorflow as tf
 
-from opennmt import decoders
-from opennmt import models
-from opennmt import Runner
-from opennmt.config import load_model, MODEL_DESCRIPTION_FILENAME
-from opennmt.utils import exporters
-from opennmt.utils import misc
-from opennmt.tests import test_util
+from parameterized import parameterized, parameterized_class
 
+from opennmt import Runner, decoders, models
+from opennmt.config import MODEL_DESCRIPTION_FILENAME, load_model
+from opennmt.tests import test_util
+from opennmt.utils import exporters, misc
 
 test_data = test_util.get_test_data_dir()
 

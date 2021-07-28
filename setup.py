@@ -1,11 +1,12 @@
 import os
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 tests_require = [
     "black==21.7b0",
     "flake8==3.9.*",
+    "isort>=5.9,<6",
     "parameterized==0.8.1",
     "pytest-cov",
 ]

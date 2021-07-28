@@ -7,13 +7,12 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from tensorboard.plugins import projector
 from google.protobuf import text_format
+from tensorboard.plugins import projector
 
 from opennmt import constants, tokenizers
 from opennmt.data import dataset as dataset_util
-from opennmt.data import text
-from opennmt.data import vocab
+from opennmt.data import text, vocab
 from opennmt.inputters.inputter import Inputter
 from opennmt.layers import common
 from opennmt.utils import misc

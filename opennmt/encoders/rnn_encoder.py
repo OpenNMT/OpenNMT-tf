@@ -4,9 +4,8 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 
 from opennmt.encoders.encoder import Encoder, SequentialEncoder
+from opennmt.layers import common, rnn
 from opennmt.layers.reducer import ConcatReducer, JoinReducer, pad_in_time
-from opennmt.layers import common
-from opennmt.layers import rnn
 
 
 class _RNNEncoderBase(Encoder):

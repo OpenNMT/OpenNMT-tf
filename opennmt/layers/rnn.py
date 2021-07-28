@@ -1,7 +1,7 @@
 """RNN functions and classes for TensorFlow 2.0."""
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 from opennmt.layers import common
 from opennmt.layers import reducer as reducer_lib

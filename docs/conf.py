@@ -3,8 +3,8 @@
 
 import os
 import sys
-import opennmt
 
+import opennmt
 
 # General information about the project.
 project = "OpenNMT-tf"

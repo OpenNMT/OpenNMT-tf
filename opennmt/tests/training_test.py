@@ -1,11 +1,9 @@
-import os
 import json
+import os
 
 import tensorflow as tf
 
-from opennmt import inputters
-from opennmt import models
-from opennmt import training
+from opennmt import inputters, models, training
 from opennmt.tests import test_util
 
 

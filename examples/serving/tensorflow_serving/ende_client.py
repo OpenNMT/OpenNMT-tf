@@ -1,12 +1,12 @@
 """Example of a translation client."""
 
 import argparse
-import tensorflow as tf
-import pyonmttok
-import grpc
 
-from tensorflow_serving.apis import predict_pb2
-from tensorflow_serving.apis import prediction_service_pb2_grpc
+import grpc
+import pyonmttok
+import tensorflow as tf
+
+from tensorflow_serving.apis import predict_pb2, prediction_service_pb2_grpc
 
 
 def pad_batch(batch_tokens):

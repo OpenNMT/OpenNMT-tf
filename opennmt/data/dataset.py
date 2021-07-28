@@ -3,8 +3,7 @@
 import numpy as np
 import tensorflow as tf
 
-from opennmt.utils import compat
-from opennmt.utils import misc
+from opennmt.utils import compat, misc
 
 
 def make_datasets(dataset_cls, filenames):

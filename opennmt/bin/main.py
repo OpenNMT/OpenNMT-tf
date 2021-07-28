@@ -8,9 +8,9 @@ import sys
 import tensorflow as tf
 
 from opennmt import __version__
+from opennmt.config import load_config, load_model
 from opennmt.models import catalog
 from opennmt.runner import Runner
-from opennmt.config import load_model, load_config
 from opennmt.utils import exporters
 
 

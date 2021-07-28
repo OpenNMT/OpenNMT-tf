@@ -30,7 +30,7 @@ Do you think a feature is missing or would be a great addition to the project? P
 In any cases, your new code **must**:
 
 * pass the existing tests
-* be reformatted with [`black`](https://github.com/psf/black)
+* be reformatted with [`black`](https://github.com/psf/black) and [`isort`](https://pycqa.github.io/isort/)
 * pass the [`flake8`](https://flake8.pycqa.org/en/latest/) style checker
 
 and **should**:

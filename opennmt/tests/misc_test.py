@@ -1,7 +1,7 @@
-from parameterized import parameterized
-
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
+
+from parameterized import parameterized
 
 from opennmt import models
 from opennmt.utils import misc
