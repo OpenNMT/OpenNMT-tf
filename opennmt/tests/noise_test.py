@@ -1,6 +1,6 @@
-from parameterized import parameterized
-
 import tensorflow as tf
+
+from parameterized import parameterized
 
 from opennmt.data import noise
 

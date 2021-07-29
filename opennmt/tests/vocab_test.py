@@ -1,7 +1,7 @@
 import os
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 from opennmt.data import vocab as vocab_lib
 from opennmt.tests import test_util

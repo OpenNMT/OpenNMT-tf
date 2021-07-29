@@ -6,6 +6,7 @@ import argparse
 import logging
 
 import tensorflow as tf
+
 import opennmt as onmt
 
 tf.get_logger().setLevel(logging.INFO)

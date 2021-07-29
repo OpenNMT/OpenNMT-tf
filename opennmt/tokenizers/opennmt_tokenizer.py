@@ -1,11 +1,10 @@
 """Define the OpenNMT tokenizer."""
 
 import os
-import yaml
-
-import tensorflow as tf
 
 import pyonmttok
+import tensorflow as tf
+import yaml
 
 from opennmt.tokenizers import tokenizer
 

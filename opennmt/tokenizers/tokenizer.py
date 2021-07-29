@@ -1,11 +1,11 @@
 """Define base tokenizers."""
 
-import sys
 import abc
 import json
-import yaml
+import sys
 
 import tensorflow as tf
+import yaml
 
 from opennmt.utils import misc
 

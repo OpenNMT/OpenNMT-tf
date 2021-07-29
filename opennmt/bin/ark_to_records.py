@@ -5,6 +5,7 @@ to write aligned source and target data.
 """
 
 import argparse
+
 import numpy as np
 import tensorflow as tf
 

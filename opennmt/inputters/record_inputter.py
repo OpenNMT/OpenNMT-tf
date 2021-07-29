@@ -1,7 +1,7 @@
 """Define inputters reading from TFRecord files."""
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 from opennmt.data import dataset as dataset_util
 from opennmt.inputters.inputter import Inputter

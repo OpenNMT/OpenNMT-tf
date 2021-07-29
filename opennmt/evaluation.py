@@ -6,10 +6,8 @@ import shutil
 
 import tensorflow as tf
 
-from opennmt.utils import exporters
-from opennmt.utils import misc
+from opennmt.utils import exporters, misc
 from opennmt.utils import scorers as scorers_lib
-
 
 _SUMMARIES_SCOPE = "metrics"
 

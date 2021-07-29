@@ -1,6 +1,7 @@
 """Script that merges configurations for debug or simplification."""
 
 import argparse
+
 import yaml
 
 from opennmt.config import load_config

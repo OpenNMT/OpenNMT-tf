@@ -9,8 +9,7 @@ import tensorflow as tf
 
 from opennmt.inputters import text_inputter
 from opennmt.optimizers import utils as optimizer_util
-from opennmt.utils import compat
-from opennmt.utils import misc
+from opennmt.utils import compat, misc
 
 
 def _add_mixed_precision_wrapper(optimizer):

@@ -1,13 +1,12 @@
 import os
-import yaml
 import shutil
 import unittest
 
 import tensorflow as tf
+import yaml
 
 from opennmt import tokenizers
 from opennmt.tests import test_util
-
 
 sp_model = os.path.join(test_util.get_test_data_dir(), "wmtende.model")
 

@@ -1,8 +1,8 @@
 import argparse
 import os
 
-import tensorflow as tf
 import pyonmttok
+import tensorflow as tf
 
 
 class EnDeTranslator(object):

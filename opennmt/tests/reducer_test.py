@@ -3,6 +3,7 @@ import collections
 import tensorflow as tf
 
 from parameterized import parameterized
+
 from opennmt.layers import reducer
 
 

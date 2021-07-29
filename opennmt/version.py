@@ -7,10 +7,11 @@ EXCLUSIVE_MAX_TF_VERSION = "2.6.0"
 
 
 def _check_tf_version():
+    import warnings
+
     from distutils.version import LooseVersion
 
     import tensorflow as tf
-    import warnings
 
     if (
         LooseVersion(INCLUSIVE_MIN_TF_VERSION)

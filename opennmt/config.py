@@ -1,10 +1,10 @@
 """Defines functions related to configuration files."""
 
-from importlib import import_module
-
 import copy
+import importlib
 import os
 import sys
+
 import tensorflow as tf
 import yaml
 
@@ -12,7 +12,6 @@ from opennmt.models import catalog
 from opennmt.optimizers import utils as optimizers_lib
 from opennmt.schedules import lr_schedules as schedules_lib
 from opennmt.utils.misc import merge_dict
-
 
 MODEL_DESCRIPTION_FILENAME = "model_description.py"
 
@@ -35,7 +34,7 @@ def load_model_module(path):
     dirname, filename = os.path.split(path)
     module_name, _ = os.path.splitext(filename)
     sys.path.insert(0, os.path.abspath(dirname))
-    module = import_module(module_name)
+    module = importlib.import_module(module_name)
     sys.path.pop(0)
 
     if not hasattr(module, "model"):

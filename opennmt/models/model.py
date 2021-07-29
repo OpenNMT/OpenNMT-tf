@@ -4,12 +4,8 @@ import abc
 
 import tensorflow as tf
 
-from opennmt import optimizers
-from opennmt import schedules
-from opennmt.utils import compat
-from opennmt.utils import exporters
-from opennmt.utils import losses
-from opennmt.utils import misc
+from opennmt import optimizers, schedules
+from opennmt.utils import compat, exporters, losses, misc
 
 
 class Model(tf.keras.layers.Layer):

@@ -4,9 +4,7 @@ import argparse
 
 import tensorflow as tf
 
-from opennmt import constants
-from opennmt import tokenizers
-from opennmt import data
+from opennmt import constants, data, tokenizers
 
 
 def main():

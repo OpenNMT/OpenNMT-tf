@@ -8,8 +8,7 @@ from tensorflow.python.framework import ops
 
 from opennmt import constants
 from opennmt.data import vocab
-from opennmt.utils import compat
-from opennmt.utils import misc
+from opennmt.utils import compat, misc
 
 
 def skip_if_unsupported(symbol):

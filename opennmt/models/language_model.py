@@ -4,9 +4,7 @@ import tensorflow as tf
 
 from opennmt import inputters
 from opennmt.models import model
-from opennmt.utils import decoding
-from opennmt.utils import losses
-from opennmt.utils import misc
+from opennmt.utils import decoding, losses, misc
 
 
 class LanguageModel(model.SequenceGenerator):

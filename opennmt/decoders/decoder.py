@@ -7,8 +7,7 @@ import tensorflow as tf
 from opennmt import constants
 from opennmt.inputters import text_inputter
 from opennmt.layers import common
-from opennmt.utils import decoding
-from opennmt.utils import misc
+from opennmt.utils import decoding, misc
 
 
 def get_sampling_probability(step, read_probability=None, schedule_type=None, k=None):

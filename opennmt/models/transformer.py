@@ -3,15 +3,15 @@
 import tensorflow as tf
 
 from opennmt import inputters
-from opennmt.models.sequence_to_sequence import (
-    SequenceToSequence,
-    EmbeddingsSharingLevel,
-)
+from opennmt.decoders.self_attention_decoder import SelfAttentionDecoder
 from opennmt.encoders.encoder import ParallelEncoder
 from opennmt.encoders.self_attention_encoder import SelfAttentionEncoder
-from opennmt.decoders.self_attention_decoder import SelfAttentionDecoder
 from opennmt.layers.position import SinusoidalPositionEncoder
 from opennmt.layers.transformer import MultiHeadAttentionReduction
+from opennmt.models.sequence_to_sequence import (
+    EmbeddingsSharingLevel,
+    SequenceToSequence,
+)
 from opennmt.utils.misc import merge_dict
 
 

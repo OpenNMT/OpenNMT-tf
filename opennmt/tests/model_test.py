@@ -1,14 +1,11 @@
 import os
 
+import numpy as np
+import tensorflow as tf
+
 from parameterized import parameterized
 
-import tensorflow as tf
-import numpy as np
-
-from opennmt import decoders
-from opennmt import encoders
-from opennmt import inputters
-from opennmt import models
+from opennmt import decoders, encoders, inputters, models
 from opennmt.tests import test_util
 from opennmt.utils import misc
 

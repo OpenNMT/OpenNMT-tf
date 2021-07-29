@@ -2,11 +2,11 @@
 
 import collections
 import copy
-import sys
 import functools
 import heapq
-import os
 import io
+import os
+import sys
 
 import numpy as np
 import tensorflow as tf

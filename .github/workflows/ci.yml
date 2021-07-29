@@ -30,6 +30,10 @@ jobs:
         run: |
           black --check .
 
+      - name: Check imports order with isort
+        run: |
+          isort --check-only .
+
       - name: Check code style with Flake8
         if: ${{ always() }}
         run: |

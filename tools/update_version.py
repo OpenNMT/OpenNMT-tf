@@ -2,7 +2,6 @@ import argparse
 import datetime
 import re
 
-
 SRC_DIR = "."
 VERSION_FILE = "%s/opennmt/version.py" % SRC_DIR
 CHANGELOG = "%s/CHANGELOG.md" % SRC_DIR

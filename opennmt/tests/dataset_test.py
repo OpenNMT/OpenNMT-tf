@@ -1,8 +1,8 @@
 import os
 
-from parameterized import parameterized
-
 import tensorflow as tf
+
+from parameterized import parameterized
 
 from opennmt.data import dataset as dataset_util
 from opennmt.tests import test_util

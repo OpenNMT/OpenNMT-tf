@@ -1,7 +1,7 @@
 """Defines common layers."""
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 from opennmt.utils.misc import shape_list
 

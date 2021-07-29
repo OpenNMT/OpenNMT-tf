@@ -1,23 +1,22 @@
-import os
 import gzip
 import io
+import os
+
+import numpy as np
+import tensorflow as tf
 import yaml
 
-import tensorflow as tf
-import numpy as np
-
-from tensorboard.plugins import projector
 from google.protobuf import text_format
 from parameterized import parameterized
+from tensorboard.plugins import projector
 
-from opennmt import inputters
-from opennmt import tokenizers
+from opennmt import inputters, tokenizers
 from opennmt.data import dataset as dataset_util
 from opennmt.data import noise
-from opennmt.inputters import inputter, text_inputter, record_inputter
+from opennmt.inputters import inputter, record_inputter, text_inputter
 from opennmt.layers import reducer
 from opennmt.tests import test_util
-from opennmt.utils.misc import item_or_tuple, count_lines
+from opennmt.utils.misc import count_lines, item_or_tuple
 
 
 class InputterTest(tf.test.TestCase):

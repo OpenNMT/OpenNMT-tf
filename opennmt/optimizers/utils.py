@@ -11,7 +11,6 @@ from tensorflow_addons.optimizers.weight_decay_optimizers import (
 
 from opennmt.utils import misc
 
-
 _OPTIMIZERS_REGISTRY = misc.ClassRegistry(base_class=tf.keras.optimizers.Optimizer)
 
 register_optimizer = _OPTIMIZERS_REGISTRY.register
