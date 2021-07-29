@@ -84,6 +84,38 @@ class Model(tf.keras.layers.Layer):
         self.examples_inputter.build(input_shape)
         self.built = True
 
+    def __call__(self, features, labels=None, training=None, step=None):
+        """Runs the model.
+
+        Args:
+          features: A nested structure of features ``tf.Tensor``.
+          labels: A nested structure of labels ``tf.Tensor``.
+          training: If ``True``, run in training mode.
+          step: The current training step.
+
+        Returns:
+          A tuple containing,
+
+          - The model outputs (usually unscaled probabilities).
+          - The model predictions.
+        """
+        outputs, predictions = super().__call__(
+            features,
+            labels=labels,
+            training=training,
+            step=step,
+        )
+
+        # Include the example index vector in the outputs.
+        index = features.get("index") if isinstance(features, dict) else None
+        if index is not None:
+            if isinstance(outputs, dict):
+                outputs["index"] = index
+            if isinstance(predictions, dict):
+                predictions["index"] = index
+
+        return outputs, predictions
+
     @abc.abstractmethod
     def call(self, features, labels=None, training=None, step=None):
         """Runs the model.
@@ -115,7 +147,6 @@ class Model(tf.keras.layers.Layer):
           The model predictions.
         """
         _, predictions = self(features)
-        _forward_example_index(features, predictions)
         return predictions
 
     def evaluate(self, features, labels):
@@ -129,7 +160,6 @@ class Model(tf.keras.layers.Layer):
           A tuple with the loss and the model predictions.
         """
         outputs, predictions = self(features, labels=labels)
-        _forward_example_index(features, predictions)
         loss = self.compute_loss(outputs, labels, training=False)
         return loss, predictions
 
@@ -517,9 +547,10 @@ class SequenceGenerator(Model):
                 labels, ignore_special_tokens=True
             ),
         }
-        if "attention" in outputs:
-            results["attention"] = outputs["attention"]
-        _forward_example_index(features, results)
+        for key_to_forward in ("attention", "index"):
+            value = outputs.get(key_to_forward)
+            if value is not None:
+                results[key_to_forward] = value
         return results
 
     def print_score(self, score, params=None, stream=None):
@@ -543,8 +574,3 @@ class SequenceGenerator(Model):
             alignment_type=alignment_type,
         )
         misc.print_as_bytes(sentence, stream=stream)
-
-
-def _forward_example_index(features, output):
-    if isinstance(features, dict) and isinstance(output, dict) and "index" in features:
-        output["index"] = features["index"]
