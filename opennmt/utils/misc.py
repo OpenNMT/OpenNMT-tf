@@ -226,6 +226,8 @@ def is_gzip_file(filename):
 def shape_list(x):
     """Return list of dims, statically where possible."""
     x = tf.convert_to_tensor(x)
+    if tf.executing_eagerly():
+        return x.shape.as_list()
 
     # If unknown rank, return dynamic shape
     if x.shape.dims is None:
