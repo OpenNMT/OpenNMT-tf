@@ -17,7 +17,10 @@ class TokenizerTest(tf.test.TestCase):
         text = tf.constant(text)
         tokens = tokenizer.tokenize(text, training=training)
         self.assertIsInstance(tokens, tf.Tensor)
-        self.assertAllEqual(ref_tokens, self.evaluate(tokens))
+        if not ref_tokens:
+            self.assertEmpty(tokens)
+        else:
+            self.assertAllEqual(ref_tokens, tokens)
 
     def _testTokenizerOnBatchTensor(self, tokenizer, text, ref_tokens, training):
         text = tf.constant(text)
@@ -54,7 +57,7 @@ class TokenizerTest(tf.test.TestCase):
 
     def _testDetokenizerOnTensor(self, tokenizer, tokens, ref_text):
         ref_text = tf.compat.as_bytes(ref_text)
-        tokens = tf.constant(tokens)
+        tokens = tf.constant(tokens, dtype=tf.string)
         text = tokenizer.detokenize(tokens)
         self.assertEqual(ref_text, self.evaluate(text))
 
@@ -106,25 +109,25 @@ class TokenizerTest(tf.test.TestCase):
     def testSpaceTokenizer(self):
         self._testTokenizer(
             tokenizers.SpaceTokenizer(),
-            ["Hello world !", "How are you ?", "Good !"],
-            [["Hello", "world", "!"], ["How", "are", "you", "?"], ["Good", "!"]],
+            ["Hello world !", "How are you ?", "", "Good !"],
+            [["Hello", "world", "!"], ["How", "are", "you", "?"], [], ["Good", "!"]],
         )
         self._testDetokenizer(
             tokenizers.SpaceTokenizer(),
-            [["Hello", "world", "!"], ["Test"], ["My", "name"]],
-            ["Hello world !", "Test", "My name"],
+            [["Hello", "world", "!"], ["Test"], [], ["My", "name"]],
+            ["Hello world !", "Test", "", "My name"],
         )
 
     def testCharacterTokenizer(self):
         self._testTokenizer(
             tokenizers.CharacterTokenizer(),
-            ["a b", "cd e"],
-            [["a", "▁", "b"], ["c", "d", "▁", "e"]],
+            ["a b", "", "cd e"],
+            [["a", "▁", "b"], [], ["c", "d", "▁", "e"]],
         )
         self._testDetokenizer(
             tokenizers.CharacterTokenizer(),
-            [["a", "▁", "b"], ["c", "d", "▁", "e"]],
-            ["a b", "cd e"],
+            [["a", "▁", "b"], [], ["c", "d", "▁", "e"]],
+            ["a b", "", "cd e"],
         )
         self._testTokenizer(
             tokenizers.CharacterTokenizer(),
@@ -138,8 +141,8 @@ class TokenizerTest(tf.test.TestCase):
         if tokenizer_class is None:
             self.skipTest("tensorflow-text is not installed")
         tokenizer = tokenizer_class(sp_model)
-        text = ["Hello world!", "How are you?"]
-        tokens = [["▁H", "ello", "▁world", "!"], ["▁How", "▁are", "▁you", "?"]]
+        text = ["Hello world!", "", "How are you?"]
+        tokens = [["▁H", "ello", "▁world", "!"], [], ["▁How", "▁are", "▁you", "?"]]
         self._testTokenizer(tokenizer, text, tokens)
         self._testDetokenizer(tokenizer, tokens, text)
 
@@ -163,28 +166,20 @@ class TokenizerTest(tf.test.TestCase):
         imported = tf.saved_model.load(export_dir)
         func = imported.signatures["serving_default"]
         outputs = func(tf.constant(text))["output_0"]
+        outputs = tf.RaggedTensor.from_tensor(outputs, padding="").to_list()
         self.assertAllEqual(outputs, tf.nest.map_structure(tf.compat.as_bytes, tokens))
 
     def testOpenNMTTokenizer(self):
         self._testTokenizer(
             tokenizers.OpenNMTTokenizer(),
-            ["Hello world!", "How are you?"],
-            [["Hello", "world", "!"], ["How", "are", "you", "?"]],
+            ["Hello world!", "", "How are you?"],
+            [["Hello", "world", "!"], [], ["How", "are", "you", "?"]],
         )
         self._testDetokenizer(
             tokenizers.OpenNMTTokenizer(),
-            [["Hello", "world", "￭!"], ["Test"], ["My", "name"]],
-            ["Hello world!", "Test", "My name"],
+            [["Hello", "world", "￭!"], ["Test"], [], ["My", "name"]],
+            ["Hello world!", "Test", "", "My name"],
         )
-
-    def testOpenNMTTokenizerEmptyTensor(self):
-        tokenizer = tokenizers.OpenNMTTokenizer()
-        tokens = tokenizer.tokenize(tf.constant(""))
-        self.assertIs(tokens.dtype, tf.string)
-        self.assertListEqual(tokens.shape.as_list(), [0])
-        text = tokenizer.detokenize(tokens)
-        self.assertIs(text.dtype, tf.string)
-        self.assertListEqual(text.shape.as_list(), [])
 
     def testOpenNMTTokenizerInFunction(self):
         tokenizer = tokenizers.OpenNMTTokenizer()
