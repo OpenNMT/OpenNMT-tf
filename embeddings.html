@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Embeddings &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>Embeddings &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -210,8 +210,12 @@
 </div>
 <div class="section" id="sharing">
 <h2>Sharing<a class="headerlink" href="#sharing" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">SequenceToSequence</span></code> models take a <code class="docutils literal notranslate"><span class="pre">share_embeddings</span></code> argument in the constructor that accepts a <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.models.EmbeddingsSharingLevel"><code class="docutils literal notranslate"><span class="pre">EmbeddingsSharingLevel</span></code></a> value to enable different level of embeddings sharing.</p>
-<p>See for example the custom model definition <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/blob/master/config/models/transformer_shared_embedding.py"><code class="docutils literal notranslate"><span class="pre">transformer_shared_embedding.py</span></code></a> that shares all embeddings, including the output softmax weights, for a Transformer model.</p>
+<p>The following model types are configured to share embeddings by default:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TransformerBaseSharedEmbeddings</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TransformerBigSharedEmbeddings</span></code></p></li>
+</ul>
+<p>For custom models, see the values in <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.models.EmbeddingsSharingLevel"><code class="docutils literal notranslate"><span class="pre">EmbeddingsSharingLevel</span></code></a> that can be passed to the <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.models.SequenceToSequence.html"><code class="docutils literal notranslate"><span class="pre">SequenceToSequence</span></code></a> constructor.</p>
 </div>
 </div>
 

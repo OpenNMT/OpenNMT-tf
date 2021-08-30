@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.inputters.record_inputter &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.inputters.record_inputter &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -187,8 +187,8 @@
   <h1>Source code for opennmt.inputters.record_inputter</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Define inputters reading from TFRecord files.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="kn">import</span> <span class="n">dataset</span> <span class="k">as</span> <span class="n">dataset_util</span>
 <span class="kn">from</span> <span class="nn">opennmt.inputters.inputter</span> <span class="kn">import</span> <span class="n">Inputter</span>
@@ -226,7 +226,7 @@
             <span class="n">features</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="s2">&quot;tensor&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">features</span>
-        <span class="n">_</span><span class="p">,</span> <span class="n">feature_lists</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">parse_single_sequence_example</span><span class="p">(</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">feature_lists</span><span class="p">,</span> <span class="n">lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">parse_sequence_example</span><span class="p">(</span>
             <span class="n">element</span><span class="p">,</span>
             <span class="n">sequence_features</span><span class="o">=</span><span class="p">{</span>
                 <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">FixedLenSequenceFeature</span><span class="p">(</span>
@@ -235,7 +235,7 @@
             <span class="p">},</span>
         <span class="p">)</span>
         <span class="n">tensor</span> <span class="o">=</span> <span class="n">feature_lists</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span>
-        <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tensor</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lengths</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span>
         <span class="n">features</span><span class="p">[</span><span class="s2">&quot;tensor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">features</span></div>
 

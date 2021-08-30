@@ -5,7 +5,7 @@ opennmt.layers.LayerWrapper
     :members:
     :undoc-members:
 
-    **Inherits from:** :class:`tensorflow.python.keras.engine.base_layer.Layer`
+    **Inherits from:** :class:`keras.engine.base_layer.Layer`
 
     **Extended by:**
 

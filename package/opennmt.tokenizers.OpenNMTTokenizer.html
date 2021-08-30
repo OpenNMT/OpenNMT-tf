@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.tokenizers.OpenNMTTokenizer &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.tokenizers.OpenNMTTokenizer &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -41,7 +41,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.tokenizers.SpaceTokenizer" href="opennmt.tokenizers.SpaceTokenizer.html" />
+    <link rel="next" title="opennmt.tokenizers.SentencePieceTokenizer" href="opennmt.tokenizers.SentencePieceTokenizer.html" />
     <link rel="prev" title="opennmt.tokenizers.CharacterTokenizer" href="opennmt.tokenizers.CharacterTokenizer.html" /> 
 </head>
 
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -217,8 +217,20 @@
 <dl class="py class">
 <dt id="opennmt.tokenizers.OpenNMTTokenizer">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">opennmt.tokenizers.</span></code><code class="sig-name descname"><span class="pre">OpenNMTTokenizer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/opennmt_tokenizer.html#OpenNMTTokenizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.tokenizers.OpenNMTTokenizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses the OpenNMT tokenizer.</p>
+<dd><p>Tokenizer based on the OpenNMT Tokenizer: <a class="reference external" href="https://github.com/OpenNMT/Tokenizer">https://github.com/OpenNMT/Tokenizer</a>.</p>
 <p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.tokenizers.Tokenizer.html#opennmt.tokenizers.Tokenizer" title="opennmt.tokenizers.Tokenizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.tokenizers.Tokenizer</span></code></a></p>
+<dl class="py method">
+<dt id="opennmt.tokenizers.OpenNMTTokenizer.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/tokenizers/opennmt_tokenizer.html#OpenNMTTokenizer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.tokenizers.OpenNMTTokenizer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the tokenizer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Tokenization options, see
+<a class="reference external" href="https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md">https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md</a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt id="opennmt.tokenizers.OpenNMTTokenizer.config">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">config</span></code><a class="headerlink" href="#opennmt.tokenizers.OpenNMTTokenizer.config" title="Permalink to this definition">¶</a></dt>
@@ -258,7 +270,7 @@
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="opennmt.tokenizers.SpaceTokenizer.html" class="btn btn-neutral float-right" title="opennmt.tokenizers.SpaceTokenizer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="opennmt.tokenizers.SentencePieceTokenizer.html" class="btn btn-neutral float-right" title="opennmt.tokenizers.SentencePieceTokenizer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="opennmt.tokenizers.CharacterTokenizer.html" class="btn btn-neutral float-left" title="opennmt.tokenizers.CharacterTokenizer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 

@@ -1,0 +1,8 @@
+opennmt.tokenizers.SentencePieceTokenizer
+=========================================
+
+.. autoclass:: opennmt.tokenizers.SentencePieceTokenizer
+    :members:
+    :undoc-members:
+
+    **Inherits from:** :class:`opennmt.tokenizers.tokenizer.TensorFlowTokenizer`

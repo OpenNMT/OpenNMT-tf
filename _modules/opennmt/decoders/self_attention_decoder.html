@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.decoders.self_attention_decoder &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.decoders.self_attention_decoder &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -320,13 +320,15 @@
         <span class="k">if</span> <span class="n">memory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
                 <span class="n">memory</span> <span class="o">=</span> <span class="p">(</span><span class="n">memory</span><span class="p">,)</span>
-        <span class="k">if</span> <span class="n">memory_sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">memory_sequence_length</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-                <span class="n">memory_sequence_length</span> <span class="o">=</span> <span class="p">(</span><span class="n">memory_sequence_length</span><span class="p">,)</span>
-            <span class="n">memory_mask</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span><span class="n">mem_length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">mem</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
-                <span class="k">for</span> <span class="n">mem</span><span class="p">,</span> <span class="n">mem_length</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="p">)</span>
-            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">memory_sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">memory_sequence_length</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                    <span class="n">memory_sequence_length</span> <span class="o">=</span> <span class="p">(</span><span class="n">memory_sequence_length</span><span class="p">,)</span>
+                <span class="n">memory_mask</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span><span class="n">mem_length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">mem</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">mem</span><span class="p">,</span> <span class="n">mem_length</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">memory_mask</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">memory</span><span class="p">)</span>
 
         <span class="c1"># Run each layer.</span>
         <span class="n">new_cache</span> <span class="o">=</span> <span class="p">[]</span>

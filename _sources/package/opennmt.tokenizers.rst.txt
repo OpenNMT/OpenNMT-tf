@@ -11,6 +11,7 @@ Classes
 
    opennmt.tokenizers.CharacterTokenizer
    opennmt.tokenizers.OpenNMTTokenizer
+   opennmt.tokenizers.SentencePieceTokenizer
    opennmt.tokenizers.SpaceTokenizer
    opennmt.tokenizers.Tokenizer
 

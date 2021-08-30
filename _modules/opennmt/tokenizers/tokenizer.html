@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.tokenizers.tokenizer &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.tokenizers.tokenizer &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -187,12 +187,12 @@
   <h1>Source code for opennmt.tokenizers.tokenizer</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Define base tokenizers.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
 
@@ -279,13 +279,7 @@
 
     <span class="k">def</span> <span class="nf">_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
-            <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_batch_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported tensor rank </span><span class="si">%d</span><span class="s2"> for tokenization&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">training</span><span class="p">),</span> <span class="n">text</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -319,15 +313,7 @@
 
     <span class="k">def</span> <span class="nf">_detokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="p">):</span>
-            <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Unsupported RaggedTensor rank </span><span class="si">%d</span><span class="s2"> for detokenization&quot;</span> <span class="o">%</span> <span class="n">rank</span>
-                <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">tf</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
             <span class="n">rank</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -337,7 +323,8 @@
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s2">&quot;sequence_length is required for Tensor detokenization&quot;</span>
                     <span class="p">)</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_batch_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span>
+                <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">lengths</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported tensor rank </span><span class="si">%d</span><span class="s2"> for detokenization&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tokens</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
@@ -353,11 +340,12 @@
 <span class="sd">        tokenization.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">          text: A 1-D string ``tf.Tensor``.</span>
+<span class="sd">          text: A 0-D or 1-D string ``tf.Tensor``.</span>
 <span class="sd">          training: Set to ``False`` to tokenize for inference.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">          A 1-D string ``tf.Tensor``.</span>
+<span class="sd">          A 1-D string ``tf.Tensor``, or a 2-D string ``tf.RaggedTensor`` if the</span>
+<span class="sd">          input was a batch of text.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">_python_wrapper</span><span class="p">(</span><span class="n">string_t</span><span class="p">):</span>
@@ -365,32 +353,21 @@
             <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_string</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
 
-        <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">_python_wrapper</span><span class="p">,</span> <span class="p">[</span><span class="n">text</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
-        <span class="n">tokens</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([</span><span class="kc">None</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">tokens</span>
-
-    <span class="k">def</span> <span class="nf">_tokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Tokenizes a batch of texts.</span>
-
-<span class="sd">        When not overriden, this default implementation calls _tokenize_tensor on</span>
-<span class="sd">        each tensor within the batch.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">          text: A 1-D string ``tf.Tensor``.</span>
-<span class="sd">          training: Set to ``False`` to tokenize for inference.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">          A 2-D string ``tf.RaggedTensor``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># map_fn expects each output element to have the same shape, so join tokens with</span>
-        <span class="c1"># spaces first and then split on spaces with a function returning a RaggedTensor.</span>
-        <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">reduce_join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot; &quot;</span>
-            <span class="p">),</span>
-            <span class="n">text</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">_python_wrapper</span><span class="p">,</span> <span class="p">[</span><span class="n">text</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+            <span class="n">tokens</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([</span><span class="kc">None</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">tokens</span>
+        <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">training</span><span class="p">),</span>
+                <span class="n">text</span><span class="p">,</span>
+                <span class="n">fn_output_signature</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensorSpec</span><span class="p">(</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">ragged_rank</span><span class="o">=</span><span class="mi">0</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported tensor rank </span><span class="si">%d</span><span class="s2"> for tokenization&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_detokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Detokenizes tokens.</span>
@@ -399,10 +376,11 @@
 <span class="sd">        detokenization.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">          tokens: A 1-D ``tf.Tensor``.</span>
+<span class="sd">          tokens: A 1-D string ``tf.Tensor``, or a 2-D string ``tf.RaggedTensor``.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">          A 0-D string ``tf.Tensor``.</span>
+<span class="sd">          A 0-D string ``tf.Tensor``, or a 1-D string ``tf.Tensor`` if the input</span>
+<span class="sd">          was a batch of tokens.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">_python_wrapper</span><span class="p">(</span><span class="n">tokens_t</span><span class="p">):</span>
@@ -410,41 +388,15 @@
             <span class="n">string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_string</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
 
-        <span class="n">text</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">_python_wrapper</span><span class="p">,</span> <span class="p">[</span><span class="n">tokens</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
-        <span class="n">text</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([])</span>
-        <span class="k">return</span> <span class="n">text</span>
-
-    <span class="k">def</span> <span class="nf">_detokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Detokenizes a batch of tokens.</span>
-
-<span class="sd">        When not overriden, this default implementation calls _detokenize_tensor on</span>
-<span class="sd">        each tensor within the batch.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">          tokens: A 2-D ``tf.Tensor``.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">          A 1-D string ``tf.Tensor``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]]),</span>
-            <span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">),</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_detokenize_ragged_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Detokenizes a batch of tokens as a ``tf.RaggedTensor``</span>
-
-<span class="sd">        When not overriden, this default implementation calls _detokenize_batch_tensor</span>
-<span class="sd">        on the dense representation.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">          tokens: A 2-D ``tf.RaggedTensor``.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">          A 1-D string ``tf.Tensor``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_batch_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(),</span> <span class="n">tokens</span><span class="o">.</span><span class="n">row_lengths</span><span class="p">())</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">py_function</span><span class="p">(</span><span class="n">_python_wrapper</span><span class="p">,</span> <span class="p">[</span><span class="n">tokens</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+            <span class="n">text</span><span class="o">.</span><span class="n">set_shape</span><span class="p">([])</span>
+            <span class="k">return</span> <span class="n">text</span>
+        <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported tensor rank </span><span class="si">%d</span><span class="s2"> for detokenization&quot;</span> <span class="o">%</span> <span class="n">rank</span><span class="p">)</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">_tokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
@@ -528,6 +480,86 @@
     <span class="k">return</span> <span class="n">tokenizer</span></div>
 
 
+<span class="k">def</span> <span class="nf">_process_stream_as_dataset</span><span class="p">(</span>
+    <span class="n">input_stream</span><span class="p">,</span>
+    <span class="n">output_stream</span><span class="p">,</span>
+    <span class="n">map_func</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+    <span class="n">num_parallel_calls</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_generator</span><span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">input_stream</span><span class="p">,</span>
+        <span class="n">output_types</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span>
+        <span class="n">output_shapes</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">([]),</span>
+    <span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">map_func</span><span class="p">,</span> <span class="n">num_parallel_calls</span><span class="o">=</span><span class="n">num_parallel_calls</span><span class="p">)</span>
+
+    <span class="n">expected_spec</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorSpec</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">element_spec</span> <span class="o">!=</span> <span class="n">expected_spec</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">&quot;Expected map_func to produce elements with spec </span><span class="si">%s</span><span class="s2">, but got spec </span><span class="si">%s</span><span class="s2"> instead&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="n">expected_spec</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">element_spec</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">lines</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">as_numpy_iterator</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">misc</span><span class="o">.</span><span class="n">print_as_bytes</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">output_stream</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">TensorFlowTokenizer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">Tokenizer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for tokenizers using only TensorFlow ops.&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">in_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">tokenize_stream</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">input_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">,</span>
+        <span class="n">output_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
+        <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span>
+        <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">def</span> <span class="nf">_map_func</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_tensor</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">reduce_join</span><span class="p">(</span>
+                <span class="n">tokens</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="n">delimiter</span>
+            <span class="p">)</span>
+
+        <span class="n">_process_stream_as_dataset</span><span class="p">(</span><span class="n">input_stream</span><span class="p">,</span> <span class="n">output_stream</span><span class="p">,</span> <span class="n">_map_func</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">detokenize_stream</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">input_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">,</span>
+        <span class="n">output_stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
+        <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">def</span> <span class="nf">_map_func</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">delimiter</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+
+        <span class="n">_process_stream_as_dataset</span><span class="p">(</span><span class="n">input_stream</span><span class="p">,</span> <span class="n">output_stream</span><span class="p">,</span> <span class="n">_map_func</span><span class="p">)</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_tokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_detokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_tokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_tensor</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">),</span> <span class="n">training</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">token</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="o">.</span><span class="n">numpy</span><span class="p">()]</span>
+
+    <span class="k">def</span> <span class="nf">_detokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_tensor</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="SpaceTokenizer"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.SpaceTokenizer.html#opennmt.tokenizers.SpaceTokenizer">[docs]</a><span class="nd">@register_tokenizer</span>
 <span class="k">class</span> <span class="nc">SpaceTokenizer</span><span class="p">(</span><span class="n">Tokenizer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A tokenizer that splits on spaces.&quot;&quot;&quot;</span>
@@ -544,20 +576,10 @@
     <span class="k">def</span> <span class="nf">in_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_graph</span>
 
-    <span class="k">def</span> <span class="nf">_tokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_batch_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_tokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_tokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_detokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_detokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
-        <span class="n">ragged</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">lengths</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">ragged</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_detokenize_ragged_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">reduce_join</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_tokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
@@ -575,21 +597,11 @@
     <span class="k">def</span> <span class="nf">in_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">_tokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenize_batch_tensor</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_tokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_tokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">regex_replace</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;▁&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">unicode_split</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_detokenize_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_detokenize_batch_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
-        <span class="n">_</span> <span class="o">=</span> <span class="n">sequence_length</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detokenize_ragged_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_detokenize_ragged_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">reduce_join</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">strings</span><span class="o">.</span><span class="n">regex_replace</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;▁&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
 

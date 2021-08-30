@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -194,13 +194,12 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">tensorboard.plugins</span> <span class="kn">import</span> <span class="n">projector</span>
 <span class="kn">from</span> <span class="nn">google.protobuf</span> <span class="kn">import</span> <span class="n">text_format</span>
+<span class="kn">from</span> <span class="nn">tensorboard.plugins</span> <span class="kn">import</span> <span class="n">projector</span>
 
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">constants</span><span class="p">,</span> <span class="n">tokenizers</span>
 <span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="kn">import</span> <span class="n">dataset</span> <span class="k">as</span> <span class="n">dataset_util</span>
-<span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="kn">import</span> <span class="n">text</span>
-<span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="kn">import</span> <span class="n">vocab</span>
+<span class="kn">from</span> <span class="nn">opennmt.data</span> <span class="kn">import</span> <span class="n">text</span><span class="p">,</span> <span class="n">vocab</span>
 <span class="kn">from</span> <span class="nn">opennmt.inputters.inputter</span> <span class="kn">import</span> <span class="n">Inputter</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="kn">import</span> <span class="n">common</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
@@ -466,10 +465,11 @@
             <span class="k">return</span> <span class="n">features</span>
         <span class="k">if</span> <span class="s2">&quot;text&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
             <span class="n">element</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">)</span>
+        <span class="n">element</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
         <span class="n">tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="p">):</span>
             <span class="n">length</span> <span class="o">=</span> <span class="n">tokens</span><span class="o">.</span><span class="n">row_lengths</span><span class="p">()</span>
-            <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">()</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="n">default_value</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">PADDING_TOKEN</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">training</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">noiser</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -612,8 +612,17 @@
                     <span class="n">end_id</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">END_OF_SENTENCE_ID</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mark_end</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder_mode</span><span class="p">:</span>
-            <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids_out&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
-            <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">]</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">ids</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span>
+                    <span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">ids</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ids</span><span class="o">.</span><span class="n">dtype</span>
+                <span class="p">)</span>
+                <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ids</span> <span class="o">*</span> <span class="n">mask</span><span class="p">)[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids_out&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ids</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ids</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids_out&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ids</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
             <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">features</span></div>
 

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Tokenization &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>Tokenization &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -106,9 +106,16 @@
 <li class="toctree-l1"><a class="reference internal" href="data.html">Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vocabulary.html">Vocabulary</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tokenization</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#configuration-files">Configuration files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#offline-tokenization">Offline tokenization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#online-tokenization">Online tokenization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-files">Configuration files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-bpe-tokenization">Example: BPE tokenization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-sentencepiece-tokenization">Example: SentencePiece tokenization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#applying-the-tokenization">Applying the tokenization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#offline">Offline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#online">Online</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#exported-graph">Exported graph</a></li>
 </ul>
 </li>
@@ -195,41 +202,64 @@
   <div class="section" id="tokenization">
 <h1>Tokenization<a class="headerlink" href="#tokenization" title="Permalink to this headline">¶</a></h1>
 <p>By default, OpenNMT-tf <strong>expects and generates tokenized text</strong>. The users are thus responsible to tokenize the input and detokenize the output with the tool of their choice.</p>
-<p>However, OpenNMT-tf provides tokenization tools based on the OpenNMT <a class="reference external" href="https://github.com/OpenNMT/Tokenizer">Tokenizer</a> that can be used in 2 ways:</p>
+<p>However, OpenNMT-tf integrates several tokenizers that can be used to process the data:</p>
 <ul class="simple">
-<li><p><em>offline</em>: use the provided scripts to manually tokenize the text files before the execution and manually detokenize the output for evaluation</p></li>
-<li><p><em>online</em>: configure the execution to apply tokenization and detokenization on-the-fly</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SpaceTokenizer</span></code> (default): splits on spaces</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CharacterTokenizer</span></code>: segments each character and replaces spaces by special characters</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OpenNMTTokenizer</span></code>: applies the OpenNMT <a class="reference external" href="https://github.com/OpenNMT/Tokenizer">Tokenizer</a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SentencePieceTokenizer</span></code>: applies a SentencePiece tokenization using <a class="reference external" href="https://github.com/tensorflow/text">tensorflow-text</a></p></li>
 </ul>
-<p><em>Note: the <code class="docutils literal notranslate"><span class="pre">pyonmttok</span></code> package is currently not available on Windows.</em></p>
 <div class="section" id="configuration-files">
 <h2>Configuration files<a class="headerlink" href="#configuration-files" title="Permalink to this headline">¶</a></h2>
-<p>YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. For example, this configuration defines a simple word-based tokenization using the OpenNMT tokenizer:</p>
+<p>YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. They should contain 2 fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>: the name of the tokenizer to use</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">params</span></code>: the parameters to use for this tokenizer</p></li>
+</ul>
+<div class="section" id="example-bpe-tokenization">
+<h3>Example: BPE tokenization<a class="headerlink" href="#example-bpe-tokenization" title="Permalink to this headline">¶</a></h3>
+<p>The configuration below defines a basic BPE tokenization using the OpenNMT <a class="reference external" href="https://github.com/OpenNMT/Tokenizer">Tokenizer</a>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">OpenNMTTokenizer</span>
 <span class="nt">params</span><span class="p">:</span>
   <span class="nt">mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">aggressive</span>
+  <span class="nt">bpe_model_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/path/to/bpe.model</span>
   <span class="nt">joiner_annotate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
   <span class="nt">segment_numbers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
   <span class="nt">segment_alphabet_change</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="nt">preserve_segmented_tokens</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
 </div>
 <p><em>For a complete list of available options, see the <a href="https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md">Tokenizer documentation</a>.</em></p>
-<p>OpenNMT-tf also defines additional tokenizers:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">CharacterTokenizer</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">SpaceTokenizer</span></code> (default tokenizer)</p></li>
-</ul>
 </div>
-<div class="section" id="offline-tokenization">
-<h2>Offline tokenization<a class="headerlink" href="#offline-tokenization" title="Permalink to this headline">¶</a></h2>
-<p>You can invoke the <code class="docutils literal notranslate"><span class="pre">onmt-tokenize-text</span></code> script directly and pass the tokenizer configuration:</p>
+<div class="section" id="example-sentencepiece-tokenization">
+<h3>Example: SentencePiece tokenization<a class="headerlink" href="#example-sentencepiece-tokenization" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">SentencePieceTokenizer</span></code> applies a <a class="reference external" href="https://github.com/google/sentencepiece">SentencePiece</a> tokenization using <a class="reference external" href="https://github.com/tensorflow/text">tensorflow-text</a> (make sure to install this package to use this tokenizer).</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SentencePieceTokenizer</span>
+<span class="nt">params</span><span class="p">:</span>
+  <span class="nt">model</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/path/to/sentencepiece.model</span>
+</pre></div>
+</div>
+<p>This tokenizer is implemented as a TensorFlow op so it is included in the exported graph (see <a class="reference external" href="#exported-graph">Exported graph</a>).</p>
+</div>
+</div>
+<div class="section" id="applying-the-tokenization">
+<h2>Applying the tokenization<a class="headerlink" href="#applying-the-tokenization" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="offline">
+<h3>Offline<a class="headerlink" href="#offline" title="Permalink to this headline">¶</a></h3>
+<p>The tokenization can be applied before starting the training using the script <code class="docutils literal notranslate"><span class="pre">onmt-tokenize-text</span></code>. The tokenizer configuration should be passed as argument:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;Hello world!&quot;</span> <span class="p">|</span> onmt-tokenize-text --tokenizer_config config/tokenization/aggressive.yml
 Hello world ￭!
 </pre></div>
 </div>
+<p>The script <code class="docutils literal notranslate"><span class="pre">onmt-detokenize-text</span></code> can later be used for detokenization:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;Hello world ￭!&quot;</span> <span class="p">|</span> onmt-detokenize-text --tokenizer_config config/tokenization/aggressive.yml
+Hello world!
+</pre></div>
 </div>
-<div class="section" id="online-tokenization">
-<h2>Online tokenization<a class="headerlink" href="#online-tokenization" title="Permalink to this headline">¶</a></h2>
-<p>A key feature is the possibility to tokenize the data on-the-fly during the training. This avoids the need of storing tokenized files and also increases the consistency of your preprocessing pipeline.</p>
+</div>
+<div class="section" id="online">
+<h3>Online<a class="headerlink" href="#online" title="Permalink to this headline">¶</a></h3>
+<p>A key feature is the possibility to tokenize the data on-the-fly during training and inference. This avoids the need of storing tokenized files and also increases the consistency of your preprocessing pipeline.</p>
 <p>Here is an example workflow:</p>
 <p>1. Build the vocabularies with the custom tokenizer, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --tokenizer_config config/tokenization/aggressive.yml --size <span class="m">50000</span> --save_vocab data/enfr/en-vocab.txt data/enfr/en-train.txt
@@ -244,12 +274,14 @@ onmt-build-vocab --tokenizer_config config/tokenization/aggressive.yml --size <s
 </pre></div>
 </div>
 </div>
+</div>
 <div class="section" id="exported-graph">
 <h2>Exported graph<a class="headerlink" href="#exported-graph" title="Permalink to this headline">¶</a></h2>
 <p>Only TensorFlow ops can be exported to graphs and used for serving. When a tokenizer is not implemented in terms of TensorFlow ops such as the OpenNMT tokenizer, it will not be part of the exported graph. The model will then expects tokenized inputs during serving.</p>
 <p><strong>In-graph tokenizers:</strong></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">CharacterTokenizer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SentencePieceTokenizer</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SpaceTokenizer</span></code></p></li>
 </ul>
 <p>Model inputs: <code class="docutils literal notranslate"><span class="pre">text</span></code> (1D string tensor)</p>

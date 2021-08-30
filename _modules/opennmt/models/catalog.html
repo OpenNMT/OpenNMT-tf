@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.catalog &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.models.catalog &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -190,17 +190,15 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">tensorflow_addons</span> <span class="k">as</span> <span class="nn">tfa</span>
 
-<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">decoders</span>
-<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">encoders</span>
-<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">inputters</span>
-<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">layers</span>
-<span class="kn">from</span> <span class="nn">opennmt.models</span> <span class="kn">import</span> <span class="n">language_model</span>
-<span class="kn">from</span> <span class="nn">opennmt.models</span> <span class="kn">import</span> <span class="n">model</span>
-<span class="kn">from</span> <span class="nn">opennmt.models</span> <span class="kn">import</span> <span class="n">sequence_tagger</span>
-<span class="kn">from</span> <span class="nn">opennmt.models</span> <span class="kn">import</span> <span class="n">sequence_to_sequence</span>
-<span class="kn">from</span> <span class="nn">opennmt.models</span> <span class="kn">import</span> <span class="n">transformer</span>
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">decoders</span><span class="p">,</span> <span class="n">encoders</span><span class="p">,</span> <span class="n">inputters</span><span class="p">,</span> <span class="n">layers</span>
+<span class="kn">from</span> <span class="nn">opennmt.models</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">language_model</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">sequence_tagger</span><span class="p">,</span>
+    <span class="n">sequence_to_sequence</span><span class="p">,</span>
+    <span class="n">transformer</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
-
 
 <span class="n">_CATALOG_MODELS_REGISTRY</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">ClassRegistry</span><span class="p">(</span><span class="n">base_class</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">Model</span><span class="p">)</span>
 
@@ -477,65 +475,31 @@
         <span class="p">)</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">_DefaultTransformer</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">big</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">shared_embeddings</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">big</span><span class="p">:</span>
-            <span class="n">num_units</span> <span class="o">=</span> <span class="mi">1024</span>
-            <span class="n">num_heads</span> <span class="o">=</span> <span class="mi">16</span>
-            <span class="n">ffn_inner_dim</span> <span class="o">=</span> <span class="mi">4096</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">num_units</span> <span class="o">=</span> <span class="mi">512</span>
-            <span class="n">num_heads</span> <span class="o">=</span> <span class="mi">8</span>
-            <span class="n">ffn_inner_dim</span> <span class="o">=</span> <span class="mi">2048</span>
-        <span class="k">if</span> <span class="n">relative</span><span class="p">:</span>
-            <span class="n">position_encoder_class</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">maximum_relative_position</span> <span class="o">=</span> <span class="mi">20</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">position_encoder_class</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">SinusoidalPositionEncoder</span>
-            <span class="n">maximum_relative_position</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">source_inputter</span><span class="o">=</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span><span class="n">embedding_size</span><span class="o">=</span><span class="n">num_units</span><span class="p">),</span>
-            <span class="n">target_inputter</span><span class="o">=</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span><span class="n">embedding_size</span><span class="o">=</span><span class="n">num_units</span><span class="p">),</span>
-            <span class="n">num_layers</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
-            <span class="n">num_units</span><span class="o">=</span><span class="n">num_units</span><span class="p">,</span>
-            <span class="n">num_heads</span><span class="o">=</span><span class="n">num_heads</span><span class="p">,</span>
-            <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="n">ffn_inner_dim</span><span class="p">,</span>
-            <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-            <span class="n">attention_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-            <span class="n">ffn_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-            <span class="n">position_encoder_class</span><span class="o">=</span><span class="n">position_encoder_class</span><span class="p">,</span>
-            <span class="n">share_embeddings</span><span class="o">=</span><span class="p">(</span>
-                <span class="n">sequence_to_sequence</span><span class="o">.</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">ALL</span>
-                <span class="k">if</span> <span class="n">shared_embeddings</span>
-                <span class="k">else</span> <span class="n">sequence_to_sequence</span><span class="o">.</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">NONE</span>
-            <span class="p">),</span>
-            <span class="n">maximum_relative_position</span><span class="o">=</span><span class="n">maximum_relative_position</span><span class="p">,</span>
-        <span class="p">)</span>
-
-
 <div class="viewcode-block" id="TransformerBase"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBase.html#opennmt.models.TransformerBase">[docs]</a><span class="nd">@register_model_in_catalog</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;Transformer&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">TransformerBase</span><span class="p">(</span><span class="n">_DefaultTransformer</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">TransformerBase</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Defines a base Transformer model as described in https://arxiv.org/abs/1706.03762.&quot;&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="TransformerBaseSharedEmbeddings"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBaseSharedEmbeddings.html#opennmt.models.TransformerBaseSharedEmbeddings">[docs]</a><span class="nd">@register_model_in_catalog</span><span class="p">()</span>
-<span class="k">class</span> <span class="nc">TransformerBaseSharedEmbeddings</span><span class="p">(</span><span class="n">_DefaultTransformer</span><span class="p">):</span>
+<div class="viewcode-block" id="TransformerBaseSharedEmbeddings"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBaseSharedEmbeddings.html#opennmt.models.TransformerBaseSharedEmbeddings">[docs]</a><span class="nd">@register_model_in_catalog</span>
+<span class="k">class</span> <span class="nc">TransformerBaseSharedEmbeddings</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Defines a base Transformer model with shared embeddings as described in</span>
 <span class="sd">    https://arxiv.org/abs/1706.03762.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">shared_embeddings</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">share_embeddings</span><span class="o">=</span><span class="n">sequence_to_sequence</span><span class="o">.</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">ALL</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TransformerBaseRelative"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBaseRelative.html#opennmt.models.TransformerBaseRelative">[docs]</a><span class="nd">@register_model_in_catalog</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;TransformerRelative&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">TransformerBaseRelative</span><span class="p">(</span><span class="n">_DefaultTransformer</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">TransformerBaseRelative</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Defines a base Transformer model using relative position representations as</span>
 <span class="sd">    described in https://arxiv.org/abs/1803.02155.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">position_encoder_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maximum_relative_position</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span></div>
 
 
 <span class="c1"># Backward compatibility with model descriptions that directly accessed the catalog module.</span>
@@ -544,31 +508,55 @@
 
 
 <div class="viewcode-block" id="TransformerBig"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBig.html#opennmt.models.TransformerBig">[docs]</a><span class="nd">@register_model_in_catalog</span>
-<span class="k">class</span> <span class="nc">TransformerBig</span><span class="p">(</span><span class="n">_DefaultTransformer</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">TransformerBig</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Defines a big Transformer model as described in https://arxiv.org/abs/1706.03762.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">big</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_units</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">num_heads</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="mi">4096</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TransformerBigSharedEmbeddings"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBigSharedEmbeddings.html#opennmt.models.TransformerBigSharedEmbeddings">[docs]</a><span class="nd">@register_model_in_catalog</span>
-<span class="k">class</span> <span class="nc">TransformerBigSharedEmbeddings</span><span class="p">(</span><span class="n">_DefaultTransformer</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">TransformerBigSharedEmbeddings</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Defines a big Transformer model with shared embeddings as described in</span>
 <span class="sd">    https://arxiv.org/abs/1706.03762.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">big</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">shared_embeddings</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">num_units</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+            <span class="n">num_heads</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+            <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span>
+            <span class="n">share_embeddings</span><span class="o">=</span><span class="n">sequence_to_sequence</span><span class="o">.</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">ALL</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TransformerBigRelative"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBigRelative.html#opennmt.models.TransformerBigRelative">[docs]</a><span class="nd">@register_model_in_catalog</span>
-<span class="k">class</span> <span class="nc">TransformerBigRelative</span><span class="p">(</span><span class="n">_DefaultTransformer</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">TransformerBigRelative</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Defines a big Transformer model using relative position representations as</span>
 <span class="sd">    described in https://arxiv.org/abs/1803.02155.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">big</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">num_units</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+            <span class="n">num_heads</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+            <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span>
+            <span class="n">position_encoder_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">maximum_relative_position</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TransformerTiny"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerTiny.html#opennmt.models.TransformerTiny">[docs]</a><span class="nd">@register_model_in_catalog</span>
+<span class="k">class</span> <span class="nc">TransformerTiny</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a tiny Transformer model.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">num_layers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">num_units</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+            <span class="n">num_heads</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="GPT2Small"><a class="viewcode-back" href="../../../package/opennmt.models.GPT2Small.html#opennmt.models.GPT2Small">[docs]</a><span class="nd">@register_model_in_catalog</span>

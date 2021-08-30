@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.Model &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.models.Model &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -218,7 +218,7 @@
 <dt id="opennmt.models.Model">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">opennmt.models.</span></code><code class="sig-name descname"><span class="pre">Model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for models.</p>
-<p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.engine.base_layer.Layer</span></code></p>
+<p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">keras.engine.base_layer.Layer</span></code></p>
 <p><strong>Extended by:</strong></p>
 <ul class="simple">
 <li><p><a class="reference internal" href="opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier" title="opennmt.models.SequenceClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.SequenceClassifier</span></code></a></p></li>
@@ -304,6 +304,30 @@ layer instantiation and layer call.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="opennmt.models.Model.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> – A nested structure of features <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>labels</strong> – A nested structure of labels <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>training</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, run in training mode.</p></li>
+<li><p><strong>step</strong> – The current training step.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>A tuple containing,</p>
+<ul class="simple">
+<li><p>The model outputs (usually unscaled probabilities).</p></li>
+<li><p>The model predictions.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="opennmt.models.Model.call">
 <em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs the model.</p>
@@ -373,6 +397,74 @@ layer instantiation and layer call.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The score results.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opennmt.models.Model.train">
+<code class="sig-name descname"><span class="pre">train</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes and applies the gradients for a batch of examples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> – A nested structure of features <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>labels</strong> – A nested structure of labels <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>optimizer</strong> – The optimizer instance
+(<code class="docutils literal notranslate"><span class="pre">tf.keras.mixed_precision.LossScaleOptimizer</span></code> is supported).</p></li>
+<li><p><strong>loss_scale</strong> – An optional loss scaling factor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The loss.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opennmt.models.Model.compute_gradients">
+<code class="sig-name descname"><span class="pre">compute_gradients</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.compute_gradients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.compute_gradients" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the gradients for a batch of examples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> – A nested structure of features <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>labels</strong> – A nested structure of labels <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>optimizer</strong> – The optimizer instance
+(<code class="docutils literal notranslate"><span class="pre">tf.keras.mixed_precision.LossScaleOptimizer</span></code> is supported).</p></li>
+<li><p><strong>loss_scale</strong> – An optional loss scaling factor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>A tuple containing,</p>
+<ul class="simple">
+<li><p>The loss.</p></li>
+<li><p>The gradients.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opennmt.models.Model.compute_training_loss">
+<code class="sig-name descname"><span class="pre">compute_training_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#Model.compute_training_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Model.compute_training_loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the training loss for a batch of examples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>features</strong> – A nested structure of features <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>labels</strong> – A nested structure of labels <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>step</strong> – The current training step.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>A tuple containing,</p>
+<ul class="simple">
+<li><p>The loss to optimize.</p></li>
+<li><p>The loss to report.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>

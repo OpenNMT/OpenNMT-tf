@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.config &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.config &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -187,11 +187,11 @@
   <h1>Source code for opennmt.config</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Defines functions related to configuration files.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">import_module</span>
-
 <span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 
@@ -199,7 +199,6 @@
 <span class="kn">from</span> <span class="nn">opennmt.optimizers</span> <span class="kn">import</span> <span class="n">utils</span> <span class="k">as</span> <span class="n">optimizers_lib</span>
 <span class="kn">from</span> <span class="nn">opennmt.schedules</span> <span class="kn">import</span> <span class="n">lr_schedules</span> <span class="k">as</span> <span class="n">schedules_lib</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="kn">import</span> <span class="n">merge_dict</span>
-
 
 <span class="n">MODEL_DESCRIPTION_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;model_description.py&quot;</span>
 
@@ -222,7 +221,7 @@
     <span class="n">dirname</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">module_name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dirname</span><span class="p">))</span>
-    <span class="n">module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">):</span>

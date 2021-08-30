@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.Transformer &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.models.Transformer &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -228,20 +228,25 @@
 <li><p><a class="reference internal" href="opennmt.models.TransformerBig.html#opennmt.models.TransformerBig" title="opennmt.models.TransformerBig"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.TransformerBig</span></code></a></p></li>
 <li><p><a class="reference internal" href="opennmt.models.TransformerBigRelative.html#opennmt.models.TransformerBigRelative" title="opennmt.models.TransformerBigRelative"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.TransformerBigRelative</span></code></a></p></li>
 <li><p><a class="reference internal" href="opennmt.models.TransformerBigSharedEmbeddings.html#opennmt.models.TransformerBigSharedEmbeddings" title="opennmt.models.TransformerBigSharedEmbeddings"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.TransformerBigSharedEmbeddings</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.models.TransformerTiny.html#opennmt.models.TransformerTiny" title="opennmt.models.TransformerTiny"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.models.TransformerTiny</span></code></a></p></li>
 </ul>
 <dl class="py method">
 <dt id="opennmt.models.Transformer.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">source_inputter</span></em>, <em class="sig-param"><span class="pre">target_inputter</span></em>, <em class="sig-param"><span class="pre">num_layers</span></em>, <em class="sig-param"><span class="pre">num_units</span></em>, <em class="sig-param"><span class="pre">num_heads</span></em>, <em class="sig-param"><span class="pre">ffn_inner_dim</span></em>, <em class="sig-param"><span class="pre">dropout=0.1</span></em>, <em class="sig-param"><span class="pre">attention_dropout=0.1</span></em>, <em class="sig-param"><span class="pre">ffn_dropout=0.1</span></em>, <em class="sig-param"><span class="pre">ffn_activation=&lt;function</span> <span class="pre">relu&gt;</span></em>, <em class="sig-param"><span class="pre">position_encoder_class=&lt;class</span> <span class="pre">'opennmt.layers.position.SinusoidalPositionEncoder'&gt;</span></em>, <em class="sig-param"><span class="pre">share_embeddings=0</span></em>, <em class="sig-param"><span class="pre">share_encoders=False</span></em>, <em class="sig-param"><span class="pre">maximum_relative_position=None</span></em>, <em class="sig-param"><span class="pre">attention_reduction=&lt;MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER:</span> <span class="pre">1&gt;</span></em>, <em class="sig-param"><span class="pre">pre_norm=True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/transformer.html#Transformer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Transformer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">source_inputter=None</span></em>, <em class="sig-param"><span class="pre">target_inputter=None</span></em>, <em class="sig-param"><span class="pre">num_layers=6</span></em>, <em class="sig-param"><span class="pre">num_units=512</span></em>, <em class="sig-param"><span class="pre">num_heads=8</span></em>, <em class="sig-param"><span class="pre">ffn_inner_dim=2048</span></em>, <em class="sig-param"><span class="pre">dropout=0.1</span></em>, <em class="sig-param"><span class="pre">attention_dropout=0.1</span></em>, <em class="sig-param"><span class="pre">ffn_dropout=0.1</span></em>, <em class="sig-param"><span class="pre">ffn_activation=&lt;function</span> <span class="pre">relu&gt;</span></em>, <em class="sig-param"><span class="pre">position_encoder_class=&lt;class</span> <span class="pre">'opennmt.layers.position.SinusoidalPositionEncoder'&gt;</span></em>, <em class="sig-param"><span class="pre">share_embeddings=0</span></em>, <em class="sig-param"><span class="pre">share_encoders=False</span></em>, <em class="sig-param"><span class="pre">maximum_relative_position=None</span></em>, <em class="sig-param"><span class="pre">attention_reduction=&lt;MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER:</span> <span class="pre">1&gt;</span></em>, <em class="sig-param"><span class="pre">pre_norm=True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/transformer.html#Transformer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.Transformer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes a Transformer model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>source_inputter</strong> – A <a class="reference internal" href="opennmt.inputters.Inputter.html#opennmt.inputters.Inputter" title="opennmt.inputters.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter</span></code></a> to process
 the source data. If this inputter returns parallel inputs, a multi
-source Transformer architecture will be constructed.</p></li>
+source Transformer architecture will be constructed. Defaults to a
+<a class="reference internal" href="opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder" title="opennmt.inputters.WordEmbedder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.WordEmbedder</span></code></a> with <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
+embedding size.</p></li>
 <li><p><strong>target_inputter</strong> – A <a class="reference internal" href="opennmt.inputters.Inputter.html#opennmt.inputters.Inputter" title="opennmt.inputters.Inputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter</span></code></a> to process
 the target data. Currently, only the
-<a class="reference internal" href="opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder" title="opennmt.inputters.WordEmbedder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.WordEmbedder</span></code></a> is supported.</p></li>
+<a class="reference internal" href="opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder" title="opennmt.inputters.WordEmbedder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.WordEmbedder</span></code></a> is supported. Defaults to a
+<a class="reference internal" href="opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder" title="opennmt.inputters.WordEmbedder"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.WordEmbedder</span></code></a> with <code class="xref py py-obj docutils literal notranslate"><span class="pre">num_units</span></code> as
+embedding size.</p></li>
 <li><p><strong>num_layers</strong> – The number of layers or a 2-tuple with the number of encoder
 layers and decoder layers.</p></li>
 <li><p><strong>num_units</strong> – The number of hidden units.</p></li>

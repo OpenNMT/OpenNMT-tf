@@ -5,4 +5,4 @@ opennmt.layers.FeedForwardNetwork
     :members:
     :undoc-members:
 
-    **Inherits from:** :class:`tensorflow.python.keras.engine.base_layer.Layer`
+    **Inherits from:** :class:`keras.engine.base_layer.Layer`

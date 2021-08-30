@@ -1,0 +1,8 @@
+opennmt.models.TransformerTiny
+==============================
+
+.. autoclass:: opennmt.models.TransformerTiny
+    :members:
+    :undoc-members:
+
+    **Inherits from:** :class:`opennmt.models.Transformer`

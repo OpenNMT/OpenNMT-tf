@@ -31,6 +31,7 @@ Classes
    opennmt.models.TransformerBig
    opennmt.models.TransformerBigRelative
    opennmt.models.TransformerBigSharedEmbeddings
+   opennmt.models.TransformerTiny
 
 Functions
 ---------

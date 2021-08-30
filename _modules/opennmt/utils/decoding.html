@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -366,9 +366,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">          A tuple containing,</span>
 
-<span class="sd">          - The final predictions as a tensor of shape [B, H, T].</span>
-<span class="sd">          - The final attention history of shape [B, H, T, S].</span>
-<span class="sd">          - The final sequence lengths of shape [B, H].</span>
+<span class="sd">          - The final predictions as a tensor of shape :math:`[B, H, T_t]`.</span>
+<span class="sd">          - The final attention history of shape :math:`[B, H, T_t, T_s]`.</span>
+<span class="sd">          - The final sequence lengths of shape :math:`[B, H]`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
 
@@ -595,7 +595,7 @@
     <span class="sd">&quot;&quot;&quot;Final decoding result.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      ids: The predicted ids of shape :math:`[B, H, T]`.</span>
+<span class="sd">      ids: The predicted ids of shape :math:`[B, H, T_t]`.</span>
 <span class="sd">      lengths: The produced sequences length of shape :math:`[B, H]`.</span>
 <span class="sd">      log_probs: The cumulated log probabilities of shape :math:`[B, H]`.</span>
 <span class="sd">      attention: The attention history of shape :math:`[B, H, T_t, T_s]`.</span>

@@ -2,45 +2,70 @@
 
 By default, OpenNMT-tf **expects and generates tokenized text**. The users are thus responsible to tokenize the input and detokenize the output with the tool of their choice.
 
-However, OpenNMT-tf provides tokenization tools based on the OpenNMT [Tokenizer](https://github.com/OpenNMT/Tokenizer) that can be used in 2 ways:
+However, OpenNMT-tf integrates several tokenizers that can be used to process the data:
 
-* *offline*: use the provided scripts to manually tokenize the text files before the execution and manually detokenize the output for evaluation
-* *online*: configure the execution to apply tokenization and detokenization on-the-fly
-
-*Note: the `pyonmttok` package is currently not available on Windows.*
+* `SpaceTokenizer` (default): splits on spaces
+* `CharacterTokenizer`: segments each character and replaces spaces by special characters
+* `OpenNMTTokenizer`: applies the OpenNMT [Tokenizer](https://github.com/OpenNMT/Tokenizer)
+* `SentencePieceTokenizer`: applies a SentencePiece tokenization using [tensorflow-text](https://github.com/tensorflow/text)
 
 ## Configuration files
 
-YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. For example, this configuration defines a simple word-based tokenization using the OpenNMT tokenizer:
+YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. They should contain 2 fields:
+
+* `type`: the name of the tokenizer to use
+* `params`: the parameters to use for this tokenizer
+
+### Example: BPE tokenization
+
+The configuration below defines a basic BPE tokenization using the OpenNMT [Tokenizer](https://github.com/OpenNMT/Tokenizer):
 
 ```yaml
 type: OpenNMTTokenizer
 params:
   mode: aggressive
+  bpe_model_path: /path/to/bpe.model
   joiner_annotate: true
   segment_numbers: true
   segment_alphabet_change: true
+  preserve_segmented_tokens: true
 ```
 
 *For a complete list of available options, see the <a href="https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md">Tokenizer documentation</a>.*
 
-OpenNMT-tf also defines additional tokenizers:
+### Example: SentencePiece tokenization
 
-* `CharacterTokenizer`
-* `SpaceTokenizer` (default tokenizer)
+The `SentencePieceTokenizer` applies a [SentencePiece](https://github.com/google/sentencepiece) tokenization using [tensorflow-text](https://github.com/tensorflow/text) (make sure to install this package to use this tokenizer).
 
-## Offline tokenization
+```yaml
+type: SentencePieceTokenizer
+params:
+  model: /path/to/sentencepiece.model
+```
 
-You can invoke the `onmt-tokenize-text` script directly and pass the tokenizer configuration:
+This tokenizer is implemented as a TensorFlow op so it is included in the exported graph (see [Exported graph](#exported-graph)).
+
+## Applying the tokenization
+
+### Offline
+
+The tokenization can be applied before starting the training using the script `onmt-tokenize-text`. The tokenizer configuration should be passed as argument:
 
 ```bash
 $ echo "Hello world!" | onmt-tokenize-text --tokenizer_config config/tokenization/aggressive.yml
 Hello world ￭!
 ```
 
-## Online tokenization
+The script `onmt-detokenize-text` can later be used for detokenization:
 
-A key feature is the possibility to tokenize the data on-the-fly during the training. This avoids the need of storing tokenized files and also increases the consistency of your preprocessing pipeline.
+```bash
+$ echo "Hello world ￭!" | onmt-detokenize-text --tokenizer_config config/tokenization/aggressive.yml
+Hello world!
+```
+
+### Online
+
+A key feature is the possibility to tokenize the data on-the-fly during training and inference. This avoids the need of storing tokenized files and also increases the consistency of your preprocessing pipeline.
 
 Here is an example workflow:
 
@@ -68,6 +93,7 @@ Only TensorFlow ops can be exported to graphs and used for serving. When a token
 **In-graph tokenizers:**
 
 * `CharacterTokenizer`
+* `SentencePieceTokenizer`
 * `SpaceTokenizer`
 
 Model inputs: `text` (1D string tensor)

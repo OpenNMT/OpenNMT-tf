@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -188,27 +188,24 @@
 <span></span><span class="sd">&quot;&quot;&quot;Main library entrypoint.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
 
-<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">evaluation</span>
-<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">inference</span>
-<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">evaluation</span><span class="p">,</span> <span class="n">inference</span><span class="p">,</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">training</span> <span class="k">as</span> <span class="n">training_util</span>
 <span class="kn">from</span> <span class="nn">opennmt.config</span> <span class="kn">import</span> <span class="n">MODEL_DESCRIPTION_FILENAME</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">checkpoint</span> <span class="k">as</span> <span class="n">checkpoint_util</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
 <span class="kn">from</span> <span class="nn">opennmt.version</span> <span class="kn">import</span> <span class="n">__version__</span>
-
 
 <span class="c1"># These options require a value but we can fallback to a default one.</span>
 <span class="n">_CONFIG_FALLBACK</span> <span class="o">=</span> <span class="p">{</span>

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -189,15 +189,16 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.models.sequence_to_sequence</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">SequenceToSequence</span><span class="p">,</span>
-    <span class="n">EmbeddingsSharingLevel</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">inputters</span>
+<span class="kn">from</span> <span class="nn">opennmt.decoders.self_attention_decoder</span> <span class="kn">import</span> <span class="n">SelfAttentionDecoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.encoders.encoder</span> <span class="kn">import</span> <span class="n">ParallelEncoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.encoders.self_attention_encoder</span> <span class="kn">import</span> <span class="n">SelfAttentionEncoder</span>
-<span class="kn">from</span> <span class="nn">opennmt.decoders.self_attention_decoder</span> <span class="kn">import</span> <span class="n">SelfAttentionDecoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers.position</span> <span class="kn">import</span> <span class="n">SinusoidalPositionEncoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers.transformer</span> <span class="kn">import</span> <span class="n">MultiHeadAttentionReduction</span>
+<span class="kn">from</span> <span class="nn">opennmt.models.sequence_to_sequence</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">EmbeddingsSharingLevel</span><span class="p">,</span>
+    <span class="n">SequenceToSequence</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="kn">import</span> <span class="n">merge_dict</span>
 
 
@@ -208,12 +209,12 @@
 
 <div class="viewcode-block" id="Transformer.__init__"><a class="viewcode-back" href="../../../package/opennmt.models.Transformer.html#opennmt.models.Transformer.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">source_inputter</span><span class="p">,</span>
-        <span class="n">target_inputter</span><span class="p">,</span>
-        <span class="n">num_layers</span><span class="p">,</span>
-        <span class="n">num_units</span><span class="p">,</span>
-        <span class="n">num_heads</span><span class="p">,</span>
-        <span class="n">ffn_inner_dim</span><span class="p">,</span>
+        <span class="n">source_inputter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">target_inputter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_layers</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+        <span class="n">num_units</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+        <span class="n">num_heads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+        <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span>
         <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
         <span class="n">attention_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
         <span class="n">ffn_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
@@ -230,10 +231,14 @@
 <span class="sd">        Args:</span>
 <span class="sd">          source_inputter: A :class:`opennmt.inputters.Inputter` to process</span>
 <span class="sd">            the source data. If this inputter returns parallel inputs, a multi</span>
-<span class="sd">            source Transformer architecture will be constructed.</span>
+<span class="sd">            source Transformer architecture will be constructed. Defaults to a</span>
+<span class="sd">            :class:`opennmt.inputters.WordEmbedder` with :obj:`num_units` as</span>
+<span class="sd">            embedding size.</span>
 <span class="sd">          target_inputter: A :class:`opennmt.inputters.Inputter` to process</span>
 <span class="sd">            the target data. Currently, only the</span>
-<span class="sd">            :class:`opennmt.inputters.WordEmbedder` is supported.</span>
+<span class="sd">            :class:`opennmt.inputters.WordEmbedder` is supported. Defaults to a</span>
+<span class="sd">            :class:`opennmt.inputters.WordEmbedder` with :obj:`num_units` as</span>
+<span class="sd">            embedding size.</span>
 <span class="sd">          num_layers: The number of layers or a 2-tuple with the number of encoder</span>
 <span class="sd">            layers and decoder layers.</span>
 <span class="sd">          num_units: The number of hidden units.</span>
@@ -263,6 +268,11 @@
 <span class="sd">            &quot;seems better for harder-to-learn models, so it should probably be the</span>
 <span class="sd">            default.&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">source_inputter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">source_inputter</span> <span class="o">=</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span><span class="n">embedding_size</span><span class="o">=</span><span class="n">num_units</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">target_inputter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">target_inputter</span> <span class="o">=</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span><span class="n">embedding_size</span><span class="o">=</span><span class="n">num_units</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">num_layers</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="n">num_encoder_layers</span><span class="p">,</span> <span class="n">num_decoder_layers</span> <span class="o">=</span> <span class="n">num_layers</span>
         <span class="k">else</span><span class="p">:</span>

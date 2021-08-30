@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.utils.DecodingResult &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.utils.DecodingResult &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -222,7 +222,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ids</strong> – The predicted ids of shape <span class="math notranslate nohighlight">\([B, H, T]\)</span>.</p></li>
+<li><p><strong>ids</strong> – The predicted ids of shape <span class="math notranslate nohighlight">\([B, H, T_t]\)</span>.</p></li>
 <li><p><strong>lengths</strong> – The produced sequences length of shape <span class="math notranslate nohighlight">\([B, H]\)</span>.</p></li>
 <li><p><strong>log_probs</strong> – The cumulated log probabilities of shape <span class="math notranslate nohighlight">\([B, H]\)</span>.</p></li>
 <li><p><strong>attention</strong> – The attention history of shape <span class="math notranslate nohighlight">\([B, H, T_t, T_s]\)</span>.</p></li>

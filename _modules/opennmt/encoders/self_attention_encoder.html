@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.encoders.self_attention_encoder &mdash; OpenNMT-tf 2.20.1 documentation</title>
+  <title>opennmt.encoders.self_attention_encoder &mdash; OpenNMT-tf 2.21.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.20
+                2.21
               </div>
             
           
@@ -189,11 +189,9 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="kn">import</span> <span class="n">transformer</span>
-
 <span class="kn">from</span> <span class="nn">opennmt.encoders.encoder</span> <span class="kn">import</span> <span class="n">Encoder</span>
+<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="kn">import</span> <span class="n">common</span><span class="p">,</span> <span class="n">transformer</span>
 <span class="kn">from</span> <span class="nn">opennmt.layers.position</span> <span class="kn">import</span> <span class="n">SinusoidalPositionEncoder</span>
-<span class="kn">from</span> <span class="nn">opennmt.layers</span> <span class="kn">import</span> <span class="n">common</span>
 
 
 <div class="viewcode-block" id="SelfAttentionEncoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.SelfAttentionEncoder.html#opennmt.encoders.SelfAttentionEncoder">[docs]</a><span class="k">class</span> <span class="nc">SelfAttentionEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
