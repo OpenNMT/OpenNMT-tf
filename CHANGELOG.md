@@ -15,6 +15,25 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.21.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.21.0) (2021-08-30)
+
+### New features
+
+* Support TensorFlow 2.6
+* Add tokenizer `SentencePieceTokenizer`, an in-graph SentencePiece tokenizer provided by [tensorflow-text](https://www.tensorflow.org/text)
+* Add methods to facilitate training a `Model` instance:
+  * `model.compute_training_loss`
+  * `model.compute_gradients`
+  * `model.train`
+* Add `--output_file` argument to `score` command
+
+### Fixes and improvements
+
+* Fix `make_features` method of inputters `WordEmbedder` and `SequenceRecordInputter` to work on a batch of elements
+* Fix error when `SelfAttentionDecoder` is called without `memory_sequence_length`
+* Fix `ConvEncoder` on variable-length inputs
+* Support SacreBLEU 2.0
+
 ## [2.20.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.20.1) (2021-07-01)
 
 ### Fixes and improvements
