@@ -1,7 +1,7 @@
 """Define inputters reading from TFRecord files."""
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 from opennmt.data import dataset as dataset_util
 from opennmt.inputters.inputter import Inputter
@@ -39,7 +39,7 @@ class SequenceRecordInputter(Inputter):
             features = {}
         if "tensor" in features:
             return features
-        _, feature_lists = tf.io.parse_single_sequence_example(
+        _, feature_lists, lengths = tf.io.parse_sequence_example(
             element,
             sequence_features={
                 "values": tf.io.FixedLenSequenceFeature(
@@ -48,7 +48,7 @@ class SequenceRecordInputter(Inputter):
             },
         )
         tensor = feature_lists["values"]
-        features["length"] = tf.shape(tensor)[0]
+        features["length"] = lengths["values"]
         features["tensor"] = tf.cast(tensor, self.dtype)
         return features
 

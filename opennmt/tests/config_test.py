@@ -1,11 +1,11 @@
 import copy
-import os
 import filecmp
+import os
+
+import tensorflow as tf
 import yaml
 
 from parameterized import parameterized
-
-import tensorflow as tf
 
 from opennmt import config
 from opennmt.models.model import Model
@@ -64,12 +64,14 @@ class ConfigTest(tf.test.TestCase):
         _check_model(
             config.load_model(model_dir, model_name=model_name, as_builder=as_builder)
         )
-        self.assertTrue(os.path.exists(os.path.join(model_dir, "model_description.py")))
+        self.assertTrue(
+            os.path.exists(os.path.join(model_dir, config.MODEL_DESCRIPTION_FILENAME))
+        )
         _check_model(config.load_model(model_dir, as_builder=as_builder))
 
     def testLoadModelDescriptionCompat(self):
         model_dir = self.get_temp_dir()
-        description = os.path.join(model_dir, "model_description.py")
+        description = os.path.join(model_dir, config.MODEL_DESCRIPTION_FILENAME)
         with open(description, "w") as description_file:
             description_file.write("from opennmt.models import catalog\n")
             description_file.write("model = catalog.Transformer\n")
@@ -80,7 +82,9 @@ class ConfigTest(tf.test.TestCase):
         model_file = self._writeCustomModel()
         model_dir = self.get_temp_dir()
         model = config.load_model(model_dir, model_file=model_file)
-        saved_description_path = os.path.join(model_dir, "model_description.py")
+        saved_description_path = os.path.join(
+            model_dir, config.MODEL_DESCRIPTION_FILENAME
+        )
         self.assertTrue(os.path.exists(saved_description_path))
         self.assertTrue(filecmp.cmp(model_file, saved_description_path))
         self.assertEqual(model, 42)
@@ -89,7 +93,9 @@ class ConfigTest(tf.test.TestCase):
 
     def testLoadModelFileOverride(self):
         model_dir = self.get_temp_dir()
-        saved_description_path = os.path.join(model_dir, "model_description.py")
+        saved_description_path = os.path.join(
+            model_dir, config.MODEL_DESCRIPTION_FILENAME
+        )
         model_file = self._writeCustomModel(filename="test_model1.py", return_value=1)
         config.load_model(model_dir, model_file=model_file)
         self.assertTrue(filecmp.cmp(model_file, saved_description_path))

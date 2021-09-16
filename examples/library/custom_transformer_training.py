@@ -15,8 +15,10 @@ gradient accumulation, etc.
 
 import argparse
 import logging
+
 import tensorflow as tf
 import tensorflow_addons as tfa
+
 import opennmt as onmt
 
 tf.get_logger().setLevel(logging.INFO)

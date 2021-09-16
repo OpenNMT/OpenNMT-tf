@@ -1,26 +1,24 @@
 """Main library entrypoint."""
 
 import copy
-import os
-import sys
-import random
 import math
+import os
+import random
+import shutil
 import subprocess
-import time
+import sys
 import tempfile
-import yaml
 
 import numpy as np
 import tensorflow as tf
+import yaml
 
-from opennmt import evaluation
-from opennmt import inference
-from opennmt import models
+from opennmt import evaluation, inference, models
 from opennmt import training as training_util
+from opennmt.config import MODEL_DESCRIPTION_FILENAME
 from opennmt.utils import checkpoint as checkpoint_util
 from opennmt.utils import misc
 from opennmt.version import __version__
-
 
 # These options require a value but we can fallback to a default one.
 _CONFIG_FALLBACK = {
@@ -86,8 +84,6 @@ class Runner(object):
         self._config = copy.deepcopy(config)
         self._auto_config = auto_config
         self._mixed_precision = mixed_precision
-        if mixed_precision:
-            tf.config.optimizer.set_experimental_options({"auto_mixed_precision": True})
         if seed is not None:
             np.random.seed(seed)
             random.seed(seed)
@@ -127,18 +123,25 @@ class Runner(object):
             # Auto tune batch size.
             if batch_size is None or batch_size == 0:
                 if train_config["batch_type"] == "examples":
-                    raise ValueError(
-                        'Batch size autotuning is only supported for the "tokens" batch type'
-                    )
-                max_batch_size = 16384
+                    min_batch_size = 1
+                    max_batch_size = 512
+                    min_range = 16
+                else:
+                    min_batch_size = 256
+                    max_batch_size = 16384
+                    min_range = 256
+
                 if train_config.get("effective_batch_size") is not None:
                     max_batch_size = min(
                         max_batch_size, train_config["effective_batch_size"]
                     )
                 train_config["batch_size"] = _auto_tune_batch_size(
                     config,
+                    min_batch_size=min_batch_size,
                     max_batch_size=max_batch_size,
+                    min_range=min_range,
                     num_devices=num_devices,
+                    scaling_factor=train_config.get("batch_size_autotune_scale", 0.7),
                     mixed_precision=self._mixed_precision,
                 )
 
@@ -167,7 +170,7 @@ class Runner(object):
         Args:
           num_devices: Number of devices to use for training.
           with_eval: Enable evaluation during training.
-          checkpoint_path: The checkpoint path to load the model weights from it.
+          checkpoint_path: The checkpoint path to load the model weights from.
           hvd: Optional Horovod module.
           return_summary: Return a summary of the training from this function.
           fallback_to_cpu: If no GPU is detected, allow the training to run on CPU.
@@ -192,6 +195,8 @@ class Runner(object):
         config = self._finalize_config(
             training=True, num_replicas=num_replicas, num_devices=num_devices
         )
+
+        mixed_precision = self._mixed_precision and misc.enable_mixed_precision()
         model = self._init_model(config)
         optimizer = model.get_optimizer()
 
@@ -200,10 +205,7 @@ class Runner(object):
         eval_config = config["eval"]
 
         batch_type = train_config["batch_type"]
-        if batch_type == "tokens" and self._mixed_precision:
-            batch_size_multiple = 8
-        else:
-            batch_size_multiple = 1
+        batch_size_multiple = 8 if mixed_precision and batch_type == "tokens" else 1
 
         dataset_fn = (
             lambda input_context: model.examples_inputter.make_training_dataset(
@@ -222,6 +224,7 @@ class Runner(object):
                 prefetch_buffer_size=train_config.get("prefetch_buffer_size"),
                 cardinality_multiple=input_context.num_replicas_in_sync,
                 weights=data_config.get("train_files_weights"),
+                batch_autotune_mode=train_config.get("batch_autotune_mode"),
             )
         )
 
@@ -286,6 +289,9 @@ class Runner(object):
         else:
             output_dir = checkpoint.model_dir
 
+        if mixed_precision:
+            misc.disable_mixed_precision()
+
         if return_summary:
             return output_dir, summary
         return output_dir
@@ -298,7 +304,7 @@ class Runner(object):
             ``eval_features_file`` from the data configuration.
           labels_file: The output labels file to evaluate. If not set, will load
             ``eval_labels_file`` from the data configuration.
-          checkpoint_path: The checkpoint path to load the model weights from it.
+          checkpoint_path: The checkpoint path to load the model weights from.
 
         Returns:
           A dict of evaluation metrics.
@@ -337,6 +343,7 @@ class Runner(object):
         output_dir = checkpoint_util.average_checkpoints(
             checkpoint.model_dir, output_dir, trackables, max_count=max_count
         )
+        _forward_model_description(self.model_dir, output_dir)
         self._config["model_dir"] = output_dir
         return output_dir
 
@@ -366,6 +373,7 @@ class Runner(object):
         )
         cur_checkpoint.restore()
         model.create_variables(optimizer=optimizer)
+        source_dir = self.model_dir
 
         self._config["model_dir"] = output_dir
         if src_vocab is not None:
@@ -385,6 +393,7 @@ class Runner(object):
         )
         new_optimizer.iterations.assign(optimizer.iterations)
         new_checkpoint.save()
+        _forward_model_description(source_dir, output_dir)
         return output_dir
 
     def infer(
@@ -396,7 +405,7 @@ class Runner(object):
           features_file: The file(s) to infer from.
           predictions_file: If set, predictions are saved in this file, otherwise
             they are printed on the standard output.
-          checkpoint_path: Path of a specific checkpoint to predict. If ``None``,
+          checkpoint_path: Path to a specific checkpoint to load. If ``None``,
             the latest is used.
           log_time: If ``True``, several time metrics will be printed in the logs at
             the end of the inference loop.
@@ -444,7 +453,7 @@ class Runner(object):
         Args:
           features_file: The input file.
           predictions_file: The predictions file to score.
-          checkpoint_path: Path of a specific checkpoint to use. If ``None``,
+          checkpoint_path: Path to specific checkpoint to load. If ``None``,
             the latest is used.
           output_file: The file where the scores are saved. Otherwise, they will be
             printed on the standard output.
@@ -467,6 +476,15 @@ class Runner(object):
         )
 
 
+def _forward_model_description(source, destination):
+    source = os.path.join(source, MODEL_DESCRIPTION_FILENAME)
+    if os.path.isfile(source):
+        if not os.path.isdir(destination):
+            os.makedirs(destination)
+        destination = os.path.join(destination, MODEL_DESCRIPTION_FILENAME)
+        shutil.copyfile(source, destination)
+
+
 def _count_batch_accum(batch_size, target_batch_size, num_replicas=1):
     """Given the current batch size, the number of replicas, and the requested
     effective batch size, returns the number of gradients to accumulate.
@@ -476,13 +494,14 @@ def _count_batch_accum(batch_size, target_batch_size, num_replicas=1):
 
 def _auto_tune_batch_size(
     config,
-    min_batch_size=1024,
-    max_batch_size=16384,
-    min_range=256,
-    sample_iterations=10,
+    min_batch_size,
+    max_batch_size,
+    min_range,
+    sample_iterations=5,
     num_devices=1,
-    scaling_factor=0.8,
+    scaling_factor=0.7,
     mixed_precision=False,
+    timeout=15 * 60,
 ):
     """Find the largest token-based batch size that can be used with this
     configuration.
@@ -505,73 +524,99 @@ def _auto_tune_batch_size(
       num_devices: The number of devices to use.
       scaling_factor: Scale the found batch size by this value.
       mixed_precision: If ``True``, run the autotuning with mixed precision.
+      timeout: Consider the training attempt as failed after this many seconds.
 
     Returns:
       The autotuned batch size.
     """
-    model_dir = config["model_dir"]
-    with tempfile.TemporaryDirectory() as tmpdir:
-        config = copy.deepcopy(config)
-        config["model_dir"] = tmpdir
-        config["train"]["save_checkpoints_steps"] = None
-        config["train"]["average_last_checkpoints"] = 0
-        config["train"]["max_step"] = sample_iterations
-        config_path = os.path.join(config["model_dir"], "batch_size_autotuner.yml")
-        model_description = os.path.join(model_dir, "model_description.py")
+    tf.get_logger().info(
+        "Searching the largest batch size between %d and %d with a precision of %d...",
+        min_batch_size,
+        max_batch_size,
+        min_range,
+    )
 
-        args = [
-            sys.executable or "python",
-            "-m",
-            "opennmt.bin.main",
-            "--config",
-            config_path,
-            "--model",
-            model_description,
-            "--checkpoint_path",
-            model_dir,
-        ]
-        if mixed_precision:
-            args.extend(["--mixed_precision"])
-        args.extend(
-            [
-                "train",
-                "--num_gpus",
-                str(num_devices),
-            ]
-        )
+    model_description = os.path.join(config["model_dir"], MODEL_DESCRIPTION_FILENAME)
+    absolute_min_batch_size = min_batch_size
+    stderr_data = None
 
-        tf.get_logger().info(
-            "Searching the largest batch size between %d and %d with a precision of %d...",
-            min_batch_size,
-            max_batch_size,
-            min_range,
-        )
+    while max_batch_size - min_batch_size > min_range:
+        batch_size = (max_batch_size + min_batch_size) // 2
 
-        while max_batch_size - min_batch_size > min_range:
-            batch_size = (max_batch_size + min_batch_size) // 2
+        with tempfile.TemporaryDirectory() as tmpdir:
+            run_config = copy.deepcopy(config)
+            run_config["model_dir"] = tmpdir
+            run_config["train"]["batch_autotune_mode"] = True
+            run_config["train"]["batch_size"] = batch_size
+            run_config["train"]["save_checkpoints_steps"] = None
+            run_config["train"]["average_last_checkpoints"] = 0
+            run_config["train"]["max_step"] = sample_iterations
 
-            # Update configuration with current batch size and adjusted gradients
-            # accumulation.
-            config["train"]["batch_size"] = batch_size
+            config_path = os.path.join(tmpdir, "batch_size_autotuner.yml")
             with tf.io.gfile.GFile(config_path, mode="w") as config_file:
-                yaml.dump(config, config_file)
+                yaml.dump(run_config, config_file)
+
+            env = os.environ.copy()
+            env["TF_CPP_MIN_LOG_LEVEL"] = "2"
+            args = [
+                sys.executable or "python",
+                "-m",
+                "opennmt.bin.main",
+                "--log_level",
+                "ERROR",
+                "--config",
+                config_path,
+                "--model",
+                model_description,
+            ]
+            if mixed_precision:
+                args.extend(["--mixed_precision"])
+            args.extend(
+                [
+                    "train",
+                    "--num_gpus",
+                    str(num_devices),
+                ]
+            )
 
             tf.get_logger().info("Trying training with batch size %d...", batch_size)
-            time.sleep(1)
             with open(os.devnull, "w") as devnull:
-                process = subprocess.Popen(args, stdout=devnull, stderr=devnull)
-                exit_code = process.wait()
-
-            if exit_code != 0:
-                tf.get_logger().info("... failed.")
-                max_batch_size = batch_size - 1
-            else:
-                tf.get_logger().info(
-                    "... succeeded, continue until the search range is smaller than %d.",
-                    min_range,
+                process = subprocess.Popen(
+                    args,
+                    stdout=devnull,
+                    stderr=subprocess.PIPE,
+                    env=env,
                 )
-                min_batch_size = batch_size
+                try:
+                    _, stderr_data = process.communicate(timeout=timeout)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    tf.get_logger().info("... failed (timeout).")
+                    max_batch_size = batch_size - 1
+                else:
+                    if process.returncode != 0:
+                        tf.get_logger().info("... failed.")
+                        max_batch_size = batch_size - 1
+                    else:
+                        tf.get_logger().info(
+                            "... succeeded, continue until the search range is smaller than %d.",
+                            min_range,
+                        )
+                        min_batch_size = batch_size
 
-    batch_size = int(scaling_factor * min_batch_size)
+    if min_batch_size == absolute_min_batch_size:
+        if stderr_data is not None:
+            tf.get_logger().error(
+                'Last training attempt exited with an error:\n\n"""\n%s"""\n'
+                % stderr_data.decode("utf-8")
+            )
+        raise RuntimeError(
+            "Batch size autotuning failed: all training attempts exited with an error "
+            "(see last error above). Either there is not enough memory to train this "
+            "model, or unexpected errors occured. Please try to set a fixed batch size "
+            "in the training configuration."
+        )
+
+    batch_size = max(int(scaling_factor * min_batch_size), absolute_min_batch_size)
     tf.get_logger().info("Batch size auto tuned to %d.", batch_size)
     return batch_size

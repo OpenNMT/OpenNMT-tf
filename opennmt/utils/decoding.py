@@ -179,9 +179,9 @@ class DecodingStrategy(abc.ABC):
         Returns:
           A tuple containing,
 
-          - The final predictions as a tensor of shape [B, H, T].
-          - The final attention history of shape [B, H, T, S].
-          - The final sequence lengths of shape [B, H].
+          - The final predictions as a tensor of shape :math:`[B, H, T_t]`.
+          - The final attention history of shape :math:`[B, H, T_t, T_s]`.
+          - The final sequence lengths of shape :math:`[B, H]`.
         """
         raise NotImplementedError()
 
@@ -408,7 +408,7 @@ class DecodingResult(
     """Final decoding result.
 
     Args:
-      ids: The predicted ids of shape :math:`[B, H, T]`.
+      ids: The predicted ids of shape :math:`[B, H, T_t]`.
       lengths: The produced sequences length of shape :math:`[B, H]`.
       log_probs: The cumulated log probabilities of shape :math:`[B, H]`.
       attention: The attention history of shape :math:`[B, H, T_t, T_s]`.

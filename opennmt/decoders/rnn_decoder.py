@@ -4,10 +4,7 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 
 from opennmt.decoders import decoder
-from opennmt.layers import bridge
-from opennmt.layers import common
-from opennmt.layers import rnn
-from opennmt.layers import transformer
+from opennmt.layers import bridge, common, rnn, transformer
 from opennmt.layers.rnn import map_v1_weights_to_cell
 
 

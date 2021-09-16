@@ -1,23 +1,22 @@
-import os
 import gzip
 import io
+import os
+
+import numpy as np
+import tensorflow as tf
 import yaml
 
-import tensorflow as tf
-import numpy as np
-
-from tensorboard.plugins import projector
 from google.protobuf import text_format
 from parameterized import parameterized
+from tensorboard.plugins import projector
 
-from opennmt import inputters
-from opennmt import tokenizers
+from opennmt import inputters, tokenizers
 from opennmt.data import dataset as dataset_util
 from opennmt.data import noise
-from opennmt.inputters import inputter, text_inputter, record_inputter
+from opennmt.inputters import inputter, record_inputter, text_inputter
 from opennmt.layers import reducer
 from opennmt.tests import test_util
-from opennmt.utils.misc import item_or_tuple, count_lines
+from opennmt.utils.misc import count_lines, item_or_tuple
 
 
 class InputterTest(tf.test.TestCase):
@@ -347,6 +346,22 @@ class InputterTest(tf.test.TestCase):
         with self.assertRaisesRegex(RuntimeError, "initialize"):
             embedder.make_features("Hello world !")
 
+    def testWordEmbedderBatchElement(self):
+        vocab_file = self._makeTextFile(
+            "vocab.txt", ["<blank>", "<s>", "</s>"] + list(map(str, range(10)))
+        )
+        embedder = text_inputter.WordEmbedder(32)
+        embedder.initialize(dict(vocabulary=vocab_file))
+        features = embedder.make_features(["1 2 3", "1 2 3 4"])
+        self.assertAllEqual(features["length"], [3, 4])
+        self.assertAllEqual(features["ids"], [[4, 5, 6, 0], [4, 5, 6, 7]])
+
+        embedder.set_decoder_mode(mark_start=True, mark_end=True)
+        features = embedder.make_features(["1 2 3", "1 2 3 4"])
+        self.assertAllEqual(features["length"], [4, 5])
+        self.assertAllEqual(features["ids"], [[1, 4, 5, 6, 0], [1, 4, 5, 6, 7]])
+        self.assertAllEqual(features["ids_out"], [[4, 5, 6, 2, 0], [4, 5, 6, 7, 2]])
+
     def testCharConvEmbedder(self):
         vocab_file = self._makeTextFile("vocab.txt", ["h", "e", "l", "w", "o"])
         data_file = self._makeTextFile("data.txt", ["hello world !"])
@@ -564,6 +579,68 @@ class InputterTest(tf.test.TestCase):
         )
         self.assertIsInstance(dataset, tf.data.Dataset)
 
+    def testBatchAutotuneDataset(self):
+        vocab_file = self._makeTextFile("vocab.txt", ["1", "2", "3", "4"])
+        data_file = self._makeTextFile("data.txt", ["hello world !"])
+        source_inputter = text_inputter.WordEmbedder(embedding_size=10)
+        target_inputter = text_inputter.WordEmbedder(embedding_size=10)
+        target_inputter.set_decoder_mode(mark_start=True, mark_end=True)
+        example_inputter = inputter.ExampleInputter(source_inputter, target_inputter)
+        example_inputter.initialize(
+            {"source_vocabulary": vocab_file, "target_vocabulary": vocab_file}
+        )
+
+        dataset = example_inputter.make_training_dataset(
+            data_file,
+            data_file,
+            batch_size=1024,
+            batch_type="tokens",
+            maximum_features_length=100,
+            maximum_labels_length=120,
+            batch_autotune_mode=True,
+        )
+
+        source, target = next(iter(dataset))
+        self.assertListEqual(source["ids"].shape.as_list(), [8, 100])
+        self.assertListEqual(target["ids"].shape.as_list(), [8, 120])
+        self.assertListEqual(target["ids_out"].shape.as_list(), [8, 120])
+
+    def testBatchAutotuneDatasetMultiSource(self):
+        vocab_file = self._makeTextFile("vocab.txt", ["1", "2", "3", "4"])
+        data_file = self._makeTextFile("data.txt", ["hello world !"])
+        source_inputter = inputter.ParallelInputter(
+            [
+                text_inputter.WordEmbedder(embedding_size=10),
+                text_inputter.WordEmbedder(embedding_size=10),
+            ]
+        )
+        target_inputter = text_inputter.WordEmbedder(embedding_size=10)
+        target_inputter.set_decoder_mode(mark_start=True, mark_end=True)
+        example_inputter = inputter.ExampleInputter(source_inputter, target_inputter)
+        example_inputter.initialize(
+            {
+                "source_1_vocabulary": vocab_file,
+                "source_2_vocabulary": vocab_file,
+                "target_vocabulary": vocab_file,
+            }
+        )
+
+        dataset = example_inputter.make_training_dataset(
+            [data_file, data_file],
+            data_file,
+            batch_size=1024,
+            batch_type="tokens",
+            maximum_features_length=[100, 110],
+            maximum_labels_length=120,
+            batch_autotune_mode=True,
+        )
+
+        source, target = next(iter(dataset))
+        self.assertListEqual(source["inputter_0_ids"].shape.as_list(), [8, 100])
+        self.assertListEqual(source["inputter_1_ids"].shape.as_list(), [8, 110])
+        self.assertListEqual(target["ids"].shape.as_list(), [8, 120])
+        self.assertListEqual(target["ids_out"].shape.as_list(), [8, 120])
+
     def testExampleInputterAsset(self):
         vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
         source_inputter = text_inputter.WordEmbedder(embedding_size=10)
@@ -623,6 +700,28 @@ class InputterTest(tf.test.TestCase):
         self.assertEqual([2], features["length"])
         self.assertAllEqual([vector], features["tensor"])
         self.assertAllEqual([vector], transformed)
+
+    def testSequenceRecordBatch(self):
+        vectors = [
+            np.random.rand(3, 2),
+            np.random.rand(6, 2),
+            np.random.rand(1, 2),
+        ]
+
+        record_file = os.path.join(self.get_temp_dir(), "data.records")
+        record_inputter.create_sequence_records(vectors, record_file)
+
+        inputter = record_inputter.SequenceRecordInputter(2)
+        dataset = inputter.make_dataset(record_file)
+        dataset = dataset.batch(3)
+        dataset = dataset.map(inputter.make_features)
+
+        features = next(iter(dataset))
+        lengths = features["length"]
+        tensors = features["tensor"]
+        self.assertAllEqual(lengths, [3, 6, 1])
+        for length, tensor, expected_vector in zip(lengths, tensors, vectors):
+            self.assertAllClose(tensor[:length], expected_vector)
 
     def testSequenceRecordWithCompression(self):
         vector = np.array([[0.2, 0.3], [0.4, 0.5]], dtype=np.float32)

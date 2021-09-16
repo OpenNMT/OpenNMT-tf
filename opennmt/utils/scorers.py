@@ -1,8 +1,8 @@
 """Hypotheses file scoring."""
 
 import abc
-import sacrebleu
 
+import sacrebleu
 import tensorflow as tf
 
 from rouge import FilesRouge

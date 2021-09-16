@@ -1,24 +1,20 @@
 import copy
 import os
-import unittest
 import shutil
+import unittest
 
-from parameterized import parameterized, parameterized_class
+from distutils.version import LooseVersion
 
 import tensorflow as tf
 
-from opennmt import decoders
-from opennmt import models
-from opennmt import Runner
-from opennmt.config import load_model
-from opennmt.utils import exporters
-from opennmt.utils import misc
+from parameterized import parameterized, parameterized_class
+
+from opennmt import Runner, decoders, models
+from opennmt.config import MODEL_DESCRIPTION_FILENAME, load_model
 from opennmt.tests import test_util
+from opennmt.utils import exporters, misc
 
-
-test_dir = os.path.dirname(os.path.realpath(__file__))
-root_dir = os.path.join(test_dir, "..", "..")
-test_data = os.path.join(root_dir, "testdata")
+test_data = test_util.get_test_data_dir()
 
 
 def _get_test_class_name(cls, num, params_dict):
@@ -100,6 +96,9 @@ class RunnerTest(tf.test.TestCase):
         self.assertLen(
             tf.train.get_checkpoint_state(avg_dir).all_model_checkpoint_paths, 1
         )
+        self.assertTrue(
+            os.path.isfile(os.path.join(avg_dir, MODEL_DESCRIPTION_FILENAME))
+        )
         model_dir = os.path.dirname(avg_dir)
         self.assertEndsWith(tf.train.latest_checkpoint(model_dir), "145002")
         self.assertLen(
@@ -149,6 +148,27 @@ class RunnerTest(tf.test.TestCase):
         runner = self._getTransliterationRunner(config)
         runner.train(num_devices=2)
 
+    @test_util.run_with_mixed_precision
+    def testTrainMixedPrecision(self):
+        if tf.config.functions_run_eagerly() and LooseVersion(tf.__version__) < "2.4.0":
+            # TODO: remove this skipTest once TensorFlow requirement is updated to >=2.4.
+            self.skipTest(
+                "Mixed precision not working with TensorFlow 2.3 + eager execution"
+            )
+        self.assertTrue(misc.mixed_precision_enabled())
+        ar_file, en_file = self._makeTransliterationData()
+        config = {
+            "data": {"train_features_file": ar_file, "train_labels_file": en_file},
+            "params": {"learning_rate": 0.0005, "optimizer": "Adam"},
+            "train": {
+                "batch_size": 2,
+                "length_bucket_width": None,
+                "max_step": 145003,
+            },
+        }
+        runner = self._getTransliterationRunner(config)
+        runner.train()
+
     def testTrainWithEval(self):
         ar_file, en_file = self._makeTransliterationData()
         config = {
@@ -196,10 +216,14 @@ class RunnerTest(tf.test.TestCase):
         runner.train()
 
     def testEvaluate(self):
+        if not tf.config.functions_run_eagerly():
+            self.skipTest("Test case not passing in GitHub Actions environment")
         ar_file, en_file = self._makeTransliterationData()
         config = {
+            "params": {"beam_width": 4},
             "data": {"eval_features_file": ar_file, "eval_labels_file": en_file},
             "eval": {"external_evaluators": "BLEU"},
+            "infer": {"n_best": 4},
         }
         runner = self._getTransliterationRunner(config)
         metrics = runner.evaluate()
@@ -248,6 +272,9 @@ class RunnerTest(tf.test.TestCase):
             runner.update_vocab(output_dir, tgt_vocab=new_en_vocab), output_dir
         )
         self.assertEqual(runner.model_dir, output_dir)
+        self.assertTrue(
+            os.path.isfile(os.path.join(output_dir, MODEL_DESCRIPTION_FILENAME))
+        )
 
         # Check that the translation is unchanged.
         en_file = os.path.join(self.get_temp_dir(), "output.txt")

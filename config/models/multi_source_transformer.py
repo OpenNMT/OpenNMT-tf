@@ -15,21 +15,21 @@ data:
   target_vocabulary: target_vocab.txt
 """
 
-import opennmt as onmt
+import opennmt
 
 from opennmt.utils import misc
 
 
-class DualSourceTransformer(onmt.models.Transformer):
+class DualSourceTransformer(opennmt.models.Transformer):
     def __init__(self):
         super().__init__(
-            source_inputter=onmt.inputters.ParallelInputter(
+            source_inputter=opennmt.inputters.ParallelInputter(
                 [
-                    onmt.inputters.WordEmbedder(embedding_size=512),
-                    onmt.inputters.WordEmbedder(embedding_size=512),
+                    opennmt.inputters.WordEmbedder(embedding_size=512),
+                    opennmt.inputters.WordEmbedder(embedding_size=512),
                 ]
             ),
-            target_inputter=onmt.inputters.WordEmbedder(embedding_size=512),
+            target_inputter=opennmt.inputters.WordEmbedder(embedding_size=512),
             num_layers=6,
             num_units=512,
             num_heads=8,

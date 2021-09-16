@@ -6,7 +6,7 @@ This page presents a minimal workflow to get you started in using OpenNMT-tf. Th
 
 ```bash
 pip install --upgrade pip
-pip install OpenNMT-tf
+pip install OpenNMT-tf[tensorflow]
 ```
 
 ## Step 1: Prepare the data

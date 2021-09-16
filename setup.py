@@ -1,24 +1,40 @@
 import os
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
 tests_require = [
-    "black==20.8b1",
-    "flake8==3.8.*",
+    "black==21.7b0",
+    "flake8==3.9.*",
+    "isort>=5.9,<6",
     "parameterized==0.8.1",
     "pytest-cov",
 ]
 
 
 def get_long_description():
-    readme_path = os.path.join(os.path.dirname(__file__), "README.md")
+    readme_path = os.path.join(base_dir, "README.md")
     with open(readme_path, encoding="utf-8") as readme_file:
         return readme_file.read()
 
 
+def get_project_version():
+    version = {}
+    with open(os.path.join(base_dir, "opennmt", "version.py"), encoding="utf-8") as fp:
+        exec(fp.read(), version)
+    return version
+
+
+version = get_project_version()
+tf_version_requirement = ">=%s,<%s" % (
+    version["INCLUSIVE_MIN_TF_VERSION"],
+    version["EXCLUSIVE_MAX_TF_VERSION"],
+)
+
+
 setup(
     name="OpenNMT-tf",
-    version="2.15.0",
+    version=version["__version__"],
     license="MIT",
     description="Neural machine translation and sequence learning using TensorFlow",
     long_description=get_long_description(),
@@ -37,6 +53,7 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
     project_urls={
@@ -48,15 +65,18 @@ setup(
     keywords="tensorflow opennmt nmt neural machine translation",
     python_requires=">=3.5",
     install_requires=[
-        "ctranslate2>=1.18.1,<2;platform_system=='Linux' or platform_system=='Darwin'",
-        "pyonmttok>=1.23.0,<2;platform_system=='Linux' or platform_system=='Darwin'",
+        "ctranslate2>=2.0.0,<3;platform_system=='Linux' or platform_system=='Darwin'",
+        "pyonmttok>=1.26.4,<2;platform_system=='Linux' or platform_system=='Darwin'",
         "pyyaml>=5.3,<5.5",
         "rouge>=1.0,<2",
-        "sacrebleu>=1.5.0,<1.6",
-        "tensorflow>=2.3,<2.5",
-        "tensorflow-addons>=0.12,<0.13",
+        "sacrebleu>=1.5.0,<2.1",
+        "tensorflow-addons>=0.14,<0.15",
     ],
     extras_require={
+        "tensorflow": [
+            "tensorflow" + tf_version_requirement,
+            "tensorflow-text" + tf_version_requirement,
+        ],
         "tests": tests_require,
     },
     tests_require=tests_require,

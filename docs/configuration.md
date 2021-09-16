@@ -87,8 +87,8 @@ data:
   target_vocabulary: data/toy-ende/tgt-vocab.txt
 
   # (optional) During export save the vocabularies as model assets, otherwise embed
-  # them in the graph itself (default: True).
-  export_vocabulary_assets: True
+  # them in the graph itself (default: true).
+  export_vocabulary_assets: true
 
   # (optional) Tokenization configuration (or path to a configuration file).
   # See also: https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md
@@ -104,9 +104,9 @@ data:
   # (optional) Pretrained embedding configuration.
   source_embedding:
     path: data/glove/glove-100000.txt
-    with_header: True
-    case_insensitive: True
-    trainable: False
+    with_header: true
+    case_insensitive: true
+    trainable: false
 
   # (optional) For language models, configure sequence control tokens (usually
   # represented as <s> and </s>). For example, enabling "start" and disabling "end"

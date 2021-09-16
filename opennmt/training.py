@@ -9,12 +9,27 @@ import tensorflow as tf
 
 from opennmt.inputters import text_inputter
 from opennmt.optimizers import utils as optimizer_util
+from opennmt.utils import compat, misc
+
+
+def _add_mixed_precision_wrapper(optimizer):
+    # TODO: clean mixed precision API when TensorFlow requirement is updated to >=2.4.
+    wrapper_class = None
+    wrapper_kwargs = {}
+    if compat.tf_supports("keras.mixed_precision.LossScaleOptimizer"):
+        wrapper_class = tf.keras.mixed_precision.LossScaleOptimizer
+    else:
+        wrapper_class = tf.keras.mixed_precision.experimental.LossScaleOptimizer
+        wrapper_kwargs = dict(loss_scale="dynamic")
+    if not isinstance(optimizer, wrapper_class):
+        optimizer = wrapper_class(optimizer, **wrapper_kwargs)
+    return optimizer
 
 
 class Trainer:
     """Base class for model trainer, implementing single-GPU training."""
 
-    def __init__(self, model, optimizer, checkpoint=None, is_master=True):
+    def __init__(self, model, optimizer, checkpoint=None):
         """Initializes the trainer.
 
         Args:
@@ -22,10 +37,8 @@ class Trainer:
           optimizer: A ``tf.keras.optimizers.Optimizer`` instance.
           checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance. If
             not set, no checkpoints will be saved.
-          is_master: Whether this trainer instance is the master trainer.
         """
         self._checkpoint = checkpoint
-        self._is_master = is_master
         self._model = model
         if checkpoint is not None:
             self._summary_writer = tf.summary.create_file_writer(checkpoint.model_dir)
@@ -33,18 +46,18 @@ class Trainer:
             self._summary_writer = tf.summary.create_noop_writer()
         self._training_stats = None
         self._gradient_accumulator = optimizer_util.GradientAccumulator()
+        self._mixed_precision = misc.mixed_precision_enabled()
 
         if optimizer is None:
             raise ValueError("No optimizer is defined")
-        graph_optimizer_options = tf.config.optimizer.get_experimental_options()
-        mixed_precision_enabled = graph_optimizer_options.get("auto_mixed_precision")
-        if mixed_precision_enabled and not isinstance(
-            optimizer, tf.keras.mixed_precision.experimental.LossScaleOptimizer
-        ):
-            optimizer = tf.keras.mixed_precision.experimental.LossScaleOptimizer(
-                optimizer, "dynamic"
-            )
+        if self._mixed_precision:
+            optimizer = _add_mixed_precision_wrapper(optimizer)
         self._optimizer = optimizer
+
+    @property
+    def is_master(self):
+        """Master replica."""
+        return True
 
     @property
     def num_replicas(self):
@@ -105,13 +118,13 @@ class Trainer:
 
             step = None
             moving_average = None
-            for loss in self._steps(
-                dataset, accum_steps=accum_steps, report_steps=report_steps
+            for i, loss in enumerate(
+                self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps)
             ):
-                if tf.math.is_nan(loss):
-                    raise RuntimeError("Model diverged with loss = NaN.")
+                if i == 0:
+                    self._log_model_info()
 
-                if moving_average_decay is not None and self._is_master:
+                if moving_average_decay is not None and self.is_master:
                     if moving_average is None:
                         moving_average = MovingAverage(
                             self._model.trainable_variables,
@@ -124,7 +137,7 @@ class Trainer:
                 reset_throughput = False
                 self._training_stats.update_on_step(step, loss)
                 if step % report_steps == 0:
-                    self._training_stats.log(self._is_master)
+                    self._training_stats.log(self.is_master)
                     reset_throughput = True
                 if step == 1 or (save_steps is not None and step % save_steps == 0):
                     self._save_checkpoint(step, moving_average=moving_average)
@@ -152,7 +165,7 @@ class Trainer:
                     "consistent with your data."
                 )
 
-            self._training_stats.log_final(self._is_master)
+            self._training_stats.log_final(self.is_master)
             summary = self._training_stats.get_global_summary()
             self._save_checkpoint(step, moving_average=moving_average)
             self._evaluate(evaluator, step, moving_average=moving_average)
@@ -161,7 +174,7 @@ class Trainer:
     def _save_checkpoint(self, step, moving_average=None):
         """Saves a checkpoint for step."""
         if (
-            not self._is_master
+            not self.is_master
             or self._checkpoint is None
             or step == self._checkpoint.last_saved_step
         ):
@@ -175,9 +188,9 @@ class Trainer:
             self._checkpoint.save(step)
 
     def _evaluate(self, evaluator, step, moving_average=None):
-        """Runs evaluation for step. Returns ``True`` is early conditions are met."""
+        """Runs evaluation for step. Returns ``True`` if early conditions are met."""
         if (
-            not self._is_master
+            not self.is_master
             or evaluator is None
             or step == evaluator.last_evaluated_step
         ):
@@ -219,7 +232,6 @@ class Trainer:
         """
         dataset = self._finalize_dataset(dataset)
         iterator = iter(dataset)
-        with_accum = accum_steps > 1
 
         # We define 2 separate functions to support gradient accumulation:
         #  * forward: compute and accumulate the gradients
@@ -230,18 +242,20 @@ class Trainer:
             # We get the next dataset element within the function for increased efficiency
             # and avoid dealing with tf.function input signatures.
             source, target = next(iterator)
-            record_summaries = self._should_record_summaries(
-                report_steps, with_accum=with_accum
+            return self._forward(
+                source,
+                target,
+                accum_steps=accum_steps,
+                report_steps=report_steps,
             )
-            forward_fn = self._forward if with_accum else self._forward_and_step
-            return forward_fn(source, target, record_summaries=record_summaries)
 
         def _step():
             return self._step()
 
         # Wrap forward and step with tf.function to run in graph mode.
         forward_fn = tf.function(_forward)
-        step_fn = tf.function(_step) if with_accum else lambda: None
+        step_fn = tf.function(_step) if accum_steps > 1 else lambda: None
+        step_loss = 0
 
         for i in itertools.count():
             try:
@@ -252,114 +266,81 @@ class Trainer:
             ):  # Dataset iterator exhausted.
                 break
 
-            if i == 0 or (i + 1) % accum_steps == 0:
+            if tf.math.is_nan(loss):
+                raise RuntimeError("Model diverged with loss = NaN.")
+
+            step_loss += float(loss)
+            if (i + 1) % accum_steps == 0:
                 step_fn()
-                if i == 0:
+                if i + 1 == accum_steps:
                     self._broadcast_variables()
-                yield loss
+                yield step_loss
+                step_loss = 0
 
-    def _run_model(self, source, target):
-        """Computes the loss of the given source and target pair.
-
-        Args:
-          source: A nested structure of tensors.
-          target: A nested structure of tensors.
-
-        Returns:
-          A tuple containing,
-
-          - The loss to compute the gradients.
-          - The loss to report.
-        """
-        first_call = not self._model.built
-        outputs, _ = self._model(
-            source, labels=target, training=True, step=self._optimizer.iterations
+    def _log_model_info(self):
+        """Logs some information about the model being trained."""
+        if not self.is_master:
+            return
+        if self._checkpoint is not None:
+            self._model.visualize(self._checkpoint.model_dir)
+        tf.get_logger().info(
+            "Number of model parameters: %d", self._model.count_params()
         )
-        loss = self._model.compute_loss(outputs, target, training=True)
-        if isinstance(loss, tuple):
-            training_loss = loss[0] / loss[1]
-            reported_loss = loss[0] / loss[2] if len(loss) > 2 else training_loss
-        else:
-            training_loss, reported_loss = loss, loss
-        training_loss = self._model.regularize_loss(
-            training_loss, variables=self._model.trainable_variables
+        tf.get_logger().info(
+            "Number of model weights: %d (trainable = %d, non trainable = %d)",
+            len(self._model.weights),
+            len(self._model.trainable_weights),
+            len(self._model.non_trainable_weights),
         )
-        self._training_stats.update_on_example(source, target)
-        if first_call and self._is_master:
-            if self._checkpoint is not None:
-                self._model.visualize(self._checkpoint.model_dir)
-            tf.get_logger().info(
-                "Number of model parameters: %d", self._model.count_params()
-            )
-            tf.get_logger().info(
-                "Number of model weights: %d (trainable = %d, non trainable = %d)",
-                len(self._model.weights),
-                len(self._model.trainable_weights),
-                len(self._model.non_trainable_weights),
-            )
-        return training_loss, reported_loss
 
-    def _should_record_summaries(self, report_steps, with_accum=False):
+    def _should_record_summaries(self, accum_steps, report_steps):
         """Returns a boolean tensor to be used in tf.summary.record_if."""
-        if report_steps is None or not self._is_master:
+        if report_steps is None or not self.is_master:
             return False
         record_summaries = tf.equal(self._optimizer.iterations % report_steps, 0)
-        if with_accum:
+        if accum_steps > 1:
             record_summaries = tf.logical_and(
                 record_summaries, tf.equal(self._gradient_accumulator.step, 0)
             )
         return record_summaries
 
-    def _compute_gradients(self, source, target, record_summaries=False):
+    def _compute_gradients(self, source, target, accum_steps, report_steps):
         """Computes the gradient of a training example."""
+        record_summaries = self._should_record_summaries(accum_steps, report_steps)
         with tf.summary.record_if(record_summaries):
-            if tf.executing_eagerly():
-                with tf.GradientTape() as tape:
-                    training_loss, reported_loss = self._run_model(source, target)
-                gradients = tape.gradient(
-                    training_loss, self._model.trainable_variables
-                )
-            else:
-                training_loss, reported_loss = self._run_model(source, target)
-                gradients = self._optimizer.get_gradients(
-                    training_loss, self._model.trainable_variables
-                )
+            reported_loss, gradients = self._model.compute_gradients(
+                source,
+                target,
+                self._optimizer,
+                loss_scale=accum_steps * self.num_replicas,
+            )
+            self._training_stats.update_on_example(source, target)
             _summarize_gradients(gradients, record_summaries)
         return reported_loss, gradients
 
-    def _apply_gradients(self, gradients, scale=1):
+    def _apply_gradients(self, gradients):
         """Applies the gradients."""
-        gradient_scale = scale * self.num_replicas
-        if tf.is_tensor(gradient_scale) or gradient_scale != 1:
-            gradients = [
-                self._all_reduce_sum(gradient / tf.cast(gradient_scale, gradient.dtype))
-                for gradient in gradients
-            ]
         self._optimizer.apply_gradients(
             list(zip(gradients, self._model.trainable_variables))
         )
 
-    def _forward_and_step(self, source, target, record_summaries=False):
-        """Forwards a training example and applies the gradients, without accumulation."""
-        loss, gradients = self._compute_gradients(
-            source, target, record_summaries=record_summaries
-        )
-        self._apply_gradients(gradients)
-        return loss
-
-    def _forward(self, source, target, record_summaries=False):
+    def _forward(self, source, target, accum_steps=1, report_steps=None):
         """Forwards a training example and accumulates the gradients."""
         loss, gradients = self._compute_gradients(
-            source, target, record_summaries=record_summaries
+            source,
+            target,
+            accum_steps,
+            report_steps,
         )
-        self._gradient_accumulator(gradients)
+        if accum_steps > 1:
+            self._gradient_accumulator(gradients)
+        else:
+            self._apply_gradients(gradients)
         return loss
 
     def _step(self):
         """Applies gradients and resets accumulation."""
-        self._apply_gradients(
-            self._gradient_accumulator.gradients, scale=self._gradient_accumulator.step
-        )
+        self._apply_gradients(self._gradient_accumulator.gradients)
         self._gradient_accumulator.reset()
 
     def _update_moving_average(self, moving_average):
@@ -388,10 +369,12 @@ class HorovodTrainer(Trainer):
           checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance. If
             not set, no checkpoints will be saved.
         """
-        super().__init__(
-            model, optimizer, checkpoint=checkpoint, is_master=hvd.rank() == 0
-        )
+        super().__init__(model, optimizer, checkpoint=checkpoint)
         self._hvd = hvd
+
+    @property
+    def is_master(self):
+        return self._hvd.rank() == 0
 
     @property
     def num_replicas(self):
@@ -407,6 +390,9 @@ class HorovodTrainer(Trainer):
                 )
             )
         return dataset
+
+    def _apply_gradients(self, gradients):
+        return super()._apply_gradients(map(self._all_reduce_sum, gradients))
 
     def _broadcast_variables(self):
         self._hvd.broadcast_variables(self._model.variables, root_rank=0)
@@ -444,28 +430,24 @@ class MirroredStrategyTrainer(Trainer):
         # We prefer not to use experimental_distribute_dataset here because it
         # sometimes fails to split the batches (noticed with tokens batch type).
         dataset_fn = dataset if callable(dataset) else lambda _: dataset
-        return self._strategy.experimental_distribute_datasets_from_function(dataset_fn)
-
-    def _forward_and_step(self, source, target, record_summaries=False):
-        per_replica_loss = self._strategy.run(
-            super()._forward_and_step,
-            args=(source, target),
-            kwargs=dict(record_summaries=record_summaries),
+        # TODO: clean this API usage when TensorFlow requirement is updated to >=2.4.
+        distribute_fn = getattr(
+            self._strategy, "distribute_datasets_from_function", None
         )
-        return self._strategy.reduce(
-            tf.distribute.ReduceOp.MEAN, per_replica_loss, None
-        )
+        if distribute_fn is None:
+            distribute_fn = (
+                self._strategy.experimental_distribute_datasets_from_function
+            )
+        return distribute_fn(dataset_fn)
 
-    def _forward(self, source, target, record_summaries=False):
+    def _forward(self, source, target, accum_steps=1, report_steps=None):
         per_replica_loss = self._strategy.run(
             super()._forward,
             args=(source, target),
-            kwargs=dict(record_summaries=record_summaries),
+            kwargs=dict(accum_steps=accum_steps, report_steps=report_steps),
         )
         # TODO: this reduction could be delayed until _step is called.
-        return self._strategy.reduce(
-            tf.distribute.ReduceOp.MEAN, per_replica_loss, None
-        )
+        return self._strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_loss, None)
 
     def _step(self):
         self._strategy.run(super()._step)

@@ -8,27 +8,26 @@ import sys
 import tensorflow as tf
 
 from opennmt import __version__
+from opennmt.config import load_config, load_model
 from opennmt.models import catalog
 from opennmt.runner import Runner
-from opennmt.config import load_model, load_config
 from opennmt.utils import exporters
 
 
-_PYTHON_TO_TENSORFLOW_LOGGING_LEVEL = {
-    logging.CRITICAL: 3,
-    logging.ERROR: 2,
-    logging.WARNING: 1,
-    logging.INFO: 0,
-    logging.DEBUG: 0,
-    logging.NOTSET: 0,
-}
+def _initialize_logging(log_level):
+    logger = tf.get_logger()
+    logger.setLevel(log_level)
 
-
-def _set_log_level(log_level):
-    tf.get_logger().setLevel(log_level)
-    os.environ["TF_CPP_MIN_LOG_LEVEL"] = str(
-        _PYTHON_TO_TENSORFLOW_LOGGING_LEVEL[log_level]
+    # Configure the TensorFlow logger to use the same log format as the TensorFlow C++ logs.
+    for handler in list(logger.handlers):
+        logger.removeHandler(handler)
+    formatter = logging.Formatter(
+        fmt="%(asctime)s.%(msecs)03d000: %(levelname).1s %(filename)s:%(lineno)d] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 
 def _prefix_paths(prefix, paths):
@@ -214,6 +213,7 @@ def main():
     parser_score.add_argument(
         "--predictions_file", default=None, help="Predictions to score."
     )
+    parser_score.add_argument("--output_file", default=None, help="Output file.")
 
     parser_average_checkpoints = subparsers.add_parser(
         "average_checkpoints", help="Checkpoint averaging."
@@ -264,7 +264,7 @@ def main():
     ):
         args.features_file = args.features_file[0]
 
-    _set_log_level(getattr(logging, args.log_level))
+    _initialize_logging(getattr(logging, args.log_level))
     tf.config.threading.set_intra_op_parallelism_threads(
         args.intra_op_parallelism_threads
     )
@@ -351,6 +351,7 @@ def main():
             args.features_file,
             args.predictions_file,
             checkpoint_path=args.checkpoint_path,
+            output_file=args.output_file,
         )
     elif args.run_type == "average_checkpoints":
         runner.average_checkpoints(args.output_dir, max_count=args.max_count)

@@ -1,10 +1,9 @@
 """Define learning rate decay functions."""
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
 from opennmt.utils import misc
-
 
 _LR_SCHEDULES_REGISTRY = misc.ClassRegistry(
     base_class=tf.keras.optimizers.schedules.LearningRateSchedule

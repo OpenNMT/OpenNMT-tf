@@ -7,13 +7,12 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from tensorboard.plugins import projector
 from google.protobuf import text_format
+from tensorboard.plugins import projector
 
 from opennmt import constants, tokenizers
 from opennmt.data import dataset as dataset_util
-from opennmt.data import text
-from opennmt.data import vocab
+from opennmt.data import text, vocab
 from opennmt.inputters.inputter import Inputter
 from opennmt.layers import common
 from opennmt.utils import misc
@@ -192,12 +191,12 @@ def add_sequence_controls(ids, length, start_id=None, end_id=None):
         return tf.expand_dims(value, -1)
 
     if start_id is not None:
-        start_ids = _make_column(constants.START_OF_SENTENCE_ID)
+        start_ids = _make_column(start_id)
         ids = tf.concat([start_ids, ids], axis=-1)
         length += 1
 
     if end_id is not None:
-        end_ids = _make_column(constants.END_OF_SENTENCE_ID)
+        end_ids = _make_column(end_id)
         if batch_size is not None:
             # Run concat on RaggedTensor to handle sequences with variable length.
             ids = tf.RaggedTensor.from_tensor(ids, lengths=length)
@@ -279,10 +278,11 @@ class TextInputter(Inputter):
             return features
         if "text" in features:
             element = features.pop("text")
-        tokens = self.tokenizer.tokenize(element)
+        element = tf.convert_to_tensor(element, dtype=tf.string)
+        tokens = self.tokenizer.tokenize(element, training=training)
         if isinstance(tokens, tf.RaggedTensor):
             length = tokens.row_lengths()
-            tokens = tokens.to_tensor()
+            tokens = tokens.to_tensor(default_value=constants.PADDING_TOKEN)
         else:
             length = tf.shape(tokens)[0]
         if training and self.noiser is not None:
@@ -321,6 +321,10 @@ class TextInputter(Inputter):
                 "The input layer is not initialized. You should initialize "
                 "the model by calling model.initialize(data_config)."
             )
+
+
+def _format_bool(b):
+    return "yes" if b else "no"
 
 
 class WordEmbedder(TextInputter):
@@ -394,6 +398,16 @@ class WordEmbedder(TextInputter):
             self.mark_start = sequence_controls.get("start")
             self.mark_end = sequence_controls.get("end")
 
+        tf.get_logger().info(
+            "Initialized %s input layer:", self.asset_prefix.strip("_")
+        )
+        tf.get_logger().info(" - vocabulary size: %d", self.vocabulary_size)
+        tf.get_logger().info(
+            " - special tokens: BOS=%s, EOS=%s",
+            _format_bool(self.mark_start),
+            _format_bool(self.mark_end),
+        )
+
     def make_features(self, element=None, features=None, training=None):
         """Converts words tokens to ids."""
         features = super().make_features(
@@ -411,8 +425,17 @@ class WordEmbedder(TextInputter):
                     end_id=constants.END_OF_SENTENCE_ID if self.mark_end else None,
                 )
         if self.decoder_mode:
-            features["ids_out"] = features["ids"][1:]
-            features["ids"] = features["ids"][:-1]
+            ids = features["ids"]
+            length = features["length"]
+            if ids.shape.rank == 2:
+                mask = tf.sequence_mask(
+                    length - 1, maxlen=tf.shape(ids)[1], dtype=ids.dtype
+                )
+                features["ids"] = (ids * mask)[:, :-1]
+                features["ids_out"] = ids[:, 1:]
+            else:
+                features["ids"] = ids[:-1]
+                features["ids_out"] = ids[1:]
             features["length"] -= 1
         return features
 

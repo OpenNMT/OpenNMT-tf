@@ -130,12 +130,12 @@ class Reducer(tf.keras.layers.Layer):
 
     @abc.abstractmethod
     def reduce(self, inputs):
-        """See :meth:`opennmt.layers.Reducer.__call__`."""
+        """See :meth:`opennmt.layers.Reducer.call`."""
         raise NotImplementedError()
 
     @abc.abstractmethod
     def reduce_sequence(self, inputs, sequence_lengths):
-        """See :meth:`opennmt.layers.Reducer.__call__`."""
+        """See :meth:`opennmt.layers.Reducer.call`."""
         raise NotImplementedError()
 
 

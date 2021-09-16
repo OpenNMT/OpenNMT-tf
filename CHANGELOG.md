@@ -15,6 +15,128 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.21.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.21.0) (2021-08-30)
+
+### New features
+
+* Support TensorFlow 2.6
+* Add tokenizer `SentencePieceTokenizer`, an in-graph SentencePiece tokenizer provided by [tensorflow-text](https://www.tensorflow.org/text)
+* Add methods to facilitate training a `Model` instance:
+  * `model.compute_training_loss`
+  * `model.compute_gradients`
+  * `model.train`
+* Add `--output_file` argument to `score` command
+
+### Fixes and improvements
+
+* Fix `make_features` method of inputters `WordEmbedder` and `SequenceRecordInputter` to work on a batch of elements
+* Fix error when `SelfAttentionDecoder` is called without `memory_sequence_length`
+* Fix `ConvEncoder` on variable-length inputs
+* Support SacreBLEU 2.0
+
+## [2.20.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.20.1) (2021-07-01)
+
+### Fixes and improvements
+
+* Fix missing environment variables in the child process when autotuning the batch size
+* Fix error during evaluation when setting the inference parameter `n_best` > 1
+* Fix error in Python serving example when using TensorFlow 2.5
+* Log some information about the input layer after initialization (vocabulary size, special tokens, etc.)
+* Update the minimum required pyonmttok version to 1.26.4 to include the latest fixes
+
+## [2.20.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.20.0) (2021-06-17)
+
+### New features
+
+* Update the minimum required CTranslate2 version to 2.0
+
+### Fixes and improvements
+
+* Set a timeout for each training attempt when autotuning the batch size
+* Set `keep_checkpoint_max` to `average_last_checkpoints` if the later value is larger
+* Update the minimum required pyonmttok version to 1.26.2 to include the latest fixes
+
+## [2.19.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.19.0) (2021-05-31)
+
+### New features
+
+* Support TensorFlow 2.5
+
+### Fixes and improvements
+
+* Fix dtype error in RNN decoder when enabling mixed precision
+* Pass training flag to tokenizers to disable subword regularization in inference
+* Update Sphinx from 2.3 to 3.5 to generate the documentation
+
+## [2.18.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.18.1) (2021-04-27)
+
+### Fixes and improvements
+
+* Fix vocabulary update for models with shared embeddings
+* Fix a compatibility issue with TensorFlow 2.5 for early users
+* When all training attempts fail in batch size autotuning, log the error message of the last attempt
+
+## [2.18.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.18.0) (2021-04-19)
+
+### New features
+
+* Add `TransformerBaseSharedEmbeddings` and `TransformerBigSharedEmbeddings` in the model catalog
+
+### Fixes and improvements
+
+* Fix loss normalization when using sentence weighting
+* Tune the automatic batch size selection to avoid some out of memory errors
+* Harmonize training logs format when using `onmt-main`
+
+## [2.17.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.17.1) (2021-03-23)
+
+### Fixes and improvements
+
+* Fix some cases where batch size autotuning failed
+* Raise an explicit error when batch size autotuning failed
+
+## [2.17.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.17.0) (2021-03-15)
+
+### Changes
+
+* The `tensorflow` package is no longer a direct dependency of OpenNMT-tf and should be installed separately. This is to facilitate support of other TensorFlow packages such as `intel-tensorflow`, `tensorflow-rocm`, etc. Use `pip install OpenNMT-tf[tensorflow]` to keep the previous behavior.
+
+### New features
+
+* Use the [Keras mixed precision API](https://www.tensorflow.org/guide/mixed_precision) instead of the `auto_mixed_precision` graph optimization pass
+* Support mixed precision training in eager execution (for debugging)
+* Support batch size autotuning with the "examples" batch type
+
+### Fixes and improvements
+
+* Fix some TensorFlow Lite conversion errors
+* Improve batch size autotuning accuracy by building batches with the maximum sequence lengths
+* Reduce batch size autotuning time by running less iterations and disabling dataset buffering
+* Scale the loss instead of the gradients when aggregating multiple batches
+* Address some deprecation warnings in TensorFlow 2.4
+
+## [2.16.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.16.0) (2021-02-25)
+
+### Changes (non breaking)
+
+* Rename evaluation parameter `external_evaluators` to `scorers`
+* Rename export command line option `--export_dir` to `--output_dir`
+* Rename export command line option `--export_format` to `--format`
+
+### New features
+
+* Add TensorFlow Lite exporters `tflite` and `tflite_float16` (only RNN-based sequence to sequence models are currently supported)
+* Add argument `pre_norm` in the Transformer constructor to disable the pre-norm architecture and use the post-norm architecture as described in the [original paper](https://arxiv.org/abs/1706.03762)
+* Add argument `attention_reduction` in the Transformer constructor to define how multi-head attention matrices are reduced into a single attention matrix
+* Support batch type "tokens" and length bucketing in score task
+* Support initializing the decoder output layer from its constructor (until now a separate call to `decoder.initialize(...)` was required)
+
+### Fixes and improvements
+
+* Fix error on 0-length inputs in `MultiHeadAttention` with relative position representations
+* Fix CTranslate2 export for models that enable BOS or EOS tokens on the source side (see `source_sequence_controls` data parameter)
+* Load YAML configuration with the `safe_load` function to prevent arbitrary code execution
+
 ## [2.15.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.15.0) (2021-01-28)
 
 ### New features

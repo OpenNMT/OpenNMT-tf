@@ -2,11 +2,12 @@ import os
 
 import tensorflow as tf
 
-from opennmt import data
-from opennmt.tests import test_util
-from opennmt.models import catalog
-from opennmt.utils import exporters
 from parameterized import parameterized
+
+from opennmt import data
+from opennmt.models import catalog
+from opennmt.tests import test_util
+from opennmt.utils import exporters
 
 
 def _create_vocab(temp_dir):
@@ -41,6 +42,7 @@ def _get_predictions(model, dataset, vocab_path):
         model.infer_tflite,
         input_signature=[tf.TensorSpec([None], dtype=tf.dtypes.int32, name="ids")],
     ).get_concrete_function()
+    tflite_concrete_fn = model.tflite_function().get_concrete_function()
     tflite_pred_ids = tflite_concrete_fn(elem_ids)
 
     # Modify tflite ids tensor to be the same size as normal model output
@@ -78,7 +80,6 @@ class TFLiteTest(tf.test.TestCase):
         ]
     )
     def testTFLiteOutput(self, model):
-        print(model)
         vocab, vocab_path = _create_vocab(self.get_temp_dir())
         created_model = _make_model(model, vocab)
         dataset = _create_dataset(created_model, self.get_temp_dir())
@@ -92,7 +93,6 @@ class TFLiteTest(tf.test.TestCase):
         ]
     )
     def testTFLiteOutputFile(self, model):
-        print(model)
         export_dir = self.get_temp_dir()
         _convert_tflite(model, export_dir)
         self.assertTrue(dir_has_tflite_file(export_dir))

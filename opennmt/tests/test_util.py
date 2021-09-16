@@ -1,3 +1,4 @@
+import os
 import unittest
 
 import tensorflow as tf
@@ -7,11 +8,18 @@ from tensorflow.python.framework import ops
 
 from opennmt import constants
 from opennmt.data import vocab
-from opennmt.utils import compat
+from opennmt.utils import compat, misc
 
 
 def skip_if_unsupported(symbol):
     return unittest.skipIf(not compat.tf_supports(symbol), "tf.%s is not supported")
+
+
+def get_test_data_dir():
+    test_dir = os.path.dirname(os.path.realpath(__file__))
+    root_dir = os.path.join(test_dir, "..", "..")
+    test_data = os.path.join(root_dir, "testdata")
+    return test_data
 
 
 def make_data_file(path, lines):
@@ -73,5 +81,18 @@ def run_with_two_cpu_devices(fn):
             return fn(*args, **kwargs)
         finally:
             _reset_context()
+
+    return decorator
+
+
+def run_with_mixed_precision(fn):
+    """Enables mixed precision before running :obj:`fn`."""
+
+    def decorator(*args, **kwargs):
+        misc.enable_mixed_precision(force=True)
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            misc.disable_mixed_precision()
 
     return decorator

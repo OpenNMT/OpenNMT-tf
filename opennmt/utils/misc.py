@@ -2,17 +2,19 @@
 
 import collections
 import copy
-import sys
 import functools
 import heapq
-import os
 import io
+import os
+import sys
 
 import numpy as np
 import tensorflow as tf
 import tensorflow_addons as tfa
 
 from tensorflow.python.training.tracking import graph_view
+
+from opennmt.utils import compat
 
 
 def get_devices(count=1, fallback_to_cpu=True):
@@ -46,6 +48,63 @@ def get_devices(count=1, fallback_to_cpu=True):
             )
         )
     return devices[0:count]
+
+
+# TODO: clean mixed precision API when TensorFlow requirement is updated to >=2.4.
+_set_global_policy = compat.tf_any(
+    "keras.mixed_precision.set_global_policy",
+    "keras.mixed_precision.experimental.set_policy",
+)
+_get_global_policy = compat.tf_any(
+    "keras.mixed_precision.global_policy",
+    "keras.mixed_precision.experimental.global_policy",
+)
+
+
+def enable_mixed_precision(force=False):
+    """Globally enables mixed precision if the detected hardware supports it.
+
+    Args:
+      force: Set ``True`` to force mixed precision mode even if the hardware
+        does not support it.
+
+    Returns:
+      A boolean to indicate whether mixed precision was enabled or not.
+    """
+    if not force:
+        gpu_devices = tf.config.get_visible_devices("GPU")
+        if not gpu_devices:
+            tf.get_logger().warning("Mixed precision not enabled: no GPU is detected")
+            return False
+
+        gpu_details = tf.config.experimental.get_device_details(gpu_devices[0])
+        compute_capability = gpu_details.get("compute_capability")
+        if compute_capability is None:
+            tf.get_logger().warning(
+                "Mixed precision not enabled: a NVIDIA GPU is required"
+            )
+            return False
+        if compute_capability < (7, 0):
+            tf.get_logger().warning(
+                "Mixed precision not enabled: a NVIDIA GPU with compute "
+                "capability 7.0 or above is required, but the detected GPU "
+                "has compute capability %d.%d" % compute_capability
+            )
+            return False
+
+    _set_global_policy("mixed_float16")
+    return True
+
+
+def disable_mixed_precision():
+    """Globally disables mixed precision."""
+    _set_global_policy("float32")
+
+
+def mixed_precision_enabled():
+    """Returns ``True`` if mixed precision is enabled."""
+    policy = _get_global_policy()
+    return "float16" in policy.name
 
 
 def get_variables_name_mapping(root, root_key=None):
@@ -88,7 +147,7 @@ def get_variable_name(variable, root, model_key="model"):
 
 
 def print_as_bytes(text, stream=None):
-    """Prints a string as bytes to non rely on :obj:`stream` default encoding.
+    """Prints a string as bytes to not rely on :obj:`stream` default encoding.
 
     Args:
       text: The text to print.
@@ -167,6 +226,8 @@ def is_gzip_file(filename):
 def shape_list(x):
     """Return list of dims, statically where possible."""
     x = tf.convert_to_tensor(x)
+    if tf.executing_eagerly():
+        return x.shape.as_list()
 
     # If unknown rank, return dynamic shape
     if x.shape.dims is None:
@@ -372,13 +433,13 @@ def disable_tfa_custom_ops(func):
     """A decorator that disables TensorFlow Addons custom ops in a function."""
 
     def _wrapper(*args, **kwargs):
-        previous_value = tfa.options.TF_ADDONS_PY_OPS
-        tfa.options.TF_ADDONS_PY_OPS = True
+        if tfa.options.is_custom_kernel_disabled():
+            return func(*args, **kwargs)
+        tfa.options.disable_custom_kernel()
         try:
-            outputs = func(*args, **kwargs)
+            return func(*args, **kwargs)
         finally:
-            tfa.options.TF_ADDONS_PY_OPS = previous_value
-        return outputs
+            tfa.options.enable_custom_kernel()
 
     return _wrapper
 

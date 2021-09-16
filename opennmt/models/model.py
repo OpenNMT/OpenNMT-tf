@@ -4,11 +4,8 @@ import abc
 
 import tensorflow as tf
 
-from opennmt import optimizers
-from opennmt import schedules
-from opennmt.utils import exporters
-from opennmt.utils import losses
-from opennmt.utils import misc
+from opennmt import optimizers, schedules
+from opennmt.utils import compat, exporters, losses, misc
 
 
 class Model(tf.keras.layers.Layer):
@@ -87,6 +84,38 @@ class Model(tf.keras.layers.Layer):
         self.examples_inputter.build(input_shape)
         self.built = True
 
+    def __call__(self, features, labels=None, training=None, step=None):
+        """Runs the model.
+
+        Args:
+          features: A nested structure of features ``tf.Tensor``.
+          labels: A nested structure of labels ``tf.Tensor``.
+          training: If ``True``, run in training mode.
+          step: The current training step.
+
+        Returns:
+          A tuple containing,
+
+          - The model outputs (usually unscaled probabilities).
+          - The model predictions.
+        """
+        outputs, predictions = super().__call__(
+            features,
+            labels=labels,
+            training=training,
+            step=step,
+        )
+
+        # Include the example index vector in the outputs.
+        index = features.get("index") if isinstance(features, dict) else None
+        if index is not None:
+            if isinstance(outputs, dict):
+                outputs["index"] = index
+            if isinstance(predictions, dict):
+                predictions["index"] = index
+
+        return outputs, predictions
+
     @abc.abstractmethod
     def call(self, features, labels=None, training=None, step=None):
         """Runs the model.
@@ -118,7 +147,6 @@ class Model(tf.keras.layers.Layer):
           The model predictions.
         """
         _, predictions = self(features)
-        _forward_example_index(features, predictions)
         return predictions
 
     def evaluate(self, features, labels):
@@ -132,7 +160,6 @@ class Model(tf.keras.layers.Layer):
           A tuple with the loss and the model predictions.
         """
         outputs, predictions = self(features, labels=labels)
-        _forward_example_index(features, predictions)
         loss = self.compute_loss(outputs, labels, training=False)
         return loss, predictions
 
@@ -147,6 +174,101 @@ class Model(tf.keras.layers.Layer):
           The score results.
         """
         raise NotImplementedError("This model does not define a score function")
+
+    def train(self, features, labels, optimizer, loss_scale=None):
+        """Computes and applies the gradients for a batch of examples.
+
+        Args:
+          features: A nested structure of features ``tf.Tensor``.
+          labels: A nested structure of labels ``tf.Tensor``.
+          optimizer: The optimizer instance
+            (``tf.keras.mixed_precision.LossScaleOptimizer`` is supported).
+          loss_scale: An optional loss scaling factor.
+
+        Returns:
+          The loss.
+        """
+        loss, gradients = self.compute_gradients(
+            features,
+            labels,
+            optimizer,
+            loss_scale=loss_scale,
+        )
+        optimizer.apply_gradients(list(zip(gradients, self.trainable_weights)))
+        return loss
+
+    def compute_gradients(self, features, labels, optimizer, loss_scale=None):
+        """Computes the gradients for a batch of examples.
+
+        Args:
+          features: A nested structure of features ``tf.Tensor``.
+          labels: A nested structure of labels ``tf.Tensor``.
+          optimizer: The optimizer instance
+            (``tf.keras.mixed_precision.LossScaleOptimizer`` is supported).
+          loss_scale: An optional loss scaling factor.
+
+        Returns:
+          A tuple containing,
+
+          - The loss.
+          - The gradients.
+        """
+        # TODO: clean mixed precision API when TensorFlow requirement is updated to >=2.4.
+        loss_scale_optimizer = compat.tf_any(
+            "keras.mixed_precision.LossScaleOptimizer",
+            "keras.mixed_precision.experimental.LossScaleOptimizer",
+        )
+
+        def _compute_loss():
+            train_loss, report_loss = self.compute_training_loss(
+                features,
+                labels,
+                step=optimizer.iterations,
+            )
+            if loss_scale is not None:
+                train_loss /= loss_scale
+                report_loss /= loss_scale
+            return train_loss, report_loss
+
+        if tf.executing_eagerly():
+            with tf.GradientTape() as tape:
+                train_loss, report_loss = _compute_loss()
+                if isinstance(optimizer, loss_scale_optimizer):
+                    train_loss = optimizer.get_scaled_loss(train_loss)
+            gradients = tape.gradient(train_loss, self.trainable_weights)
+            if isinstance(optimizer, loss_scale_optimizer):
+                gradients = optimizer.get_unscaled_gradients(gradients)
+
+        else:
+            train_loss, report_loss = _compute_loss()
+            # LossScaleOptimizer.get_gradients takes care of loss scaling.
+            gradients = optimizer.get_gradients(train_loss, self.trainable_weights)
+
+        return report_loss, gradients
+
+    def compute_training_loss(self, features, labels, step=None):
+        """Computes the training loss for a batch of examples.
+
+        Args:
+          features: A nested structure of features ``tf.Tensor``.
+          labels: A nested structure of labels ``tf.Tensor``.
+          step: The current training step.
+
+        Returns:
+          A tuple containing,
+
+          - The loss to optimize.
+          - The loss to report.
+        """
+        outputs, _ = self(features, labels, training=True, step=step)
+        loss = self.compute_loss(outputs, labels, training=True)
+        if isinstance(loss, tuple):
+            train_loss = loss[0] / loss[1]
+            report_loss = loss[0] / loss[2] if len(loss) > 2 else train_loss
+        else:
+            train_loss, report_loss = loss, loss
+        train_loss = self.regularize_loss(train_loss, variables=self.trainable_weights)
+        return train_loss, report_loss
 
     @abc.abstractmethod
     def compute_loss(self, outputs, labels, training=True):
@@ -254,6 +376,16 @@ class Model(tf.keras.layers.Layer):
             return predictions
 
         return _run
+
+    def tflite_function(self):
+        """Returns the inference function that should be used for TensorFlow Lite.
+
+        Returns:
+          A ``tf.function``.
+        """
+        raise NotImplementedError(
+            "This model does not define a function for TensorFlow Lite"
+        )
 
     def export(self, export_dir, exporter=None):
         """Exports the model for serving.
@@ -415,9 +547,10 @@ class SequenceGenerator(Model):
                 labels, ignore_special_tokens=True
             ),
         }
-        if "attention" in outputs:
-            results["attention"] = outputs["attention"]
-        _forward_example_index(features, results)
+        for key_to_forward in ("attention", "index"):
+            value = outputs.get(key_to_forward)
+            if value is not None:
+                results[key_to_forward] = value
         return results
 
     def print_score(self, score, params=None, stream=None):
@@ -441,8 +574,3 @@ class SequenceGenerator(Model):
             alignment_type=alignment_type,
         )
         misc.print_as_bytes(sentence, stream=stream)
-
-
-def _forward_example_index(features, output):
-    if isinstance(features, dict) and isinstance(output, dict) and "index" in features:
-        output["index"] = features["index"]

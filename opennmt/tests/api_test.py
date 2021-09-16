@@ -1,5 +1,7 @@
 import inspect
+
 import tensorflow as tf
+
 import opennmt
 
 

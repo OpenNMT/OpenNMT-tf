@@ -1,9 +1,8 @@
 """Hypotheses file scoring."""
-import numpy
 
 
 def wer(ref_path, hyp_path):
-    """ Compute Word Error Rate between two files """
+    """Compute Word Error Rate between two files"""
     with open(ref_path) as ref_fp, open(hyp_path) as hyp_fp:
         ref_line = ref_fp.readline()
         hyp_line = hyp_fp.readline()
@@ -23,16 +22,16 @@ def wer(ref_path, hyp_path):
 
 
 def sentence_wer(ref_sent, hyp_sent):
-    """ Compute Word Error Rate between two sentences (as list of words) """
-    mwer = numpy.zeros(
-        (len(ref_sent) + 1) * (len(hyp_sent) + 1), dtype=numpy.uint8
-    ).reshape((len(ref_sent) + 1, len(hyp_sent) + 1))
-    for i in range(len(ref_sent) + 1):
+    """Compute Word Error Rate between two sentences (as list of words)"""
+    rows = len(ref_sent) + 1
+    cols = len(hyp_sent) + 1
+    mwer = [[0 for _ in range(cols)] for _ in range(rows)]
+    for i in range(rows):
         mwer[i][0] = i
-    for j in range(len(hyp_sent) + 1):
+    for j in range(cols):
         mwer[0][j] = j
-    for i in range(1, len(ref_sent) + 1):
-        for j in range(1, len(hyp_sent) + 1):
+    for i in range(1, rows):
+        for j in range(1, cols):
             if ref_sent[i - 1] == hyp_sent[j - 1]:
                 mwer[i][j] = mwer[i - 1][j - 1]
             else:

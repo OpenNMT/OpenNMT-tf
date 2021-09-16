@@ -1,8 +1,8 @@
 """Sequence tagger."""
 
+import numpy as np
 import tensorflow as tf
 import tensorflow_addons as tfa
-import numpy as np
 
 from opennmt import inputters
 from opennmt.models.model import Model

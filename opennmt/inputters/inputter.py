@@ -169,6 +169,26 @@ class Inputter(tf.keras.layers.Layer):
         _ = ignore_special_tokens
         return features.get("length")
 
+    def get_padded_shapes(self, element_spec, maximum_length=None):
+        """Returns the padded shapes for dataset elements.
+
+        For example, this is used during batch size autotuning to pad all batches
+        to the maximum sequence length.
+
+        Args:
+          element_spec: A nested structure of ``tf.TensorSpec``.
+          maximum_length: Pad batches to this maximum length.
+
+        Returns:
+          A nested structure of ``tf.TensorShape``.
+        """
+        return tf.nest.map_structure(
+            lambda spec: spec.shape
+            if spec.shape.rank == 0
+            else tf.TensorShape([maximum_length]).concatenate(spec.shape[1:]),
+            element_spec,
+        )
+
     @abc.abstractmethod
     def make_features(self, element=None, features=None, training=None):
         """Creates features from data.
@@ -425,6 +445,32 @@ class ParallelInputter(MultiInputter):
         else:
             return lengths[0]
 
+    def get_padded_shapes(self, element_spec, maximum_length=None):
+        if maximum_length is None:
+            maximum_length = [None for _ in self.inputters]
+        elif not isinstance(maximum_length, (list, tuple)) or len(
+            maximum_length
+        ) != len(self.inputters):
+            raise ValueError(
+                "A maximum length should be set for each parallel inputter"
+            )
+        if self.combine_features:
+            shapes = {}
+            for i, (inputter, length) in enumerate(zip(self.inputters, maximum_length)):
+                prefix = "inputter_%d_" % i
+                spec = misc.extract_prefixed_keys(element_spec, prefix)
+                sub_shapes = inputter.get_padded_shapes(spec, maximum_length=length)
+                for key, value in sub_shapes.items():
+                    shapes["%s%s" % (prefix, key)] = value
+            return shapes
+        else:
+            return type(element_spec)(
+                inputter.get_padded_shapes(spec, maximum_length=length)
+                for inputter, spec, length in zip(
+                    self.inputters, element_spec, maximum_length
+                )
+            )
+
     def make_features(self, element=None, features=None, training=None):
         if self.combine_features:
             if features is None:
@@ -656,6 +702,7 @@ class ExampleInputterAdapter:
         prefetch_buffer_size=None,
         cardinality_multiple=1,
         weights=None,
+        batch_autotune_mode=False,
     ):
         """Builds a dataset to be used for training. It supports the full training
         pipeline, including:
@@ -695,6 +742,8 @@ class ExampleInputterAdapter:
             this value when :obj:`single_pass` is ``True``.
           weights: An optional list of weights to create a weighted dataset out of
             multiple training files.
+          batch_autotune_mode: When enabled, all batches are padded to the maximum
+            sequence length.
 
         Returns:
           A ``tf.data.Dataset``.
@@ -713,6 +762,8 @@ class ExampleInputterAdapter:
             features_length_fn = self.get_length
             labels_length_fn = None
 
+        dataset = self.make_dataset(data_files, training=True)
+
         map_fn = lambda *arg: self.make_features(
             element=misc.item_or_tuple(arg), training=True
         )
@@ -726,7 +777,46 @@ class ExampleInputterAdapter:
             lambda dataset: dataset.filter(filter_fn),
         ]
 
-        dataset = self.make_dataset(data_files, training=True)
+        if batch_autotune_mode:
+            # In this mode we want to return batches where all sequences are padded
+            # to the maximum possible length in order to maximize the memory usage.
+            # Shuffling, sharding, prefetching, etc. are not applied since correctness and
+            # performance are not important.
+
+            if isinstance(dataset, list):  # Ignore weighted dataset.
+                dataset = dataset[0]
+
+            # We repeat the dataset now to ensure full batches are always returned.
+            dataset = dataset.repeat()
+            for transform_fn in transform_fns:
+                dataset = dataset.apply(transform_fn)
+
+            # length_fn returns the maximum length instead of the actual example length so
+            # that batches are built as if each example has the maximum length.
+            if labels_file is not None:
+                constant_length_fn = [
+                    lambda x: maximum_features_length,
+                    lambda x: maximum_labels_length,
+                ]
+            else:
+                constant_length_fn = lambda x: maximum_features_length
+
+            # The length dimension is set to the maximum length in the padded shapes.
+            padded_shapes = self.get_padded_shapes(
+                dataset.element_spec, maximum_length=maximum_length
+            )
+            dataset = dataset.apply(
+                dataset_util.batch_sequence_dataset(
+                    batch_size,
+                    batch_type=batch_type,
+                    batch_multiplier=batch_multiplier,
+                    length_bucket_width=1,
+                    length_fn=constant_length_fn,
+                    padded_shapes=padded_shapes,
+                )
+            )
+            return dataset
+
         if weights is not None:
             dataset = (dataset, weights)
         dataset = dataset_util.training_pipeline(

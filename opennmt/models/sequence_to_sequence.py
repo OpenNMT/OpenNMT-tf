@@ -3,18 +3,12 @@
 import tensorflow as tf
 import tensorflow_addons as tfa
 
-from opennmt import constants
-from opennmt import inputters
-
-from opennmt.data import noise
-from opennmt.data import text
-from opennmt.data import vocab
+from opennmt import constants, inputters
+from opennmt.data import noise, text, vocab
+from opennmt.decoders import decoder as decoder_util
 from opennmt.layers import reducer
 from opennmt.models import model
-from opennmt.utils import decoding
-from opennmt.utils import losses
-from opennmt.utils import misc
-from opennmt.decoders import decoder as decoder_util
+from opennmt.utils import decoding, losses, misc
 
 
 class EmbeddingsSharingLevel(object):
@@ -75,9 +69,7 @@ class SequenceToSequence(model.SequenceGenerator):
         Raises:
           TypeError: if :obj:`target_inputter` is not a
             :class:`opennmt.inputters.WordEmbedder` (same for
-            :obj:`source_inputter` when embeddings sharing is enabled) or if
-            :obj:`source_inputter` and :obj:`target_inputter` do not have the same
-            ``dtype``.
+            :obj:`source_inputter` when embeddings sharing is enabled).
         """
         if not isinstance(target_inputter, inputters.WordEmbedder):
             raise TypeError("Target inputter must be a WordEmbedder")
@@ -216,6 +208,38 @@ class SequenceToSequence(model.SequenceGenerator):
 
         predictions = tf.squeeze(predictions, axis=1)
         return predictions
+
+    def infer_tflite(self, ids):
+        """Runs a prediction, returns a 1-dim Tensor with the target ids it predicted, is TFLite safe.
+        This is the function that gets converted was saving as a TFLite model
+
+        Args:
+          ids: A 1-dimensional tensor with the ids of the sentence you want to predict
+        """
+        ids = tf.expand_dims(ids, axis=0)
+        source_inputs = self.features_inputter.tflite_call(ids)
+        source_length = tf.convert_to_tensor([tf.math.count_nonzero(ids)])
+
+        encoder_outputs, encoder_state, encoder_sequence_length = self.encoder(
+            source_inputs, sequence_length=source_length, training=False
+        )
+
+        predictions = self._dynamic_decode(
+            ids,
+            encoder_outputs,
+            encoder_state,
+            encoder_sequence_length,
+            tflite_run=True,
+        )
+
+        predictions = tf.squeeze(predictions, axis=1)
+        return predictions
+
+    def tflite_function(self):
+        return tf.function(
+            self.infer_tflite,
+            input_signature=[tf.TensorSpec([None], dtype=tf.dtypes.int32, name="ids")],
+        )
 
     def _decode_target(
         self,

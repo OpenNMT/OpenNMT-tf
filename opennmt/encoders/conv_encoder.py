@@ -3,8 +3,7 @@
 import tensorflow as tf
 
 from opennmt.encoders.encoder import Encoder
-from opennmt.layers import common
-from opennmt.layers import position
+from opennmt.layers import common, position
 
 
 class ConvEncoder(Encoder):

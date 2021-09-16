@@ -24,11 +24,15 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install -e .[tests]
+          python -m pip install -e .[tests,tensorflow]
 
       - name: Check code format with Black
         run: |
           black --check .
+
+      - name: Check imports order with isort
+        run: |
+          isort --check-only .
 
       - name: Check code style with Flake8
         if: ${{ always() }}
@@ -40,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tensorflow: [2.3, 2.4]
+        tensorflow: [2.3, 2.4, 2.5, 2.6]
 
     steps:
       - uses: actions/checkout@v2
@@ -52,7 +56,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install tensorflow==${{ matrix.tensorflow }}.*
+          python -m pip install tensorflow==${{ matrix.tensorflow }}.* tensorflow-text==${{ matrix.tensorflow }}.*
           python -m pip install -e .[tests]
 
       - name: Download test data
@@ -60,13 +64,14 @@ jobs:
           wget https://s3.amazonaws.com/opennmt-models/transliteration-aren-v2.tar.gz
           mkdir -p testdata
           tar xf transliteration-aren-v2.tar.gz -C testdata
+          wget -P testdata https://opennmt-trainingdata.s3.amazonaws.com/wmtende.model
 
       - name: Run tests
         run: |
           pytest --cov=opennmt --cov-report xml opennmt/tests
 
       - name: Upload coverage report
-        if: matrix.tensorflow == '2.4'
+        if: matrix.tensorflow == '2.6'
         run: |
           bash <(curl -s https://codecov.io/bash)
 
@@ -115,7 +120,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install -e .
+          python -m pip install -e .[tensorflow]
           python -m pip install -r docs/requirements.txt
 
       - name: Build docs
