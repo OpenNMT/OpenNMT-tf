@@ -334,11 +334,14 @@ class MultiHeadAttention(tf.keras.layers.Layer):
             relative_pos = relative_positions(
                 keys_length, self.maximum_relative_position, with_cache=bool(cache)
             )
-            relative_repr_keys = tf.nn.embedding_lookup(
-                self.relative_position_keys, relative_pos
+
+            # Uses gather_nd instead of nn.embedding_lookup for TFLite exporting (TF Issue #42410)
+            relative_pos_expanded = tf.expand_dims(relative_pos, axis=-1)
+            relative_repr_keys = tf.gather_nd(
+                self.relative_position_keys, relative_pos_expanded
             )
-            relative_repr_values = tf.nn.embedding_lookup(
-                self.relative_position_values, relative_pos
+            relative_repr_values = tf.gather_nd(
+                self.relative_position_values, relative_pos_expanded
             )
         else:
             relative_repr_keys = None

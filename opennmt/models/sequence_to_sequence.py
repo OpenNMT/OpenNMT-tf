@@ -206,33 +206,6 @@ class SequenceToSequence(model.SequenceGenerator):
             tflite_run=True,
         )
 
-        predictions = tf.squeeze(predictions, axis=1)
-        return predictions
-
-    def infer_tflite(self, ids):
-        """Runs a prediction, returns a 1-dim Tensor with the target ids it predicted, is TFLite safe.
-        This is the function that gets converted was saving as a TFLite model
-
-        Args:
-          ids: A 1-dimensional tensor with the ids of the sentence you want to predict
-        """
-        ids = tf.expand_dims(ids, axis=0)
-        source_inputs = self.features_inputter.tflite_call(ids)
-        source_length = tf.convert_to_tensor([tf.math.count_nonzero(ids)])
-
-        encoder_outputs, encoder_state, encoder_sequence_length = self.encoder(
-            source_inputs, sequence_length=source_length, training=False
-        )
-
-        predictions = self._dynamic_decode(
-            ids,
-            encoder_outputs,
-            encoder_state,
-            encoder_sequence_length,
-            tflite_run=True,
-        )
-
-        predictions = tf.squeeze(predictions, axis=1)
         return predictions
 
     def tflite_function(self):
@@ -326,6 +299,10 @@ class SequenceToSequence(model.SequenceGenerator):
             memory_sequence_length=encoder_sequence_length,
             initial_state=encoder_state,
         )
+        if tflite_run:
+            decoding_strategy = decoding.DecodingStrategy.from_params_tflite(params)
+        else:
+            decoding_strategy = decoding.DecodingStrategy.from_params(params)
         (
             sampled_ids,
             sampled_length,
@@ -336,7 +313,7 @@ class SequenceToSequence(model.SequenceGenerator):
             self.labels_inputter,
             start_ids,
             initial_state=initial_state,
-            decoding_strategy=decoding.DecodingStrategy.from_params(params),
+            decoding_strategy=decoding_strategy,
             sampler=decoding.Sampler.from_params(params),
             maximum_iterations=params.get("maximum_decoding_length", 250),
             minimum_iterations=params.get("minimum_decoding_length", 0),
@@ -346,12 +323,11 @@ class SequenceToSequence(model.SequenceGenerator):
         )
 
         if tflite_run:
-            return sampled_ids
-
-        target_tokens = self.labels_inputter.ids_to_tokens.lookup(
-            tf.cast(sampled_ids, tf.int64)
-        )
-
+            target_tokens = sampled_ids
+        else:
+            target_tokens = self.labels_inputter.ids_to_tokens.lookup(
+                tf.cast(sampled_ids, tf.int64)
+            )
         # Maybe replace unknown targets by the source tokens with the highest attention weight.
         if params.get("replace_unknown_target", False):
             if alignment is None:
@@ -364,25 +340,41 @@ class SequenceToSequence(model.SequenceGenerator):
                     "replace_unknown_target is only defined when the source "
                     "inputter is a WordEmbedder"
                 )
-            source_tokens = features["tokens"]
+
+            source_tokens = features if tflite_run else features["tokens"]
             if beam_size > 1:
                 source_tokens = tfa.seq2seq.tile_batch(source_tokens, beam_size)
-            # Merge batch and beam dimensions.
             original_shape = tf.shape(target_tokens)
-            target_tokens = tf.reshape(target_tokens, [-1, original_shape[-1]])
+            if tflite_run:
+                target_tokens = tf.squeeze(target_tokens, axis=0)
+                output_size = original_shape[-1]
+                unknown_token = self.labels_inputter.vocabulary_size - 1
+            else:
+                target_tokens = tf.reshape(target_tokens, [-1, original_shape[-1]])
+                output_size = tf.shape(target_tokens)[1]
+                unknown_token = constants.UNKNOWN_TOKEN
+
             align_shape = misc.shape_list(alignment)
             attention = tf.reshape(
                 alignment,
                 [align_shape[0] * align_shape[1], align_shape[2], align_shape[3]],
             )
-            # We don't have attention for </s> but ensure that the attention time dimension matches
-            # the tokens time dimension.
-            attention = reducer.align_in_time(attention, tf.shape(target_tokens)[1])
+            attention = reducer.align_in_time(attention, output_size)
             replaced_target_tokens = replace_unknown_target(
-                target_tokens, source_tokens, attention
+                target_tokens, source_tokens, attention, unknown_token=unknown_token
             )
-            target_tokens = tf.reshape(replaced_target_tokens, original_shape)
+            if tflite_run:
+                target_tokens = replaced_target_tokens
+            else:
+                target_tokens = tf.reshape(replaced_target_tokens, original_shape)
 
+        if tflite_run:
+            if beam_size > 1:
+                target_tokens = tf.transpose(target_tokens)
+                target_tokens = target_tokens[:, :1]
+            target_tokens = tf.squeeze(target_tokens)
+
+            return target_tokens
         # Maybe add noise to the predictions.
         decoding_noise = params.get("decoding_noise")
         if decoding_noise:
@@ -504,47 +496,55 @@ class SequenceToSequence(model.SequenceGenerator):
     ):
         updated_variables = []
 
-        def _map_variables(inputter_fn, vars_fn):
-            mapping, _ = vocab.get_mapping(
-                inputter_fn(self).vocabulary_file,
-                inputter_fn(new_model).vocabulary_file,
-            )
-            vars_a, vocab_axes = vars_fn(self)
-            vars_b, _ = vars_fn(new_model)
-            for var_a, var_b, vocab_axis in zip(vars_a, vars_b, vocab_axes):
-                if new_optimizer is not None and optimizer is not None:
-                    variables = vocab.update_variable_and_slots(
-                        var_a,
-                        var_b,
-                        optimizer,
-                        new_optimizer,
-                        mapping,
-                        vocab_axis=vocab_axis,
-                    )
-                else:
-                    variables = [
-                        vocab.update_variable(
-                            var_a, var_b, mapping, vocab_axis=vocab_axis
-                        )
-                    ]
-                updated_variables.extend(variables)
-            return vars_b
+        def _map_variable(mapping, var_a, var_b, axis=0):
+            if new_optimizer is not None and optimizer is not None:
+                variables = vocab.update_variable_and_slots(
+                    var_a,
+                    var_b,
+                    optimizer,
+                    new_optimizer,
+                    mapping,
+                    vocab_axis=axis,
+                )
+            else:
+                variables = [
+                    vocab.update_variable(var_a, var_b, mapping, vocab_axis=axis)
+                ]
+            updated_variables.extend(variables)
 
-        _map_variables(
-            lambda model: model.features_inputter,
-            lambda model: ([model.features_inputter.embedding], [0]),
+        source_mapping, _ = vocab.get_mapping(
+            self.features_inputter.vocabulary_file,
+            new_model.features_inputter.vocabulary_file,
         )
-        _map_variables(
-            lambda model: model.labels_inputter,
-            lambda model: (
-                [
-                    model.labels_inputter.embedding,
-                    model.decoder.output_layer.kernel,
-                    model.decoder.output_layer.bias,
-                ],
-                [0, 1, 0],
-            ),
+        target_mapping, _ = vocab.get_mapping(
+            self.labels_inputter.vocabulary_file,
+            new_model.labels_inputter.vocabulary_file,
         )
+
+        _map_variable(
+            source_mapping,
+            self.features_inputter.embedding,
+            new_model.features_inputter.embedding,
+        )
+        _map_variable(
+            target_mapping,
+            self.decoder.output_layer.bias,
+            new_model.decoder.output_layer.bias,
+        )
+
+        if not EmbeddingsSharingLevel.share_input_embeddings(self.share_embeddings):
+            _map_variable(
+                target_mapping,
+                self.labels_inputter.embedding,
+                new_model.labels_inputter.embedding,
+            )
+        if not EmbeddingsSharingLevel.share_target_embeddings(self.share_embeddings):
+            _map_variable(
+                target_mapping,
+                self.decoder.output_layer.kernel,
+                new_model.decoder.output_layer.kernel,
+                axis=1,
+            )
 
         return super().transfer_weights(
             new_model,
