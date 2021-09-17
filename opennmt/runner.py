@@ -445,7 +445,7 @@ class Runner(object):
         path_restored = checkpoint.restore(
             checkpoint_path=checkpoint_path, weights_only=True
         )
-        # If no model found, throw error instead converting untrained model
+        # If no model found, throw error instead of exporting an untrained model
         if path_restored is None:
             raise AttributeError("Checkpoint path to restore was not found")
         model.export(export_dir, exporter=exporter)

@@ -93,11 +93,12 @@ class DecodingStrategy(abc.ABC):
         return 1
 
     @staticmethod
-    def from_params(params):
+    def from_params(params, tflite_mode=False):
         """Constructs a decoding strategy based on user parameters.
 
         Args:
           params: A dictionary of user parameters.
+          tflite_mode: boolean, should be set to True only if you're exporting with TensorFlow Lite
 
         Returns:
           A :class:`opennmt.utils.DecodingStrategy` instance.
@@ -108,28 +109,9 @@ class DecodingStrategy(abc.ABC):
                 beam_size,
                 length_penalty=params.get("length_penalty", 0),
                 coverage_penalty=params.get("coverage_penalty", 0),
-            )
-        else:
-            return GreedySearch()
-
-    @staticmethod
-    def from_params_tflite(params):
-        """Constructs a decoding strategy based on user parameters.
-            This function ensures that the decoding strategy is TensorFlow export compatible
-
-        Args:
-          params: A dictionary of user parameters.
-
-        Returns:
-          A :class:`opennmt.utils.DecodingStrategy` instance.
-        """
-        beam_size = params.get("beam_width", 1)
-        if beam_size > 1:
-            return BeamSearch(
-                beam_size,
-                length_penalty=params.get("length_penalty", 0),
-                coverage_penalty=params.get("coverage_penalty", 0),
-                tflite_output=params.get("tflite_output_size", 250),
+                tflite_output_size=params.get("tflite_output_size", 250)
+                if tflite_mode
+                else None,
             )
         else:
             return GreedySearch()
@@ -248,7 +230,7 @@ class BeamSearch(DecodingStrategy):
     """A beam search strategy."""
 
     def __init__(
-        self, beam_size, length_penalty=0, coverage_penalty=0, tflite_output=None
+        self, beam_size, length_penalty=0, coverage_penalty=0, tflite_output_size=None
     ):
         """Initializes the decoding strategy.
 
@@ -256,13 +238,13 @@ class BeamSearch(DecodingStrategy):
           beam_size: The number of paths to consider per batch.
           length_penalty: Length penalty, see https://arxiv.org/abs/1609.08144.
           coverage_penalty: Coverage penalty, see https://arxiv.org/abs/1609.08144.
-          tflite_output: None if not TFLite export.  Is output size of TFLite model
+          tflite_output_size: None if not TFLite exporting.  Is the output size of TFLite model
         """
         self.beam_size = beam_size
         self.length_penalty = length_penalty
         self.coverage_penalty = coverage_penalty
         self._state_reorder_flags = None
-        self.tflite_output = tflite_output
+        self.tflite_output_size = tflite_output_size
 
     @property
     def num_hypotheses(self):
@@ -282,11 +264,10 @@ class BeamSearch(DecodingStrategy):
         initial_log_probs = tf.tile(
             [0.0] + [-float("inf")] * (self.beam_size - 1), [batch_size]
         )
-        if self.tflite_output is not None:
-            # parent_ids = tf.TensorArray(tf.int32, size=0, dynamic_size=True)
+        if self.tflite_output_size is not None:
             parent_ids = tf.TensorArray(
                 tf.int32,
-                size=self.tflite_output,
+                size=self.tflite_output_size,
                 dynamic_size=False,
                 element_shape=tf.TensorShape(None),
             )

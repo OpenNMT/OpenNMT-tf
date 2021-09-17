@@ -299,10 +299,6 @@ class SequenceToSequence(model.SequenceGenerator):
             memory_sequence_length=encoder_sequence_length,
             initial_state=encoder_state,
         )
-        if tflite_run:
-            decoding_strategy = decoding.DecodingStrategy.from_params_tflite(params)
-        else:
-            decoding_strategy = decoding.DecodingStrategy.from_params(params)
         (
             sampled_ids,
             sampled_length,
@@ -313,7 +309,9 @@ class SequenceToSequence(model.SequenceGenerator):
             self.labels_inputter,
             start_ids,
             initial_state=initial_state,
-            decoding_strategy=decoding_strategy,
+            decoding_strategy=decoding.DecodingStrategy.from_params(
+                params, tflite_mode=tflite_run
+            ),
             sampler=decoding.Sampler.from_params(params),
             maximum_iterations=params.get("maximum_decoding_length", 250),
             minimum_iterations=params.get("minimum_decoding_length", 0),
@@ -469,7 +467,7 @@ class SequenceToSequence(model.SequenceGenerator):
             raise ValueError(
                 "with_alignments is set but the model did not return alignment information"
             )
-        num_hypotheses = len(prediction["log_probs"])
+        num_hypotheses = params.get("n_best", len(prediction["log_probs"]))
         for i in range(num_hypotheses):
             if "tokens" in prediction:
                 target_length = prediction["length"][i]
@@ -599,8 +597,8 @@ def replace_unknown_target(
     attention.
 
     Args:
-      target_tokens: A a string ``tf.Tensor`` of shape :math:`[B, T_t]`.
-      source_tokens: A a string ``tf.Tensor`` of shape :math:`[B, T_s]`.
+      target_tokens: A string ``tf.Tensor`` of shape :math:`[B, T_t]`.
+      source_tokens: A string ``tf.Tensor`` of shape :math:`[B, T_s]`.
       attention: The attention vector of shape :math:`[B, T_t, T_s]`.
       unknown_token: The target token to replace.
 

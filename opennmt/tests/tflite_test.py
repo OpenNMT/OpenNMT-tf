@@ -93,7 +93,7 @@ class TFLiteTest(tf.test.TestCase):
     )
     @pytest.mark.skipif(
         version.parse(tf.__version__) < version.parse("2.5.0"),
-        reason="TensorFlow Lite exporting " "requires TensorFlow 2.5+",
+        reason="TensorFlow Lite exporting requires TensorFlow 2.5+",
     )
     def testTFLiteOutput(self, model, params):
         vocab, vocab_path = _create_vocab(self.get_temp_dir())
@@ -116,7 +116,7 @@ class TFLiteTest(tf.test.TestCase):
     )
     @pytest.mark.skipif(
         version.parse(tf.__version__) < version.parse("2.5.0"),
-        reason="TensorFlow Lite exporting " "requires TensorFlow 2.5+",
+        reason="TensorFlow Lite exporting requires TensorFlow 2.5+",
     )
     def testTFLiteInterpreter(self, model, params=None, quantization=None):
         if params is None:

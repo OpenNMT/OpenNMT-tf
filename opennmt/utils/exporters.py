@@ -133,7 +133,7 @@ class TFLiteFloat16Exporter(TFLiteExporter):
 
 @register_exporter(name="tflite_dynamic_range")
 class TFLiteDynamicRangeExporter(TFLiteExporter):
-    """TensorFlow Lite exporter with float16 quantization."""
+    """TensorFlow Lite exporter with dynamic range quantization."""
 
     def __init__(self):
         super().__init__(quantization="dynamic_range")
