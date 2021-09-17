@@ -216,8 +216,6 @@ class RunnerTest(tf.test.TestCase):
         runner.train()
 
     def testEvaluate(self):
-        if not tf.config.functions_run_eagerly():
-            self.skipTest("Test case not passing in GitHub Actions environment")
         ar_file, en_file = self._makeTransliterationData()
         config = {
             "params": {"beam_width": 4},
@@ -232,8 +230,6 @@ class RunnerTest(tf.test.TestCase):
 
     @parameterized.expand([[1, "v2"], [4, "v2"], [1, "v1"]])
     def testInfer(self, beam_size, model_version):
-        if not tf.config.functions_run_eagerly() and beam_size != 1:
-            self.skipTest("Test case not passing in GitHub Actions environment")
         config = {"params": {"beam_width": beam_size}}
         runner = self._getTransliterationRunner(config, model_version)
         ar_file, _ = self._makeTransliterationData()

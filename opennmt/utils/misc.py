@@ -10,7 +10,6 @@ import sys
 
 import numpy as np
 import tensorflow as tf
-import tensorflow_addons as tfa
 
 from tensorflow.python.training.tracking import graph_view
 
@@ -427,21 +426,6 @@ def read_summaries(event_dir, event_file_pattern="events.out.tfevents.*"):
                 )
                 summaries[event.step][value.tag] = tf.get_static_value(tensor)
     return list(sorted(summaries.items(), key=lambda x: x[0]))
-
-
-def disable_tfa_custom_ops(func):
-    """A decorator that disables TensorFlow Addons custom ops in a function."""
-
-    def _wrapper(*args, **kwargs):
-        if tfa.options.is_custom_kernel_disabled():
-            return func(*args, **kwargs)
-        tfa.options.disable_custom_kernel()
-        try:
-            return func(*args, **kwargs)
-        finally:
-            tfa.options.enable_custom_kernel()
-
-    return _wrapper
 
 
 class OrderRestorer(object):
