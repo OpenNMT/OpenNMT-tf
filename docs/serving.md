@@ -66,3 +66,46 @@ eval:
 * `ctranslate2_int8`
 * `ctranslate2_int16`
 * `ctranslate2_float16`
+
+
+## TensorFlow Lite
+
+[TensorFlow Lite](https://www.tensorflow.org/lite) is a deep learning framework for fast inference of TensorFlow models on mobile devices.
+
+Converting to TensorFlow Lite requires **TensorFlow version 2.5+**
+
+Example export command:
+```bash
+onmt-main [...] export --export_dir ~/output --export_format tflite 
+```
+
+Exporting will create an `opennmt.tflite` model file in the export directory.
+
+**Compatible models**
+* RNN models
+* Transformer
+* Transformer Relative
+* Transformer Shared Embeddings
+
+[Quantization](https://www.tensorflow.org/lite/performance/post_training_quantization) is a way to decrease the model size, and the inference time.  
+
+**Quantization Export Formats**
+* Dynamic range quantization - `tflite_dynamic_range`
+* Float16 quantization - `tflite_float16`
+
+**Running a TFLite Model**
+
+Running requires using the same vocabulary files used for training.
+
+1. Convert the sentence to IDs with the vocabulary file.
+2. Run the model with the IDs to get a fixed size array. ([TensorFlow Guide](https://www.tensorflow.org/lite/guide/inference))
+3. Convert the resulting IDs to a sentence using the other vocabulary file.
+
+**Model Output**
+
+The model outputs a fixed size array, this can be specified in the data configuration file.
+```yaml
+params:
+  tflite_output_size: 250
+```
+

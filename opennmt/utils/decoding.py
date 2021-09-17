@@ -93,11 +93,12 @@ class DecodingStrategy(abc.ABC):
         return 1
 
     @staticmethod
-    def from_params(params):
+    def from_params(params, tflite_mode=False):
         """Constructs a decoding strategy based on user parameters.
 
         Args:
           params: A dictionary of user parameters.
+          tflite_mode: boolean, should be set to True only if you're exporting with TensorFlow Lite
 
         Returns:
           A :class:`opennmt.utils.DecodingStrategy` instance.
@@ -108,6 +109,9 @@ class DecodingStrategy(abc.ABC):
                 beam_size,
                 length_penalty=params.get("length_penalty", 0),
                 coverage_penalty=params.get("coverage_penalty", 0),
+                tflite_output_size=params.get("tflite_output_size", 250)
+                if tflite_mode
+                else None,
             )
         else:
             return GreedySearch()
@@ -225,18 +229,22 @@ class GreedySearch(DecodingStrategy):
 class BeamSearch(DecodingStrategy):
     """A beam search strategy."""
 
-    def __init__(self, beam_size, length_penalty=0, coverage_penalty=0):
+    def __init__(
+        self, beam_size, length_penalty=0, coverage_penalty=0, tflite_output_size=None
+    ):
         """Initializes the decoding strategy.
 
         Args:
           beam_size: The number of paths to consider per batch.
           length_penalty: Length penalty, see https://arxiv.org/abs/1609.08144.
           coverage_penalty: Coverage penalty, see https://arxiv.org/abs/1609.08144.
+          tflite_output_size: None if not TFLite exporting.  Is the output size of TFLite model
         """
         self.beam_size = beam_size
         self.length_penalty = length_penalty
         self.coverage_penalty = coverage_penalty
         self._state_reorder_flags = None
+        self.tflite_output_size = tflite_output_size
 
     @property
     def num_hypotheses(self):
@@ -256,8 +264,17 @@ class BeamSearch(DecodingStrategy):
         initial_log_probs = tf.tile(
             [0.0] + [-float("inf")] * (self.beam_size - 1), [batch_size]
         )
+        if self.tflite_output_size is not None:
+            parent_ids = tf.TensorArray(
+                tf.int32,
+                size=self.tflite_output_size,
+                dynamic_size=False,
+                element_shape=tf.TensorShape(None),
+            )
+        else:
+            parent_ids = tf.TensorArray(tf.int32, size=0, dynamic_size=True)
         extra_vars = {
-            "parent_ids": tf.TensorArray(tf.int32, size=0, dynamic_size=True),
+            "parent_ids": parent_ids,
             "sequence_lengths": tf.zeros([batch_size * self.beam_size], dtype=tf.int32),
         }
         if self.coverage_penalty != 0:
@@ -505,18 +522,14 @@ def dynamic_decode(
             **extra_vars,
         )
 
-        # For TensorArray assuming batch size of 1 to be TFlite safe
-        if is_tflite_run:
-            outputs = outputs.write(step, output[0])
-        else:
-            # Update loop vars.
-            if attention_history:
-                if attn is None:
-                    raise ValueError(
-                        "attention_history is set but the model did not return attention"
-                    )
-                attention = attention.write(step, tf.cast(attn, tf.float32))
-            outputs = outputs.write(step, output)
+        # Update loop vars.
+        outputs = outputs.write(step, output)
+        if attention_history:
+            if attn is None:
+                raise ValueError(
+                    "attention_history is set but the model did not return attention"
+                )
+            attention = attention.write(step, tf.cast(attn, tf.float32))
         cum_log_probs = tf.where(finished, x=cum_log_probs, y=next_cum_log_probs)
         finished = tf.logical_or(finished, tf.equal(output, end_id))
         return (
@@ -539,14 +552,14 @@ def dynamic_decode(
     step = tf.constant(0, dtype=tf.int32)
 
     if is_tflite_run:
-        output_shape = tf.TensorShape(())
+        output_shape = tf.TensorShape(None)
         outputs = tf.TensorArray(
             tf.int32,
             size=tflite_output_size,
             dynamic_size=False,
             element_shape=output_shape,
         )
-        attn_shape = tf.TensorShape(())
+        attn_shape = tf.TensorShape(None)
         attention = tf.TensorArray(
             tf.float32,
             size=tflite_output_size,
@@ -590,14 +603,13 @@ def dynamic_decode(
         parallel_iterations=1,
         maximum_iterations=maximum_iterations,
     )
-
     ids, attention, lengths = decoding_strategy.finalize(
         outputs,
         end_id,
-        attention=attention if attention_history and not is_tflite_run else None,
+        attention=attention if attention_history else None,
         **extra_vars,
     )
-    if attention is not None and not is_tflite_run:
+    if attention is not None:
         attention = attention[:, :, :-1]  # Ignore attention for </s>.
     log_probs = tf.reshape(log_probs, [-1, decoding_strategy.num_hypotheses])
     ids = tf.cast(ids, ids_dtype)

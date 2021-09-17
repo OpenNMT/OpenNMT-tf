@@ -206,7 +206,6 @@ class SequenceToSequence(model.SequenceGenerator):
             tflite_run=True,
         )
 
-        predictions = tf.squeeze(predictions, axis=1)
         return predictions
 
     def tflite_function(self):
@@ -310,7 +309,9 @@ class SequenceToSequence(model.SequenceGenerator):
             self.labels_inputter,
             start_ids,
             initial_state=initial_state,
-            decoding_strategy=decoding.DecodingStrategy.from_params(params),
+            decoding_strategy=decoding.DecodingStrategy.from_params(
+                params, tflite_mode=tflite_run
+            ),
             sampler=decoding.Sampler.from_params(params),
             maximum_iterations=params.get("maximum_decoding_length", 250),
             minimum_iterations=params.get("minimum_decoding_length", 0),
@@ -320,12 +321,11 @@ class SequenceToSequence(model.SequenceGenerator):
         )
 
         if tflite_run:
-            return sampled_ids
-
-        target_tokens = self.labels_inputter.ids_to_tokens.lookup(
-            tf.cast(sampled_ids, tf.int64)
-        )
-
+            target_tokens = sampled_ids
+        else:
+            target_tokens = self.labels_inputter.ids_to_tokens.lookup(
+                tf.cast(sampled_ids, tf.int64)
+            )
         # Maybe replace unknown targets by the source tokens with the highest attention weight.
         if params.get("replace_unknown_target", False):
             if alignment is None:
@@ -338,25 +338,41 @@ class SequenceToSequence(model.SequenceGenerator):
                     "replace_unknown_target is only defined when the source "
                     "inputter is a WordEmbedder"
                 )
-            source_tokens = features["tokens"]
+
+            source_tokens = features if tflite_run else features["tokens"]
             if beam_size > 1:
                 source_tokens = tfa.seq2seq.tile_batch(source_tokens, beam_size)
-            # Merge batch and beam dimensions.
             original_shape = tf.shape(target_tokens)
-            target_tokens = tf.reshape(target_tokens, [-1, original_shape[-1]])
+            if tflite_run:
+                target_tokens = tf.squeeze(target_tokens, axis=0)
+                output_size = original_shape[-1]
+                unknown_token = self.labels_inputter.vocabulary_size - 1
+            else:
+                target_tokens = tf.reshape(target_tokens, [-1, original_shape[-1]])
+                output_size = tf.shape(target_tokens)[1]
+                unknown_token = constants.UNKNOWN_TOKEN
+
             align_shape = misc.shape_list(alignment)
             attention = tf.reshape(
                 alignment,
                 [align_shape[0] * align_shape[1], align_shape[2], align_shape[3]],
             )
-            # We don't have attention for </s> but ensure that the attention time dimension matches
-            # the tokens time dimension.
-            attention = reducer.align_in_time(attention, tf.shape(target_tokens)[1])
+            attention = reducer.align_in_time(attention, output_size)
             replaced_target_tokens = replace_unknown_target(
-                target_tokens, source_tokens, attention
+                target_tokens, source_tokens, attention, unknown_token=unknown_token
             )
-            target_tokens = tf.reshape(replaced_target_tokens, original_shape)
+            if tflite_run:
+                target_tokens = replaced_target_tokens
+            else:
+                target_tokens = tf.reshape(replaced_target_tokens, original_shape)
 
+        if tflite_run:
+            if beam_size > 1:
+                target_tokens = tf.transpose(target_tokens)
+                target_tokens = target_tokens[:, :1]
+            target_tokens = tf.squeeze(target_tokens)
+
+            return target_tokens
         # Maybe add noise to the predictions.
         decoding_noise = params.get("decoding_noise")
         if decoding_noise:

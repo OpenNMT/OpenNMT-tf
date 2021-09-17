@@ -85,7 +85,10 @@ class TFLiteExporter(Exporter):
     """TensorFlow Lite exporter."""
 
     def __init__(self, quantization=None):
-        accepted_quantization = ("float16",)
+        accepted_quantization = (
+            "float16",
+            "dynamic_range",
+        )
         if quantization is not None and quantization not in accepted_quantization:
             raise ValueError(
                 "Unsupported quantization '%s' for TensorFlow Lite, accepted values are: %s"
@@ -108,8 +111,10 @@ class TFLiteExporter(Exporter):
             tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops.
             tf.lite.OpsSet.SELECT_TF_OPS,  # enable TensorFlow ops.
         ]
-        converter.optimizations = [tf.lite.Optimize.DEFAULT]
-        if self._quantization == "float16":
+        if self._quantization == "dynamic_range":
+            converter.optimizations = [tf.lite.Optimize.DEFAULT]
+        elif self._quantization == "float16":
+            converter.optimizations = [tf.lite.Optimize.DEFAULT]
             converter.target_spec.supported_types = [tf.float16]
 
         tflite_model_path = os.path.join(export_dir, "opennmt.tflite")
@@ -124,6 +129,14 @@ class TFLiteFloat16Exporter(TFLiteExporter):
 
     def __init__(self):
         super().__init__(quantization="float16")
+
+
+@register_exporter(name="tflite_dynamic_range")
+class TFLiteDynamicRangeExporter(TFLiteExporter):
+    """TensorFlow Lite exporter with dynamic range quantization."""
+
+    def __init__(self):
+        super().__init__(quantization="dynamic_range")
 
 
 @register_exporter(name="ctranslate2")
