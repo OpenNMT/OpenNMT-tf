@@ -373,9 +373,6 @@ class BeamSearch(DecodingStrategy):
             )
         return word_ids, cum_log_probs, finished, state, extra_vars
 
-    # We prefer using the pure TensorFlow variant of gather_tree instead of the custom op,
-    # which is not readily available in TensorFlow builds (e.g. TensorFlow Serving).
-    @misc.disable_tfa_custom_ops
     def finalize(self, outputs, end_id, attention=None, **kwargs):
         parent_ids = kwargs["parent_ids"]
         sequence_lengths = kwargs["sequence_lengths"]
@@ -386,13 +383,11 @@ class BeamSearch(DecodingStrategy):
         array_shape = [max_time, -1, self.beam_size]
         step_ids = tf.reshape(outputs.stack(), array_shape)
         parent_ids = tf.reshape(parent_ids.stack(), array_shape)
-        ids = tfa.seq2seq.gather_tree(step_ids, parent_ids, maximum_lengths, end_id)
+        ids = _gather_tree(step_ids, parent_ids, maximum_lengths, end_id)
         ids = tf.transpose(ids, perm=[1, 2, 0])
         lengths = _lengths_from_ids(ids, end_id)
         if attention is not None:
-            attention = tfa.seq2seq.gather_tree_from_array(
-                attention.stack(), parent_ids, lengths
-            )
+            attention = _gather_tree_from_array(attention.stack(), parent_ids, lengths)
             attention = tf.transpose(attention, perm=[1, 0, 2])
             attention = tf.reshape(
                 attention, [tf.shape(ids)[0], self.beam_size, max_time, -1]
@@ -662,3 +657,129 @@ def _lengths_from_ids(ids, end_id):
     lengths = tf.cast(lengths, tf.int32)
     lengths = tf.reduce_sum(lengths, axis=-1)
     return lengths
+
+
+# The gather_tree functions are imported from TensorFlow Addons:
+# https://github.com/tensorflow/addons/blob/master/tensorflow_addons/seq2seq/beam_search_decoder.py
+#
+# We do not use the Addons version because the public gather_tree function is
+# wrapped by a tf.function. This should not be an issue, but the function is
+# unexpectedly garbage collected in our test suite.
+
+
+def _gather_tree(step_ids, parent_ids, max_sequence_lengths, end_token):
+    """Calculates the full beams from the per-step ids and parent beam ids.
+
+    For a given beam, past the time step containing the first decoded
+    ``end_token`` all values are filled in with ``end_token``.
+
+    Args:
+      step_ids: The predicted token IDs.
+        A ``int32`` Tensor of shape ``[max_time, batch_size, beam_width]``.
+      parent_ids: The parent beam indices.
+        A ``int32`` Tensor of shape ``[max_time, batch_size, beam_width]``.
+      max_sequence_lengths: The maximum sequence length of each batch.
+        A ``int32`` Tensor of shape ``[batch_size]``.
+      end_token: The end token ID.
+
+    Returns:
+      The reordered token IDs based on ``parent_ids``.
+
+    Raises:
+      InvalidArgumentError: if ``parent_ids`` contains an invalid index.
+    """
+    input_shape = tf.shape(parent_ids)
+    max_time = input_shape[0]
+    beam_width = input_shape[2]
+    max_sequence_lengths = tf.math.minimum(max_sequence_lengths, max_time)
+    mask = tf.expand_dims(
+        tf.transpose(tf.sequence_mask(max_sequence_lengths, maxlen=max_time)), -1
+    )
+
+    # Mask out of range ids.
+    end_tokens = tf.fill(input_shape, end_token)
+    step_ids = tf.where(mask, x=step_ids, y=end_tokens)
+    parent_ids = tf.where(mask, x=parent_ids, y=tf.zeros_like(parent_ids))
+    assert_op = tf.debugging.Assert(
+        tf.math.reduce_all(
+            tf.math.logical_and(parent_ids >= 0, parent_ids < beam_width)
+        ),
+        ["All parent ids must be positive and less than beam_width"],
+    )
+
+    # Reverse all sequences as we need to gather from the end.
+    with tf.control_dependencies([assert_op]):
+        rev_step_ids = tf.reverse_sequence(
+            step_ids, max_sequence_lengths, seq_axis=0, batch_axis=1
+        )
+        rev_parent_ids = tf.reverse_sequence(
+            parent_ids, max_sequence_lengths, seq_axis=0, batch_axis=1
+        )
+
+    # Initialize output ids and parent based on last step.
+    output_ids = tf.TensorArray(step_ids.dtype, size=max_time, dynamic_size=False)
+    output_ids = output_ids.write(0, rev_step_ids[0])
+    parent = rev_parent_ids[0]
+
+    # For each step, gather ids based on beam origin.
+    for t in tf.range(1, max_time):
+        ids = tf.gather(rev_step_ids[t], parent, batch_dims=1)
+        parent = tf.gather(rev_parent_ids[t], parent, batch_dims=1)
+        output_ids = output_ids.write(t, ids)
+
+    # Reverse sequences to their original order.
+    output_ids = output_ids.stack()
+    output_ids = tf.reverse_sequence(
+        output_ids, max_sequence_lengths, seq_axis=0, batch_axis=1
+    )
+
+    # Ensure that there are only end_token after the first end_token.
+    in_bound_steps = tf.math.cumsum(tf.cast(output_ids == end_token, tf.int32)) == 0
+    output_ids = tf.where(in_bound_steps, x=output_ids, y=end_tokens)
+    return output_ids
+
+
+def _gather_tree_from_array(t, parent_ids, sequence_length):
+    """Calculates the full beams for a ``TensorArray``.
+
+    Args:
+      t: A stacked ``TensorArray`` of size ``max_time`` that contains Tensors of
+        shape ``[batch_size, beam_width, s]`` or ``[batch_size * beam_width, s]``
+        where ``s`` is the depth shape.
+      parent_ids: The parent ids of shape ``[max_time, batch_size, beam_width]``.
+      sequence_length: The sequence length of shape ``[batch_size, beam_width]``.
+
+    Returns:
+      A Tensor which is a stacked ``TensorArray`` of the same size and type as
+      ``t`` and where beams are sorted in each Tensor according to
+      ``parent_ids``.
+    """
+    max_time = parent_ids.shape[0] or tf.shape(parent_ids)[0]
+    batch_size = parent_ids.shape[1] or tf.shape(parent_ids)[1]
+    beam_width = parent_ids.shape[2] or tf.shape(parent_ids)[2]
+
+    # Generate beam ids that will be reordered by gather_tree.
+    beam_ids = tf.reshape(tf.range(beam_width), [1, 1, -1])
+    beam_ids = tf.tile(beam_ids, [max_time, batch_size, 1])
+
+    max_sequence_lengths = tf.cast(tf.reduce_max(sequence_length, axis=1), tf.int32)
+    sorted_beam_ids = _gather_tree(
+        step_ids=beam_ids,
+        parent_ids=parent_ids,
+        max_sequence_lengths=max_sequence_lengths,
+        end_token=beam_width + 1,
+    )
+
+    # For out of range steps, simply copy the same beam.
+    in_bound_steps = tf.transpose(
+        tf.sequence_mask(sequence_length, maxlen=max_time), perm=[2, 0, 1]
+    )
+    sorted_beam_ids = tf.where(in_bound_steps, x=sorted_beam_ids, y=beam_ids)
+
+    # Gather from a tensor with collapsed additional dimensions.
+    final_shape = tf.shape(t)
+    gather_from = tf.reshape(t, [max_time, batch_size, beam_width, -1])
+    ordered = tf.gather(gather_from, sorted_beam_ids, axis=2, batch_dims=2)
+    ordered = tf.reshape(ordered, final_shape)
+
+    return ordered
