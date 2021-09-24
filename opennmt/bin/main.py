@@ -275,6 +275,11 @@ def main():
     config = config_util.load_config(args.config)
     if args.model_dir:
         config["model_dir"] = args.model_dir
+    elif "model_dir" not in config:
+        raise ValueError(
+            "No model directory is defined: you should either set --model_dir "
+            "on the command line or set the field model_dir in the configuration"
+        )
     if args.run_dir:
         config["model_dir"] = os.path.join(args.run_dir, config["model_dir"])
     if args.data_dir:
