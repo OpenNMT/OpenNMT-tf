@@ -157,6 +157,39 @@ def load_config(config_paths, config=None):
     return config
 
 
+def _map_config_values(config, fn):
+    """Applies the function ``fn`` on each value of the configuration."""
+    if isinstance(config, dict):
+        return {key: _map_config_values(value, fn) for key, value in config.items()}
+    elif isinstance(config, list):
+        return [_map_config_values(elem, fn) for elem in config]
+    else:
+        return fn(config)
+
+
+def try_prefix_paths(prefix, config):
+    """Recursively tries to prefix paths in the configuration.
+
+    The path is unchanged if the prefixed path does not exist.
+
+    Args:
+      prefix: The prefix to apply.
+      config: The configuration.
+
+    Returns:
+      The updated configuration.
+    """
+
+    def _fn(path):
+        if isinstance(path, str):
+            new_path = os.path.join(prefix, path)
+            if tf.io.gfile.exists(new_path):
+                return new_path
+        return path
+
+    return _map_config_values(config, _fn)
+
+
 def convert_to_v2_config(v1_config):
     """Converts a V1 configuration to its V2 equivalent.
 
