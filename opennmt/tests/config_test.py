@@ -119,6 +119,28 @@ class ConfigTest(tf.test.TestCase):
         with self.assertRaises(RuntimeError):
             config.load_model(self.get_temp_dir())
 
+    def testPathsPrefix(self):
+        a = os.path.join(self.get_temp_dir(), "a.txt")
+        b = os.path.join(self.get_temp_dir(), "b.txt")
+        open(a, "w").close()
+        open(b, "w").close()
+
+        original_config = {
+            "a": "a.txt",
+            "b": ["b.txt"],
+            "c": {"a": "a.txt", "d": "d.txt"},
+        }
+        expected_config = {
+            "a": a,
+            "b": [b],
+            "c": {"a": a, "d": "d.txt"},
+        }
+
+        self.assertDictEqual(
+            config.try_prefix_paths(self.get_temp_dir(), original_config),
+            expected_config,
+        )
+
     def testConvertToV2Config(self):
         v1_config = {
             "data": {

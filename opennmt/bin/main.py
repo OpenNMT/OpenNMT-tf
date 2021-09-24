@@ -8,7 +8,7 @@ import sys
 import tensorflow as tf
 
 from opennmt import __version__
-from opennmt.config import load_config, load_model
+from opennmt import config as config_util
 from opennmt.models import catalog
 from opennmt.runner import Runner
 from opennmt.utils import exporters
@@ -28,35 +28,6 @@ def _initialize_logging(log_level):
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-
-
-def _prefix_paths(prefix, paths):
-    """Recursively prefix paths.
-
-    Args:
-      prefix: The prefix to apply.
-      data: A dict of relative paths.
-
-    Returns:
-      The updated dict.
-    """
-    if isinstance(paths, dict):
-        for key, path in paths.items():
-            paths[key] = _prefix_paths(prefix, path)
-        return paths
-    elif isinstance(paths, list):
-        for i, path in enumerate(paths):
-            paths[i] = _prefix_paths(prefix, path)
-        return paths
-    elif isinstance(paths, str):
-        path = paths
-        new_path = os.path.join(prefix, path)
-        if tf.io.gfile.exists(new_path):
-            return new_path
-        else:
-            return path
-    else:
-        return paths
 
 
 def main():
@@ -294,17 +265,17 @@ def main():
             tf.config.experimental.set_memory_growth(device, enable=True)
 
     # Load and merge run configurations.
-    config = load_config(args.config)
+    config = config_util.load_config(args.config)
     if args.run_dir:
         config["model_dir"] = os.path.join(args.run_dir, config["model_dir"])
     if args.data_dir:
-        config["data"] = _prefix_paths(args.data_dir, config["data"])
+        config["data"] = config_util.try_prefix_paths(args.data_dir, config["data"])
 
     if is_master and not tf.io.gfile.exists(config["model_dir"]):
         tf.get_logger().info("Creating model directory %s", config["model_dir"])
         tf.io.gfile.makedirs(config["model_dir"])
 
-    model = load_model(
+    model = config_util.load_model(
         config["model_dir"],
         model_file=args.model,
         model_name=args.model_type,

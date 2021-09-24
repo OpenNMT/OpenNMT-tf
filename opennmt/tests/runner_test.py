@@ -46,8 +46,8 @@ class RunnerTest(tf.test.TestCase):
         config = {}
         config["model_dir"] = model_dir
         config["data"] = {
-            "source_vocabulary": os.path.join(model_dir, "ar.vocab"),
-            "target_vocabulary": os.path.join(model_dir, "en.vocab"),
+            "source_vocabulary": "ar.vocab",
+            "target_vocabulary": "en.vocab",
         }
         if base_config is not None:
             config = misc.merge_dict(config, base_config)
@@ -197,6 +197,7 @@ class RunnerTest(tf.test.TestCase):
             os.path.join(self.get_temp_dir(), "vocab.txt"), list(map(str, range(10)))
         )
         config = {
+            "model_dir": os.path.join(self.get_temp_dir(), "model"),
             "data": {
                 "train_features_file": src,
                 "vocabulary": vocab,

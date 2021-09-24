@@ -13,6 +13,7 @@ import numpy as np
 import tensorflow as tf
 import yaml
 
+from opennmt import config as config_util
 from opennmt import evaluation, inference, models
 from opennmt import training as training_util
 from opennmt.config import MODEL_DESCRIPTION_FILENAME
@@ -82,6 +83,9 @@ class Runner(object):
         tf.get_logger().info("Using model:\n%s", self._model)
         self._optimizer = None
         self._config = copy.deepcopy(config)
+        self._config["data"] = config_util.try_prefix_paths(
+            self._config["model_dir"], config["data"]
+        )
         self._auto_config = auto_config
         self._mixed_precision = mixed_precision
         if seed is not None:
