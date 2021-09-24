@@ -3,8 +3,6 @@
 Run parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference. It uses the following layout:
 
 ```yaml
-model_dir: path_to_the_model_directory
-
 data:
   # Data configuration (training and evaluation files, vocabularies, alignments, etc.)
 params:
@@ -59,7 +57,9 @@ onmt-merge-config config/opennmt-defaults.yml config/optim/adam_with_decay.yml \
 Below is an exhaustive and documented configuration. **You should NOT copy and use this configuration, instead you should only define the parameters that you need.**
 
 ```yaml
-# The directory where models and summaries will be saved. It is created if it does not exist.
+# (optional) The directory where models and summaries will be saved.
+# Can also be set with the command line option --model_dir.
+# The directory is created if it does not exist.
 model_dir: toy-ende
 
 data:
