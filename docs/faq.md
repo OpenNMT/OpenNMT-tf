@@ -24,8 +24,8 @@ which you can wrap in a shell loop for example.
 
 By default, OpenNMT-tf continues the training where it left off, including the state of the optimizer. To change the optimization settings, the recommended approach is to start a fresh training and only load the model weights from the previous checkpoint:
 
-1. In your configuration, set `model_dir` to a new directory to start a new training
-2. On the command line, set `--checkpoint_path` to the checkpoint from where to load the model weights
+1. Set a new model directory, either with the command line option `--model_dir` or in the configuration field `model_dir`
+2. Set the command line option `--checkpoint_path` to the checkpoint where model weights should be loaded
 
 ## How can I restrict the TensorFlow runtime to specific GPU?
 

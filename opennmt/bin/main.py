@@ -41,6 +41,13 @@ def main():
         "--config", required=True, nargs="+", help="List of configuration files."
     )
     parser.add_argument(
+        "--model_dir",
+        help=(
+            "Path to the model directory. If not set, the model directory is read "
+            "from the field 'model_dir' in the configuration."
+        ),
+    )
+    parser.add_argument(
         "--auto_config",
         default=False,
         action="store_true",
@@ -67,8 +74,8 @@ def main():
         "--checkpoint_path",
         default=None,
         help=(
-            "Specific checkpoint or model directory to load "
-            "(when a directory is set, the latest checkpoint is used)."
+            "Path to the checkpoint or checkpoint directory to load. "
+            "If not set, the latest checkpoint from the model directory is loaded."
         ),
     )
     parser.add_argument(
@@ -266,6 +273,8 @@ def main():
 
     # Load and merge run configurations.
     config = config_util.load_config(args.config)
+    if args.model_dir:
+        config["model_dir"] = args.model_dir
     if args.run_dir:
         config["model_dir"] = os.path.join(args.run_dir, config["model_dir"])
     if args.data_dir:
