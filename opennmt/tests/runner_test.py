@@ -197,6 +197,7 @@ class RunnerTest(tf.test.TestCase):
             os.path.join(self.get_temp_dir(), "vocab.txt"), list(map(str, range(10)))
         )
         config = {
+            "model_dir": os.path.join(self.get_temp_dir(), "model"),
             "data": {
                 "train_features_file": src,
                 "vocabulary": vocab,
