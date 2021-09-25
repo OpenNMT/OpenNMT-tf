@@ -474,7 +474,7 @@ class SequenceToSequence(model.SequenceGenerator):
                 tokens = prediction["tokens"][i][:target_length]
                 sentence = self.labels_inputter.tokenizer.detokenize(tokens)
             else:
-                sentence = prediction["text"][i]
+                sentence = prediction["text"][i].decode("utf-8")
             score = None
             attention = None
             if with_scores:
