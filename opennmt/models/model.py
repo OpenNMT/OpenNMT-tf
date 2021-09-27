@@ -558,7 +558,7 @@ class SequenceGenerator(Model):
             params = {}
         length = score["length"]
         tokens = score["tokens"][:length]
-        sentence = self.decoder_inputter.tokenizer.detokenize(tokens)
+        sentence = " ".join(token.decode("utf-8") for token in tokens)
         token_level_scores = None
         attention = None
         if params.get("with_token_level"):
