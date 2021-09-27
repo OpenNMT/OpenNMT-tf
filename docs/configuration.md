@@ -62,6 +62,10 @@ Below is an exhaustive and documented configuration. **You should NOT copy and u
 # The directory is created if it does not exist.
 model_dir: toy-ende
 
+# (optional) Enable automatic parameters based on the selected model.
+# Can also be set with the command line option --auto_config.
+auto_config: true
+
 data:
   # (required for train run type).
   train_features_file: data/toy-ende/src-train.txt

@@ -52,7 +52,7 @@ class Runner(object):
     """Class for running and exporting models."""
 
     def __init__(
-        self, model, config, auto_config=False, mixed_precision=False, seed=None
+        self, model, config, auto_config=None, mixed_precision=False, seed=None
     ):
         """Initializes the runner parameters.
 
@@ -61,7 +61,7 @@ class Runner(object):
             returns such instance.
           config: The run configuration.
           auto_config: If ``True``, use automatic configuration values defined by
-            :obj:`model`.
+            :obj:`model`. If not set, the parameter is read from the run configuration.
           mixed_precision: Enable mixed precision.
           seed: The random seed to set.
 
@@ -86,6 +86,8 @@ class Runner(object):
         self._config["data"] = config_util.try_prefix_paths(
             self._config["model_dir"], config["data"]
         )
+        if auto_config is None:
+            auto_config = self._config.get("auto_config", False)
         self._auto_config = auto_config
         self._mixed_precision = mixed_precision
         if seed is not None:
