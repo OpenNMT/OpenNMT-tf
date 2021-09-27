@@ -49,7 +49,7 @@ def main():
     )
     parser.add_argument(
         "--auto_config",
-        default=False,
+        default=None,
         action="store_true",
         help="Enable automatic configuration values.",
     )
