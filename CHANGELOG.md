@@ -15,6 +15,20 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.22.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.22.0) (2021-09-30)
+
+### New features
+
+* Support TensorFlow Lite conversion for Transformer models
+* Make the options `model_dir` and `auto_config` available in both the command line and the configuration file
+* Paths in the `data` configuration can now be relative to the model directory
+
+### Fixes and improvements
+
+* Fix encoding when writing sentences detokenized by an in-graph tokenizer
+* Always output the tokenized target in scoring even when a target tokenization is configured
+* Enable the OpenNMT Tokenizer when installing OpenNMT-tf on Windows
+
 ## [2.21.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.21.0) (2021-08-30)
 
 ### New features
