@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.utils.DecodingStrategy &mdash; OpenNMT-tf 2.21.0 documentation</title>
+  <title>opennmt.utils.DecodingStrategy &mdash; OpenNMT-tf 2.22.0 documentation</title>
   
 
   
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                2.21
+                2.22
               </div>
             
           
@@ -233,11 +233,14 @@
 
 <dl class="py method">
 <dt id="opennmt.utils.DecodingStrategy.from_params">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_params</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#DecodingStrategy.from_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.utils.DecodingStrategy.from_params" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_params</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tflite_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#DecodingStrategy.from_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.utils.DecodingStrategy.from_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructs a decoding strategy based on user parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>params</strong> – A dictionary of user parameters.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> – A dictionary of user parameters.</p></li>
+<li><p><strong>tflite_mode</strong> – boolean, should be set to True only if you’re exporting with TensorFlow Lite</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A <a class="reference internal" href="#opennmt.utils.DecodingStrategy" title="opennmt.utils.DecodingStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.DecodingStrategy</span></code></a> instance.</p>

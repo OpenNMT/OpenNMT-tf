@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.21.0 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.22.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.21
+                2.22
               </div>
             
           
@@ -200,6 +200,7 @@
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">config_util</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">evaluation</span><span class="p">,</span> <span class="n">inference</span><span class="p">,</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">training</span> <span class="k">as</span> <span class="n">training_util</span>
 <span class="kn">from</span> <span class="nn">opennmt.config</span> <span class="kn">import</span> <span class="n">MODEL_DESCRIPTION_FILENAME</span>
@@ -238,7 +239,7 @@
     <span class="sd">&quot;&quot;&quot;Class for running and exporting models.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Runner.__init__"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">auto_config</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">auto_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the runner parameters.</span>
 
@@ -247,7 +248,7 @@
 <span class="sd">            returns such instance.</span>
 <span class="sd">          config: The run configuration.</span>
 <span class="sd">          auto_config: If ``True``, use automatic configuration values defined by</span>
-<span class="sd">            :obj:`model`.</span>
+<span class="sd">            :obj:`model`. If not set, the parameter is read from the run configuration.</span>
 <span class="sd">          mixed_precision: Enable mixed precision.</span>
 <span class="sd">          seed: The random seed to set.</span>
 
@@ -269,6 +270,11 @@
         <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using model:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config_util</span><span class="o">.</span><span class="n">try_prefix_paths</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">auto_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">auto_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;auto_config&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_config</span> <span class="o">=</span> <span class="n">auto_config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mixed_precision</span> <span class="o">=</span> <span class="n">mixed_precision</span>
         <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -629,7 +635,12 @@
         <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_finalize_config</span><span class="p">()</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_model</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">checkpoint_util</span><span class="o">.</span><span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
-        <span class="n">checkpoint</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="o">=</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">path_restored</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span>
+            <span class="n">checkpoint_path</span><span class="o">=</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="c1"># If no model found, throw error instead of exporting an untrained model</span>
+        <span class="k">if</span> <span class="n">path_restored</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Checkpoint path to restore was not found&quot;</span><span class="p">)</span>
         <span class="n">model</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="n">exporter</span><span class="o">=</span><span class="n">exporter</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Runner.score"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.score">[docs]</a>    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span>

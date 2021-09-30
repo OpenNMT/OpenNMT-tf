@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 2.21.0 documentation</title>
+  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 2.22.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.21
+                2.22
               </div>
             
           
@@ -521,11 +521,14 @@
             <span class="n">relative_pos</span> <span class="o">=</span> <span class="n">relative_positions</span><span class="p">(</span>
                 <span class="n">keys_length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_relative_position</span><span class="p">,</span> <span class="n">with_cache</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">relative_repr_keys</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">relative_position_keys</span><span class="p">,</span> <span class="n">relative_pos</span>
+
+            <span class="c1"># Uses gather_nd instead of nn.embedding_lookup for TFLite exporting (TF Issue #42410)</span>
+            <span class="n">relative_pos_expanded</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">relative_pos</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">relative_repr_keys</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">relative_position_keys</span><span class="p">,</span> <span class="n">relative_pos_expanded</span>
             <span class="p">)</span>
-            <span class="n">relative_repr_values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">embedding_lookup</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">relative_position_values</span><span class="p">,</span> <span class="n">relative_pos</span>
+            <span class="n">relative_repr_values</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather_nd</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">relative_position_values</span><span class="p">,</span> <span class="n">relative_pos_expanded</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">relative_repr_keys</span> <span class="o">=</span> <span class="kc">None</span>

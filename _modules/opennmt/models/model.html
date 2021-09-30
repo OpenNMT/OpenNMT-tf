@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.model &mdash; OpenNMT-tf 2.21.0 documentation</title>
+  <title>opennmt.models.model &mdash; OpenNMT-tf 2.22.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.21
+                2.22
               </div>
             
           
@@ -745,7 +745,7 @@
             <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">length</span> <span class="o">=</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span>
         <span class="n">tokens</span> <span class="o">=</span> <span class="n">score</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">][:</span><span class="n">length</span><span class="p">]</span>
-        <span class="n">sentence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder_inputter</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">)</span>
         <span class="n">token_level_scores</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">attention</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;with_token_level&quot;</span><span class="p">):</span>

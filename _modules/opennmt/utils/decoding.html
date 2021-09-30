@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.21.0 documentation</title>
+  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.22.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.21
+                2.22
               </div>
             
           
@@ -280,11 +280,12 @@
         <span class="k">return</span> <span class="mi">1</span>
 
 <div class="viewcode-block" id="DecodingStrategy.from_params"><a class="viewcode-back" href="../../../package/opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy.from_params">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_params</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">from_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tflite_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Constructs a decoding strategy based on user parameters.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          params: A dictionary of user parameters.</span>
+<span class="sd">          tflite_mode: boolean, should be set to True only if you&#39;re exporting with TensorFlow Lite</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">          A :class:`opennmt.utils.DecodingStrategy` instance.</span>
@@ -295,6 +296,9 @@
                 <span class="n">beam_size</span><span class="p">,</span>
                 <span class="n">length_penalty</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;length_penalty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                 <span class="n">coverage_penalty</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coverage_penalty&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">tflite_output_size</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tflite_output_size&quot;</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">tflite_mode</span>
+                <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">GreedySearch</span><span class="p">()</span></div>
@@ -412,18 +416,22 @@
 <div class="viewcode-block" id="BeamSearch"><a class="viewcode-back" href="../../../package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch">[docs]</a><span class="k">class</span> <span class="nc">BeamSearch</span><span class="p">(</span><span class="n">DecodingStrategy</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A beam search strategy.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="BeamSearch.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">,</span> <span class="n">length_penalty</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">coverage_penalty</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="BeamSearch.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">,</span> <span class="n">length_penalty</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">coverage_penalty</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tflite_output_size</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the decoding strategy.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          beam_size: The number of paths to consider per batch.</span>
 <span class="sd">          length_penalty: Length penalty, see https://arxiv.org/abs/1609.08144.</span>
 <span class="sd">          coverage_penalty: Coverage penalty, see https://arxiv.org/abs/1609.08144.</span>
+<span class="sd">          tflite_output_size: None if not TFLite exporting.  Is the output size of TFLite model</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span> <span class="o">=</span> <span class="n">beam_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">length_penalty</span> <span class="o">=</span> <span class="n">length_penalty</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coverage_penalty</span> <span class="o">=</span> <span class="n">coverage_penalty</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_state_reorder_flags</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state_reorder_flags</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tflite_output_size</span> <span class="o">=</span> <span class="n">tflite_output_size</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">num_hypotheses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -443,8 +451,17 @@
         <span class="n">initial_log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span>
             <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="n">batch_size</span><span class="p">]</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tflite_output_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">parent_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+                <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tflite_output_size</span><span class="p">,</span>
+                <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">element_shape</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parent_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">extra_vars</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;parent_ids&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="s2">&quot;parent_ids&quot;</span><span class="p">:</span> <span class="n">parent_ids</span><span class="p">,</span>
             <span class="s2">&quot;sequence_lengths&quot;</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">batch_size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coverage_penalty</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
@@ -560,10 +577,7 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">word_ids</span><span class="p">,</span> <span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">finished</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">extra_vars</span></div>
 
-    <span class="c1"># We prefer using the pure TensorFlow variant of gather_tree instead of the custom op,</span>
-    <span class="c1"># which is not readily available in TensorFlow builds (e.g. TensorFlow Serving).</span>
-    <span class="nd">@misc</span><span class="o">.</span><span class="n">disable_tfa_custom_ops</span>
-    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">end_id</span><span class="p">,</span> <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="BeamSearch.finalize"><a class="viewcode-back" href="../../../package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch.finalize">[docs]</a>    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">end_id</span><span class="p">,</span> <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">parent_ids</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;parent_ids&quot;</span><span class="p">]</span>
         <span class="n">sequence_lengths</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;sequence_lengths&quot;</span><span class="p">]</span>
         <span class="n">maximum_lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span>
@@ -573,18 +587,16 @@
         <span class="n">array_shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">max_time</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">]</span>
         <span class="n">step_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">stack</span><span class="p">(),</span> <span class="n">array_shape</span><span class="p">)</span>
         <span class="n">parent_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">parent_ids</span><span class="o">.</span><span class="n">stack</span><span class="p">(),</span> <span class="n">array_shape</span><span class="p">)</span>
-        <span class="n">ids</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">gather_tree</span><span class="p">(</span><span class="n">step_ids</span><span class="p">,</span> <span class="n">parent_ids</span><span class="p">,</span> <span class="n">maximum_lengths</span><span class="p">,</span> <span class="n">end_id</span><span class="p">)</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">_gather_tree</span><span class="p">(</span><span class="n">step_ids</span><span class="p">,</span> <span class="n">parent_ids</span><span class="p">,</span> <span class="n">maximum_lengths</span><span class="p">,</span> <span class="n">end_id</span><span class="p">)</span>
         <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
         <span class="n">lengths</span> <span class="o">=</span> <span class="n">_lengths_from_ids</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">end_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">attention</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">gather_tree_from_array</span><span class="p">(</span>
-                <span class="n">attention</span><span class="o">.</span><span class="n">stack</span><span class="p">(),</span> <span class="n">parent_ids</span><span class="p">,</span> <span class="n">lengths</span>
-            <span class="p">)</span>
+            <span class="n">attention</span> <span class="o">=</span> <span class="n">_gather_tree_from_array</span><span class="p">(</span><span class="n">attention</span><span class="o">.</span><span class="n">stack</span><span class="p">(),</span> <span class="n">parent_ids</span><span class="p">,</span> <span class="n">lengths</span><span class="p">)</span>
             <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
             <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
                 <span class="n">attention</span><span class="p">,</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span><span class="p">,</span> <span class="n">max_time</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">lengths</span></div>
+        <span class="k">return</span> <span class="n">ids</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">lengths</span></div></div>
 
 
 <div class="viewcode-block" id="DecodingResult"><a class="viewcode-back" href="../../../package/opennmt.utils.DecodingResult.html#opennmt.utils.DecodingResult">[docs]</a><span class="k">class</span> <span class="nc">DecodingResult</span><span class="p">(</span>
@@ -697,18 +709,14 @@
             <span class="o">**</span><span class="n">extra_vars</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="c1"># For TensorArray assuming batch size of 1 to be TFlite safe</span>
-        <span class="k">if</span> <span class="n">is_tflite_run</span><span class="p">:</span>
-            <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Update loop vars.</span>
-            <span class="k">if</span> <span class="n">attention_history</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">attn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;attention_history is set but the model did not return attention&quot;</span>
-                    <span class="p">)</span>
-                <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">attn</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
-            <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="c1"># Update loop vars.</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">attention_history</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">attn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;attention_history is set but the model did not return attention&quot;</span>
+                <span class="p">)</span>
+            <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">attn</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
         <span class="n">cum_log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">finished</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">cum_log_probs</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">next_cum_log_probs</span><span class="p">)</span>
         <span class="n">finished</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">finished</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">end_id</span><span class="p">))</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -731,14 +739,14 @@
     <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">is_tflite_run</span><span class="p">:</span>
-        <span class="n">output_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(())</span>
+        <span class="n">output_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span>
             <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
             <span class="n">size</span><span class="o">=</span><span class="n">tflite_output_size</span><span class="p">,</span>
             <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">element_shape</span><span class="o">=</span><span class="n">output_shape</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">attn_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(())</span>
+        <span class="n">attn_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorShape</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span>
             <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
             <span class="n">size</span><span class="o">=</span><span class="n">tflite_output_size</span><span class="p">,</span>
@@ -782,14 +790,13 @@
         <span class="n">parallel_iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">maximum_iterations</span><span class="o">=</span><span class="n">maximum_iterations</span><span class="p">,</span>
     <span class="p">)</span>
-
     <span class="n">ids</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">lengths</span> <span class="o">=</span> <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">finalize</span><span class="p">(</span>
         <span class="n">outputs</span><span class="p">,</span>
         <span class="n">end_id</span><span class="p">,</span>
-        <span class="n">attention</span><span class="o">=</span><span class="n">attention</span> <span class="k">if</span> <span class="n">attention_history</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_tflite_run</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">attention</span><span class="o">=</span><span class="n">attention</span> <span class="k">if</span> <span class="n">attention_history</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">extra_vars</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_tflite_run</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">attention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">attention</span> <span class="o">=</span> <span class="n">attention</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Ignore attention for &lt;/s&gt;.</span>
     <span class="n">log_probs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">decoding_strategy</span><span class="o">.</span><span class="n">num_hypotheses</span><span class="p">])</span>
     <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">ids_dtype</span><span class="p">)</span>
@@ -849,6 +856,132 @@
     <span class="n">lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
     <span class="n">lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">lengths</span>
+
+
+<span class="c1"># The gather_tree functions are imported from TensorFlow Addons:</span>
+<span class="c1"># https://github.com/tensorflow/addons/blob/master/tensorflow_addons/seq2seq/beam_search_decoder.py</span>
+<span class="c1">#</span>
+<span class="c1"># We do not use the Addons version because the public gather_tree function is</span>
+<span class="c1"># wrapped by a tf.function. This should not be an issue, but the function is</span>
+<span class="c1"># unexpectedly garbage collected in our test suite.</span>
+
+
+<span class="k">def</span> <span class="nf">_gather_tree</span><span class="p">(</span><span class="n">step_ids</span><span class="p">,</span> <span class="n">parent_ids</span><span class="p">,</span> <span class="n">max_sequence_lengths</span><span class="p">,</span> <span class="n">end_token</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculates the full beams from the per-step ids and parent beam ids.</span>
+
+<span class="sd">    For a given beam, past the time step containing the first decoded</span>
+<span class="sd">    ``end_token`` all values are filled in with ``end_token``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      step_ids: The predicted token IDs.</span>
+<span class="sd">        A ``int32`` Tensor of shape ``[max_time, batch_size, beam_width]``.</span>
+<span class="sd">      parent_ids: The parent beam indices.</span>
+<span class="sd">        A ``int32`` Tensor of shape ``[max_time, batch_size, beam_width]``.</span>
+<span class="sd">      max_sequence_lengths: The maximum sequence length of each batch.</span>
+<span class="sd">        A ``int32`` Tensor of shape ``[batch_size]``.</span>
+<span class="sd">      end_token: The end token ID.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The reordered token IDs based on ``parent_ids``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      InvalidArgumentError: if ``parent_ids`` contains an invalid index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">input_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">parent_ids</span><span class="p">)</span>
+    <span class="n">max_time</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">beam_width</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">max_sequence_lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">max_sequence_lengths</span><span class="p">,</span> <span class="n">max_time</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span><span class="n">max_sequence_lengths</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">max_time</span><span class="p">)),</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Mask out of range ids.</span>
+    <span class="n">end_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">input_shape</span><span class="p">,</span> <span class="n">end_token</span><span class="p">)</span>
+    <span class="n">step_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">step_ids</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">end_tokens</span><span class="p">)</span>
+    <span class="n">parent_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">parent_ids</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">parent_ids</span><span class="p">))</span>
+    <span class="n">assert_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">debugging</span><span class="o">.</span><span class="n">Assert</span><span class="p">(</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">reduce_all</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">parent_ids</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">parent_ids</span> <span class="o">&lt;</span> <span class="n">beam_width</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="p">[</span><span class="s2">&quot;All parent ids must be positive and less than beam_width&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Reverse all sequences as we need to gather from the end.</span>
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">control_dependencies</span><span class="p">([</span><span class="n">assert_op</span><span class="p">]):</span>
+        <span class="n">rev_step_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reverse_sequence</span><span class="p">(</span>
+            <span class="n">step_ids</span><span class="p">,</span> <span class="n">max_sequence_lengths</span><span class="p">,</span> <span class="n">seq_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch_axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="n">rev_parent_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reverse_sequence</span><span class="p">(</span>
+            <span class="n">parent_ids</span><span class="p">,</span> <span class="n">max_sequence_lengths</span><span class="p">,</span> <span class="n">seq_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch_axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Initialize output ids and parent based on last step.</span>
+    <span class="n">output_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">step_ids</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">max_time</span><span class="p">,</span> <span class="n">dynamic_size</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">output_ids</span> <span class="o">=</span> <span class="n">output_ids</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">rev_step_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">rev_parent_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># For each step, gather ids based on beam origin.</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_time</span><span class="p">):</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">rev_step_ids</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">parent</span><span class="p">,</span> <span class="n">batch_dims</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">rev_parent_ids</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">parent</span><span class="p">,</span> <span class="n">batch_dims</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">output_ids</span> <span class="o">=</span> <span class="n">output_ids</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
+
+    <span class="c1"># Reverse sequences to their original order.</span>
+    <span class="n">output_ids</span> <span class="o">=</span> <span class="n">output_ids</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+    <span class="n">output_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reverse_sequence</span><span class="p">(</span>
+        <span class="n">output_ids</span><span class="p">,</span> <span class="n">max_sequence_lengths</span><span class="p">,</span> <span class="n">seq_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch_axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Ensure that there are only end_token after the first end_token.</span>
+    <span class="n">in_bound_steps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">output_ids</span> <span class="o">==</span> <span class="n">end_token</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="n">output_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">in_bound_steps</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">output_ids</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">end_tokens</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output_ids</span>
+
+
+<span class="k">def</span> <span class="nf">_gather_tree_from_array</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">parent_ids</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculates the full beams for a ``TensorArray``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      t: A stacked ``TensorArray`` of size ``max_time`` that contains Tensors of</span>
+<span class="sd">        shape ``[batch_size, beam_width, s]`` or ``[batch_size * beam_width, s]``</span>
+<span class="sd">        where ``s`` is the depth shape.</span>
+<span class="sd">      parent_ids: The parent ids of shape ``[max_time, batch_size, beam_width]``.</span>
+<span class="sd">      sequence_length: The sequence length of shape ``[batch_size, beam_width]``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A Tensor which is a stacked ``TensorArray`` of the same size and type as</span>
+<span class="sd">      ``t`` and where beams are sorted in each Tensor according to</span>
+<span class="sd">      ``parent_ids``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">max_time</span> <span class="o">=</span> <span class="n">parent_ids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">parent_ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">parent_ids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">parent_ids</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">beam_width</span> <span class="o">=</span> <span class="n">parent_ids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">or</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">parent_ids</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="c1"># Generate beam ids that will be reordered by gather_tree.</span>
+    <span class="n">beam_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">beam_width</span><span class="p">),</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">beam_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">beam_ids</span><span class="p">,</span> <span class="p">[</span><span class="n">max_time</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">max_sequence_lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">sorted_beam_ids</span> <span class="o">=</span> <span class="n">_gather_tree</span><span class="p">(</span>
+        <span class="n">step_ids</span><span class="o">=</span><span class="n">beam_ids</span><span class="p">,</span>
+        <span class="n">parent_ids</span><span class="o">=</span><span class="n">parent_ids</span><span class="p">,</span>
+        <span class="n">max_sequence_lengths</span><span class="o">=</span><span class="n">max_sequence_lengths</span><span class="p">,</span>
+        <span class="n">end_token</span><span class="o">=</span><span class="n">beam_width</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># For out of range steps, simply copy the same beam.</span>
+    <span class="n">in_bound_steps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">max_time</span><span class="p">),</span> <span class="n">perm</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">sorted_beam_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">in_bound_steps</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">sorted_beam_ids</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">beam_ids</span><span class="p">)</span>
+
+    <span class="c1"># Gather from a tensor with collapsed additional dimensions.</span>
+    <span class="n">final_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">gather_from</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="p">[</span><span class="n">max_time</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">beam_width</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ordered</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">gather_from</span><span class="p">,</span> <span class="n">sorted_beam_ids</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">batch_dims</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ordered</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ordered</span><span class="p">,</span> <span class="n">final_shape</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ordered</span>
 </pre></div>
 
            </div>

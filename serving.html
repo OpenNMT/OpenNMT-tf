@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Serving &mdash; OpenNMT-tf 2.21.0 documentation</title>
+  <title>Serving &mdash; OpenNMT-tf 2.22.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.21
+                2.22
               </div>
             
           
@@ -121,6 +121,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#ctranslate2">CTranslate2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tensorflow-lite">TensorFlow Lite</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
@@ -253,6 +254,42 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">ctranslate2_int16</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ctranslate2_float16</span></code></p></li>
 </ul>
+</div>
+<div class="section" id="tensorflow-lite">
+<h2>TensorFlow Lite<a class="headerlink" href="#tensorflow-lite" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://www.tensorflow.org/lite">TensorFlow Lite</a> is a deep learning framework for fast inference of TensorFlow models on mobile devices.</p>
+<p>Converting to TensorFlow Lite requires <strong>TensorFlow version 2.5+</strong></p>
+<p>Example export command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> <span class="nb">export</span> --export_dir ~/output --export_format tflite 
+</pre></div>
+</div>
+<p>Exporting will create an <code class="docutils literal notranslate"><span class="pre">opennmt.tflite</span></code> model file in the export directory.</p>
+<p><strong>Compatible models</strong></p>
+<ul class="simple">
+<li><p>RNN models</p></li>
+<li><p>Transformer</p></li>
+<li><p>Transformer Relative</p></li>
+<li><p>Transformer Shared Embeddings</p></li>
+</ul>
+<p><a class="reference external" href="https://www.tensorflow.org/lite/performance/post_training_quantization">Quantization</a> is a way to decrease the model size, and the inference time.</p>
+<p><strong>Quantization Export Formats</strong></p>
+<ul class="simple">
+<li><p>Dynamic range quantization - <code class="docutils literal notranslate"><span class="pre">tflite_dynamic_range</span></code></p></li>
+<li><p>Float16 quantization - <code class="docutils literal notranslate"><span class="pre">tflite_float16</span></code></p></li>
+</ul>
+<p><strong>Running a TFLite Model</strong></p>
+<p>Running requires using the same vocabulary files used for training.</p>
+<ol class="simple">
+<li><p>Convert the sentence to IDs with the vocabulary file.</p></li>
+<li><p>Run the model with the IDs to get a fixed size array. (<a class="reference external" href="https://www.tensorflow.org/lite/guide/inference">TensorFlow Guide</a>)</p></li>
+<li><p>Convert the resulting IDs to a sentence using the other vocabulary file.</p></li>
+</ol>
+<p><strong>Model Output</strong></p>
+<p>The model outputs a fixed size array, this can be specified in the data configuration file.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span>
+  <span class="nt">tflite_output_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">250</span>
+</pre></div>
+</div>
 </div>
 </div>
 

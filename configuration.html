@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Parameters &mdash; OpenNMT-tf 2.21.0 documentation</title>
+  <title>Parameters &mdash; OpenNMT-tf 2.22.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.21
+                2.22
               </div>
             
           
@@ -194,9 +194,7 @@
   <div class="section" id="parameters">
 <h1>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h1>
 <p>Run parameters are described in separate YAML files. They define data files, optimization settings, dynamic model parameters, and options related to training and inference. It uses the following layout:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">path_to_the_model_directory</span>
-
-<span class="nt">data</span><span class="p">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
   <span class="c1"># Data configuration (training and evaluation files, vocabularies, alignments, etc.)</span>
 <span class="nt">params</span><span class="p">:</span>
   <span class="c1"># Training and inference hyperparameters (learning rate, optimizer, beam size, etc.)</span>
@@ -241,8 +239,14 @@
 <div class="section" id="reference">
 <h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
 <p>Below is an exhaustive and documented configuration. <strong>You should NOT copy and use this configuration, instead you should only define the parameters that you need.</strong></p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># The directory where models and summaries will be saved. It is created if it does not exist.</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># (optional) The directory where models and summaries will be saved.</span>
+<span class="c1"># Can also be set with the command line option --model_dir.</span>
+<span class="c1"># The directory is created if it does not exist.</span>
 <span class="nt">model_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">toy-ende</span>
+
+<span class="c1"># (optional) Enable automatic parameters based on the selected model.</span>
+<span class="c1"># Can also be set with the command line option --auto_config.</span>
+<span class="nt">auto_config</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
 
 <span class="nt">data</span><span class="p">:</span>
   <span class="c1"># (required for train run type).</span>
@@ -413,7 +417,7 @@
   <span class="nt">contrastive_learning</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
   <span class="c1"># (optional) The value of the parameter eta in the max-margin loss (default: 0.1).</span>
   <span class="nt">max_margin_eta</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
-  <span class="c1"># (optional) Size of input when saving a model as TFLite</span>
+  <span class="c1"># (optional) Size of output on an exported TensorFlow Lite model</span>
   <span class="nt">tflite_output_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">250</span>
 
 

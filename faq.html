@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Frequently Asked Questions &mdash; OpenNMT-tf 2.21.0 documentation</title>
+  <title>Frequently Asked Questions &mdash; OpenNMT-tf 2.22.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.21
+                2.22
               </div>
             
           
@@ -213,8 +213,8 @@ onmt-main [...] train  # 2nd epoch
 <h2>How to continue training with different optimization settings?<a class="headerlink" href="#how-to-continue-training-with-different-optimization-settings" title="Permalink to this headline">¶</a></h2>
 <p>By default, OpenNMT-tf continues the training where it left off, including the state of the optimizer. To change the optimization settings, the recommended approach is to start a fresh training and only load the model weights from the previous checkpoint:</p>
 <ol class="simple">
-<li><p>In your configuration, set <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> to a new directory to start a new training</p></li>
-<li><p>On the command line, set <code class="docutils literal notranslate"><span class="pre">--checkpoint_path</span></code> to the checkpoint from where to load the model weights</p></li>
+<li><p>Set a new model directory, either with the command line option <code class="docutils literal notranslate"><span class="pre">--model_dir</span></code> or in the configuration field <code class="docutils literal notranslate"><span class="pre">model_dir</span></code></p></li>
+<li><p>Set the command line option <code class="docutils literal notranslate"><span class="pre">--checkpoint_path</span></code> to the checkpoint where model weights should be loaded</p></li>
 </ol>
 </div>
 <div class="section" id="how-can-i-restrict-the-tensorflow-runtime-to-specific-gpu">

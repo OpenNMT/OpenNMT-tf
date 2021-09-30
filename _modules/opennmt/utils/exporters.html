@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.21.0 documentation</title>
+  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.22.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.21
+                2.22
               </div>
             
           
@@ -272,7 +272,10 @@
     <span class="sd">&quot;&quot;&quot;TensorFlow Lite exporter.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantization</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">accepted_quantization</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;float16&quot;</span><span class="p">,)</span>
+        <span class="n">accepted_quantization</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;float16&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;dynamic_range&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">quantization</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">quantization</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">accepted_quantization</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Unsupported quantization &#39;</span><span class="si">%s</span><span class="s2">&#39; for TensorFlow Lite, accepted values are: </span><span class="si">%s</span><span class="s2">&quot;</span>
@@ -295,8 +298,10 @@
             <span class="n">tf</span><span class="o">.</span><span class="n">lite</span><span class="o">.</span><span class="n">OpsSet</span><span class="o">.</span><span class="n">TFLITE_BUILTINS</span><span class="p">,</span>  <span class="c1"># enable TensorFlow Lite ops.</span>
             <span class="n">tf</span><span class="o">.</span><span class="n">lite</span><span class="o">.</span><span class="n">OpsSet</span><span class="o">.</span><span class="n">SELECT_TF_OPS</span><span class="p">,</span>  <span class="c1"># enable TensorFlow ops.</span>
         <span class="p">]</span>
-        <span class="n">converter</span><span class="o">.</span><span class="n">optimizations</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">lite</span><span class="o">.</span><span class="n">Optimize</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quantization</span> <span class="o">==</span> <span class="s2">&quot;float16&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quantization</span> <span class="o">==</span> <span class="s2">&quot;dynamic_range&quot;</span><span class="p">:</span>
+            <span class="n">converter</span><span class="o">.</span><span class="n">optimizations</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">lite</span><span class="o">.</span><span class="n">Optimize</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quantization</span> <span class="o">==</span> <span class="s2">&quot;float16&quot;</span><span class="p">:</span>
+            <span class="n">converter</span><span class="o">.</span><span class="n">optimizations</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">lite</span><span class="o">.</span><span class="n">Optimize</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">]</span>
             <span class="n">converter</span><span class="o">.</span><span class="n">target_spec</span><span class="o">.</span><span class="n">supported_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">float16</span><span class="p">]</span>
 
         <span class="n">tflite_model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">export_dir</span><span class="p">,</span> <span class="s2">&quot;opennmt.tflite&quot;</span><span class="p">)</span>
@@ -311,6 +316,14 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;float16&quot;</span><span class="p">)</span></div>
+
+
+<span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;tflite_dynamic_range&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">TFLiteDynamicRangeExporter</span><span class="p">(</span><span class="n">TFLiteExporter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;TensorFlow Lite exporter with dynamic range quantization.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;dynamic_range&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="CTranslate2Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Exporter.html#opennmt.utils.CTranslate2Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ctranslate2&quot;</span><span class="p">)</span>

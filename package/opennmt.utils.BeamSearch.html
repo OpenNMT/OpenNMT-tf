@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.utils.BeamSearch &mdash; OpenNMT-tf 2.21.0 documentation</title>
+  <title>opennmt.utils.BeamSearch &mdash; OpenNMT-tf 2.22.0 documentation</title>
   
 
   
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                2.21
+                2.22
               </div>
             
           
@@ -217,12 +217,12 @@
 <h1>opennmt.utils.BeamSearch<a class="headerlink" href="#opennmt-utils-beamsearch" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="opennmt.utils.BeamSearch">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">opennmt.utils.</span></code><code class="sig-name descname"><span class="pre">BeamSearch</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beam_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_penalty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage_penalty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BeamSearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.utils.BeamSearch" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">opennmt.utils.</span></code><code class="sig-name descname"><span class="pre">BeamSearch</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beam_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_penalty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage_penalty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tflite_output_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BeamSearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.utils.BeamSearch" title="Permalink to this definition">¶</a></dt>
 <dd><p>A beam search strategy.</p>
 <p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy" title="opennmt.utils.DecodingStrategy"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.utils.DecodingStrategy</span></code></a></p>
 <dl class="py method">
 <dt id="opennmt.utils.BeamSearch.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beam_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_penalty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage_penalty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BeamSearch.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.utils.BeamSearch.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beam_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_penalty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage_penalty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tflite_output_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BeamSearch.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.utils.BeamSearch.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the decoding strategy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -230,6 +230,7 @@
 <li><p><strong>beam_size</strong> – The number of paths to consider per batch.</p></li>
 <li><p><strong>length_penalty</strong> – Length penalty, see <a class="reference external" href="https://arxiv.org/abs/1609.08144">https://arxiv.org/abs/1609.08144</a>.</p></li>
 <li><p><strong>coverage_penalty</strong> – Coverage penalty, see <a class="reference external" href="https://arxiv.org/abs/1609.08144">https://arxiv.org/abs/1609.08144</a>.</p></li>
+<li><p><strong>tflite_output_size</strong> – None if not TFLite exporting.  Is the output size of TFLite model</p></li>
 </ul>
 </dd>
 </dl>
@@ -299,7 +300,7 @@ maximum source length).</p></li>
 
 <dl class="py method">
 <dt id="opennmt.utils.BeamSearch.finalize">
-<code class="sig-name descname"><span class="pre">finalize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#opennmt.utils.BeamSearch.finalize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">finalize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/decoding.html#BeamSearch.finalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.utils.BeamSearch.finalize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finalize the predictions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
