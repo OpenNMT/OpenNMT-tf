@@ -458,7 +458,7 @@ class SequenceToSequence(model.SequenceGenerator):
                     )
         return loss, loss_normalizer, loss_token_normalizer
 
-    def print_prediction(self, prediction, params=None, stream=None):
+    def format_prediction(self, prediction, params=None):
         if params is None:
             params = {}
         with_scores = params.get("with_scores")
@@ -468,6 +468,7 @@ class SequenceToSequence(model.SequenceGenerator):
                 "with_alignments is set but the model did not return alignment information"
             )
         num_hypotheses = params.get("n_best", len(prediction["log_probs"]))
+        outputs = []
         for i in range(num_hypotheses):
             if "tokens" in prediction:
                 target_length = prediction["length"][i]
@@ -487,7 +488,8 @@ class SequenceToSequence(model.SequenceGenerator):
                 attention=attention,
                 alignment_type=alignment_type,
             )
-            misc.print_as_bytes(sentence, stream=stream)
+            outputs.append(sentence)
+        return outputs
 
     def transfer_weights(
         self, new_model, new_optimizer=None, optimizer=None, ignore_weights=None

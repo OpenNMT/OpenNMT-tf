@@ -137,12 +137,11 @@ class LanguageModel(model.SequenceGenerator):
             training=training,
         )
 
-    def print_prediction(self, prediction, params=None, stream=None):
+    def format_prediction(self, prediction, params=None):
         target_length = prediction["length"]
         tokens = prediction["tokens"][:target_length]
         sentence = self.examples_inputter.tokenizer.detokenize(tokens)
-        sentence = misc.format_translation_output(sentence)
-        misc.print_as_bytes(sentence, stream=stream)
+        return misc.format_translation_output(sentence)
 
 
 class LanguageModelInputter(inputters.WordEmbedder, inputters.ExampleInputterAdapter):

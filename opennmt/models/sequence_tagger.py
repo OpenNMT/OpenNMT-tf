@@ -6,7 +6,6 @@ import tensorflow_addons as tfa
 
 from opennmt import inputters
 from opennmt.models.model import Model
-from opennmt.utils import misc
 from opennmt.utils.losses import cross_entropy_sequence_loss
 
 
@@ -121,10 +120,9 @@ class SequenceTagger(Model):
 
             metrics["f1"].update_state(gold_flags, predicted_flags)
 
-    def print_prediction(self, prediction, params=None, stream=None):
+    def format_prediction(self, prediction, params=None):
         tags = prediction["tags"][: prediction["length"]]
-        sent = b" ".join(tags)
-        misc.print_as_bytes(sent, stream=stream)
+        return " ".join(tag.decode("utf-8") for tag in tags)
 
 
 class TagsInputter(inputters.TextInputter):

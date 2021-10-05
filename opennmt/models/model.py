@@ -500,27 +500,57 @@ class Model(tf.keras.layers.Layer):
         if not self.unsupervised:
             self.labels_inputter.visualize(self, log_dir)
 
+    def format_prediction(self, prediction, params=None):
+        """Formats the model prediction for file saving.
+
+        Args:
+          prediction: The model prediction (same structure as the second output of
+            :meth:`opennmt.models.Model.call`).
+          params: (optional) Dictionary of formatting parameters.
+
+        Returns:
+          A string or list of strings.
+        """
+        return str(prediction)
+
+    def format_score(self, score, params=None, stream=None):
+        """Formats the score result for file saving.
+
+        Args:
+          score: The score result (same structure as the output of
+            :meth:`opennmt.models.Model.score`).
+          params: (optional) Dictionary of formatting parameters.
+        """
+        return str(score)
+
     def print_prediction(self, prediction, params=None, stream=None):
         """Prints the model prediction.
 
         Args:
-          prediction: The model prediction.
+          prediction: The model prediction (same structure as the second output of
+            :meth:`opennmt.models.Model.call`).
           params: (optional) Dictionary of formatting parameters.
           stream: (optional) The stream to print to.
         """
-        _ = params
-        print(prediction, file=stream)
+        _write_lines(self.format_prediction(prediction, params=params), stream)
 
     def print_score(self, score, params=None, stream=None):
         """Prints the score result.
 
         Args:
-          score: The score result (output of :meth:`opennmt.models.Model.score`).
+          score: The score result (same structure as the output of
+            :meth:`opennmt.models.Model.score`).
           params: (optional) Dictionary of formatting parameters.
           stream: (optional) The stream to print to.
         """
-        _ = params
-        print(score, file=stream)
+        _write_lines(self.format_score(score, params=params), stream)
+
+
+def _write_lines(lines, stream):
+    if not isinstance(lines, list):
+        lines = [lines]
+    for line in lines:
+        misc.print_as_bytes(line, stream=stream)
 
 
 class SequenceGenerator(Model):
@@ -553,7 +583,7 @@ class SequenceGenerator(Model):
                 results[key_to_forward] = value
         return results
 
-    def print_score(self, score, params=None, stream=None):
+    def format_score(self, score, params=None):
         if params is None:
             params = {}
         length = score["length"]
@@ -566,11 +596,10 @@ class SequenceGenerator(Model):
         if "attention" in score:
             attention = score["attention"][:length]
         alignment_type = params.get("with_alignments")
-        sentence = misc.format_translation_output(
+        return misc.format_translation_output(
             sentence,
             score=score["score"],
             token_level_scores=token_level_scores,
             attention=attention,
             alignment_type=alignment_type,
         )
-        misc.print_as_bytes(sentence, stream=stream)

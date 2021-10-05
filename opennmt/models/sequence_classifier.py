@@ -4,7 +4,6 @@ import tensorflow as tf
 
 from opennmt import inputters
 from opennmt.models.model import Model
-from opennmt.utils import misc
 from opennmt.utils.losses import cross_entropy_loss
 
 
@@ -78,8 +77,8 @@ class SequenceClassifier(Model):
             labels["classes_id"], predictions["classes_id"]
         )
 
-    def print_prediction(self, prediction, params=None, stream=None):
-        misc.print_as_bytes(prediction["classes"], stream=stream)
+    def format_prediction(self, prediction, params=None):
+        return prediction["classes"].decode("utf-8")
 
 
 class ClassInputter(inputters.TextInputter):
