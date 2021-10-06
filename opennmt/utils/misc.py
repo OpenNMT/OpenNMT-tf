@@ -390,7 +390,7 @@ def merge_dict(dict1, dict2, override_keys=None):
     Args:
       dict1: The base dictionary.
       dict2: The dictionary to merge.
-      override_keys: The values associated with these keys are overriden instead
+      override_keys: The values associated with these keys are overridden instead
         of merged.
 
     Returns:
