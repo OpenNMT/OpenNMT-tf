@@ -13,8 +13,19 @@ from opennmt.models.model import Model
 
 class ConfigTest(tf.test.TestCase):
     def testConfigOverride(self):
-        config1 = {"model_dir": "foo", "train": {"batch_size": 32, "steps": 42}}
-        config2 = {"model_dir": "bar", "train": {"batch_size": 64}}
+        config1 = {
+            "model_dir": "foo",
+            "train": {"batch_size": 32, "steps": 42},
+            "params": {
+                "optimizer": "Adam",
+                "optimizer_params": {"beta_1": 0.9, "beta_2": 0.998},
+            },
+        }
+        config2 = {
+            "model_dir": "bar",
+            "train": {"batch_size": 64},
+            "params": {"optimizer": "SGD", "optimizer_params": {}},
+        }
         config_file_1 = os.path.join(self.get_temp_dir(), "config1.yml")
         config_file_2 = os.path.join(self.get_temp_dir(), "config2.yml")
 
@@ -26,7 +37,11 @@ class ConfigTest(tf.test.TestCase):
         loaded_config = config.load_config([config_file_1, config_file_2])
 
         self.assertDictEqual(
-            {"model_dir": "bar", "train": {"batch_size": 64, "steps": 42}},
+            {
+                "model_dir": "bar",
+                "train": {"batch_size": 64, "steps": 42},
+                "params": {"optimizer": "SGD", "optimizer_params": {}},
+            },
             loaded_config,
         )
 

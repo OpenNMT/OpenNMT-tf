@@ -3,6 +3,7 @@
 import tensorflow as tf
 import tensorflow_addons as tfa
 
+from opennmt import config as config_util
 from opennmt import constants, inputters
 from opennmt.data import noise, text, vocab
 from opennmt.decoders import decoder as decoder_util
@@ -99,7 +100,7 @@ class SequenceToSequence(model.SequenceGenerator):
 
     def auto_config(self, num_replicas=1):
         config = super().auto_config(num_replicas=num_replicas)
-        return misc.merge_dict(
+        return config_util.merge_config(
             config,
             {
                 "params": {

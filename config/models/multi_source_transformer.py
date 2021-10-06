@@ -17,8 +17,6 @@ data:
 
 import opennmt
 
-from opennmt.utils import misc
-
 
 class DualSourceTransformer(opennmt.models.Transformer):
     def __init__(self):
@@ -43,7 +41,7 @@ class DualSourceTransformer(opennmt.models.Transformer):
     def auto_config(self, num_replicas=1):
         config = super().auto_config(num_replicas=num_replicas)
         max_length = config["train"]["maximum_features_length"]
-        return misc.merge_dict(
+        return opennmt.merge_config(
             config, {"train": {"maximum_features_length": [max_length, max_length]}}
         )
 
