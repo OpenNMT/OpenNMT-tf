@@ -384,19 +384,25 @@ def extract_suffixed_keys(dictionary, suffix):
     return sub_dict
 
 
-def merge_dict(dict1, dict2):
+def merge_dict(dict1, dict2, override_keys=None):
     """Merges :obj:`dict2` into :obj:`dict1`.
 
     Args:
       dict1: The base dictionary.
       dict2: The dictionary to merge.
+      override_keys: The values associated with these keys are overriden instead
+        of merged.
 
     Returns:
       The merged dictionary :obj:`dict1`.
     """
     for key, value in dict2.items():
-        if isinstance(value, dict):
-            dict1[key] = merge_dict(dict1.get(key, {}), value)
+        if isinstance(value, dict) and (
+            override_keys is None or key not in override_keys
+        ):
+            dict1[key] = merge_dict(
+                dict1.get(key, {}), value, override_keys=override_keys
+            )
         else:
             dict1[key] = value
     return dict1

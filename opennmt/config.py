@@ -152,9 +152,15 @@ def load_config(config_paths, config=None):
         with tf.io.gfile.GFile(config_path) as config_file:
             subconfig = yaml.safe_load(config_file.read())
             # Add or update section in main configuration.
-            merge_dict(config, subconfig)
+            merge_config(config, subconfig)
 
     return config
+
+
+def merge_config(a, b):
+    """Merges the configuration :obj:`b` into the configuration :obj:`a`."""
+    override_keys = {"optimizer_params", "decay_params"}
+    return merge_dict(a, b, override_keys=override_keys)
 
 
 def _map_config_values(config, fn):

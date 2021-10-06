@@ -2,6 +2,7 @@
 
 import tensorflow as tf
 
+from opennmt import config as config_util
 from opennmt import inputters
 from opennmt.decoders.self_attention_decoder import SelfAttentionDecoder
 from opennmt.encoders.encoder import ParallelEncoder
@@ -12,7 +13,6 @@ from opennmt.models.sequence_to_sequence import (
     EmbeddingsSharingLevel,
     SequenceToSequence,
 )
-from opennmt.utils.misc import merge_dict
 
 
 class Transformer(SequenceToSequence):
@@ -173,7 +173,7 @@ class Transformer(SequenceToSequence):
 
     def auto_config(self, num_replicas=1):
         config = super().auto_config(num_replicas=num_replicas)
-        return merge_dict(
+        return config_util.merge_config(
             config,
             {
                 "params": {

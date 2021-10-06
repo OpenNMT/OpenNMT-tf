@@ -3,6 +3,7 @@
 import tensorflow as tf
 import tensorflow_addons as tfa
 
+from opennmt import config as config_util
 from opennmt import decoders, encoders, inputters, layers
 from opennmt.models import (
     language_model,
@@ -75,7 +76,7 @@ class ListenAttendSpell(sequence_to_sequence.SequenceToSequence):
 
     def auto_config(self, num_replicas=1):
         config = super().auto_config(num_replicas=num_replicas)
-        return misc.merge_dict(
+        return config_util.merge_config(
             config,
             {
                 "params": {
@@ -99,7 +100,7 @@ class _RNNBase(sequence_to_sequence.SequenceToSequence):
 
     def auto_config(self, num_replicas=1):
         config = super().auto_config(num_replicas=num_replicas)
-        return misc.merge_dict(
+        return config_util.merge_config(
             config,
             {
                 "params": {
@@ -274,7 +275,7 @@ class LstmCnnCrfTagger(sequence_tagger.SequenceTagger):
 
     def auto_config(self, num_replicas=1):
         config = super().auto_config(num_replicas=num_replicas)
-        return misc.merge_dict(
+        return config_util.merge_config(
             config,
             {
                 "params": {
@@ -397,7 +398,7 @@ class GPT2Small(language_model.LanguageModel):
 
     def auto_config(self, num_replicas=1):
         config = super().auto_config(num_replicas=num_replicas)
-        return misc.merge_dict(
+        return config_util.merge_config(
             config,
             {
                 "params": {

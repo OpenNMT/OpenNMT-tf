@@ -2,6 +2,7 @@
 
 import tensorflow as tf
 
+from opennmt import config as config_util
 from opennmt import inputters
 from opennmt.models import model
 from opennmt.utils import decoding, losses, misc
@@ -30,7 +31,7 @@ class LanguageModel(model.SequenceGenerator):
 
     def auto_config(self, num_replicas=1):
         config = super().auto_config(num_replicas=num_replicas)
-        return misc.merge_dict(
+        return config_util.merge_config(
             config,
             {
                 "infer": {

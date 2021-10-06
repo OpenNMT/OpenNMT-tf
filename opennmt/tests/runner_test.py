@@ -10,7 +10,7 @@ import tensorflow as tf
 from parameterized import parameterized, parameterized_class
 
 from opennmt import Runner, decoders, models
-from opennmt.config import MODEL_DESCRIPTION_FILENAME, load_model
+from opennmt.config import MODEL_DESCRIPTION_FILENAME, load_model, merge_config
 from opennmt.tests import test_util
 from opennmt.utils import exporters, misc
 
@@ -50,7 +50,7 @@ class RunnerTest(tf.test.TestCase):
             "target_vocabulary": "en.vocab",
         }
         if base_config is not None:
-            config = misc.merge_dict(config, base_config)
+            config = merge_config(config, base_config)
         model = load_model(model_dir, as_builder=pass_model_builder)
         runner = Runner(model, config)
         return runner
