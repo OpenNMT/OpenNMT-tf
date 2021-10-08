@@ -166,19 +166,25 @@ class Tokenizer(abc.ABC):
             tokens = self._tokenize_string(string, training)
             return tf.constant(tokens, dtype=tf.string)
 
+        def _python_wrapper_batch(batch_text):
+            batch_text = list(map(tf.compat.as_text, batch_text.numpy()))
+            batch_tokens = self._tokenize_string_batch(batch_text, training)
+            flat_tokens = tf.constant(tf.nest.flatten(batch_tokens), dtype=tf.string)
+            lengths = tf.constant(list(map(len, batch_tokens)), dtype=tf.int32)
+            return flat_tokens, lengths
+
         rank = text.shape.rank
         if rank == 0:
             tokens = tf.py_function(_python_wrapper, [text], tf.string)
             tokens.set_shape([None])
             return tokens
         elif rank == 1:
-            return tf.map_fn(
-                lambda x: self._tokenize_tensor(x, training),
-                text,
-                fn_output_signature=tf.RaggedTensorSpec(
-                    shape=[None], dtype=tf.string, ragged_rank=0
-                ),
+            flat_tokens, lengths = tf.py_function(
+                _python_wrapper_batch, [text], (tf.string, tf.int32)
             )
+            flat_tokens.set_shape([None])
+            lengths.set_shape([None])
+            return tf.RaggedTensor.from_row_lengths(flat_tokens, lengths)
         else:
             raise ValueError("Unsupported tensor rank %d for tokenization" % rank)
 
@@ -225,6 +231,18 @@ class Tokenizer(abc.ABC):
           A list of Python unicode strings.
         """
         raise NotImplementedError()
+
+    def _tokenize_string_batch(self, batch_text, training):
+        """Tokenizes a batch of Python unicode strings.
+
+        Args:
+          batch_text: A list of Python unicode strings.
+          training: Set to ``False`` to tokenize for inference.
+
+        Returns:
+          A list of lists of Python unicode strings.
+        """
+        return [self._tokenize_string(text, training) for text in batch_text]
 
     @abc.abstractmethod
     def _detokenize_string(self, tokens):
