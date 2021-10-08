@@ -288,6 +288,7 @@ class TextInputter(Inputter):
         if training and self.noiser is not None:
             noisy_tokens, noisy_length = self.noiser(
                 tokens,
+                sequence_length=length,
                 probability=self.noise_probability if self.in_place_noise else None,
             )
             if self.in_place_noise:
