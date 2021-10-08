@@ -38,66 +38,96 @@ class WordNoiser(object):
         """Adds a noise to apply."""
         self.noises.append(noise)
 
-    def __call__(self, tokens, sequence_length=None, keep_shape=False):
+    def __call__(
+        self, tokens, sequence_length=None, keep_shape=False, probability=None
+    ):
         """Applies noise on :obj:`tokens`.
 
         Args:
-          tokens: A string ``tf.Tensor`` or batch of string ``tf.Tensor``.
-          sequence_length: When :obj:`tokens` is a batch, the length of each
-            sequence in the batch.
-          keep_shape: Ensure that the shape is kept. Otherwise, fit the shape to the
-            new lengths.
+          tokens: A string ``tf.Tensor``, a batch of string ``tf.Tensor``, or a
+            string ``tf.RaggedTensor``.
+          sequence_length: When :obj:`tokens` is a dense tensor, the length of
+            each sequence in the batch.
+          keep_shape: Ensure that the original dense shape is kept. Otherwise,
+            fit the shape to the new lengths.
+          probability: Probability to apply noise on each example.
 
         Returns:
-          A tuple with the noisy version of :obj:`tokens` and the new lengths.
+          If :obj:`tokens` is a ``tf.RaggedTensor``, the method returns the
+          noisy tokens as a ``tf.RaggedTensor``, otherwise it returns a tuple
+          with the noisy tokens as a ``tf.Tensor`` and the new lengths.
 
         Raises:
           ValueError: if :obj:`tokens` is a batch of string but
             :obj:`sequence_length` is not passed.
+          ValueError: if :obj:`keep_shape` is ``True`` but :obj:`tokens` is a
+            ``tf.RaggedTensor``.
         """
+        if probability is None:
+            probability = 1
         with tf.device("cpu:0"):
-            return self._call(tokens, sequence_length, keep_shape)
+            return self._call(tokens, sequence_length, keep_shape, probability)
 
-    def _call(self, tokens, sequence_length, keep_shape):
-        rank = tokens.shape.ndims
-        if rank == 1:
-            input_length = tf.shape(tokens)[0]
-            if sequence_length is not None:
-                tokens = tokens[:sequence_length]
-            else:
-                tokens = tokens[: tf.math.count_nonzero(tokens)]
-            words = text.tokens_to_words(
-                tokens, subword_token=self.subword_token, is_spacer=self.is_spacer
-            )
-            words = words.to_tensor()
-            for noise in self.noises:
-                words = noise(words)
-            outputs = tf.RaggedTensor.from_tensor(words, padding="").flat_values
-            output_length = tf.shape(outputs)[0]
+    def _call(self, tokens, sequence_length, keep_shape, probability):
+        input_rank = tokens.shape.rank
+        input_is_ragged = isinstance(tokens, tf.RaggedTensor)
+
+        if input_is_ragged:
             if keep_shape:
-                outputs = tf.pad(outputs, [[0, input_length - output_length]])
-            return outputs, output_length
-        elif rank == 2:
+                raise ValueError("keep_shape is not compatible with a ragged input")
+            ragged_tokens = tokens
+        elif input_rank == 1:
+            tokens = tf.expand_dims(tokens, 0)
+            ragged_tokens = tf.RaggedTensor.from_tensor(tokens)
+        elif input_rank == 2:
             if sequence_length is None:
-                raise ValueError("sequence_length must be passed for 2D inputs")
-            tokens, sequence_length = tf.map_fn(
-                lambda arg: self._call(*arg, keep_shape=True), (tokens, sequence_length)
-            )
-            if not keep_shape:
-                tokens = tokens[:, : tf.reduce_max(sequence_length)]
-            return tokens, sequence_length
+                raise ValueError("sequence_length must be passed for 2D dense inputs")
+            ragged_tokens = tf.RaggedTensor.from_tensor(tokens, lengths=sequence_length)
         else:
-            if sequence_length is None:
-                raise ValueError("sequence_length must be passed for ND inputs")
-            original_shape = misc.shape_list(tokens)
-            tokens = tf.reshape(tokens, [-1, original_shape[-1]])
-            sequence_length = tf.reshape(sequence_length, [-1])
-            tokens, sequence_length = self._call(
-                tokens, sequence_length, keep_shape=keep_shape
+            raise ValueError("unsupported rank %d for WordNoiser input" % input_rank)
+
+        noisy_tokens = tf.map_fn(
+            lambda tokens: self._maybe_apply_noise(tokens, probability),
+            ragged_tokens,
+            fn_output_signature=tf.RaggedTensorSpec(
+                shape=[None], dtype=ragged_tokens.dtype, ragged_rank=0
+            ),
+        )
+
+        if input_is_ragged:
+            return noisy_tokens
+
+        new_lengths = tf.cast(noisy_tokens.row_lengths(), tf.int32)
+        noisy_tokens = noisy_tokens.to_tensor(
+            shape=tf.shape(tokens) if keep_shape else None
+        )
+        if input_rank == 1:
+            new_lengths = new_lengths[0]
+            noisy_tokens = noisy_tokens[0]
+
+        return noisy_tokens, new_lengths
+
+    def _maybe_apply_noise(self, tokens, probability):
+        if probability == 1:
+            return self._apply_noise(tokens)
+        elif probability == 0:
+            return tokens
+        else:
+            return tf.cond(
+                random_mask([], probability),
+                true_fn=lambda: self._apply_noise(tokens),
+                false_fn=lambda: tokens,
             )
-            tokens = tf.reshape(tokens, original_shape[:-1] + [-1])
-            sequence_length = tf.reshape(sequence_length, original_shape[:-1])
-            return tokens, sequence_length
+
+    def _apply_noise(self, tokens):
+        words = text.tokens_to_words(
+            tokens, subword_token=self.subword_token, is_spacer=self.is_spacer
+        )
+        words = words.to_tensor()
+        for noise in self.noises:
+            words = noise(words)
+        tokens = tf.RaggedTensor.from_tensor(words, padding="").flat_values
+        return tokens
 
 
 class Noise(abc.ABC):
