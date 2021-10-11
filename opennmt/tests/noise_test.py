@@ -86,6 +86,15 @@ class NoiseTest(tf.test.TestCase):
         tokens, noisy_tokens = self.evaluate([tokens, noisy_tokens])
         self.assertAllEqual(noisy_tokens.shape, tokens.shape)
 
+    def testWordNoisingRagged(self):
+        tokens = tf.RaggedTensor.from_tensor(
+            [["a￭", "b", "c￭", "d", "e"], ["a￭", "b￭", "c", "", ""]], padding=""
+        )
+        noiser = noise.WordNoiser()
+        noiser.add(noise.WordReplacement(1, filler="f"))
+        tokens = noiser(tokens)
+        self.assertAllEqual(tokens.to_list(), [[b"f", b"f", b"f"], [b"f"]])
+
 
 if __name__ == "__main__":
     tf.test.main()

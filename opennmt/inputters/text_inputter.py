@@ -286,13 +286,14 @@ class TextInputter(Inputter):
         else:
             length = tf.shape(tokens)[0]
         if training and self.noiser is not None:
-            noisy_tokens, noisy_length = self.noiser(tokens, keep_shape=False)
+            noisy_tokens, noisy_length = self.noiser(
+                tokens,
+                sequence_length=length,
+                probability=self.noise_probability if self.in_place_noise else None,
+            )
             if self.in_place_noise:
-                tokens, length = tf.cond(
-                    tf.random.uniform([]) < self.noise_probability,
-                    true_fn=lambda: (noisy_tokens, noisy_length),
-                    false_fn=lambda: (tokens, length),
-                )
+                tokens = noisy_tokens
+                length = noisy_length
             else:
                 # Call make_features again to fill the remaining noisy features.
                 noisy_features = dict(tokens=noisy_tokens, length=noisy_length)
