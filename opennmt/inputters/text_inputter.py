@@ -270,15 +270,14 @@ class TextInputter(Inputter):
         return misc.count_lines(data_file)
 
     def has_prepare_step(self):
-        # For performance reasons, we apply the OpenNMT tokenization on a batch
-        # of dataset elements during the preparation step.
-        return isinstance(self.tokenizer, tokenizers.OpenNMTTokenizer)
+        # For performance reasons, we apply external tokenizers on a batch of
+        # dataset elements during the preparation step.
+        return not self.tokenizer.in_graph and not isinstance(
+            self.tokenizer, tokenizers.SpaceTokenizer
+        )
 
     def prepare_elements(self, elements, training=None):
-        tokens = self.tokenizer.tokenize(elements, training=training)
-        # The elements are unbatched after this method, so we prefer joining the
-        # tokens in a single string to avoid managing the padding.
-        return {"joined_tokens": tokenizers.SpaceTokenizer().detokenize(tokens)}
+        return {"tokens": self.tokenizer.tokenize(elements, training=training)}
 
     def make_features(self, element=None, features=None, training=None):
         """Tokenizes raw text."""
@@ -290,7 +289,7 @@ class TextInputter(Inputter):
 
         element = features.pop("text", element)
         if isinstance(element, dict):
-            tokens = tokenizers.SpaceTokenizer().tokenize(element["joined_tokens"])
+            tokens = element["tokens"]
         else:
             element = tf.convert_to_tensor(element, dtype=tf.string)
             tokens = self.tokenizer.tokenize(element, training=training)
