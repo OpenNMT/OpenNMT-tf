@@ -994,7 +994,7 @@ def _get_dataset_transforms(
         )
 
     map_fn = lambda *arg: inputter.make_features(
-        element=misc.item_or_tuple(arg), training=False
+        element=misc.item_or_tuple(arg), training=training
     )
     transform_fns.append(
         lambda dataset: dataset.map(map_fn, num_parallel_calls=num_threads)
