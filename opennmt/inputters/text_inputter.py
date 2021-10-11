@@ -269,6 +269,17 @@ class TextInputter(Inputter):
             return list(map(misc.count_lines, data_file))
         return misc.count_lines(data_file)
 
+    def has_prepare_step(self):
+        # For performance reasons, we apply the OpenNMT tokenization on a batch
+        # of dataset elements during the preparation step.
+        return isinstance(self.tokenizer, tokenizers.OpenNMTTokenizer)
+
+    def prepare_elements(self, elements, training=None):
+        tokens = self.tokenizer.tokenize(elements, training=training)
+        # The elements are unbatched after this method, so we prefer joining the
+        # tokens in a single string to avoid managing the padding.
+        return {"joined_tokens": tokenizers.SpaceTokenizer().detokenize(tokens)}
+
     def make_features(self, element=None, features=None, training=None):
         """Tokenizes raw text."""
         self._assert_is_initialized()
@@ -276,10 +287,14 @@ class TextInputter(Inputter):
             features = {}
         if "tokens" in features:
             return features
-        if "text" in features:
-            element = features.pop("text")
-        element = tf.convert_to_tensor(element, dtype=tf.string)
-        tokens = self.tokenizer.tokenize(element, training=training)
+
+        element = features.pop("text", element)
+        if isinstance(element, dict):
+            tokens = tokenizers.SpaceTokenizer().tokenize(element["joined_tokens"])
+        else:
+            element = tf.convert_to_tensor(element, dtype=tf.string)
+            tokens = self.tokenizer.tokenize(element, training=training)
+
         if isinstance(tokens, tf.RaggedTensor):
             length = tokens.row_lengths()
             tokens = tokens.to_tensor(default_value=constants.PADDING_TOKEN)
