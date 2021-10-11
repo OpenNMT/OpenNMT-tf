@@ -621,14 +621,15 @@ def training_pipeline(
         if transform_fns is not None:
             for transform_fn in transform_fns:
                 dataset = dataset.apply(transform_fn)
-        dataset = dataset.apply(
-            filter_examples_by_length(
-                maximum_features_length=maximum_features_length,
-                maximum_labels_length=maximum_labels_length,
-                features_length_fn=features_length_fn,
-                labels_length_fn=labels_length_fn,
+        else:
+            dataset = dataset.apply(
+                filter_examples_by_length(
+                    maximum_features_length=maximum_features_length,
+                    maximum_labels_length=maximum_labels_length,
+                    features_length_fn=features_length_fn,
+                    labels_length_fn=labels_length_fn,
+                )
             )
-        )
         dataset = dataset.apply(
             batch_sequence_dataset(
                 batch_size,
