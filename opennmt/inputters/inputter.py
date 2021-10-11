@@ -121,19 +121,11 @@ class Inputter(tf.keras.layers.Layer):
         See Also:
           :func:`opennmt.data.inference_pipeline`
         """
-
-        def _map_fn(*arg):
-            features = self.make_features(
-                element=misc.item_or_tuple(arg), training=False
-            )
-            if isinstance(features, (list, tuple)):
-                # Special case for unsupervised inputters that always return a
-                # tuple (features, labels).
-                return features[0]
-            return features
-
+        map_fn = lambda *arg: self.make_features(
+            element=misc.item_or_tuple(arg), training=False
+        )
         transform_fns = [
-            lambda dataset: dataset.map(_map_fn, num_parallel_calls=num_threads or 1)
+            lambda dataset: dataset.map(map_fn, num_parallel_calls=num_threads or 1)
         ]
 
         dataset = self.make_dataset(features_file, training=False)
@@ -222,9 +214,6 @@ class Inputter(tf.keras.layers.Layer):
         Returns:
           A boolean.
         """
-        if isinstance(features, (list, tuple)):
-            # Special case for unsupervised inputters that always return a tuple (features, labels).
-            features = features[0]
         length = self.get_length(features)
         if length is None:
             return True
