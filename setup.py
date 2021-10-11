@@ -49,7 +49,6 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
@@ -63,7 +62,7 @@ setup(
         "Source": "https://github.com/OpenNMT/OpenNMT-tf/",
     },
     keywords="tensorflow opennmt nmt neural machine translation",
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     install_requires=[
         "ctranslate2>=2.0.0,<3;platform_system=='Linux' or platform_system=='Darwin'",
         "pyonmttok>=1.26.4,<2",
