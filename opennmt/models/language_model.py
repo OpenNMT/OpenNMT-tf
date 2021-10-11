@@ -52,6 +52,8 @@ class LanguageModel(model.SequenceGenerator):
     def call(self, features, labels=None, training=None, step=None):
         outputs, predictions = None, None
 
+        if isinstance(features, tuple):
+            features = features[0]
         ids, length = features["ids"], features["length"]
         if labels is not None:
             # For training and evaluation, forward the full sequence.
@@ -159,6 +161,11 @@ class LanguageModelInputter(inputters.WordEmbedder, inputters.ExampleInputterAda
             self.mark_start = False
         if self.mark_end is None:
             self.mark_end = True
+
+    def get_length(self, features, ignore_special_tokens=False):
+        if isinstance(features, tuple):
+            features = features[0]
+        return super().get_length(features, ignore_special_tokens=ignore_special_tokens)
 
     def make_features(self, element=None, features=None, training=None):
         base_features = features if features is not None else {}
