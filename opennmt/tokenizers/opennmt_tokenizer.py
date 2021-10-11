@@ -61,5 +61,9 @@ class OpenNMTTokenizer(tokenizer.Tokenizer):
         tokens, _ = self._tokenizer.tokenize(text, training=training)
         return tokens
 
+    def _tokenize_string_batch(self, batch_text, training):
+        tokens, _ = self._tokenizer.tokenize_batch(batch_text, training=training)
+        return tokens
+
     def _detokenize_string(self, tokens):
         return self._tokenizer.detokenize(tokens)
