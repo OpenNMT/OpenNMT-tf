@@ -121,13 +121,9 @@ class Inputter(tf.keras.layers.Layer):
         See Also:
           :func:`opennmt.data.inference_pipeline`
         """
-        map_fn = lambda *arg: self.make_features(
-            element=misc.item_or_tuple(arg), training=False
+        transform_fns = _get_dataset_transforms(
+            self, num_threads=num_threads, training=False
         )
-        transform_fns = [
-            lambda dataset: dataset.map(map_fn, num_parallel_calls=num_threads or 1)
-        ]
-
         dataset = self.make_dataset(features_file, training=False)
         dataset = dataset.apply(
             dataset_util.inference_pipeline(
@@ -180,6 +176,30 @@ class Inputter(tf.keras.layers.Layer):
             else tf.TensorShape([maximum_length]).concatenate(spec.shape[1:]),
             element_spec,
         )
+
+    def has_prepare_step(self):
+        """Returns ``True`` if this inputter implements a data preparation step
+        in method :meth:`opennmt.inputters.Inputter.prepare_elements`.
+        """
+        return False
+
+    def prepare_elements(self, elements, training=None):
+        """Prepares dataset elements.
+
+        This method is called on a batch of dataset elements. For example, it
+        can be overriden to apply an external pre-tokenization.
+
+        Note that the results of the method are unbatched and then passed to
+        method :meth:`opennmt.inputters.Inputter.make_features`.
+
+        Args:
+          elements: A batch of dataset elements.
+          training: Run in training mode.
+
+        Returns:
+          A (possibly nested) structure of ``tf.Tensor``.
+        """
+        return elements
 
     @abc.abstractmethod
     def make_features(self, element=None, features=None, training=None):
@@ -305,9 +325,14 @@ class MultiInputter(Inputter):
             assets.update(inputter.export_assets(asset_dir))
         return assets
 
-    @abc.abstractmethod
-    def make_dataset(self, data_file, training=None):
-        raise NotImplementedError()
+    def has_prepare_step(self):
+        return any(inputter.has_prepare_step() for inputter in self.inputters)
+
+    def prepare_elements(self, elements, training=None):
+        return tuple(
+            inputter.prepare_elements(elts)
+            for inputter, elts in zip(self.inputters, elements)
+        )
 
     def visualize(self, model_root, log_dir):
         for inputter in self.inputters:
@@ -651,13 +676,9 @@ class ExampleInputterAdapter:
             data_files = features_file
             length_fn = self.get_length
 
-        map_fn = lambda *arg: self.make_features(
-            element=misc.item_or_tuple(arg), training=False
+        transform_fns = _get_dataset_transforms(
+            self, num_threads=num_threads, training=False
         )
-        transform_fns = [
-            lambda dataset: dataset.map(map_fn, num_parallel_calls=num_threads or 1)
-        ]
-
         dataset = self.make_dataset(data_files, training=False)
         dataset = dataset.apply(
             dataset_util.inference_pipeline(
@@ -753,18 +774,16 @@ class ExampleInputterAdapter:
 
         dataset = self.make_dataset(data_files, training=True)
 
-        map_fn = lambda *arg: self.make_features(
-            element=misc.item_or_tuple(arg), training=True
-        )
         filter_fn = lambda *arg: (
             self.keep_for_training(
                 misc.item_or_tuple(arg), maximum_length=maximum_length
             )
         )
-        transform_fns = [
-            lambda dataset: dataset.map(map_fn, num_parallel_calls=num_threads or 4),
-            lambda dataset: dataset.filter(filter_fn),
-        ]
+
+        transform_fns = _get_dataset_transforms(
+            self, num_threads=num_threads, training=True
+        )
+        transform_fns.append(lambda dataset: dataset.filter(filter_fn))
 
         if batch_autotune_mode:
             # In this mode we want to return batches where all sequences are padded
@@ -952,3 +971,32 @@ class ExampleInputter(ParallelInputter, ExampleInputterAdapter):
             num_threads=num_threads,
             prefetch_buffer_size=prefetch_buffer_size,
         )
+
+
+def _get_dataset_transforms(
+    inputter,
+    num_threads=None,
+    training=None,
+    prepare_batch_size=128,
+):
+    transform_fns = []
+
+    if inputter.has_prepare_step():
+        prepare_fn = lambda *arg: inputter.prepare_elements(
+            misc.item_or_tuple(arg), training=training
+        )
+        transform_fns.extend(
+            [
+                lambda dataset: dataset.batch(prepare_batch_size),
+                lambda dataset: dataset.map(prepare_fn, num_parallel_calls=num_threads),
+                lambda dataset: dataset.unbatch(),
+            ]
+        )
+
+    map_fn = lambda *arg: inputter.make_features(
+        element=misc.item_or_tuple(arg), training=training
+    )
+    transform_fns.append(
+        lambda dataset: dataset.map(map_fn, num_parallel_calls=num_threads)
+    )
+    return transform_fns

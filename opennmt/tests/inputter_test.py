@@ -654,6 +654,7 @@ class InputterTest(tf.test.TestCase):
             }
         )
         self.assertIsInstance(source_inputter.tokenizer, tokenizers.OpenNMTTokenizer)
+        self.assertTrue(example_inputter.has_prepare_step())
         asset_dir = self.get_temp_dir()
         example_inputter.export_assets(asset_dir)
         self.assertIn("source_tokenizer_config.yml", set(os.listdir(asset_dir)))

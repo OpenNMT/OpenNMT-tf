@@ -269,6 +269,16 @@ class TextInputter(Inputter):
             return list(map(misc.count_lines, data_file))
         return misc.count_lines(data_file)
 
+    def has_prepare_step(self):
+        # For performance reasons, we apply external tokenizers on a batch of
+        # dataset elements during the preparation step.
+        return not self.tokenizer.in_graph and not isinstance(
+            self.tokenizer, tokenizers.SpaceTokenizer
+        )
+
+    def prepare_elements(self, elements, training=None):
+        return {"tokens": self.tokenizer.tokenize(elements, training=training)}
+
     def make_features(self, element=None, features=None, training=None):
         """Tokenizes raw text."""
         self._assert_is_initialized()
@@ -276,10 +286,14 @@ class TextInputter(Inputter):
             features = {}
         if "tokens" in features:
             return features
-        if "text" in features:
-            element = features.pop("text")
-        element = tf.convert_to_tensor(element, dtype=tf.string)
-        tokens = self.tokenizer.tokenize(element, training=training)
+
+        element = features.pop("text", element)
+        if isinstance(element, dict):
+            tokens = element["tokens"]
+        else:
+            element = tf.convert_to_tensor(element, dtype=tf.string)
+            tokens = self.tokenizer.tokenize(element, training=training)
+
         if isinstance(tokens, tf.RaggedTensor):
             length = tokens.row_lengths()
             tokens = tokens.to_tensor(default_value=constants.PADDING_TOKEN)
