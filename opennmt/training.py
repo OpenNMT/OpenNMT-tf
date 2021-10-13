@@ -9,21 +9,7 @@ import tensorflow as tf
 
 from opennmt.inputters import text_inputter
 from opennmt.optimizers import utils as optimizer_util
-from opennmt.utils import compat, misc
-
-
-def _add_mixed_precision_wrapper(optimizer):
-    # TODO: clean mixed precision API when TensorFlow requirement is updated to >=2.4.
-    wrapper_class = None
-    wrapper_kwargs = {}
-    if compat.tf_supports("keras.mixed_precision.LossScaleOptimizer"):
-        wrapper_class = tf.keras.mixed_precision.LossScaleOptimizer
-    else:
-        wrapper_class = tf.keras.mixed_precision.experimental.LossScaleOptimizer
-        wrapper_kwargs = dict(loss_scale="dynamic")
-    if not isinstance(optimizer, wrapper_class):
-        optimizer = wrapper_class(optimizer, **wrapper_kwargs)
-    return optimizer
+from opennmt.utils import misc
 
 
 class Trainer:
@@ -50,8 +36,10 @@ class Trainer:
 
         if optimizer is None:
             raise ValueError("No optimizer is defined")
-        if self._mixed_precision:
-            optimizer = _add_mixed_precision_wrapper(optimizer)
+        if self._mixed_precision and not isinstance(
+            optimizer, tf.keras.mixed_precision.LossScaleOptimizer
+        ):
+            optimizer = tf.keras.mixed_precision.LossScaleOptimizer(optimizer)
         self._optimizer = optimizer
 
     @property
@@ -430,15 +418,7 @@ class MirroredStrategyTrainer(Trainer):
         # We prefer not to use experimental_distribute_dataset here because it
         # sometimes fails to split the batches (noticed with tokens batch type).
         dataset_fn = dataset if callable(dataset) else lambda _: dataset
-        # TODO: clean this API usage when TensorFlow requirement is updated to >=2.4.
-        distribute_fn = getattr(
-            self._strategy, "distribute_datasets_from_function", None
-        )
-        if distribute_fn is None:
-            distribute_fn = (
-                self._strategy.experimental_distribute_datasets_from_function
-            )
-        return distribute_fn(dataset_fn)
+        return self._strategy.distribute_datasets_from_function(dataset_fn)
 
     def _forward(self, source, target, accum_steps=1, report_steps=None):
         per_replica_loss = self._strategy.run(
