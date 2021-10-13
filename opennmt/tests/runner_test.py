@@ -3,8 +3,6 @@ import os
 import shutil
 import unittest
 
-from distutils.version import LooseVersion
-
 import tensorflow as tf
 
 from parameterized import parameterized, parameterized_class
