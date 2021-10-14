@@ -167,22 +167,48 @@ def load_pretrained_embeddings(
     return pretrained
 
 
-def add_sequence_controls(ids, length, start_id=None, end_id=None):
+def add_sequence_controls(
+    ids,
+    length=None,
+    start_id=None,
+    end_id=None,
+    pad_id=constants.PADDING_ID,
+):
     """Adds sequence control tokens.
 
     Args:
-      ids: Sequence of ids as 1D or 2D (batch) tensor.
-      length: Sequence length as 0D or 1D (batch) tensor.
-      start_id: Id to prepend to the sequence (set ``None`` to disable).
-      end_id: Id to append to the sequence (set ``None`` to disable).
+      ids: Sequence of token ids as a 1D ``tf.Tensor``, a 2D ``tf.Tensor``, or a
+        2D ``tf.RaggedTensor``.
+      length: Length of each sequence in the batch as a 1D ``tf.Tensor``.
+        Required if :obj:`ids` is a 2D ``tf.Tensor``.
+      start_id: Token id to prepend to the sequences (set ``None`` to disable).
+      end_id: Token id to append to the sequences (set ``None`` to disable).
+      pad_id: Padding token ID.
 
     Returns:
-      A tuple ``(ids, length)``.
+      The updated token ids, and optionally the updated length if it was initially
+      passed as argument.
+
+    Raises:
+      ValueError: if :obj:`ids` is a dense 2D ``tf.Tensor``, but :obj:`length` is not set.
+      ValueError: if the rank of :obj:`ids` is not 1 or 2.
     """
+    input_is_ragged = isinstance(ids, tf.RaggedTensor)
+    if start_id is None and end_id is None:
+        return ids if input_is_ragged or length is None else (ids, length)
+
+    batch_size = None
     rank = ids.shape.rank
-    if rank not in (1, 2):
+    if rank == 2:
+        if not input_is_ragged:
+            if length is None:
+                raise ValueError(
+                    "length argument is required when passing a dense batch of sequences"
+                )
+            ids = tf.RaggedTensor.from_tensor(ids, lengths=length)
+        batch_size = ids.nrows()
+    elif rank != 1:
         raise ValueError("Unsupported rank %d (expected 1 or 2)" % rank)
-    batch_size = tf.shape(ids)[0] if rank == 2 else None
 
     def _make_column(value):
         value = tf.constant(value, dtype=ids.dtype)
@@ -190,22 +216,23 @@ def add_sequence_controls(ids, length, start_id=None, end_id=None):
             value = tf.fill([batch_size], value)
         return tf.expand_dims(value, -1)
 
+    concat_inputs = []
     if start_id is not None:
-        start_ids = _make_column(start_id)
-        ids = tf.concat([start_ids, ids], axis=-1)
-        length += 1
-
+        concat_inputs.append(_make_column(start_id))
+    concat_inputs.append(ids)
     if end_id is not None:
-        end_ids = _make_column(end_id)
-        if batch_size is not None:
-            # Run concat on RaggedTensor to handle sequences with variable length.
-            ids = tf.RaggedTensor.from_tensor(ids, lengths=length)
-        ids = tf.concat([ids, end_ids], axis=-1)
-        if batch_size is not None:
-            ids = ids.to_tensor()
-        length += 1
+        concat_inputs.append(_make_column(end_id))
 
-    return ids, length
+    ids = tf.concat(concat_inputs, axis=-1)
+
+    if not input_is_ragged:
+        if batch_size is not None:
+            ids = ids.to_tensor(default_value=pad_id)
+        if length is not None:
+            length += len(concat_inputs) - 1
+            return ids, length
+
+    return ids
 
 
 class TextInputter(Inputter):
