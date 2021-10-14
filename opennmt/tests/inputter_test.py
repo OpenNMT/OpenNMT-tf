@@ -138,7 +138,7 @@ class InputterTest(tf.test.TestCase):
     @parameterized.expand(
         [
             [[3, 4], 2, 1, 2, [1, 3, 4, 2], 4],
-            [[[3, 4], [5, 6]], [2, 1], 1, None, [[1, 3, 4], [1, 5, 6]], [3, 2]],
+            [[[3, 4], [5, 6]], [2, 1], 1, None, [[1, 3, 4], [1, 5, 0]], [3, 2]],
             [[[3, 4], [5, 6]], [2, 1], None, 2, [[3, 4, 2], [5, 2, 0]], [3, 2]],
         ]
     )
@@ -152,6 +152,11 @@ class InputterTest(tf.test.TestCase):
         )
         self.assertAllEqual(self.evaluate(ids), expected_ids)
         self.assertAllEqual(self.evaluate(length), expected_length)
+
+    def testAddSequenceControlsRagged(self):
+        ids = tf.RaggedTensor.from_tensor([[4, 5, 6], [3, 4, 0]], padding=0)
+        ids = inputters.add_sequence_controls(ids, start_id=1, end_id=2)
+        self.assertAllEqual(ids.to_list(), [[1, 4, 5, 6, 2], [1, 3, 4, 2]])
 
     def _checkFeatures(self, features, expected_shapes):
         for name, expected_shape in expected_shapes.items():
