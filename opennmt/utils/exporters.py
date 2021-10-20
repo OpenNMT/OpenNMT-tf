@@ -157,7 +157,7 @@ class CTranslate2Exporter(Exporter):
         # Fail now if ctranslate2 package is missing.
         import ctranslate2
 
-        accepted_quantization = ("int8", "int16", "float16")
+        accepted_quantization = ("int8", "int16", "float16", "int8_float16")
         if quantization is not None and quantization not in accepted_quantization:
             raise ValueError(
                 "Invalid quantization '%s' for CTranslate2, accepted values are: %s"
@@ -211,3 +211,11 @@ class CTranslate2Float16Exporter(CTranslate2Exporter):
 
     def __init__(self):
         super().__init__(quantization="float16")
+
+
+@register_exporter(name="ctranslate2_int8_float16")
+class CTranslate2Int8Float16Exporter(CTranslate2Exporter):
+    """CTranslate2 exporter with int8_float16 quantization."""
+
+    def __init__(self):
+        super().__init__(quantization="int8_float16")

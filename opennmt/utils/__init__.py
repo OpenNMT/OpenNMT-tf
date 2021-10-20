@@ -20,6 +20,7 @@ from opennmt.utils.exporters import (
     CTranslate2Exporter,
     CTranslate2Float16Exporter,
     CTranslate2Int8Exporter,
+    CTranslate2Int8Float16Exporter,
     CTranslate2Int16Exporter,
     Exporter,
     SavedModelExporter,
