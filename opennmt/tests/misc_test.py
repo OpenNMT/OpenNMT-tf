@@ -10,13 +10,16 @@ from opennmt.utils import misc
 class MiscTest(tf.test.TestCase):
     @parameterized.expand(
         [
-            (False, "float32"),
-            (True, "float32"),
-            (False, "mixed_float16"),
+            (False, False),
+            (True, False),
+            (False, True),
         ]
     )
-    def testGetVariableName(self, distributed_variables, dtype_policy):
-        tf.keras.mixed_precision.experimental.set_policy(dtype_policy)
+    def testGetVariableName(self, distributed_variables, mixed_precision):
+        if mixed_precision:
+            misc.enable_mixed_precision(force=True)
+            self.assertTrue(misc.mixed_precision_enabled())
+
         if distributed_variables:
             devices = tf.config.list_logical_devices(device_type="CPU")
             strategy = tf.distribute.MirroredStrategy(devices=devices)
@@ -46,7 +49,10 @@ class MiscTest(tf.test.TestCase):
 
         variables = misc.get_variables_name_mapping(model, root_key="model")
         self.assertIs(variables[expected_name], variable)
-        tf.keras.mixed_precision.experimental.set_policy("float32")
+
+        if mixed_precision:
+            misc.disable_mixed_precision()
+            self.assertFalse(misc.mixed_precision_enabled())
 
     def testSetDropout(self):
         class Layer(tf.keras.layers.Layer):
