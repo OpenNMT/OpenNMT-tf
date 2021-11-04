@@ -5,7 +5,7 @@ import abc
 import tensorflow as tf
 
 from opennmt import optimizers, schedules
-from opennmt.utils import compat, exporters, losses, misc
+from opennmt.utils import exporters, losses, misc
 
 
 class Model(tf.keras.layers.Layer):
@@ -213,11 +213,6 @@ class Model(tf.keras.layers.Layer):
           - The loss.
           - The gradients.
         """
-        # TODO: clean mixed precision API when TensorFlow requirement is updated to >=2.4.
-        loss_scale_optimizer = compat.tf_any(
-            "keras.mixed_precision.LossScaleOptimizer",
-            "keras.mixed_precision.experimental.LossScaleOptimizer",
-        )
 
         def _compute_loss():
             train_loss, report_loss = self.compute_training_loss(
@@ -233,10 +228,10 @@ class Model(tf.keras.layers.Layer):
         if tf.executing_eagerly():
             with tf.GradientTape() as tape:
                 train_loss, report_loss = _compute_loss()
-                if isinstance(optimizer, loss_scale_optimizer):
+                if isinstance(optimizer, tf.keras.mixed_precision.LossScaleOptimizer):
                     train_loss = optimizer.get_scaled_loss(train_loss)
             gradients = tape.gradient(train_loss, self.trainable_weights)
-            if isinstance(optimizer, loss_scale_optimizer):
+            if isinstance(optimizer, tf.keras.mixed_precision.LossScaleOptimizer):
                 gradients = optimizer.get_unscaled_gradients(gradients)
 
         else:

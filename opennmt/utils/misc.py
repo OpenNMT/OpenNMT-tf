@@ -13,8 +13,6 @@ import tensorflow as tf
 
 from tensorflow.python.training.tracking import graph_view
 
-from opennmt.utils import compat
-
 
 def get_devices(count=1, fallback_to_cpu=True):
     """Gets devices.
@@ -49,17 +47,6 @@ def get_devices(count=1, fallback_to_cpu=True):
     return devices[0:count]
 
 
-# TODO: clean mixed precision API when TensorFlow requirement is updated to >=2.4.
-_set_global_policy = compat.tf_any(
-    "keras.mixed_precision.set_global_policy",
-    "keras.mixed_precision.experimental.set_policy",
-)
-_get_global_policy = compat.tf_any(
-    "keras.mixed_precision.global_policy",
-    "keras.mixed_precision.experimental.global_policy",
-)
-
-
 def enable_mixed_precision(force=False):
     """Globally enables mixed precision if the detected hardware supports it.
 
@@ -91,18 +78,18 @@ def enable_mixed_precision(force=False):
             )
             return False
 
-    _set_global_policy("mixed_float16")
+    tf.keras.mixed_precision.set_global_policy("mixed_float16")
     return True
 
 
 def disable_mixed_precision():
     """Globally disables mixed precision."""
-    _set_global_policy("float32")
+    tf.keras.mixed_precision.set_global_policy("float32")
 
 
 def mixed_precision_enabled():
     """Returns ``True`` if mixed precision is enabled."""
-    policy = _get_global_policy()
+    policy = tf.keras.mixed_precision.global_policy()
     return "float16" in policy.name
 
 
