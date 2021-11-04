@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 import tensorflow as tf
 
@@ -8,13 +10,7 @@ from opennmt.utils import misc
 
 
 class MiscTest(tf.test.TestCase):
-    @parameterized.expand(
-        [
-            (False, False),
-            (True, False),
-            (False, True),
-        ]
-    )
+    @parameterized.expand(itertools.product((True, False), repeat=2))
     def testGetVariableName(self, distributed_variables, mixed_precision):
         if mixed_precision:
             misc.enable_mixed_precision(force=True)
