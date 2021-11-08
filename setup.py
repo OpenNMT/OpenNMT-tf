@@ -66,7 +66,7 @@ setup(
     install_requires=[
         "ctranslate2>=2.3.2,<3;platform_system=='Linux' or platform_system=='Darwin'",
         "pyonmttok>=1.29.0,<2",
-        "pyyaml>=5.3,<5.5",
+        "pyyaml>=5.3,<7",
         "rouge>=1.0,<2",
         "sacrebleu>=1.5.0,<2.1",
         "tensorflow-addons>=0.14,<0.15",
