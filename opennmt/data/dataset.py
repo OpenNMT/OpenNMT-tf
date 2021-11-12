@@ -596,7 +596,9 @@ def training_pipeline(
         if compat.tf_supports("data.Dataset.sample_from_datasets"):
             dataset = tf.data.Dataset.sample_from_datasets(datasets, weights=weights)
         else:
-            dataset = tf.data.experimental.sample_from_datasets(datasets, weights=weights)
+            dataset = tf.data.experimental.sample_from_datasets(
+                datasets, weights=weights
+            )
         if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
             if shuffle_buffer_size < 0:
                 raise ValueError(
