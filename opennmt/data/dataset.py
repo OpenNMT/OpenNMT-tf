@@ -254,7 +254,11 @@ def make_cardinality_multiple_of(divisor):
 
         # Take all original batches and the number of extra batches required.
         dataset = dataset.enumerate()
-        dataset = dataset.apply(tf.data.experimental.take_while(_continue_iter))
+        # TODO: clean this API when TensorFlow requirement is updated to >=2.6.
+        if compat.tf_supports("data.Dataset.take_while"):
+            dataset = dataset.take_while(_continue_iter)
+        else:
+            dataset = dataset.apply(tf.data.experimental.take_while(_continue_iter))
         return dataset.map(_retrieve_element)  # Retrieve the element only.
 
     return _transform
@@ -588,7 +592,13 @@ def training_pipeline(
             datasets = [dataset.shard(num_shards, shard_index) for dataset in datasets]
         weights = normalize_weights(datasets, weights=weights, sizes=dataset_size)
         datasets = [dataset.repeat() for dataset in datasets]
-        dataset = tf.data.experimental.sample_from_datasets(datasets, weights=weights)
+        # TODO: clean this API when TensorFlow requirement is updated to >=2.7.
+        if compat.tf_supports("data.Dataset.sample_from_datasets"):
+            dataset = tf.data.Dataset.sample_from_datasets(datasets, weights=weights)
+        else:
+            dataset = tf.data.experimental.sample_from_datasets(
+                datasets, weights=weights
+            )
         if shuffle_buffer_size is not None and shuffle_buffer_size != 0:
             if shuffle_buffer_size < 0:
                 raise ValueError(
