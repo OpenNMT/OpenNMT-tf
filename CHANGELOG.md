@@ -15,6 +15,24 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.23.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.23.0) (2021-11-15)
+
+### Changes
+
+* Remove support for TensorFlow 2.3
+
+### New features
+
+* Support TensorFlow 2.7
+* Add CTranslate2 exporter with "int8_float16" quantization
+
+### Fixes and improvements
+
+* Improve performance when applying the OpenNMT tokenization during training by vectorizing the dataset transformation
+* Disable configuration merge for fields `optimizer_params` and `decay_params`
+* Enable the CTranslate2 integration when installing OpenNMT-tf on Windows
+* Include PyYAML 6 in supported versions
+
 ## [2.22.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.22.0) (2021-09-30)
 
 ### New features
