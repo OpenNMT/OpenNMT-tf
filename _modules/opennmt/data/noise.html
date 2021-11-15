@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -225,66 +225,96 @@
         <span class="sd">&quot;&quot;&quot;Adds a noise to apply.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">noises</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WordNoiser.__call__"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="WordNoiser.__call__"><a class="viewcode-back" href="../../../package/opennmt.data.WordNoiser.html#opennmt.data.WordNoiser.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">probability</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Applies noise on :obj:`tokens`.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">          tokens: A string ``tf.Tensor`` or batch of string ``tf.Tensor``.</span>
-<span class="sd">          sequence_length: When :obj:`tokens` is a batch, the length of each</span>
-<span class="sd">            sequence in the batch.</span>
-<span class="sd">          keep_shape: Ensure that the shape is kept. Otherwise, fit the shape to the</span>
-<span class="sd">            new lengths.</span>
+<span class="sd">          tokens: A string ``tf.Tensor``, a batch of string ``tf.Tensor``, or a</span>
+<span class="sd">            string ``tf.RaggedTensor``.</span>
+<span class="sd">          sequence_length: When :obj:`tokens` is a dense tensor, the length of</span>
+<span class="sd">            each sequence in the batch.</span>
+<span class="sd">          keep_shape: Ensure that the original dense shape is kept. Otherwise,</span>
+<span class="sd">            fit the shape to the new lengths.</span>
+<span class="sd">          probability: Probability to apply noise on each example.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">          A tuple with the noisy version of :obj:`tokens` and the new lengths.</span>
+<span class="sd">          If :obj:`tokens` is a ``tf.RaggedTensor``, the method returns the</span>
+<span class="sd">          noisy tokens as a ``tf.RaggedTensor``, otherwise it returns a tuple</span>
+<span class="sd">          with the noisy tokens as a ``tf.Tensor`` and the new lengths.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">          ValueError: if :obj:`tokens` is a batch of string but</span>
 <span class="sd">            :obj:`sequence_length` is not passed.</span>
+<span class="sd">          ValueError: if :obj:`keep_shape` is ``True`` but :obj:`tokens` is a</span>
+<span class="sd">            ``tf.RaggedTensor``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">probability</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">probability</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu:0&quot;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="p">,</span> <span class="n">probability</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="p">):</span>
-        <span class="n">rank</span> <span class="o">=</span> <span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span>
-        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">input_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tokens</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:</span><span class="n">sequence_length</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">tokens</span><span class="p">)]</span>
-            <span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">tokens_to_words</span><span class="p">(</span>
-                <span class="n">tokens</span><span class="p">,</span> <span class="n">subword_token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subword_token</span><span class="p">,</span> <span class="n">is_spacer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_spacer</span>
-            <span class="p">)</span>
-            <span class="n">words</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">noise</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">noises</span><span class="p">:</span>
-                <span class="n">words</span> <span class="o">=</span> <span class="n">noise</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
-            <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">flat_values</span>
-            <span class="n">output_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">outputs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="p">,</span> <span class="n">probability</span><span class="p">):</span>
+        <span class="n">input_rank</span> <span class="o">=</span> <span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span>
+        <span class="n">input_is_ragged</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">input_is_ragged</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">keep_shape</span><span class="p">:</span>
-                <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="n">input_length</span> <span class="o">-</span> <span class="n">output_length</span><span class="p">]])</span>
-            <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">output_length</span>
-        <span class="k">elif</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;keep_shape is not compatible with a ragged input&quot;</span><span class="p">)</span>
+            <span class="n">ragged_tokens</span> <span class="o">=</span> <span class="n">tokens</span>
+        <span class="k">elif</span> <span class="n">input_rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">ragged_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">input_rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sequence_length must be passed for 2D inputs&quot;</span><span class="p">)</span>
-            <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
-                <span class="k">lambda</span> <span class="n">arg</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span><span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_shape</span><span class="p">:</span>
-                <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:,</span> <span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">)]</span>
-            <span class="k">return</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sequence_length must be passed for 2D dense inputs&quot;</span><span class="p">)</span>
+            <span class="n">ragged_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">lengths</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sequence_length must be passed for ND inputs&quot;</span><span class="p">)</span>
-            <span class="n">original_shape</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">shape_list</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-            <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
-            <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span>
-                <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="o">=</span><span class="n">keep_shape</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unsupported rank </span><span class="si">%d</span><span class="s2"> for WordNoiser input&quot;</span> <span class="o">%</span> <span class="n">input_rank</span><span class="p">)</span>
+
+        <span class="n">noisy_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">tokens</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_apply_noise</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">probability</span><span class="p">),</span>
+            <span class="n">ragged_tokens</span><span class="p">,</span>
+            <span class="n">fn_output_signature</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensorSpec</span><span class="p">(</span>
+                <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ragged_tokens</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">ragged_rank</span><span class="o">=</span><span class="mi">0</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">input_is_ragged</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">noisy_tokens</span>
+
+        <span class="n">new_lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">noisy_tokens</span><span class="o">.</span><span class="n">row_lengths</span><span class="p">(),</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">noisy_tokens</span> <span class="o">=</span> <span class="n">noisy_tokens</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span> <span class="k">if</span> <span class="n">keep_shape</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">input_rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">new_lengths</span> <span class="o">=</span> <span class="n">new_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">noisy_tokens</span> <span class="o">=</span> <span class="n">noisy_tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">noisy_tokens</span><span class="p">,</span> <span class="n">new_lengths</span>
+
+    <span class="k">def</span> <span class="nf">_maybe_apply_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">probability</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">probability</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_noise</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">probability</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tokens</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+                <span class="n">random_mask</span><span class="p">([],</span> <span class="n">probability</span><span class="p">),</span>
+                <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_noise</span><span class="p">(</span><span class="n">tokens</span><span class="p">),</span>
+                <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tokens</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">original_shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-            <span class="k">return</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span></div>
+
+    <span class="k">def</span> <span class="nf">_apply_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">tokens_to_words</span><span class="p">(</span>
+            <span class="n">tokens</span><span class="p">,</span> <span class="n">subword_token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subword_token</span><span class="p">,</span> <span class="n">is_spacer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">is_spacer</span>
+        <span class="p">)</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">noise</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">noises</span><span class="p">:</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="n">noise</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">flat_values</span>
+        <span class="k">return</span> <span class="n">tokens</span></div>
 
 
 <div class="viewcode-block" id="Noise"><a class="viewcode-back" href="../../../package/opennmt.data.Noise.html#opennmt.data.Noise">[docs]</a><span class="k">class</span> <span class="nc">Noise</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>

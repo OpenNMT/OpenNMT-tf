@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -301,8 +301,8 @@
                 <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
                     <span class="s2">&quot;This model does not define any automatic configuration values&quot;</span>
                 <span class="p">)</span>
-            <span class="n">misc</span><span class="o">.</span><span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">model_config</span><span class="p">)</span>
-        <span class="n">misc</span><span class="o">.</span><span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span>
+            <span class="n">config_util</span><span class="o">.</span><span class="n">merge_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">model_config</span><span class="p">)</span>
+        <span class="n">config_util</span><span class="o">.</span><span class="n">merge_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span>
 
         <span class="n">config</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;num_hypotheses&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;infer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;n_best&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">config</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>

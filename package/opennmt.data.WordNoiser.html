@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.data.WordNoiser &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.data.WordNoiser &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -251,24 +251,32 @@ directly from <code class="xref py py-obj docutils literal notranslate"><span cl
 
 <dl class="py method">
 <dt id="opennmt.data.WordNoiser.__call__">
-<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/noise.html#WordNoiser.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.data.WordNoiser.__call__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/noise.html#WordNoiser.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.data.WordNoiser.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies noise on <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tokens</strong> – A string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> or batch of string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
-<li><p><strong>sequence_length</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a batch, the length of each
-sequence in the batch.</p></li>
-<li><p><strong>keep_shape</strong> – Ensure that the shape is kept. Otherwise, fit the shape to the
-new lengths.</p></li>
+<li><p><strong>tokens</strong> – A string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>, a batch of string <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>, or a
+string <code class="docutils literal notranslate"><span class="pre">tf.RaggedTensor</span></code>.</p></li>
+<li><p><strong>sequence_length</strong> – When <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a dense tensor, the length of
+each sequence in the batch.</p></li>
+<li><p><strong>keep_shape</strong> – Ensure that the original dense shape is kept. Otherwise,
+fit the shape to the new lengths.</p></li>
+<li><p><strong>probability</strong> – Probability to apply noise on each example.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A tuple with the noisy version of <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> and the new lengths.</p>
+<dd class="field-even"><p>If <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a <code class="docutils literal notranslate"><span class="pre">tf.RaggedTensor</span></code>, the method returns the
+noisy tokens as a <code class="docutils literal notranslate"><span class="pre">tf.RaggedTensor</span></code>, otherwise it returns a tuple
+with the noisy tokens as a <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code> and the new lengths.</p>
 </dd>
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a batch of string but
-    <code class="xref py py-obj docutils literal notranslate"><span class="pre">sequence_length</span></code> is not passed.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a batch of string but
+    <code class="xref py py-obj docutils literal notranslate"><span class="pre">sequence_length</span></code> is not passed.</p></li>
+<li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">keep_shape</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> but <code class="xref py py-obj docutils literal notranslate"><span class="pre">tokens</span></code> is a
+    <code class="docutils literal notranslate"><span class="pre">tf.RaggedTensor</span></code>.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

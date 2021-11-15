@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -189,6 +189,7 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">config_util</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">inputters</span>
 <span class="kn">from</span> <span class="nn">opennmt.decoders.self_attention_decoder</span> <span class="kn">import</span> <span class="n">SelfAttentionDecoder</span>
 <span class="kn">from</span> <span class="nn">opennmt.encoders.encoder</span> <span class="kn">import</span> <span class="n">ParallelEncoder</span>
@@ -199,7 +200,6 @@
     <span class="n">EmbeddingsSharingLevel</span><span class="p">,</span>
     <span class="n">SequenceToSequence</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils.misc</span> <span class="kn">import</span> <span class="n">merge_dict</span>
 
 
 <div class="viewcode-block" id="Transformer"><a class="viewcode-back" href="../../../package/opennmt.models.Transformer.html#opennmt.models.Transformer">[docs]</a><span class="k">class</span> <span class="nc">Transformer</span><span class="p">(</span><span class="n">SequenceToSequence</span><span class="p">):</span>
@@ -360,7 +360,7 @@
 
 <div class="viewcode-block" id="Transformer.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.Transformer.html#opennmt.models.Transformer.auto_config">[docs]</a>    <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">merge_dict</span><span class="p">(</span>
+        <span class="k">return</span> <span class="n">config_util</span><span class="o">.</span><span class="n">merge_config</span><span class="p">(</span>
             <span class="n">config</span><span class="p">,</span>
             <span class="p">{</span>
                 <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>

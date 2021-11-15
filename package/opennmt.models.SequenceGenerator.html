@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.SequenceGenerator &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.models.SequenceGenerator &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -248,15 +248,15 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="opennmt.models.SequenceGenerator.print_score">
-<code class="sig-name descname"><span class="pre">print_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#SequenceGenerator.print_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.SequenceGenerator.print_score" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints the score result.</p>
+<dt id="opennmt.models.SequenceGenerator.format_score">
+<code class="sig-name descname"><span class="pre">format_score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/model.html#SequenceGenerator.format_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.SequenceGenerator.format_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats the score result for file saving.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>score</strong> – The score result (output of <a class="reference internal" href="opennmt.models.Model.html#opennmt.models.Model.score" title="opennmt.models.Model.score"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.models.Model.score()</span></code></a>).</p></li>
+<li><p><strong>score</strong> – The score result (same structure as the output of
+<a class="reference internal" href="opennmt.models.Model.html#opennmt.models.Model.score" title="opennmt.models.Model.score"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.models.Model.score()</span></code></a>).</p></li>
 <li><p><strong>params</strong> – (optional) Dictionary of formatting parameters.</p></li>
-<li><p><strong>stream</strong> – (optional) The stream to print to.</p></li>
 </ul>
 </dd>
 </dl>

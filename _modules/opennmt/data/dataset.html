@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -441,7 +441,11 @@
 
         <span class="c1"># Take all original batches and the number of extra batches required.</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">enumerate</span><span class="p">()</span>
-        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">take_while</span><span class="p">(</span><span class="n">_continue_iter</span><span class="p">))</span>
+        <span class="c1"># TODO: clean this API when TensorFlow requirement is updated to &gt;=2.6.</span>
+        <span class="k">if</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_supports</span><span class="p">(</span><span class="s2">&quot;data.Dataset.take_while&quot;</span><span class="p">):</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">take_while</span><span class="p">(</span><span class="n">_continue_iter</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">take_while</span><span class="p">(</span><span class="n">_continue_iter</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_retrieve_element</span><span class="p">)</span>  <span class="c1"># Retrieve the element only.</span>
 
     <span class="k">return</span> <span class="n">_transform</span></div>
@@ -775,7 +779,13 @@
             <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">shard</span><span class="p">(</span><span class="n">num_shards</span><span class="p">,</span> <span class="n">shard_index</span><span class="p">)</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">]</span>
         <span class="n">weights</span> <span class="o">=</span> <span class="n">normalize_weights</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="n">dataset_size</span><span class="p">)</span>
         <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">repeat</span><span class="p">()</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">]</span>
-        <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">sample_from_datasets</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+        <span class="c1"># TODO: clean this API when TensorFlow requirement is updated to &gt;=2.7.</span>
+        <span class="k">if</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_supports</span><span class="p">(</span><span class="s2">&quot;data.Dataset.sample_from_datasets&quot;</span><span class="p">):</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">sample_from_datasets</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">sample_from_datasets</span><span class="p">(</span>
+                <span class="n">datasets</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="n">shuffle_buffer_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">shuffle_buffer_size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">shuffle_buffer_size</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -808,14 +818,15 @@
         <span class="k">if</span> <span class="n">transform_fns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">transform_fn</span> <span class="ow">in</span> <span class="n">transform_fns</span><span class="p">:</span>
                 <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">transform_fn</span><span class="p">)</span>
-        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-            <span class="n">filter_examples_by_length</span><span class="p">(</span>
-                <span class="n">maximum_features_length</span><span class="o">=</span><span class="n">maximum_features_length</span><span class="p">,</span>
-                <span class="n">maximum_labels_length</span><span class="o">=</span><span class="n">maximum_labels_length</span><span class="p">,</span>
-                <span class="n">features_length_fn</span><span class="o">=</span><span class="n">features_length_fn</span><span class="p">,</span>
-                <span class="n">labels_length_fn</span><span class="o">=</span><span class="n">labels_length_fn</span><span class="p">,</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="n">filter_examples_by_length</span><span class="p">(</span>
+                    <span class="n">maximum_features_length</span><span class="o">=</span><span class="n">maximum_features_length</span><span class="p">,</span>
+                    <span class="n">maximum_labels_length</span><span class="o">=</span><span class="n">maximum_labels_length</span><span class="p">,</span>
+                    <span class="n">features_length_fn</span><span class="o">=</span><span class="n">features_length_fn</span><span class="p">,</span>
+                    <span class="n">labels_length_fn</span><span class="o">=</span><span class="n">labels_length_fn</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="p">)</span>
-        <span class="p">)</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
             <span class="n">batch_sequence_dataset</span><span class="p">(</span>
                 <span class="n">batch_size</span><span class="p">,</span>

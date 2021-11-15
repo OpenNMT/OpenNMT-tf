@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.tokenizers.opennmt_tokenizer &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.tokenizers.opennmt_tokenizer &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -246,6 +246,10 @@
 
     <span class="k">def</span> <span class="nf">_tokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
         <span class="n">tokens</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tokens</span>
+
+    <span class="k">def</span> <span class="nf">_tokenize_string_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_text</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
+        <span class="n">tokens</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">tokenize_batch</span><span class="p">(</span><span class="n">batch_text</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tokens</span>
 
     <span class="k">def</span> <span class="nf">_detokenize_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">):</span>

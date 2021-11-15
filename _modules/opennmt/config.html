@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.config &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.config &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -339,9 +339,15 @@
         <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
             <span class="n">subconfig</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">config_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
             <span class="c1"># Add or update section in main configuration.</span>
-            <span class="n">merge_dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">subconfig</span><span class="p">)</span>
+            <span class="n">merge_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">subconfig</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">config</span></div>
+
+
+<div class="viewcode-block" id="merge_config"><a class="viewcode-back" href="../../package/opennmt.merge_config.html#opennmt.merge_config">[docs]</a><span class="k">def</span> <span class="nf">merge_config</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Merges the configuration :obj:`b` into the configuration :obj:`a`.&quot;&quot;&quot;</span>
+    <span class="n">override_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;optimizer_params&quot;</span><span class="p">,</span> <span class="s2">&quot;decay_params&quot;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">merge_dict</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">override_keys</span><span class="o">=</span><span class="n">override_keys</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_map_config_values</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>

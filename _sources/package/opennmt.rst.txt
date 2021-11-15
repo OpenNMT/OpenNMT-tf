@@ -34,6 +34,7 @@ Functions
    opennmt.convert_to_v2_config
    opennmt.load_config
    opennmt.load_model
+   opennmt.merge_config
 
 Constants
 ---------

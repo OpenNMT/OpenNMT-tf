@@ -5,4 +5,4 @@ opennmt.layers.Dense
     :members:
     :undoc-members:
 
-    **Inherits from:** :class:`keras.layers.core.Dense`
+    **Inherits from:** :class:`keras.layers.core.dense.Dense`

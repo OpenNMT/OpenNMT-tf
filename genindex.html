@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Index &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>Index &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -617,6 +617,8 @@
 </li>
       <li><a href="package/opennmt.utils.CTranslate2Int8Exporter.html#opennmt.utils.CTranslate2Int8Exporter">CTranslate2Int8Exporter (class in opennmt.utils)</a>
 </li>
+      <li><a href="package/opennmt.utils.CTranslate2Int8Float16Exporter.html#opennmt.utils.CTranslate2Int8Float16Exporter">CTranslate2Int8Float16Exporter (class in opennmt.utils)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -721,8 +723,26 @@
       </ul></li>
       <li><a href="package/opennmt.layers.MultiHeadAttentionReduction.html#opennmt.layers.MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER">FIRST_HEAD_LAST_LAYER (opennmt.layers.MultiHeadAttentionReduction attribute)</a>
 </li>
+      <li><a href="package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.format_prediction">format_prediction() (opennmt.models.LanguageModel method)</a>
+
+      <ul>
+        <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.format_prediction">(opennmt.models.Model method)</a>
+</li>
+        <li><a href="package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier.format_prediction">(opennmt.models.SequenceClassifier method)</a>
+</li>
+        <li><a href="package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.format_prediction">(opennmt.models.SequenceTagger method)</a>
+</li>
+        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.format_prediction">(opennmt.models.SequenceToSequence method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.format_score">format_score() (opennmt.models.Model method)</a>
+
+      <ul>
+        <li><a href="package/opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator.format_score">(opennmt.models.SequenceGenerator method)</a>
+</li>
+      </ul></li>
       <li><a href="package/opennmt.utils.format_translation_output.html#opennmt.utils.format_translation_output">format_translation_output() (in module opennmt.utils)</a>
 </li>
       <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.forward">forward() (opennmt.decoders.Decoder method)</a>
@@ -778,6 +798,8 @@
 </li>
         <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.get_length">(opennmt.inputters.WordEmbedder method)</a>
 </li>
+        <li><a href="package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.get_length">(opennmt.models.LanguageModelInputter method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -816,6 +838,16 @@
 
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.has_prepare_step">has_prepare_step() (opennmt.inputters.Inputter method)</a>
+
+      <ul>
+        <li><a href="package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.has_prepare_step">(opennmt.inputters.MultiInputter method)</a>
+</li>
+        <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.has_prepare_step">(opennmt.inputters.TextInputter method)</a>
+</li>
+      </ul></li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.utils.Scorer.html#opennmt.utils.Scorer.higher_is_better">higher_is_better() (opennmt.utils.Scorer method)</a>
 </li>
@@ -978,8 +1010,6 @@
 </li>
         <li><a href="package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.make_dataset">(opennmt.inputters.MixedInputter method)</a>
 </li>
-        <li><a href="package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.make_dataset">(opennmt.inputters.MultiInputter method)</a>
-</li>
         <li><a href="package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.make_dataset">(opennmt.inputters.ParallelInputter method)</a>
 </li>
         <li><a href="package/opennmt.inputters.SequenceRecordInputter.html#opennmt.inputters.SequenceRecordInputter.make_dataset">(opennmt.inputters.SequenceRecordInputter method)</a>
@@ -1078,6 +1108,8 @@
 </li>
       </ul></li>
       <li><a href="package/opennmt.encoders.MeanEncoder.html#opennmt.encoders.MeanEncoder">MeanEncoder (class in opennmt.encoders)</a>
+</li>
+      <li><a href="package/opennmt.merge_config.html#opennmt.merge_config">merge_config() (in module opennmt)</a>
 </li>
       <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.minimum_sources">minimum_sources() (opennmt.decoders.Decoder property)</a>
 
@@ -1267,28 +1299,22 @@
 </li>
       <li><a href="package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder">PositionEncoder (class in opennmt.layers)</a>
 </li>
-      <li><a href="package/opennmt.utils.PRFScorer.html#opennmt.utils.PRFScorer">PRFScorer (class in opennmt.utils)</a>
-</li>
-      <li><a href="package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.print_prediction">print_prediction() (opennmt.models.LanguageModel method)</a>
+      <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.prepare_elements">prepare_elements() (opennmt.inputters.Inputter method)</a>
 
       <ul>
-        <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.print_prediction">(opennmt.models.Model method)</a>
+        <li><a href="package/opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter.prepare_elements">(opennmt.inputters.MultiInputter method)</a>
 </li>
-        <li><a href="package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier.print_prediction">(opennmt.models.SequenceClassifier method)</a>
-</li>
-        <li><a href="package/opennmt.models.SequenceTagger.html#opennmt.models.SequenceTagger.print_prediction">(opennmt.models.SequenceTagger method)</a>
-</li>
-        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.print_prediction">(opennmt.models.SequenceToSequence method)</a>
+        <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.prepare_elements">(opennmt.inputters.TextInputter method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.print_score">print_score() (opennmt.models.Model method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator.print_score">(opennmt.models.SequenceGenerator method)</a>
+      <li><a href="package/opennmt.utils.PRFScorer.html#opennmt.utils.PRFScorer">PRFScorer (class in opennmt.utils)</a>
 </li>
-      </ul></li>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.print_prediction">print_prediction() (opennmt.models.Model method)</a>
+</li>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.print_score">print_score() (opennmt.models.Model method)</a>
+</li>
       <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.prune">prune() (opennmt.data.Vocab method)</a>
 </li>
       <li><a href="package/opennmt.encoders.PyramidalRNNEncoder.html#opennmt.encoders.PyramidalRNNEncoder">PyramidalRNNEncoder (class in opennmt.encoders)</a>

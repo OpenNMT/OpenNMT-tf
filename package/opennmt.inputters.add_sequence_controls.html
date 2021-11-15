@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.inputters.add_sequence_controls &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.inputters.add_sequence_controls &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -216,19 +216,29 @@
 <h1>opennmt.inputters.add_sequence_controls<a class="headerlink" href="#opennmt-inputters-add-sequence-controls" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="opennmt.inputters.add_sequence_controls">
-<code class="sig-prename descclassname"><span class="pre">opennmt.inputters.</span></code><code class="sig-name descname"><span class="pre">add_sequence_controls</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#add_sequence_controls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.add_sequence_controls" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">opennmt.inputters.</span></code><code class="sig-name descname"><span class="pre">add_sequence_controls</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#add_sequence_controls"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.add_sequence_controls" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds sequence control tokens.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ids</strong> – Sequence of ids as 1D or 2D (batch) tensor.</p></li>
-<li><p><strong>length</strong> – Sequence length as 0D or 1D (batch) tensor.</p></li>
-<li><p><strong>start_id</strong> – Id to prepend to the sequence (set <code class="docutils literal notranslate"><span class="pre">None</span></code> to disable).</p></li>
-<li><p><strong>end_id</strong> – Id to append to the sequence (set <code class="docutils literal notranslate"><span class="pre">None</span></code> to disable).</p></li>
+<li><p><strong>ids</strong> – Sequence of token ids as a 1D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>, a 2D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>, or a
+2D <code class="docutils literal notranslate"><span class="pre">tf.RaggedTensor</span></code>.</p></li>
+<li><p><strong>length</strong> – Length of each sequence in the batch as a 1D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.
+Required if <code class="xref py py-obj docutils literal notranslate"><span class="pre">ids</span></code> is a 2D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p></li>
+<li><p><strong>start_id</strong> – Token id to prepend to the sequences (set <code class="docutils literal notranslate"><span class="pre">None</span></code> to disable).</p></li>
+<li><p><strong>end_id</strong> – Token id to append to the sequences (set <code class="docutils literal notranslate"><span class="pre">None</span></code> to disable).</p></li>
+<li><p><strong>pad_id</strong> – Padding token ID.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A tuple <code class="docutils literal notranslate"><span class="pre">(ids,</span> <span class="pre">length)</span></code>.</p>
+<dd class="field-even"><p>The updated token ids, and optionally the updated length if it was initially
+passed as argument.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">ids</span></code> is a dense 2D <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>, but <code class="xref py py-obj docutils literal notranslate"><span class="pre">length</span></code> is not set.</p></li>
+<li><p><strong>ValueError</strong> – if the rank of <code class="xref py py-obj docutils literal notranslate"><span class="pre">ids</span></code> is not 1 or 2.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

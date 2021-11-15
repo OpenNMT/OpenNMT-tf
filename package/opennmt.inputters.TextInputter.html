@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.inputters.TextInputter &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.inputters.TextInputter &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -302,6 +302,34 @@ the dataset instance).</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The dataset size or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opennmt.inputters.TextInputter.has_prepare_step">
+<code class="sig-name descname"><span class="pre">has_prepare_step</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.has_prepare_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.has_prepare_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if this inputter implements a data preparation step
+in method <a class="reference internal" href="opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.prepare_elements" title="opennmt.inputters.Inputter.prepare_elements"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter.prepare_elements()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opennmt.inputters.TextInputter.prepare_elements">
+<code class="sig-name descname"><span class="pre">prepare_elements</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/text_inputter.html#TextInputter.prepare_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.TextInputter.prepare_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepares dataset elements.</p>
+<p>This method is called on a batch of dataset elements. For example, it
+can be overriden to apply an external pre-tokenization.</p>
+<p>Note that the results of the method are unbatched and then passed to
+method <a class="reference internal" href="opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.make_features" title="opennmt.inputters.Inputter.make_features"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.inputters.Inputter.make_features()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elements</strong> – A batch of dataset elements.</p></li>
+<li><p><strong>training</strong> – Run in training mode.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A (possibly nested) structure of <code class="docutils literal notranslate"><span class="pre">tf.Tensor</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>

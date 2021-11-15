@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.sequence_classifier &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.models.sequence_classifier &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -191,7 +191,6 @@
 
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">inputters</span>
 <span class="kn">from</span> <span class="nn">opennmt.models.model</span> <span class="kn">import</span> <span class="n">Model</span>
-<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">misc</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils.losses</span> <span class="kn">import</span> <span class="n">cross_entropy_loss</span>
 
 
@@ -265,8 +264,8 @@
             <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;classes_id&quot;</span><span class="p">],</span> <span class="n">predictions</span><span class="p">[</span><span class="s2">&quot;classes_id&quot;</span><span class="p">]</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="SequenceClassifier.print_prediction"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier.print_prediction">[docs]</a>    <span class="k">def</span> <span class="nf">print_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">misc</span><span class="o">.</span><span class="n">print_as_bytes</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;classes&quot;</span><span class="p">],</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="SequenceClassifier.format_prediction"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceClassifier.html#opennmt.models.SequenceClassifier.format_prediction">[docs]</a>    <span class="k">def</span> <span class="nf">format_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;classes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="ClassInputter"><a class="viewcode-back" href="../../../package/opennmt.models.ClassInputter.html#opennmt.models.ClassInputter">[docs]</a><span class="k">class</span> <span class="nc">ClassInputter</span><span class="p">(</span><span class="n">inputters</span><span class="o">.</span><span class="n">TextInputter</span><span class="p">):</span>

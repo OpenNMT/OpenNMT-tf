@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.utils.exporters &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -344,7 +344,7 @@
         <span class="c1"># Fail now if ctranslate2 package is missing.</span>
         <span class="kn">import</span> <span class="nn">ctranslate2</span>
 
-        <span class="n">accepted_quantization</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;int8&quot;</span><span class="p">,</span> <span class="s2">&quot;int16&quot;</span><span class="p">,</span> <span class="s2">&quot;float16&quot;</span><span class="p">)</span>
+        <span class="n">accepted_quantization</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;int8&quot;</span><span class="p">,</span> <span class="s2">&quot;int16&quot;</span><span class="p">,</span> <span class="s2">&quot;float16&quot;</span><span class="p">,</span> <span class="s2">&quot;int8_float16&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">quantization</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">quantization</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">accepted_quantization</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Invalid quantization &#39;</span><span class="si">%s</span><span class="s2">&#39; for CTranslate2, accepted values are: </span><span class="si">%s</span><span class="s2">&quot;</span>
@@ -398,6 +398,14 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;float16&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CTranslate2Int8Float16Exporter"><a class="viewcode-back" href="../../../package/opennmt.utils.CTranslate2Int8Float16Exporter.html#opennmt.utils.CTranslate2Int8Float16Exporter">[docs]</a><span class="nd">@register_exporter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ctranslate2_int8_float16&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CTranslate2Int8Float16Exporter</span><span class="p">(</span><span class="n">CTranslate2Exporter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;CTranslate2 exporter with int8_float16 quantization.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">quantization</span><span class="o">=</span><span class="s2">&quot;int8_float16&quot;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

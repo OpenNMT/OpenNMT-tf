@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.SequenceTagger &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.models.SequenceTagger &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -343,16 +343,19 @@ batch-normalized for training vs. token-normalized for reporting).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="opennmt.models.SequenceTagger.print_prediction">
-<code class="sig-name descname"><span class="pre">print_prediction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_tagger.html#SequenceTagger.print_prediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.SequenceTagger.print_prediction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints the model prediction.</p>
+<dt id="opennmt.models.SequenceTagger.format_prediction">
+<code class="sig-name descname"><span class="pre">format_prediction</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_tagger.html#SequenceTagger.format_prediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.SequenceTagger.format_prediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats the model prediction for file saving.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>prediction</strong> – The model prediction.</p></li>
+<li><p><strong>prediction</strong> – The model prediction (same structure as the second output of
+<a class="reference internal" href="opennmt.models.Model.html#opennmt.models.Model.call" title="opennmt.models.Model.call"><code class="xref py py-meth docutils literal notranslate"><span class="pre">opennmt.models.Model.call()</span></code></a>).</p></li>
 <li><p><strong>params</strong> – (optional) Dictionary of formatting parameters.</p></li>
-<li><p><strong>stream</strong> – (optional) The stream to print to.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A string or list of strings.</p>
 </dd>
 </dl>
 </dd></dl>

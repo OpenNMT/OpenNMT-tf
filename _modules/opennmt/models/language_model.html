@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.language_model &mdash; OpenNMT-tf 2.22.0 documentation</title>
+  <title>opennmt.models.language_model &mdash; OpenNMT-tf 2.23.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.22
+                2.23
               </div>
             
           
@@ -189,6 +189,7 @@
 
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
+<span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">config_util</span>
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">inputters</span>
 <span class="kn">from</span> <span class="nn">opennmt.models</span> <span class="kn">import</span> <span class="n">model</span>
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">decoding</span><span class="p">,</span> <span class="n">losses</span><span class="p">,</span> <span class="n">misc</span>
@@ -217,7 +218,7 @@
 
 <div class="viewcode-block" id="LanguageModel.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.auto_config">[docs]</a>    <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">misc</span><span class="o">.</span><span class="n">merge_dict</span><span class="p">(</span>
+        <span class="k">return</span> <span class="n">config_util</span><span class="o">.</span><span class="n">merge_config</span><span class="p">(</span>
             <span class="n">config</span><span class="p">,</span>
             <span class="p">{</span>
                 <span class="s2">&quot;infer&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -238,6 +239,8 @@
 <div class="viewcode-block" id="LanguageModel.call"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">outputs</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">ids</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">],</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># For training and evaluation, forward the full sequence.</span>
@@ -324,12 +327,11 @@
             <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="LanguageModel.print_prediction"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.print_prediction">[docs]</a>    <span class="k">def</span> <span class="nf">print_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="LanguageModel.format_prediction"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.format_prediction">[docs]</a>    <span class="k">def</span> <span class="nf">format_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">target_length</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span>
         <span class="n">tokens</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">[</span><span class="s2">&quot;tokens&quot;</span><span class="p">][:</span><span class="n">target_length</span><span class="p">]</span>
         <span class="n">sentence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">detokenize</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-        <span class="n">sentence</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">format_translation_output</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
-        <span class="n">misc</span><span class="o">.</span><span class="n">print_as_bytes</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">misc</span><span class="o">.</span><span class="n">format_translation_output</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="LanguageModelInputter"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter">[docs]</a><span class="k">class</span> <span class="nc">LanguageModelInputter</span><span class="p">(</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">ExampleInputterAdapter</span><span class="p">):</span>
@@ -346,6 +348,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">mark_start</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mark_end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mark_end</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="LanguageModelInputter.get_length"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.get_length">[docs]</a>    <span class="k">def</span> <span class="nf">get_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">ignore_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">features</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">ignore_special_tokens</span><span class="o">=</span><span class="n">ignore_special_tokens</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="LanguageModelInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter.make_features">[docs]</a>    <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">base_features</span> <span class="o">=</span> <span class="n">features</span> <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
