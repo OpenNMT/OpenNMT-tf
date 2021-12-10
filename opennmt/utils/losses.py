@@ -1,6 +1,7 @@
 """Define losses."""
 
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 
 def _smooth_one_hot_labels(logits, labels, label_smoothing):
@@ -33,6 +34,7 @@ def cross_entropy_sequence_loss(
     average_in_time=False,
     training=None,
     sequence_weight=None,
+    mask_outliers=False,
 ):
     """Computes the cross entropy loss of sequences.
 
@@ -44,6 +46,7 @@ def cross_entropy_sequence_loss(
       average_in_time: If ``True``, also average the loss in the time dimension.
       training: Compute training loss.
       sequence_weight: The weight of each sequence with shape :math:`[B]`.
+      mask_outliers: Mask large training loss values considered as outliers.
 
     Returns:
       A tuple (cumulated loss, loss normalizer, token-level normalizer).
@@ -59,6 +62,22 @@ def cross_entropy_sequence_loss(
         sequence_length = tf.fill([batch_size], max_time)
 
     weight = tf.sequence_mask(sequence_length, maxlen=max_time, dtype=dtype)
+
+    if training and mask_outliers:
+        # Outliers are detected using the interquantile range (IQR).
+        examples_loss = tf.reduce_sum(cross_entropy * weight, axis=-1)
+        examples_score = examples_loss / tf.reduce_sum(weight, axis=-1)
+        percentiles = tfp.stats.percentile(examples_score, [25, 75])
+        iqr = percentiles[1] - percentiles[0]
+        threshold = percentiles[1] + 1.5 * iqr
+        if sequence_weight is None:
+            sequence_weight = tf.ones([batch_size], dtype=dtype)
+        sequence_weight = tf.where(
+            examples_score > threshold,
+            x=tf.zeros_like(sequence_weight),
+            y=sequence_weight,
+        )
+
     if sequence_weight is not None:
         sequence_weight = tf.cast(sequence_weight, dtype)
         weight *= tf.expand_dims(sequence_weight, 1)

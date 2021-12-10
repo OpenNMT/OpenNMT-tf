@@ -436,6 +436,7 @@ class SequenceToSequence(model.SequenceGenerator):
             sequence_weight=labels.get("weight"),
             label_smoothing=params.get("label_smoothing", 0.0),
             average_in_time=params.get("average_loss_in_time", False),
+            mask_outliers=params.get("mask_loss_outliers", False),
             training=training,
         )
         if training:
