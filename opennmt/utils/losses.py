@@ -1,7 +1,6 @@
 """Define losses."""
 
 import tensorflow as tf
-import tensorflow_probability as tfp
 
 
 def _smooth_one_hot_labels(logits, labels, label_smoothing):
@@ -64,6 +63,8 @@ def cross_entropy_sequence_loss(
     weight = tf.sequence_mask(sequence_length, maxlen=max_time, dtype=dtype)
 
     if training and mask_outliers:
+        import tensorflow_probability as tfp
+
         # Outliers are detected using the interquantile range (IQR).
         examples_loss = tf.reduce_sum(cross_entropy * weight, axis=-1)
         examples_score = examples_loss / tf.reduce_sum(weight, axis=-1)

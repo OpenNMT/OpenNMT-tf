@@ -70,7 +70,6 @@ setup(
         "rouge>=1.0,<2",
         "sacrebleu>=1.5.0,<2.1",
         "tensorflow-addons>=0.14,<0.16",
-        "tensorflow-probability>=0.15,<0.16",
     ],
     extras_require={
         "tensorflow": [
