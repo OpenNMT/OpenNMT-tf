@@ -184,36 +184,29 @@ class SequenceToSequence(model.SequenceGenerator):
 
         return outputs, predictions
 
-    def infer_tflite(self, ids):
-        """Runs a prediction, returns a 1-dim Tensor with the target ids it predicted, is TFLite safe.
-        This is the function that gets converted was saving as a TFLite model
+    def serve_function(self):
+        if self.tflite_mode:
 
-        Args:
-          ids: A 1-dimensional tensor with the ids of the sentence you want to predict
-        """
-        ids = tf.expand_dims(ids, axis=0)
-        source_inputs = self.features_inputter.tflite_call(ids)
-        source_length = tf.convert_to_tensor([tf.math.count_nonzero(ids)])
+            # The serving function for TensorFlow Lite is simplified to only accept
+            # a single sequence of ids.
+            @tf.function(
+                input_signature=[
+                    tf.TensorSpec([None], dtype=tf.dtypes.int32, name="ids")
+                ]
+            )
+            def _run(ids):
+                ids = tf.expand_dims(ids, 0)
+                features = {
+                    "ids": ids,
+                    "length": tf.math.count_nonzero(ids, axis=1),
+                }
+                _, predictions = self(features)
+                return predictions
 
-        encoder_outputs, encoder_state, encoder_sequence_length = self.encoder(
-            source_inputs, sequence_length=source_length, training=False
-        )
+            _run.get_concrete_function()
+            return _run
 
-        predictions = self._dynamic_decode(
-            ids,
-            encoder_outputs,
-            encoder_state,
-            encoder_sequence_length,
-            tflite_run=True,
-        )
-
-        return predictions
-
-    def tflite_function(self):
-        return tf.function(
-            self.infer_tflite,
-            input_signature=[tf.TensorSpec([None], dtype=tf.dtypes.int32, name="ids")],
-        )
+        return super().serve_function()
 
     def _decode_target(
         self,
@@ -274,7 +267,6 @@ class SequenceToSequence(model.SequenceGenerator):
         encoder_outputs,
         encoder_state,
         encoder_sequence_length,
-        tflite_run=False,
     ):
         params = self.params
         batch_size = tf.shape(tf.nest.flatten(encoder_outputs)[0])[0]
@@ -311,17 +303,17 @@ class SequenceToSequence(model.SequenceGenerator):
             start_ids,
             initial_state=initial_state,
             decoding_strategy=decoding.DecodingStrategy.from_params(
-                params, tflite_mode=tflite_run
+                params, tflite_mode=self.tflite_mode
             ),
             sampler=decoding.Sampler.from_params(params),
             maximum_iterations=params.get("maximum_decoding_length", 250),
             minimum_iterations=params.get("minimum_decoding_length", 0),
             tflite_output_size=params.get("tflite_output_size", 250)
-            if tflite_run
+            if self.tflite_mode
             else None,
         )
 
-        if tflite_run:
+        if self.tflite_mode:
             target_tokens = sampled_ids
         else:
             target_tokens = self.labels_inputter.ids_to_tokens.lookup(
@@ -340,11 +332,11 @@ class SequenceToSequence(model.SequenceGenerator):
                     "inputter is a WordEmbedder"
                 )
 
-            source_tokens = features if tflite_run else features["tokens"]
+            source_tokens = features["ids" if self.tflite_mode else "tokens"]
             if beam_size > 1:
                 source_tokens = tfa.seq2seq.tile_batch(source_tokens, beam_size)
             original_shape = tf.shape(target_tokens)
-            if tflite_run:
+            if self.tflite_mode:
                 target_tokens = tf.squeeze(target_tokens, axis=0)
                 output_size = original_shape[-1]
                 unknown_token = self.labels_inputter.vocabulary_size - 1
@@ -362,12 +354,12 @@ class SequenceToSequence(model.SequenceGenerator):
             replaced_target_tokens = replace_unknown_target(
                 target_tokens, source_tokens, attention, unknown_token=unknown_token
             )
-            if tflite_run:
+            if self.tflite_mode:
                 target_tokens = replaced_target_tokens
             else:
                 target_tokens = tf.reshape(replaced_target_tokens, original_shape)
 
-        if tflite_run:
+        if self.tflite_mode:
             if beam_size > 1:
                 target_tokens = tf.transpose(target_tokens)
                 target_tokens = target_tokens[:, :1]

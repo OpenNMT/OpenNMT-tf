@@ -424,9 +424,7 @@ class Decoder(tf.keras.layers.Layer):
         See Also:
           :func:`opennmt.utils.dynamic_decode`
         """
-        if tflite_output_size is not None:
-            input_fn = lambda ids: embeddings.tflite_call(ids)
-        elif isinstance(embeddings, text_inputter.WordEmbedder):
+        if isinstance(embeddings, text_inputter.WordEmbedder):
             input_fn = lambda ids: embeddings({"ids": ids})
         else:
             input_fn = lambda ids: tf.nn.embedding_lookup(embeddings, ids)
