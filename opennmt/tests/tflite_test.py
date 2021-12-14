@@ -7,7 +7,7 @@ import tensorflow as tf
 from packaging import version
 from parameterized import parameterized
 
-from opennmt import data
+from opennmt import data, layers
 from opennmt.models import catalog
 from opennmt.tests import test_util
 from opennmt.utils import exporters
@@ -35,8 +35,6 @@ def _create_dataset(model, temp_dir):
 
 
 def _get_predictions(model, dataset, vocab_path):
-    if not model.built:
-        model.create_variables()
     _, tokens_to_ids, _ = data.vocab.create_lookup_tables(vocab_path)
 
     elem = next(iter(dataset))
@@ -111,6 +109,11 @@ class TFLiteTest(tf.test.TestCase):
             [
                 catalog.TransformerBaseSharedEmbeddings,
                 {"replace_unknown_target": True, "beam_width": 3},
+            ],
+            [
+                lambda: catalog.Transformer(
+                    position_encoder_class=layers.PositionEmbedder
+                )
             ],
         ]
     )

@@ -81,6 +81,12 @@ class PositionEmbedder(PositionEncoder):
 
     def _encode(self, positions, depth):
         positions = tf.minimum(positions, self.maximum_position)
+
+        if getattr(self, "_tflite_mode", False):
+            # Workaround for TensorFlow issue #42410.
+            positions = tf.expand_dims(positions, axis=-1)
+            return tf.gather_nd(self.embedding, positions)
+
         return tf.nn.embedding_lookup(self.embedding, positions)
 
 

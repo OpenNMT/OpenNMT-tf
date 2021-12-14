@@ -1,6 +1,7 @@
 """Base class for models."""
 
 import abc
+import contextlib
 
 import tensorflow as tf
 
@@ -368,15 +369,29 @@ class Model(tf.keras.layers.Layer):
 
         return _run
 
+    @property
+    def tflite_mode(self):
+        """Returns ``True`` if the model is being traced for TensorFlow Lite."""
+        return getattr(self, "_tflite_mode", False)
+
+    @contextlib.contextmanager
+    def enable_tflite_mode(self):
+        """Enable TensorFlow Lite mode for this model."""
+        layers = [self] + list(self.submodules)
+        for layer in layers:
+            setattr(layer, "_tflite_mode", True)
+        yield
+        for layer in layers:
+            delattr(layer, "_tflite_mode")
+
     def tflite_function(self):
         """Returns the inference function that should be used for TensorFlow Lite.
 
         Returns:
           A ``tf.function``.
         """
-        raise NotImplementedError(
-            "This model does not define a function for TensorFlow Lite"
-        )
+        with self.enable_tflite_mode():
+            return self.serve_function()
 
     def export(self, export_dir, exporter=None):
         """Exports the model for serving.
