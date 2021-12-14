@@ -58,7 +58,7 @@ def _get_lines(path):
     lines = []
     with tf.io.gfile.GFile(path) as f:
         for line in f:
-            lines.append(line.rstrip())
+            lines.append(line.rstrip("\r\n"))
     return lines
 
 
