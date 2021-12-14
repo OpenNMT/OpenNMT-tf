@@ -115,22 +115,29 @@ class Vocab(object):
         Raises:
           ValueError: if :obj:`file_format` is invalid.
         """
+        if file_format not in ("default", "sentencepiece"):
+            raise ValueError("Invalid vocabulary format: %s" % file_format)
         with tf.io.gfile.GFile(path) as vocab:
-            for line in vocab:
+            for i, line in enumerate(vocab):
                 token = line.rstrip("\r\n")
-                if file_format == "default":
-                    self.add(token)
-                elif file_format == "sentencepiece":
+                if file_format == "sentencepiece":
                     token, _ = token.split("\t")
-                    if token in (
-                        "<unk>",
-                        "<s>",
-                        "</s>",
-                    ):  # Ignore SentencePiece special tokens.
+                    # Ignore SentencePiece special tokens.
+                    if token in ("<unk>", "<s>", "</s>"):
                         continue
-                    self.add(token)
-                else:
-                    raise ValueError("Invalid vocabulary format: %s" % file_format)
+
+                if token in self._token_to_id:
+                    tf.get_logger().warning(
+                        "Duplicate token '%s' in vocabulary %s at line %d",
+                        token,
+                        path,
+                        i + 1,
+                    )
+                    continue
+
+                self._token_to_id[token] = len(self._id_to_token)
+                self._id_to_token.append(token)
+                self._frequency.append(1)
 
     def add(self, token):
         """Adds a token or increases its frequency.
