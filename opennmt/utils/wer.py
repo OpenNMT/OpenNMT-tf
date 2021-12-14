@@ -4,17 +4,13 @@
 def wer(ref_path, hyp_path):
     """Compute Word Error Rate between two files"""
     with open(ref_path) as ref_fp, open(hyp_path) as hyp_fp:
-        ref_line = ref_fp.readline()
-        hyp_line = hyp_fp.readline()
         wer_score = 0.0
         line_cpt = 0.0
-        while ref_line and hyp_line:
+        for ref_line, hyp_line in zip(ref_fp, hyp_fp):
             wer_score += sentence_wer(
                 ref_line.strip().split(), hyp_line.strip().split()
             )
             line_cpt = line_cpt + 1
-            ref_line = ref_fp.readline()
-            hyp_line = hyp_fp.readline()
     mean_wer = 1.0
     if line_cpt > 0:
         mean_wer = wer_score / line_cpt
