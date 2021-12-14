@@ -424,11 +424,15 @@ class ParallelInputter(MultiInputter):
         return parallel_datasets
 
     def get_dataset_size(self, data_file):
+        common_size = None
         for inputter, data in zip(self.inputters, data_file):
             size = inputter.get_dataset_size(data)
             if size is not None:
-                return size
-        return None
+                if common_size is None:
+                    common_size = size
+                elif size != common_size:
+                    raise RuntimeError("Parallel datasets do not have the same size")
+        return common_size
 
     def input_signature(self):
         if self.combine_features:
@@ -934,6 +938,18 @@ class ExampleInputter(ParallelInputter, ExampleInputterAdapter):
             tf.data.Dataset.zip({"examples": dataset, **annotation_datasets})
             for dataset, annotation_datasets in zip(datasets, all_annotation_datasets)
         ]
+
+    def get_dataset_size(self, data_file):
+        size = super().get_dataset_size(data_file)
+        if size is not None:
+            for annotation, path in self.annotation_files.items():
+                annotation_size = tf.nest.map_structure(misc.count_lines, path)
+                if size != annotation_size:
+                    raise RuntimeError(
+                        "Annotation dataset '%s' does not have the same size as "
+                        "the examples dataset" % annotation
+                    )
+        return size
 
     def make_features(self, element=None, features=None, training=None):
         if training and self.annotation_files:

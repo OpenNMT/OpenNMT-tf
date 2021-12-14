@@ -552,6 +552,51 @@ class InputterTest(tf.test.TestCase):
         self.assertAllEqual(examples[0][0]["ids"], [[0, 1, 2]])
         self.assertAllEqual(examples[0][1]["ids"], [[0]])
 
+    def testExampleInputterMismatchedDatasetSize(self):
+        vocab_file = self._makeTextFile("vocab.txt", ["a", "b", "c", "d"])
+        features_file = self._makeTextFile("features.txt", ["a", "b", "c", "d"])
+        labels_file = self._makeTextFile("labels.txt", ["a", "b", "c"])
+
+        example_inputter = inputter.ExampleInputter(
+            text_inputter.WordEmbedder(embedding_size=10),
+            text_inputter.WordEmbedder(embedding_size=10),
+        )
+        example_inputter.initialize(
+            {"source_vocabulary": vocab_file, "target_vocabulary": vocab_file}
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "same size"):
+            example_inputter.make_training_dataset(
+                features_file,
+                labels_file,
+                batch_size=2,
+            )
+
+    def testExampleInputterMismatchedAnnotationsSize(self):
+        vocab_file = self._makeTextFile("vocab.txt", ["a", "b", "c", "d"])
+        features_file = self._makeTextFile("features.txt", ["a", "b", "c"])
+        labels_file = self._makeTextFile("labels.txt", ["a", "b", "c"])
+        weights_file = self._makeTextFile("weights.txt", ["1.0", "1.0"])
+
+        example_inputter = inputter.ExampleInputter(
+            text_inputter.WordEmbedder(embedding_size=10),
+            text_inputter.WordEmbedder(embedding_size=10),
+        )
+        example_inputter.initialize(
+            {
+                "source_vocabulary": vocab_file,
+                "target_vocabulary": vocab_file,
+                "example_weights": weights_file,
+            }
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "same size"):
+            example_inputter.make_training_dataset(
+                features_file,
+                labels_file,
+                batch_size=2,
+            )
+
     def testWeightedDataset(self):
         vocab_file = self._makeTextFile("vocab.txt", ["the", "world", "hello", "toto"])
         data_file = self._makeTextFile("data.txt", ["hello world !"])
