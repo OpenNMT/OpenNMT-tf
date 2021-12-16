@@ -62,7 +62,18 @@ class Dense(tf.keras.layers.Dense):
         rank = len(shape)
         if rank > 2:
             inputs = tf.reshape(inputs, [-1, shape[-1]])
-        outputs = tf.matmul(inputs, self.kernel, transpose_b=self.transpose)
+        if inputs.dtype is tf.float16 and self.units % 8 != 0:
+            padding_size = 8 - self.units % 8
+            paddings = (
+                [[0, padding_size], [0, 0]]
+                if self.transpose
+                else [[0, 0], [0, padding_size]]
+            )
+            kernel = tf.pad(self.kernel, paddings)
+            outputs = tf.matmul(inputs, kernel, transpose_b=self.transpose)
+            outputs = padded_outputs[:, : self.units]
+        else:
+            outputs = tf.matmul(inputs, self.kernel, transpose_b=self.transpose)
         if self.use_bias:
             outputs = tf.nn.bias_add(outputs, self.bias)
         if self.activation is not None:
