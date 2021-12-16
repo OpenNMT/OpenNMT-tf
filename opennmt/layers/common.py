@@ -71,7 +71,7 @@ class Dense(tf.keras.layers.Dense):
             )
             kernel = tf.pad(self.kernel, paddings)
             outputs = tf.matmul(inputs, kernel, transpose_b=self.transpose)
-            outputs = padded_outputs[:, : self.units]
+            outputs = outputs[:, : self.units]
         else:
             outputs = tf.matmul(inputs, self.kernel, transpose_b=self.transpose)
         if self.use_bias:
