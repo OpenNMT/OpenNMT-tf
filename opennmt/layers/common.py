@@ -41,7 +41,7 @@ class Dense(tf.keras.layers.Dense):
         """Use :obj:`weight` as the kernel weights matrix.
 
         Args:
-          weight: The weight ot use.
+          weight: The weight to use.
           transpose: Whether :obj:`weight` should be transposed or not.
 
         Raises:
