@@ -136,6 +136,10 @@ class Transformer(SequenceToSequence):
         self._num_decoder_layers = num_decoder_layers
         self._num_heads = num_heads
         self._with_relative_position = maximum_relative_position is not None
+        self._alignment_layer = -1
+        self._alignment_heads = 1
+        if attention_reduction == MultiHeadAttentionReduction.AVERAGE_LAST_LAYER:
+            self._alignment_heads = 0
         self._is_ct2_compatible = (
             isinstance(encoder, SelfAttentionEncoder)
             and ffn_activation is tf.nn.relu
@@ -166,6 +170,8 @@ class Transformer(SequenceToSequence):
             self._num_heads,
             with_relative_position=self._with_relative_position,
             pre_norm=self._pre_norm,
+            alignment_layer=self._alignment_layer,
+            alignment_heads=self._alignment_heads,
         )
         model_spec.with_source_bos = bool(self.features_inputter.mark_start)
         model_spec.with_source_eos = bool(self.features_inputter.mark_end)
