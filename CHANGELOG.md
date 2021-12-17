@@ -15,6 +15,20 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.24.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.24.0) (2021-12-17)
+
+### New features
+
+* Add experimental parameter `mask_loss_outliers` to mask high loss values considered as outliers (requires the `tensorflow-probability` module)
+
+### Fixes and improvements
+
+* Fix TensorFlow Lite conversion for models using a `PositionEmbedder` layer
+* Automatically pad the weights of linear layers to enable Tensor Cores in mixed precision training
+* Correctly set the CTranslate2 options `alignment_layer` and `alignment_heads` when converting models using the attention reduction `AVERAGE_LAST_LAYER`
+* Raise an error if a training dataset or annotation file has an unexpected size
+* Warn about duplicated tokens when loading vocabularies
+
 ## [2.23.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.23.0) (2021-11-15)
 
 ### Changes
