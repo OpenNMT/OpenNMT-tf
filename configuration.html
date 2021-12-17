@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Parameters &mdash; OpenNMT-tf 2.23.0 documentation</title>
+  <title>Parameters &mdash; OpenNMT-tf 2.24.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.23
+                2.24
               </div>
             
           
@@ -336,6 +336,8 @@
   <span class="c1"># (optional) Average loss in the time dimension in addition to the batch dimension</span>
   <span class="c1"># (default: true when using &quot;tokens&quot; batch type, false otherwise).</span>
   <span class="nt">average_loss_in_time</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+  <span class="c1"># (optional) High training loss values considered as outliers will be masked (default: false).</span>
+  <span class="nt">mask_loss_outliers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
 
   <span class="c1"># (optional) The type of learning rate decay (default: null). See:</span>
   <span class="c1">#  * https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules</span>

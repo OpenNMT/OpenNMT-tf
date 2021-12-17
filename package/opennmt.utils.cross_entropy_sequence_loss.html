@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.utils.cross_entropy_sequence_loss &mdash; OpenNMT-tf 2.23.0 documentation</title>
+  <title>opennmt.utils.cross_entropy_sequence_loss &mdash; OpenNMT-tf 2.24.0 documentation</title>
   
 
   
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                2.23
+                2.24
               </div>
             
           
@@ -217,7 +217,7 @@
 <h1>opennmt.utils.cross_entropy_sequence_loss<a class="headerlink" href="#opennmt-utils-cross-entropy-sequence-loss" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="opennmt.utils.cross_entropy_sequence_loss">
-<code class="sig-prename descclassname"><span class="pre">opennmt.utils.</span></code><code class="sig-name descname"><span class="pre">cross_entropy_sequence_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_in_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/losses.html#cross_entropy_sequence_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.utils.cross_entropy_sequence_loss" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">opennmt.utils.</span></code><code class="sig-name descname"><span class="pre">cross_entropy_sequence_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logits</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_in_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_outliers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/utils/losses.html#cross_entropy_sequence_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.utils.cross_entropy_sequence_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the cross entropy loss of sequences.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -229,6 +229,7 @@
 <li><p><strong>average_in_time</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, also average the loss in the time dimension.</p></li>
 <li><p><strong>training</strong> – Compute training loss.</p></li>
 <li><p><strong>sequence_weight</strong> – The weight of each sequence with shape <span class="math notranslate nohighlight">\([B]\)</span>.</p></li>
+<li><p><strong>mask_outliers</strong> – Mask large training loss values considered as outliers.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

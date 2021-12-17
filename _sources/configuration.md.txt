@@ -154,6 +154,8 @@ params:
   # (optional) Average loss in the time dimension in addition to the batch dimension
   # (default: true when using "tokens" batch type, false otherwise).
   average_loss_in_time: false
+  # (optional) High training loss values considered as outliers will be masked (default: false).
+  mask_loss_outliers: false
 
   # (optional) The type of learning rate decay (default: null). See:
   #  * https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules

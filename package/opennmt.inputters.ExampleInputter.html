@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.inputters.ExampleInputter &mdash; OpenNMT-tf 2.23.0 documentation</title>
+  <title>opennmt.inputters.ExampleInputter &mdash; OpenNMT-tf 2.24.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.23
+                2.24
               </div>
             
           
@@ -262,6 +262,24 @@ by the user.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> instance or a list of <code class="docutils literal notranslate"><span class="pre">tf.data.Dataset</span></code> instances.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opennmt.inputters.ExampleInputter.get_dataset_size">
+<code class="sig-name descname"><span class="pre">get_dataset_size</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ExampleInputter.get_dataset_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ExampleInputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the dataset size.</p>
+<p>If the inputter can efficiently compute the dataset size from a training
+file on disk, it can optionally override this method. Otherwise, we may
+compute the size later with a generic and slower approach (iterating over
+the dataset instance).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data_file</strong> – The data file.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The dataset size or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd>
 </dl>
 </dd></dl>

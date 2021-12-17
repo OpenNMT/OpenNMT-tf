@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.SequenceToSequence &mdash; OpenNMT-tf 2.23.0 documentation</title>
+  <title>opennmt.models.SequenceToSequence &mdash; OpenNMT-tf 2.24.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.23
+                2.24
               </div>
             
           
@@ -341,21 +341,9 @@ layer instantiation and layer call.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="opennmt.models.SequenceToSequence.infer_tflite">
-<code class="sig-name descname"><span class="pre">infer_tflite</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequence.infer_tflite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.SequenceToSequence.infer_tflite" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs a prediction, returns a 1-dim Tensor with the target ids it predicted, is TFLite safe.
-This is the function that gets converted was saving as a TFLite model</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ids</strong> – A 1-dimensional tensor with the ids of the sentence you want to predict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="opennmt.models.SequenceToSequence.tflite_function">
-<code class="sig-name descname"><span class="pre">tflite_function</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequence.tflite_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.SequenceToSequence.tflite_function" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the inference function that should be used for TensorFlow Lite.</p>
+<dt id="opennmt.models.SequenceToSequence.serve_function">
+<code class="sig-name descname"><span class="pre">serve_function</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/models/sequence_to_sequence.html#SequenceToSequence.serve_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.models.SequenceToSequence.serve_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a function for serving this model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">tf.function</span></code>.</p>

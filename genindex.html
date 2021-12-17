@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Index &mdash; OpenNMT-tf 2.23.0 documentation</title>
+  <title>Index &mdash; OpenNMT-tf 2.24.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.23
+                2.24
               </div>
             
           
@@ -661,6 +661,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel">EmbeddingsSharingLevel (class in opennmt.models)</a>
 </li>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.enable_tflite_mode">enable_tflite_mode() (opennmt.models.Model method)</a>
+</li>
       <li><a href="package/opennmt.encoders.Encoder.html#opennmt.encoders.Encoder">Encoder (class in opennmt.encoders)</a>
 </li>
       <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.evaluate">evaluate() (opennmt.models.Model method)</a>
@@ -776,6 +778,8 @@
       <li><a href="package/opennmt.data.get_dataset_size.html#opennmt.data.get_dataset_size">get_dataset_size() (in module opennmt.data)</a>
 
       <ul>
+        <li><a href="package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.get_dataset_size">(opennmt.inputters.ExampleInputter method)</a>
+</li>
         <li><a href="package/opennmt.inputters.Inputter.html#opennmt.inputters.Inputter.get_dataset_size">(opennmt.inputters.Inputter method)</a>
 </li>
         <li><a href="package/opennmt.inputters.MixedInputter.html#opennmt.inputters.MixedInputter.get_dataset_size">(opennmt.inputters.MixedInputter method)</a>
@@ -871,8 +875,6 @@
         <li><a href="package/opennmt.Runner.html#opennmt.Runner.infer">(opennmt.Runner method)</a>
 </li>
       </ul></li>
-      <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.infer_tflite">infer_tflite() (opennmt.models.SequenceToSequence method)</a>
-</li>
       <li><a href="package/opennmt.data.inference_pipeline.html#opennmt.data.inference_pipeline">inference_pipeline() (in module opennmt.data)</a>
 </li>
       <li><a href="package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.initial_state">initial_state() (opennmt.decoders.Decoder method)</a>
@@ -1458,7 +1460,11 @@
       <li><a href="package/opennmt.data.Vocab.html#opennmt.data.Vocab.serialize">serialize() (opennmt.data.Vocab method)</a>
 </li>
       <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.serve_function">serve_function() (opennmt.models.Model method)</a>
+
+      <ul>
+        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.serve_function">(opennmt.models.SequenceToSequence method)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.set_decoder_mode">set_decoder_mode() (opennmt.inputters.WordEmbedder method)</a>
@@ -1529,14 +1535,10 @@
 </li>
       <li><a href="package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter">TextInputter (class in opennmt.inputters)</a>
 </li>
-      <li><a href="package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.tflite_call">tflite_call() (opennmt.inputters.WordEmbedder method)</a>
-</li>
       <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.tflite_function">tflite_function() (opennmt.models.Model method)</a>
-
-      <ul>
-        <li><a href="package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.tflite_function">(opennmt.models.SequenceToSequence method)</a>
 </li>
-      </ul></li>
+      <li><a href="package/opennmt.models.Model.html#opennmt.models.Model.tflite_mode">tflite_mode() (opennmt.models.Model property)</a>
+</li>
       <li><a href="package/opennmt.utils.TFLiteExporter.html#opennmt.utils.TFLiteExporter">TFLiteExporter (class in opennmt.utils)</a>
 </li>
       <li><a href="package/opennmt.utils.TFLiteFloat16Exporter.html#opennmt.utils.TFLiteFloat16Exporter">TFLiteFloat16Exporter (class in opennmt.utils)</a>

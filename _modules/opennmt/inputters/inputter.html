@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 2.23.0 documentation</title>
+  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 2.24.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.23
+                2.24
               </div>
             
           
@@ -611,11 +611,15 @@
         <span class="k">return</span> <span class="n">parallel_datasets</span></div>
 
 <div class="viewcode-block" id="ParallelInputter.get_dataset_size"><a class="viewcode-back" href="../../../package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.get_dataset_size">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataset_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">):</span>
+        <span class="n">common_size</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">inputter</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputters</span><span class="p">,</span> <span class="n">data_file</span><span class="p">):</span>
             <span class="n">size</span> <span class="o">=</span> <span class="n">inputter</span><span class="o">.</span><span class="n">get_dataset_size</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">size</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
+                <span class="k">if</span> <span class="n">common_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">common_size</span> <span class="o">=</span> <span class="n">size</span>
+                <span class="k">elif</span> <span class="n">size</span> <span class="o">!=</span> <span class="n">common_size</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Parallel datasets do not have the same size&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">common_size</span></div>
 
 <div class="viewcode-block" id="ParallelInputter.input_signature"><a class="viewcode-back" href="../../../package/opennmt.inputters.ParallelInputter.html#opennmt.inputters.ParallelInputter.input_signature">[docs]</a>    <span class="k">def</span> <span class="nf">input_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_features</span><span class="p">:</span>
@@ -1121,6 +1125,18 @@
             <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">zip</span><span class="p">({</span><span class="s2">&quot;examples&quot;</span><span class="p">:</span> <span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">annotation_datasets</span><span class="p">})</span>
             <span class="k">for</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">annotation_datasets</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">all_annotation_datasets</span><span class="p">)</span>
         <span class="p">]</span></div>
+
+<div class="viewcode-block" id="ExampleInputter.get_dataset_size"><a class="viewcode-back" href="../../../package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.get_dataset_size">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataset_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_file</span><span class="p">):</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_dataset_size</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">annotation</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">annotation_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="n">misc</span><span class="o">.</span><span class="n">count_lines</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">size</span> <span class="o">!=</span> <span class="n">annotation_size</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="s2">&quot;Annotation dataset &#39;</span><span class="si">%s</span><span class="s2">&#39; does not have the same size as &quot;</span>
+                        <span class="s2">&quot;the examples dataset&quot;</span> <span class="o">%</span> <span class="n">annotation</span>
+                    <span class="p">)</span>
+        <span class="k">return</span> <span class="n">size</span></div>
 
 <div class="viewcode-block" id="ExampleInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter.make_features">[docs]</a>    <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">training</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotation_files</span><span class="p">:</span>
