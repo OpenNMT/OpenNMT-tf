@@ -1,6 +1,5 @@
 """Defines common layers."""
 
-import numpy as np
 import tensorflow as tf
 
 from opennmt.utils.misc import shape_list
@@ -17,7 +16,7 @@ def gelu(x):
     """Gaussian Error Linear Unit activation function described in
     https://arxiv.org/abs/1606.08415.
     """
-    return 0.5 * x * (1 + tf.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * tf.pow(x, 3))))
+    return tf.nn.gelu(x, approximate=True)
 
 
 class Dense(tf.keras.layers.Dense):
