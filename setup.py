@@ -64,7 +64,7 @@ setup(
     keywords="tensorflow opennmt nmt neural machine translation",
     python_requires=">=3.6",
     install_requires=[
-        "ctranslate2>=2.3.2,<3",
+        "ctranslate2>=2.9.0,<3",
         "pyonmttok>=1.29.0,<2",
         "pyyaml>=5.3,<7",
         "rouge>=1.0,<2",
