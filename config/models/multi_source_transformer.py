@@ -38,12 +38,5 @@ class DualSourceTransformer(opennmt.models.Transformer):
             share_encoders=True,
         )
 
-    def auto_config(self, num_replicas=1):
-        config = super().auto_config(num_replicas=num_replicas)
-        max_length = config["train"]["maximum_features_length"]
-        return opennmt.merge_config(
-            config, {"train": {"maximum_features_length": [max_length, max_length]}}
-        )
-
 
 model = DualSourceTransformer
