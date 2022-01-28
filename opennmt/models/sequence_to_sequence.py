@@ -351,6 +351,17 @@ class SequenceToSequence(model.SequenceGenerator):
                 [align_shape[0] * align_shape[1], align_shape[2], align_shape[3]],
             )
             attention = reducer.align_in_time(attention, output_size)
+
+            if not self.tflite_mode:
+                attention = mask_attention(
+                    attention,
+                    self.features_inputter.get_length(
+                        features, ignore_special_tokens=True
+                    ),
+                    self.features_inputter.mark_start,
+                    self.features_inputter.mark_end,
+                )
+
             replaced_target_tokens = replace_unknown_target(
                 target_tokens, source_tokens, attention, unknown_token=unknown_token
             )
@@ -569,6 +580,29 @@ class SequenceToSequenceInputter(inputters.ExampleInputter):
             self.labels_inputter.get_length(labels, ignore_special_tokens=True),
         )
         return features, labels
+
+
+def mask_attention(attention, source_length, source_has_bos, source_has_eos):
+    """Masks and possibly shifts the attention vectors to ignore the source EOS and BOS tokens.
+
+    Args:
+      attention: The attention vector with shape :math:`[B, T_t, T_s]`.
+      source_length: The source lengths with shape :math:`[B]` and excluding
+        the BOS and EOS tokens.
+      source_has_bos: Whether the BOS token was added to the source or not.
+      source_has_eos: Whether the EOS token was added to the source or not.
+
+    Returns:
+      The masked attention.
+    """
+    if not source_has_bos and not source_has_eos:
+        return attention
+    if source_has_bos:
+        attention = tf.roll(attention, shift=-1, axis=-1)
+    source_mask = tf.sequence_mask(
+        source_length, maxlen=tf.shape(attention)[-1], dtype=attention.dtype
+    )
+    return attention * tf.expand_dims(source_mask, 1)
 
 
 def align_tokens_from_attention(tokens, attention):
