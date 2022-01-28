@@ -333,8 +333,12 @@ class SequenceToSequence(model.SequenceGenerator):
                 )
 
             source_tokens = features["ids" if self.tflite_mode else "tokens"]
+            source_length = self.features_inputter.get_length(
+                features, ignore_special_tokens=True
+            )
             if beam_size > 1:
                 source_tokens = tfa.seq2seq.tile_batch(source_tokens, beam_size)
+                source_length = tfa.seq2seq.tile_batch(source_length, beam_size)
             original_shape = tf.shape(target_tokens)
             if self.tflite_mode:
                 target_tokens = tf.squeeze(target_tokens, axis=0)
@@ -355,9 +359,7 @@ class SequenceToSequence(model.SequenceGenerator):
             if not self.tflite_mode:
                 attention = mask_attention(
                     attention,
-                    self.features_inputter.get_length(
-                        features, ignore_special_tokens=True
-                    ),
+                    source_length,
                     self.features_inputter.mark_start,
                     self.features_inputter.mark_end,
                 )
