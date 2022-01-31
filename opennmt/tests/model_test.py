@@ -321,7 +321,9 @@ class ModelTest(tf.test.TestCase):
     def testSequenceToSequenceWithReplaceUnknownTarget(self):
         model, params = _seq2seq_model()
         params["replace_unknown_target"] = True
+        params["beam_width"] = 2
         features_file, labels_file, data_config = self._makeToyEnDeData()
+        data_config["source_sequence_controls"] = {"start": True, "end": True}
         model.initialize(data_config, params=params)
         dataset = model.examples_inputter.make_inference_dataset(features_file, 16)
         features = next(iter(dataset))
