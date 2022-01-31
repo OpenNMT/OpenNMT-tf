@@ -198,7 +198,11 @@ class Transformer(SequenceToSequence):
                     "effective_batch_size": 25000,
                     "batch_size": 3072,
                     "batch_type": "tokens",
-                    "maximum_features_length": 100,
+                    "maximum_features_length": (
+                        100
+                        if self.features_inputter.num_outputs == 1
+                        else [100] * self.features_inputter.num_outputs
+                    ),
                     "maximum_labels_length": 100,
                     "keep_checkpoint_max": 8,
                     "average_last_checkpoints": 8,
