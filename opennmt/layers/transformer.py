@@ -307,7 +307,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         # Compute queries.
         queries = self.linear_queries(inputs)
         queries = split_heads(queries, self.num_heads)
-        queries *= self.num_units_per_head ** -0.5
+        queries *= self.num_units_per_head**-0.5
 
         # Compute keys and values.
         if memory is None:

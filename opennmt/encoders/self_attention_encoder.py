@@ -73,7 +73,7 @@ class SelfAttentionEncoder(Encoder):
         ]
 
     def call(self, inputs, sequence_length=None, training=None):
-        inputs *= self.num_units ** 0.5
+        inputs *= self.num_units**0.5
         if self.position_encoder is not None:
             inputs = self.position_encoder(inputs)
         inputs = common.dropout(inputs, self.dropout, training=training)
