@@ -170,6 +170,7 @@ class Runner(object):
         hvd=None,
         return_summary=False,
         fallback_to_cpu=True,
+        continue_from_checkpoint=False,
     ):
         """Runs the training loop.
 
@@ -180,6 +181,8 @@ class Runner(object):
           hvd: Optional Horovod module.
           return_summary: Return a summary of the training from this function.
           fallback_to_cpu: If no GPU is detected, allow the training to run on CPU.
+          continue_from_checkpoint: Continue training from the checkpoint passed to
+            :obj:`checkpoint_path`. Otherwise only the model weights are loaded.
 
         Returns:
           The path to the final model directory and, if :obj:`return_summary` is set,
@@ -242,7 +245,9 @@ class Runner(object):
             )
             checkpoint.restore(
                 checkpoint_path=checkpoint_path,
-                weights_only=checkpoint_path is not None,
+                weights_only=(
+                    checkpoint_path is not None and not continue_from_checkpoint
+                ),
             )
             if with_eval:
                 evaluator = evaluation.Evaluator.from_config(model, config)

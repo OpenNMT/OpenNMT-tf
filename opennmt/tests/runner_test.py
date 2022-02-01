@@ -114,6 +114,28 @@ class RunnerTest(tf.test.TestCase):
         with self.assertRaisesRegex(RuntimeError, "max_step"):
             runner.train()
 
+    def testTrainContinueFromCheckpoint(self):
+        old_model_dir = os.path.join(test_data, "transliteration-aren-v2", "v2")
+        new_model_dir = os.path.join(self.get_temp_dir(), "model")
+        ar_file, en_file = self._makeTransliterationData()
+
+        config = {
+            "model_dir": new_model_dir,
+            "data": {
+                "train_features_file": ar_file,
+                "train_labels_file": en_file,
+                "source_vocabulary": os.path.join(old_model_dir, "ar.vocab"),
+                "target_vocabulary": os.path.join(old_model_dir, "en.vocab"),
+            },
+            "params": {"learning_rate": 0.0005, "optimizer": "Adam"},
+            "train": {"batch_size": 2, "max_step": 145002},
+        }
+
+        model = load_model(old_model_dir)
+        runner = Runner(model, config)
+        runner.train(checkpoint_path=old_model_dir, continue_from_checkpoint=True)
+        self.assertEndsWith(tf.train.latest_checkpoint(new_model_dir), "145002")
+
     @test_util.run_with_two_cpu_devices
     def testTrainDistribute(self):
         ar_file, en_file = self._makeTransliterationData()
