@@ -143,6 +143,16 @@ def main():
         action="store_true",
         help="Enable Horovod training mode.",
     )
+    parser_train.add_argument(
+        "--continue_from_checkpoint",
+        default=False,
+        action="store_true",
+        help=(
+            "Continue the training from the checkpoint passed to --checkpoint_path. "
+            "If --checkpoint_path is set but not --continue_from_checkpoint, only the "
+            "model weights are loaded and the optimization states are ignored."
+        ),
+    )
 
     parser_eval = subparsers.add_parser("eval", help="Evaluation.")
     parser_eval.add_argument(
@@ -310,6 +320,7 @@ def main():
             with_eval=args.with_eval,
             checkpoint_path=args.checkpoint_path,
             hvd=hvd,
+            continue_from_checkpoint=args.continue_from_checkpoint,
         )
     elif args.run_type == "eval":
         metrics = runner.evaluate(
