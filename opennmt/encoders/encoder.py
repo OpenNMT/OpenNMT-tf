@@ -154,9 +154,9 @@ class ParallelEncoder(Encoder):
             states. If ``None``, defaults to
             :class:`opennmt.layers.JoinReducer`.
           outputs_layer_fn: A callable or list of callables applied to the
-            encoders outputs If it is a single callable, it is on each encoder
-            output. Otherwise, the ``i`` th callable is applied on encoder ``i``
-            output.
+            encoders outputs If it is a single callable, it is applied on each
+            encoder output. Otherwise, the ``i`` th callable is applied on
+            encoder ``i`` output.
           combined_output_layer_fn: A callable to apply on the combined output
             (i.e. the output of :obj:`outputs_reducer`).
 
