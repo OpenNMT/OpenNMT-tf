@@ -1,5 +1,7 @@
 """Define learning rate decay functions."""
 
+import inspect
+
 import numpy as np
 import tensorflow as tf
 
@@ -45,10 +47,10 @@ def make_learning_rate_schedule(
     """Creates the learning rate schedule.
 
     Args:
-      initial_learning_rate: The initial learning rate value or scale.
+      initial_learning_rate: The initial learning rate value. This can be
+        ``None`` if the learning rate is fully defined by the schedule.
       schedule_type: The type of learning rate schedule. A class name from
-        ``tf.keras.optimizers.schedules``
-        or :mod:`opennmt.schedules` as a string.
+        ``tf.keras.optimizers.schedules`` or :mod:`opennmt.schedules` as a string.
       schedule_params: Additional parameters passed to the schedule constructor.
       schedule_step_duration: The number of training steps that make 1 schedule step.
       start_step: Start the schedule after this many steps.
@@ -67,7 +69,10 @@ def make_learning_rate_schedule(
     if schedule_params is None:
         schedule_params = {}
     schedule_class = get_lr_schedule_class(schedule_type)
-    schedule = schedule_class(initial_learning_rate, **schedule_params)
+    first_arg = inspect.getfullargspec(schedule_class)[0][1]
+    if first_arg not in schedule_params:
+        schedule_params[first_arg] = initial_learning_rate
+    schedule = schedule_class(**schedule_params)
     schedule = ScheduleWrapper(
         schedule,
         step_start=start_step,
