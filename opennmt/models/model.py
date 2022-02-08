@@ -330,12 +330,14 @@ class Model(tf.keras.layers.Layer):
         optimizer_name = params.get("optimizer")
         if optimizer_name is None:
             return None
-        learning_rate = tf.constant(params["learning_rate"], dtype=tf.float32)
-        if params.get("decay_type") is not None:
+        schedule_type = params.get("decay_type")
+        if schedule_type is None:
+            learning_rate = tf.constant(params["learning_rate"], dtype=tf.float32)
+        else:
             schedule_params = params.get("decay_params", {})
             learning_rate = schedules.make_learning_rate_schedule(
-                learning_rate,
-                params["decay_type"],
+                params.get("learning_rate"),
+                schedule_type,
                 schedule_params=schedule_params,
                 schedule_step_duration=params.get("decay_step_duration", 1),
                 start_step=params.get("start_decay_steps", 0),

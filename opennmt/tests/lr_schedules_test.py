@@ -31,10 +31,18 @@ class LRSchedulesTest(tf.test.TestCase):
         self.assertIsInstance(
             wrapper.schedule, tf.keras.optimizers.schedules.ExponentialDecay
         )
+
         wrapper = lr_schedules.make_learning_rate_schedule(
             2.0, "NoamDecay", dict(model_dim=512, warmup_steps=4000)
         )
         self.assertIsInstance(wrapper.schedule, lr_schedules.NoamDecay)
+        self.assertEqual(wrapper.schedule.scale, 2)
+
+        wrapper = lr_schedules.make_learning_rate_schedule(
+            None, "NoamDecay", dict(scale=2, model_dim=512, warmup_steps=4000)
+        )
+        self.assertEqual(wrapper.schedule.scale, 2)
+
         with self.assertRaises(ValueError):
             lr_schedules.make_learning_rate_schedule(2.0, "InvalidScheduleName")
 
