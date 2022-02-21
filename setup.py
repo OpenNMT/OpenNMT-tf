@@ -53,6 +53,7 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
     project_urls={
@@ -69,7 +70,7 @@ setup(
         "pyyaml>=5.3,<7",
         "rouge>=1.0,<2",
         "sacrebleu>=1.5.0,<2.1",
-        "tensorflow-addons>=0.14,<0.16",
+        "tensorflow-addons>=0.14,<0.17",
     ],
     extras_require={
         "tensorflow": [
