@@ -15,6 +15,19 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.25.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.25.0) (2022-02-21)
+
+### New features
+
+* Support TensorFlow 2.8
+* Add training flag `--continue_from_checkpoint` to simplify continuing the training in another model directory (to be used in combination with `--checkpoint_path`)
+
+### Fixes and improvements
+
+* Fix target unknowns replacement when the source has BOS or EOS tokens
+* Update length constraints in Transformer automatic configuration to work with multiple sources
+* Allow explicit configuration of the first argument of learning rate schedules (if not set, `learning_rate` is passed as the first argument)
+
 ## [2.24.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.24.0) (2021-12-17)
 
 ### New features
