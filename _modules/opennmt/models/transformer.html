@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -385,7 +385,11 @@
                     <span class="s2">&quot;effective_batch_size&quot;</span><span class="p">:</span> <span class="mi">25000</span><span class="p">,</span>
                     <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">3072</span><span class="p">,</span>
                     <span class="s2">&quot;batch_type&quot;</span><span class="p">:</span> <span class="s2">&quot;tokens&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;maximum_features_length&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                    <span class="s2">&quot;maximum_features_length&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="mi">100</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">num_outputs</span> <span class="o">==</span> <span class="mi">1</span>
+                        <span class="k">else</span> <span class="p">[</span><span class="mi">100</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">num_outputs</span>
+                    <span class="p">),</span>
                     <span class="s2">&quot;maximum_labels_length&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
                     <span class="s2">&quot;keep_checkpoint_max&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
                     <span class="s2">&quot;average_last_checkpoints&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>

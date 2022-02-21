@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Serving &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>Serving &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -242,10 +242,10 @@
 </pre></div>
 </div>
 <p><strong>When using the automatic model evaluation and export during the training</strong>, the <code class="docutils literal notranslate"><span class="pre">export_format</span></code> option should be configured in the <code class="docutils literal notranslate"><span class="pre">eval</span></code> block of the YAML configuration:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span>
-  <span class="nt">scorers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
-  <span class="nt">export_on_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
-  <span class="nt">export_format</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ctranslate2</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">scorers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bleu</span><span class="w"></span>
+<span class="w">  </span><span class="nt">export_on_best</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bleu</span><span class="w"></span>
+<span class="w">  </span><span class="nt">export_format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ctranslate2</span><span class="w"></span>
 </pre></div>
 </div>
 <p><a class="reference external" href="https://github.com/OpenNMT/CTranslate2#quantization-and-reduced-precision">Model quantization</a> can also be enabled by replacing <code class="docutils literal notranslate"><span class="pre">ctranslate2</span></code> by one of the following export types:</p>
@@ -286,8 +286,8 @@
 </ol>
 <p><strong>Model Output</strong></p>
 <p>The model outputs a fixed size array, this can be specified in the data configuration file.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span>
-  <span class="nt">tflite_output_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">250</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">tflite_output_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">250</span><span class="w"></span>
 </pre></div>
 </div>
 </div>

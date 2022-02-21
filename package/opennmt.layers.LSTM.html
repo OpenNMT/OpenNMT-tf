@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.layers.LSTM &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>opennmt.layers.LSTM &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -252,10 +252,10 @@ output.</p></li>
 <dt id="opennmt.layers.LSTM.call">
 <code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/rnn.html#LSTM.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.layers.LSTM.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is where the layer’s logic lives.</p>
-<p>Note here that <cite>call()</cite> method in <cite>tf.keras</cite> is little bit different
-from <cite>keras</cite> API. In <cite>keras</cite> API, you can pass support masking for
-layers as additional arguments. Whereas <cite>tf.keras</cite> has <cite>compute_mask()</cite>
-method to support masking.</p>
+<p>The <cite>call()</cite> method may not create state (except in its first invocation,
+wrapping the creation of variables or other resources in <cite>tf.init_scope()</cite>).
+It is recommended to create state in <cite>__init__()</cite>, or the <cite>build()</cite> method
+that is called automatically before <cite>call()</cite> executes the first time.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

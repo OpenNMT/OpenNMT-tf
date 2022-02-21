@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>2.0 Transition Guide &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>2.0 Transition Guide &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -255,42 +255,42 @@ pip install OpenNMT-tf
 </pre></div>
 </div>
 <p>meant that the user should configure the vocabulary like this:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># V1 vocabulary configuration.</span>
-<span class="nt">data</span><span class="p">:</span>
-  <span class="nt">source_words_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_vocab.txt</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># V1 vocabulary configuration.</span><span class="w"></span>
+<span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">source_words_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_vocab.txt</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This is no longer the case in V2 where vocabulary configuration now follows a general pattern, the same that is currently used for “embedding” and “tokenization” configurations.</p>
 <ul class="simple">
 <li><p>Single vocabulary (e.g. language model):</p></li>
 </ul>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
-  <span class="nt">vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">vocab.txt</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vocab.txt</span><span class="w"></span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Source and target vocabularies (e.g. sequence to sequence, tagging, etc.):</p></li>
 </ul>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
-  <span class="nt">source_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_vocab.txt</span>
-  <span class="nt">target_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">tgt_vocab.txt</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">source_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_vocab.txt</span><span class="w"></span>
+<span class="w">  </span><span class="nt">target_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tgt_vocab.txt</span><span class="w"></span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Multi-source and target vocabularies:</p></li>
 </ul>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
-  <span class="nt">source_1_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_1_vocab.txt</span>
-  <span class="nt">source_2_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_2_vocab.txt</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">source_1_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_1_vocab.txt</span><span class="w"></span>
+<span class="w">  </span><span class="nt">source_2_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_2_vocab.txt</span><span class="w"></span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Nested inputs:</p></li>
 </ul>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
-  <span class="nt">source_1_1_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_1_1_vocab.txt</span>
-  <span class="nt">source_1_2_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_1_2_vocab.txt</span>
-  <span class="nt">source_2_vocabulary</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">src_2_vocab.txt</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">source_1_1_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_1_1_vocab.txt</span><span class="w"></span>
+<span class="w">  </span><span class="nt">source_1_2_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_1_2_vocab.txt</span><span class="w"></span>
+<span class="w">  </span><span class="nt">source_2_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_2_vocab.txt</span><span class="w"></span>
 </pre></div>
 </div>
 </div>

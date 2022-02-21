@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Training &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>Training &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -237,18 +237,18 @@
 </pre></div>
 </div>
 <p>This minimally requires you to set some evaluation files in your data configuration, e.g.:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
-  <span class="nt">eval_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">...</span>
-  <span class="nt">eval_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">...</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">eval_features_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
+<span class="w">  </span><span class="nt">eval_labels_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span><span class="w"></span>
 </pre></div>
 </div>
 <p>By default, it will run every 5000 training steps and report evaluation results in the console output and on TensorBoard.</p>
 <div class="section" id="export-model-on-best-metric">
 <h3>Export model on best metric<a class="headerlink" href="#export-model-on-best-metric" title="Permalink to this headline">¶</a></h3>
 <p>Automatic evaluation can also export an inference model when a metric reaches its best value so far. For example, the following configuration will make the training exports a model each time the evaluation scores the best BLEU score so far:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span>
-  <span class="nt">scorers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
-  <span class="nt">export_on_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">scorers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bleu</span><span class="w"></span>
+<span class="w">  </span><span class="nt">export_on_best</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bleu</span><span class="w"></span>
 </pre></div>
 </div>
 <p>These models are saved in the model directory under <code class="docutils literal notranslate"><span class="pre">export/&lt;step&gt;</span></code>. See also <a class="reference internal" href="serving.html"><span class="doc">Serving</span></a> for more information about exported models.</p>
@@ -257,12 +257,12 @@
 <h3>Early stopping<a class="headerlink" href="#early-stopping" title="Permalink to this headline">¶</a></h3>
 <p>Early stopping is useful to stop the training automatically when the model performance is not improving anymore.</p>
 <p>For example, the following configuration stops the training when the BLEU score does not improve by more than 0.2 points in the last 4 evaluations:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span>
-  <span class="nt">scorers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
-  <span class="nt">early_stopping</span><span class="p">:</span>
-    <span class="nt">metric</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">bleu</span>
-    <span class="nt">min_improvement</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.2</span>
-    <span class="nt">steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">scorers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bleu</span><span class="w"></span>
+<span class="w">  </span><span class="nt">early_stopping</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">metric</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bleu</span><span class="w"></span>
+<span class="w">    </span><span class="nt">min_improvement</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.2</span><span class="w"></span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w"></span>
 </pre></div>
 </div>
 </div>
@@ -317,6 +317,14 @@ onmt-main --model_type Transformer --config data.yml --auto_config train
 </pre></div>
 </div>
 <p><strong>Note:</strong> If the train was stopped because <code class="docutils literal notranslate"><span class="pre">max_step</span></code> was reached, you should first increase this value before continuing.</p>
+<p>If you want to continue the training in another model directory, do the following:</p>
+<ol class="simple">
+<li><p>Update <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> in the configuration to the new model directory</p></li>
+<li><p>Continue training from the previous model directory using the options <code class="docutils literal notranslate"><span class="pre">--checkpoint_path</span></code> and <code class="docutils literal notranslate"><span class="pre">--continue_from_checkpoint</span></code>:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> --checkpoint_path /path/to/previous/model/dir train --continue_from_checkpoint
+</pre></div>
+</div>
 </div>
 <div class="section" id="fine-tune-an-existing-model">
 <h3>Fine-tune an existing model<a class="headerlink" href="#fine-tune-an-existing-model" title="Permalink to this headline">¶</a></h3>

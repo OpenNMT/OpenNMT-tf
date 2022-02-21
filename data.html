@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Data &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>Data &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -205,11 +205,11 @@
   <div class="section" id="data">
 <h1>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h1>
 <p>Data files are configured in the <code class="docutils literal notranslate"><span class="pre">data</span></code> block of the YAML configuration file (see <a class="reference internal" href="configuration.html"><span class="doc">Parameters</span></a>). For example, here is a typical data configuration for a sequence to sequence model:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
-  <span class="nt">train_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/ende/train.en</span>
-  <span class="nt">train_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/ende/train.de</span>
-  <span class="nt">eval_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/ende/valid.en</span>  <span class="c1"># optional</span>
-  <span class="nt">eval_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/ende/valid.de</span>    <span class="c1"># optional</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">train_features_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/ende/train.en</span><span class="w"></span>
+<span class="w">  </span><span class="nt">train_labels_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/ende/train.de</span><span class="w"></span>
+<span class="w">  </span><span class="nt">eval_features_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/ende/valid.en</span><span class="w">  </span><span class="c1"># optional</span><span class="w"></span>
+<span class="w">  </span><span class="nt">eval_labels_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/ende/valid.de</span><span class="w">    </span><span class="c1"># optional</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This page documents how to prepare and configure data files for OpenNMT-tf.</p>
@@ -278,20 +278,20 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
 <div class="section" id="parallel-and-nested-inputs">
 <h2>Parallel and nested inputs<a class="headerlink" href="#parallel-and-nested-inputs" title="Permalink to this headline">¶</a></h2>
 <p>When using <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.ParallelInputter.html"><code class="docutils literal notranslate"><span class="pre">opennmt.inputters.ParallelInputter</span></code></a> to define multi-source inputs, as many input files as inputters are expected. You have to configure your YAML file accordingly:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
-  <span class="nt">train_features_file</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">train_source_1.records</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">train_source_2.txt</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">train_source_3.txt</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">train_features_file</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train_source_1.records</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train_source_2.txt</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train_source_3.txt</span><span class="w"></span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">ParallelInputter</span></code> can also be nested to enable complex inputs combination. In this case, the nested structure should be replicated in the YAML file. The example below represents the configuration for a dual-source model where the first source combines the embeddings of words, POS tags, and case:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
-  <span class="nt">train_features_file</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">source_1.txt</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">source_1.txt.pos</span>
-      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">source_1.txt.case</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">source_2.txt</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">train_features_file</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">source_1.txt</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">source_1.txt.pos</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">source_1.txt.case</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">source_2.txt</span><span class="w"></span>
 </pre></div>
 </div>
 <p>During inference, the same number of input files should be provided. You should pass a <strong>flattened</strong> list of files to the <code class="docutils literal notranslate"><span class="pre">--features_file</span></code> command line option of the main script (e.g. for inference, evaluation, and scoring):</p>
@@ -303,19 +303,19 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
 <div class="section" id="weighted-dataset">
 <h2>Weighted dataset<a class="headerlink" href="#weighted-dataset" title="Permalink to this headline">¶</a></h2>
 <p>It is possible to configure multiple training data files and assign weights to each file:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
-  <span class="nt">train_features_file</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">domain_a.en</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">domain_b.en</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">domain_c.en</span>
-  <span class="nt">train_labels_file</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">domain_a.de</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">domain_b.de</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">domain_c.de</span>
-  <span class="nt">train_files_weights</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">0.5</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">0.2</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">0.3</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">train_features_file</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">domain_a.en</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">domain_b.en</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">domain_c.en</span><span class="w"></span>
+<span class="w">  </span><span class="nt">train_labels_file</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">domain_a.de</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">domain_b.de</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">domain_c.de</span><span class="w"></span>
+<span class="w">  </span><span class="nt">train_files_weights</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.2</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.3</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This configuration will create a weighted dataset where examples will be randomly sampled from the data files according to the provided weights. The weights are normalized by the file size so that examples from small files are not repeated more often than examples from large files during the training.</p>
@@ -323,18 +323,18 @@ FEATm.1 FEATm.2 FEATm.3 ... FEATm.n ]
 <div class="section" id="compressed-data">
 <h2>Compressed data<a class="headerlink" href="#compressed-data" title="Permalink to this headline">¶</a></h2>
 <p>Data files compressed with GZIP are supported. The path should end with the <code class="docutils literal notranslate"><span class="pre">.gz</span></code> extension for the file to be correctly loaded:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
-  <span class="nt">train_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/wmt/train.en.gz</span>
-  <span class="nt">train_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/data/wmt/train.de.gz</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">train_features_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/wmt/train.en.gz</span><span class="w"></span>
+<span class="w">  </span><span class="nt">train_labels_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/wmt/train.de.gz</span><span class="w"></span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="data-location">
 <h2>Data location<a class="headerlink" href="#data-location" title="Permalink to this headline">¶</a></h2>
 <p>By default, the data are expected to be on the same filesystem. However, it is possible to reference data stored in HDFS, Amazon S3, or any other remote storages supported by TensorFlow. For example:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
-  <span class="nt">train_features_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">s3://namebucket/toy-ende/src-train.txt</span>
-  <span class="nt">train_labels_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">hdfs://namenode:8020/toy-ende/tgt-train.txt</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">train_features_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">s3://namebucket/toy-ende/src-train.txt</span><span class="w"></span>
+<span class="w">  </span><span class="nt">train_labels_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdfs://namenode:8020/toy-ende/tgt-train.txt</span><span class="w"></span>
 </pre></div>
 </div>
 </div>

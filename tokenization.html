@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Tokenization &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>Tokenization &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -219,14 +219,14 @@
 <div class="section" id="example-bpe-tokenization">
 <h3>Example: BPE tokenization<a class="headerlink" href="#example-bpe-tokenization" title="Permalink to this headline">¶</a></h3>
 <p>The configuration below defines a basic BPE tokenization using the OpenNMT <a class="reference external" href="https://github.com/OpenNMT/Tokenizer">Tokenizer</a>:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">OpenNMTTokenizer</span>
-<span class="nt">params</span><span class="p">:</span>
-  <span class="nt">mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">aggressive</span>
-  <span class="nt">bpe_model_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/path/to/bpe.model</span>
-  <span class="nt">joiner_annotate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-  <span class="nt">segment_numbers</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-  <span class="nt">segment_alphabet_change</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-  <span class="nt">preserve_segmented_tokens</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OpenNMTTokenizer</span><span class="w"></span>
+<span class="nt">params</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aggressive</span><span class="w"></span>
+<span class="w">  </span><span class="nt">bpe_model_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/bpe.model</span><span class="w"></span>
+<span class="w">  </span><span class="nt">joiner_annotate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">  </span><span class="nt">segment_numbers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">  </span><span class="nt">segment_alphabet_change</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">  </span><span class="nt">preserve_segmented_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
 </pre></div>
 </div>
 <p><em>For a complete list of available options, see the <a href="https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md">Tokenizer documentation</a>.</em></p>
@@ -234,9 +234,9 @@
 <div class="section" id="example-sentencepiece-tokenization">
 <h3>Example: SentencePiece tokenization<a class="headerlink" href="#example-sentencepiece-tokenization" title="Permalink to this headline">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">SentencePieceTokenizer</span></code> applies a <a class="reference external" href="https://github.com/google/sentencepiece">SentencePiece</a> tokenization using <a class="reference external" href="https://github.com/tensorflow/text">tensorflow-text</a> (make sure to install this package to use this tokenizer).</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">SentencePieceTokenizer</span>
-<span class="nt">params</span><span class="p">:</span>
-  <span class="nt">model</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/path/to/sentencepiece.model</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SentencePieceTokenizer</span><span class="w"></span>
+<span class="nt">params</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/sentencepiece.model</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This tokenizer is implemented as a TensorFlow op so it is included in the exported graph (see <a class="reference external" href="#exported-graph">Exported graph</a>).</p>
@@ -268,9 +268,9 @@ onmt-build-vocab --tokenizer_config config/tokenization/aggressive.yml --size <s
 </div>
 <p><em>The text files are only given as examples and are not part of the repository.</em></p>
 <p>2. Reference the tokenizer configurations in the data configuration, e.g.:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
-  <span class="nt">source_tokenization</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config/tokenization/aggressive.yml</span>
-  <span class="nt">target_tokenization</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">config/tokenization/aggressive.yml</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">source_tokenization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config/tokenization/aggressive.yml</span><span class="w"></span>
+<span class="w">  </span><span class="nt">target_tokenization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config/tokenization/aggressive.yml</span><span class="w"></span>
 </pre></div>
 </div>
 </div>

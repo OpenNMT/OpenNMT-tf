@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Frequently Asked Questions &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>Frequently Asked Questions &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -196,9 +196,9 @@
 <div class="section" id="how-to-count-the-number-of-epochs">
 <h2>How to count the number of epochs?<a class="headerlink" href="#how-to-count-the-number-of-epochs" title="Permalink to this headline">¶</a></h2>
 <p>OpenNMT-tf uses a step-based training that makes it difficult to track the number of epochs over the dataset. However, it is possible to run the training epoch by epoch with the following configuration:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">train</span><span class="p">:</span>
-  <span class="nt">max_step</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">null</span>
-  <span class="nt">single_pass</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">train</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">max_step</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"></span>
+<span class="w">  </span><span class="nt">single_pass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
 </pre></div>
 </div>
 <p>and then:</p>

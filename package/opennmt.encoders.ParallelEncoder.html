@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.encoders.ParallelEncoder &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>opennmt.encoders.ParallelEncoder &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -70,7 +70,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -243,9 +243,9 @@ outputs. If <code class="docutils literal notranslate"><span class="pre">None</s
 states. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, defaults to
 <a class="reference internal" href="opennmt.layers.JoinReducer.html#opennmt.layers.JoinReducer" title="opennmt.layers.JoinReducer"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.layers.JoinReducer</span></code></a>.</p></li>
 <li><p><strong>outputs_layer_fn</strong> – A callable or list of callables applied to the
-encoders outputs If it is a single callable, it is on each encoder
-output. Otherwise, the <code class="docutils literal notranslate"><span class="pre">i</span></code> th callable is applied on encoder <code class="docutils literal notranslate"><span class="pre">i</span></code>
-output.</p></li>
+encoders outputs If it is a single callable, it is applied on each
+encoder output. Otherwise, the <code class="docutils literal notranslate"><span class="pre">i</span></code> th callable is applied on
+encoder <code class="docutils literal notranslate"><span class="pre">i</span></code> output.</p></li>
 <li><p><strong>combined_output_layer_fn</strong> – A callable to apply on the combined output
 (i.e. the output of <code class="xref py py-obj docutils literal notranslate"><span class="pre">outputs_reducer</span></code>).</p></li>
 </ul>

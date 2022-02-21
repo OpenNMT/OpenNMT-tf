@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -520,8 +520,12 @@
                 <span class="p">)</span>
 
             <span class="n">source_tokens</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tflite_mode</span> <span class="k">else</span> <span class="s2">&quot;tokens&quot;</span><span class="p">]</span>
+            <span class="n">source_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span>
+                <span class="n">features</span><span class="p">,</span> <span class="n">ignore_special_tokens</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
             <span class="k">if</span> <span class="n">beam_size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">source_tokens</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">tile_batch</span><span class="p">(</span><span class="n">source_tokens</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">)</span>
+                <span class="n">source_length</span> <span class="o">=</span> <span class="n">tfa</span><span class="o">.</span><span class="n">seq2seq</span><span class="o">.</span><span class="n">tile_batch</span><span class="p">(</span><span class="n">source_length</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">)</span>
             <span class="n">original_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">target_tokens</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tflite_mode</span><span class="p">:</span>
                 <span class="n">target_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">target_tokens</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -538,6 +542,15 @@
                 <span class="p">[</span><span class="n">align_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">align_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">align_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">align_shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]],</span>
             <span class="p">)</span>
             <span class="n">attention</span> <span class="o">=</span> <span class="n">reducer</span><span class="o">.</span><span class="n">align_in_time</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">output_size</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">tflite_mode</span><span class="p">:</span>
+                <span class="n">attention</span> <span class="o">=</span> <span class="n">mask_attention</span><span class="p">(</span>
+                    <span class="n">attention</span><span class="p">,</span>
+                    <span class="n">source_length</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">mark_start</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">mark_end</span><span class="p">,</span>
+                <span class="p">)</span>
+
             <span class="n">replaced_target_tokens</span> <span class="o">=</span> <span class="n">replace_unknown_target</span><span class="p">(</span>
                 <span class="n">target_tokens</span><span class="p">,</span> <span class="n">source_tokens</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">unknown_token</span><span class="o">=</span><span class="n">unknown_token</span>
             <span class="p">)</span>
@@ -756,6 +769,29 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">get_length</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">ignore_special_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span></div>
+
+
+<span class="k">def</span> <span class="nf">mask_attention</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">source_length</span><span class="p">,</span> <span class="n">source_has_bos</span><span class="p">,</span> <span class="n">source_has_eos</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Masks and possibly shifts the attention vectors to ignore the source EOS and BOS tokens.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      attention: The attention vector with shape :math:`[B, T_t, T_s]`.</span>
+<span class="sd">      source_length: The source lengths with shape :math:`[B]` and excluding</span>
+<span class="sd">        the BOS and EOS tokens.</span>
+<span class="sd">      source_has_bos: Whether the BOS token was added to the source or not.</span>
+<span class="sd">      source_has_eos: Whether the EOS token was added to the source or not.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The masked attention.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">source_has_bos</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">source_has_eos</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">attention</span>
+    <span class="k">if</span> <span class="n">source_has_bos</span><span class="p">:</span>
+        <span class="n">attention</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">shift</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">source_mask</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sequence_mask</span><span class="p">(</span>
+        <span class="n">source_length</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">attention</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">attention</span><span class="o">.</span><span class="n">dtype</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">attention</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">source_mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">align_tokens_from_attention</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">attention</span><span class="p">):</span>

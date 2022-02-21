@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.model &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>opennmt.models.model &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -517,12 +517,14 @@
         <span class="n">optimizer_name</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;optimizer&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">optimizer_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_type&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">schedule_type</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_type&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">schedule_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">schedule_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_params&quot;</span><span class="p">,</span> <span class="p">{})</span>
             <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">schedules</span><span class="o">.</span><span class="n">make_learning_rate_schedule</span><span class="p">(</span>
-                <span class="n">learning_rate</span><span class="p">,</span>
-                <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_type&quot;</span><span class="p">],</span>
+                <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">),</span>
+                <span class="n">schedule_type</span><span class="p">,</span>
                 <span class="n">schedule_params</span><span class="o">=</span><span class="n">schedule_params</span><span class="p">,</span>
                 <span class="n">schedule_step_duration</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_step_duration&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
                 <span class="n">start_step</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_decay_steps&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -494,7 +494,7 @@
         <span class="c1"># Compute queries.</span>
         <span class="n">queries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear_queries</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
         <span class="n">queries</span> <span class="o">=</span> <span class="n">split_heads</span><span class="p">(</span><span class="n">queries</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span><span class="p">)</span>
-        <span class="n">queries</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_units_per_head</span> <span class="o">**</span> <span class="o">-</span><span class="mf">0.5</span>
+        <span class="n">queries</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_units_per_head</span><span class="o">**-</span><span class="mf">0.5</span>
 
         <span class="c1"># Compute keys and values.</span>
         <span class="k">if</span> <span class="n">memory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

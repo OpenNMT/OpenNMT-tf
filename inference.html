@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Inference &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>Inference &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -69,7 +69,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -221,11 +221,11 @@
 </pre></div>
 </div>
 <p>To control the saving of checkpoints during the training, configure the following options in your configuration file:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">train</span><span class="p">:</span>
-  <span class="c1"># (optional) Save a checkpoint every this many steps.</span>
-  <span class="nt">save_checkpoints_steps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5000</span>
-  <span class="c1"># (optional) How many checkpoints to keep on disk.</span>
-  <span class="nt">keep_checkpoint_max</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">train</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="c1"># (optional) Save a checkpoint every this many steps.</span><span class="w"></span>
+<span class="w">  </span><span class="nt">save_checkpoints_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span><span class="w"></span>
+<span class="w">  </span><span class="c1"># (optional) How many checkpoints to keep on disk.</span><span class="w"></span>
+<span class="w">  </span><span class="nt">keep_checkpoint_max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w"></span>
 </pre></div>
 </div>
 </div>
@@ -238,10 +238,10 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>, no sampling (default)</p></li>
 </ul>
 <p>For example:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span>
-  <span class="nt">beam_width</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
-  <span class="nt">sampling_topk</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0</span>
-  <span class="nt">sampling_temperature</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">beam_width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">  </span><span class="nt">sampling_topk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
+<span class="w">  </span><span class="nt">sampling_temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
 </pre></div>
 </div>
 </div>
@@ -254,12 +254,12 @@
 <li><p><a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.data.WordPermutation"><code class="docutils literal notranslate"><span class="pre">permutation</span></code></a>: randomly permute words with a maximum distance</p></li>
 </ul>
 <p>which can be combined in sequence, e.g.:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span>
-  <span class="nt">decoding_subword_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">▁</span>
-  <span class="nt">decoding_noise</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">dropout</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
-    <span class="p p-Indicator">-</span> <span class="nt">replacement</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">0.1</span><span class="p p-Indicator">,</span> <span class="nv">｟unk｠</span><span class="p p-Indicator">]</span>
-    <span class="p p-Indicator">-</span> <span class="nt">permutation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">decoding_subword_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">▁</span><span class="w"></span>
+<span class="w">  </span><span class="nt">decoding_noise</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">dropout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">replacement</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">｟unk｠</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">permutation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The parameter <code class="docutils literal notranslate"><span class="pre">decoding_subword_token</span></code> (here set to the SentencePiece spacer) is useful to apply noise at the word level instead of the subword level.</p>
@@ -267,8 +267,8 @@
 <div class="section" id="n-best-list">
 <h2>N-best list<a class="headerlink" href="#n-best-list" title="Permalink to this headline">¶</a></h2>
 <p>A n-best list can be generated for models using beam search. You can configure it in your configuration file:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">infer</span><span class="p">:</span>
-  <span class="nt">n_best</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">infer</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">n_best</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span><span class="w"></span>
 </pre></div>
 </div>
 <p>With this option, each input line will simply generate N consecutive lines in the output, ordered from best to worst.</p>

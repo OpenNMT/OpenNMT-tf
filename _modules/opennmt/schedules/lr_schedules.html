@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.schedules.lr_schedules &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>opennmt.schedules.lr_schedules &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -187,6 +187,8 @@
   <h1>Source code for opennmt.schedules.lr_schedules</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Define learning rate decay functions.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">inspect</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
@@ -232,10 +234,10 @@
     <span class="sd">&quot;&quot;&quot;Creates the learning rate schedule.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">      initial_learning_rate: The initial learning rate value or scale.</span>
+<span class="sd">      initial_learning_rate: The initial learning rate value. This can be</span>
+<span class="sd">        ``None`` if the learning rate is fully defined by the schedule.</span>
 <span class="sd">      schedule_type: The type of learning rate schedule. A class name from</span>
-<span class="sd">        ``tf.keras.optimizers.schedules``</span>
-<span class="sd">        or :mod:`opennmt.schedules` as a string.</span>
+<span class="sd">        ``tf.keras.optimizers.schedules`` or :mod:`opennmt.schedules` as a string.</span>
 <span class="sd">      schedule_params: Additional parameters passed to the schedule constructor.</span>
 <span class="sd">      schedule_step_duration: The number of training steps that make 1 schedule step.</span>
 <span class="sd">      start_step: Start the schedule after this many steps.</span>
@@ -254,7 +256,10 @@
     <span class="k">if</span> <span class="n">schedule_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">schedule_params</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">schedule_class</span> <span class="o">=</span> <span class="n">get_lr_schedule_class</span><span class="p">(</span><span class="n">schedule_type</span><span class="p">)</span>
-    <span class="n">schedule</span> <span class="o">=</span> <span class="n">schedule_class</span><span class="p">(</span><span class="n">initial_learning_rate</span><span class="p">,</span> <span class="o">**</span><span class="n">schedule_params</span><span class="p">)</span>
+    <span class="n">first_arg</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">schedule_class</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">first_arg</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">schedule_params</span><span class="p">:</span>
+        <span class="n">schedule_params</span><span class="p">[</span><span class="n">first_arg</span><span class="p">]</span> <span class="o">=</span> <span class="n">initial_learning_rate</span>
+    <span class="n">schedule</span> <span class="o">=</span> <span class="n">schedule_class</span><span class="p">(</span><span class="o">**</span><span class="n">schedule_params</span><span class="p">)</span>
     <span class="n">schedule</span> <span class="o">=</span> <span class="n">ScheduleWrapper</span><span class="p">(</span>
         <span class="n">schedule</span><span class="p">,</span>
         <span class="n">step_start</span><span class="o">=</span><span class="n">start_step</span><span class="p">,</span>

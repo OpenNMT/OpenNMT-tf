@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.encoders.self_attention_encoder &mdash; OpenNMT-tf 2.24.0 documentation</title>
+  <title>opennmt.encoders.self_attention_encoder &mdash; OpenNMT-tf 2.25.0 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.24
+                2.25
               </div>
             
           
@@ -260,7 +260,7 @@
         <span class="p">]</span></div>
 
 <div class="viewcode-block" id="SelfAttentionEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.encoders.SelfAttentionEncoder.html#opennmt.encoders.SelfAttentionEncoder.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">inputs</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span> <span class="o">**</span> <span class="mf">0.5</span>
+        <span class="n">inputs</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_units</span><span class="o">**</span><span class="mf">0.5</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_encoder</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
         <span class="n">inputs</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>

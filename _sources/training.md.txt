@@ -133,6 +133,15 @@ onmt-main --model_type Transformer --config data.yml --auto_config train
 
 **Note:** If the train was stopped because `max_step` was reached, you should first increase this value before continuing.
 
+If you want to continue the training in another model directory, do the following:
+
+1. Update `model_dir` in the configuration to the new model directory
+2. Continue training from the previous model directory using the options `--checkpoint_path` and `--continue_from_checkpoint`:
+
+```bash
+onmt-main [...] --checkpoint_path /path/to/previous/model/dir train --continue_from_checkpoint
+```
+
 ### Fine-tune an existing model
 
 Retraining can also be useful to fine-tune an existing model. For example in machine translation, it is faster to adapt a generic model to a specific domain compared to starting a training from scratch.
