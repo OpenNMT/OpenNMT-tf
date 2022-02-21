@@ -122,10 +122,8 @@ class TFLiteTest(tf.test.TestCase):
         reason="TensorFlow Lite exporting requires TensorFlow 2.5+",
     )
     @pytest.mark.skipif(
-        version.parse("2.7.0")
-        <= version.parse(tf.__version__)
-        < version.parse("2.9.0"),
-        reason="Test case failing with TensorFlow 2.7",
+        version.parse(tf.__version__) >= version.parse("2.7.0"),
+        reason="Test case failing with TensorFlow 2.7+",
     )
     def testTFLiteInterpreter(self, model, params=None, quantization=None):
         if params is None:
