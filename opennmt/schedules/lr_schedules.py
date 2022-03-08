@@ -139,7 +139,17 @@ class NoamDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
 
 @register_learning_rate_schedule
 class RsqrtDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
-    """Decay based on the reciprocal of the step square root."""
+    r"""Decay based on the reciprocal of the step square root.
+    This corresponds to ``rsqrt_decay`` in Tensor2Tensor.
+
+    .. math::
+
+        \text{schedule}(\text{step}) = \frac{\text{scale}}
+                                            {\sqrt{\max(\text{step},\text{warmup_steps})}}
+
+    See also:
+      - :class:`opennmt.schedules.InvSqrtDecay`
+    """
 
     def __init__(self, scale, warmup_steps):
         """Initializes the decay function.
@@ -154,6 +164,50 @@ class RsqrtDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
     def __call__(self, step):
         step = tf.cast(step, tf.float32)
         return self.scale * tf.math.rsqrt(tf.maximum(step, self.warmup_steps))
+
+
+@register_learning_rate_schedule
+class InvSqrtDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
+    r"""Decay based on the reciprocal of the step square root.
+    This corresponds to ``inverse_sqrt`` in Fairseq and ``--lr-decay-inv-sqrt`` in Marian.
+
+    During warmup (linear increase of the learning rate):
+
+    .. math::
+
+        \text{schedule}(\text{step}) = \text{learning_rate}
+                                       \times
+                                       \frac{\text{step}}{\text{warmup_steps}}
+
+    After warmup:
+
+    .. math::
+
+        \text{schedule}(\text{step}) = \text{learning_rate}
+                                       \times
+                                       \sqrt{\frac{\text{warmup_steps}}{\text{step}}}
+
+    See also:
+      - :class:`opennmt.schedules.RsqrtDecay`
+    """
+
+    def __init__(self, learning_rate, warmup_steps):
+        """Initializes the decay function.
+
+        Args:
+          learning_rate: The base learning rate.
+          warmup_steps: The number of warmup steps.
+        """
+        self.learning_rate = tf.cast(learning_rate, tf.float32)
+        self.warmup_steps = tf.cast(warmup_steps, tf.float32)
+
+    def __call__(self, step):
+        step = tf.cast(step, tf.float32)
+        return self.learning_rate * tf.cond(
+            step <= self.warmup_steps,
+            true_fn=lambda: step / self.warmup_steps,
+            false_fn=lambda: tf.math.sqrt(self.warmup_steps / step),
+        )
 
 
 @register_learning_rate_schedule
