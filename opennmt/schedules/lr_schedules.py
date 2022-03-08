@@ -202,7 +202,7 @@ class InvSqrtDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
         self.warmup_steps = tf.cast(warmup_steps, tf.float32)
 
     def __call__(self, step):
-        step = tf.cast(step, tf.float32)
+        step = tf.cast(step + 1, tf.float32)
         return self.learning_rate * tf.cond(
             step <= self.warmup_steps,
             true_fn=lambda: step / self.warmup_steps,
