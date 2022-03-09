@@ -69,6 +69,13 @@ class LRSchedulesTest(tf.test.TestCase):
     def testRsqrtDecay(self):
         self._testNoError(lr_schedules.RsqrtDecay(2.0, 4000))
 
+    def testInvSqrtDecay(self):
+        learning_rate = 0.0002
+        warmup_steps = 4000
+        schedule = lr_schedules.InvSqrtDecay(learning_rate, warmup_steps)
+        self.assertNotEqual(schedule(0), 0)
+        self.assertEqual(schedule(warmup_steps - 1), learning_rate)
+
     def testCosineAnnealing(self):
         self._testNoError(
             lr_schedules.CosineAnnealing(2.5e-4, max_step=1000000, warmup_steps=4000)

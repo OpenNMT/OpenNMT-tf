@@ -2,6 +2,7 @@
 
 from opennmt.schedules.lr_schedules import (
     CosineAnnealing,
+    InvSqrtDecay,
     NoamDecay,
     RNMTPlusDecay,
     RsqrtDecay,
