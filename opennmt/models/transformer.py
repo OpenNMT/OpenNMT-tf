@@ -1,5 +1,6 @@
 """Define the Google's Transformer model."""
 
+import ctranslate2
 import tensorflow as tf
 
 from opennmt import config as config_util
@@ -136,21 +137,12 @@ class Transformer(SequenceToSequence):
         self._num_decoder_layers = num_decoder_layers
         self._num_heads = num_heads
         self._with_relative_position = maximum_relative_position is not None
+        self._position_encoder_class = position_encoder_class
+        self._ffn_activation = ffn_activation
         self._alignment_layer = -1
         self._alignment_heads = 1
         if attention_reduction == MultiHeadAttentionReduction.AVERAGE_LAST_LAYER:
             self._alignment_heads = 0
-        self._is_ct2_compatible = (
-            isinstance(encoder, SelfAttentionEncoder)
-            and ffn_activation is tf.nn.relu
-            and (
-                (self._with_relative_position and position_encoder_class is None)
-                or (
-                    not self._with_relative_position
-                    and position_encoder_class == SinusoidalPositionEncoder
-                )
-            )
-        )
         super().__init__(
             source_inputter,
             target_inputter,
@@ -161,15 +153,31 @@ class Transformer(SequenceToSequence):
 
     @property
     def ctranslate2_spec(self):
-        if not self._is_ct2_compatible:
+        if (
+            not isinstance(self.encoder, SelfAttentionEncoder)
+            or self._with_relative_position == bool(self._position_encoder_class)
+            or (
+                self._position_encoder_class is not None
+                and self._position_encoder_class != SinusoidalPositionEncoder
+            )
+        ):
             return None
-        import ctranslate2
+
+        if self._ffn_activation is tf.nn.relu:
+            activation = ctranslate2.specs.Activation.RELU
+        elif self._ffn_activation is tf.nn.gelu:
+            activation = ctranslate2.specs.Activation.GELU
+        elif self._ffn_activation is tf.nn.swish:
+            activation = ctranslate2.specs.Activation.SWISH
+        else:
+            return None
 
         model_spec = ctranslate2.specs.TransformerSpec(
             (self._num_encoder_layers, self._num_decoder_layers),
             self._num_heads,
             with_relative_position=self._with_relative_position,
             pre_norm=self._pre_norm,
+            activation=activation,
             alignment_layer=self._alignment_layer,
             alignment_heads=self._alignment_heads,
         )

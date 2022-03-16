@@ -733,14 +733,14 @@ class ModelTest(tf.test.TestCase):
             [models.TransformerBigRelative()],
             [
                 models.Transformer(
-                    inputters.WordEmbedder(32),
-                    inputters.WordEmbedder(32),
                     num_layers=(6, 3),
                     num_units=32,
                     num_heads=8,
                     ffn_inner_dim=64,
                 )
             ],
+            [models.Transformer(ffn_activation=tf.nn.gelu)],
+            [models.Transformer(ffn_activation=tf.nn.silu)],
         ]
     )
     def testCTranslate2Spec(self, model):
