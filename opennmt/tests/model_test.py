@@ -329,6 +329,21 @@ class ModelTest(tf.test.TestCase):
         features = next(iter(dataset))
         _, predictions = model(features)
 
+    def testSequenceToSequenceWithNoisyDecoding(self):
+        model, params = _seq2seq_model()
+        params["maximum_decoding_length"] = 20
+        params["beam_width"] = 2
+        params["decoding_noise"] = [
+            {"dropout": 0.1},
+            {"replacement": [0.1, "<unk>"]},
+            {"permutation": 3},
+        ]
+        features_file, labels_file, data_config = self._makeToyEnDeData()
+        model.initialize(data_config, params=params)
+        dataset = model.examples_inputter.make_inference_dataset(features_file, 16)
+        features = next(iter(dataset))
+        _, predictions = model(features)
+
     def testSequenceToSequenceWithScheduledSampling(self):
         model = models.SequenceToSequence(
             inputters.WordEmbedder(16),

@@ -69,6 +69,14 @@ class NoiseTest(tf.test.TestCase):
             [True, [["a￭", "b", "c￭", "d", "￭e"], ["a", "b", "c", "", ""]], [5, 3]],
             [False, [["a￭", "b", "c￭", "d", "￭e"], ["a", "b", "c", "", ""]], [5, 3]],
             [False, ["a￭", "b", "c￭", "d", "￭e"], None],
+            [
+                False,
+                [
+                    [["a￭", "b", "c￭", "d", "￭e"], ["a￭", "b", "c￭", "d", "￭e"]],
+                    [["a", "b", "c", "", ""], ["a", "b", "c", "", ""]],
+                ],
+                [[5, 5], [3, 3]],
+            ],
         ]
     )
     def testWordNoising(self, as_function, tokens, lengths):
