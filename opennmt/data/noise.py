@@ -71,6 +71,7 @@ class WordNoiser(object):
     def _call(self, tokens, sequence_length, keep_shape, probability):
         input_rank = tokens.shape.rank
         input_is_ragged = isinstance(tokens, tf.RaggedTensor)
+        batch_shape = None
 
         if input_is_ragged:
             if keep_shape:
@@ -79,12 +80,15 @@ class WordNoiser(object):
         elif input_rank == 1:
             tokens = tf.expand_dims(tokens, 0)
             ragged_tokens = tf.RaggedTensor.from_tensor(tokens)
-        elif input_rank == 2:
+        elif input_rank >= 2:
             if sequence_length is None:
-                raise ValueError("sequence_length must be passed for 2D dense inputs")
+                raise ValueError("sequence_length must be passed for ND dense inputs")
+            if input_rank > 2:
+                input_shape = misc.shape_list(tokens)
+                batch_shape = input_shape[:-1]
+                tokens = tf.reshape(tokens, [-1, input_shape[-1]])
+                sequence_length = tf.reshape(sequence_length, [-1])
             ragged_tokens = tf.RaggedTensor.from_tensor(tokens, lengths=sequence_length)
-        else:
-            raise ValueError("unsupported rank %d for WordNoiser input" % input_rank)
 
         noisy_tokens = tf.map_fn(
             lambda tokens: self._maybe_apply_noise(tokens, probability),
@@ -104,6 +108,9 @@ class WordNoiser(object):
         if input_rank == 1:
             new_lengths = new_lengths[0]
             noisy_tokens = noisy_tokens[0]
+        elif batch_shape is not None:
+            noisy_tokens = tf.reshape(noisy_tokens, batch_shape + [-1])
+            new_lengths = tf.reshape(new_lengths, batch_shape)
 
         return noisy_tokens, new_lengths
 
