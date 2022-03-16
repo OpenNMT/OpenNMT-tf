@@ -69,7 +69,7 @@ def predict_dataset(
                 if time_without_output >= max_time_without_output:
                     tf.get_logger().info(
                         "%d predictions are buffered, but waiting for the prediction of "
-                        "line %d to advance the output...",
+                        "queued line %d to advance the output...",
                         ordered_writer.buffer_size,
                         ordered_writer.next_index + 1,
                     )
