@@ -15,6 +15,18 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.26.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.26.0) (2022-03-31)
+
+### New features
+
+* Add learning rate schedule `InvSqrtDecay`
+* Enable CTranslate2 conversion for models using GELU or Swish activations
+
+### Fixes and improvements
+
+* Fix inference error when using the `decoding_noise` parameter
+* Clarify the inference log about buffered predictions
+
 ## [2.25.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.25.0) (2022-02-21)
 
 ### New features
