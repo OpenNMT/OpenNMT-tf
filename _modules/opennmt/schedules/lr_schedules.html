@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.schedules.lr_schedules &mdash; OpenNMT-tf 2.25.0 documentation</title>
+  <title>opennmt.schedules.lr_schedules &mdash; OpenNMT-tf 2.26.1 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.25
+                2.26
               </div>
             
           
@@ -326,7 +326,17 @@
 
 <div class="viewcode-block" id="RsqrtDecay"><a class="viewcode-back" href="../../../package/opennmt.schedules.RsqrtDecay.html#opennmt.schedules.RsqrtDecay">[docs]</a><span class="nd">@register_learning_rate_schedule</span>
 <span class="k">class</span> <span class="nc">RsqrtDecay</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">schedules</span><span class="o">.</span><span class="n">LearningRateSchedule</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Decay based on the reciprocal of the step square root.&quot;&quot;&quot;</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Decay based on the reciprocal of the step square root.</span>
+<span class="sd">    This corresponds to ``rsqrt_decay`` in Tensor2Tensor.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \text{schedule}(\text{step}) = \frac{\text{scale}}</span>
+<span class="sd">                                            {\sqrt{\max(\text{step},\text{warmup_steps})}}</span>
+
+<span class="sd">    See also:</span>
+<span class="sd">      - :class:`opennmt.schedules.InvSqrtDecay`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="RsqrtDecay.__init__"><a class="viewcode-back" href="../../../package/opennmt.schedules.RsqrtDecay.html#opennmt.schedules.RsqrtDecay.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">warmup_steps</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the decay function.</span>
@@ -341,6 +351,50 @@
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
         <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">rsqrt</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="InvSqrtDecay"><a class="viewcode-back" href="../../../package/opennmt.schedules.InvSqrtDecay.html#opennmt.schedules.InvSqrtDecay">[docs]</a><span class="nd">@register_learning_rate_schedule</span>
+<span class="k">class</span> <span class="nc">InvSqrtDecay</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">schedules</span><span class="o">.</span><span class="n">LearningRateSchedule</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Decay based on the reciprocal of the step square root.</span>
+<span class="sd">    This corresponds to ``inverse_sqrt`` in Fairseq and ``--lr-decay-inv-sqrt`` in Marian.</span>
+
+<span class="sd">    During warmup (linear increase of the learning rate):</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \text{schedule}(\text{step}) = \text{learning_rate}</span>
+<span class="sd">                                       \times</span>
+<span class="sd">                                       \frac{\text{step}}{\text{warmup_steps}}</span>
+
+<span class="sd">    After warmup:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \text{schedule}(\text{step}) = \text{learning_rate}</span>
+<span class="sd">                                       \times</span>
+<span class="sd">                                       \sqrt{\frac{\text{warmup_steps}}{\text{step}}}</span>
+
+<span class="sd">    See also:</span>
+<span class="sd">      - :class:`opennmt.schedules.RsqrtDecay`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="InvSqrtDecay.__init__"><a class="viewcode-back" href="../../../package/opennmt.schedules.InvSqrtDecay.html#opennmt.schedules.InvSqrtDecay.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="n">warmup_steps</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the decay function.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          learning_rate: The base learning rate.</span>
+<span class="sd">          warmup_steps: The number of warmup steps.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">warmup_steps</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+            <span class="n">step</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">,</span>
+            <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">step</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">,</span>
+            <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span> <span class="o">/</span> <span class="n">step</span><span class="p">),</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CosineAnnealing"><a class="viewcode-back" href="../../../package/opennmt.schedules.CosineAnnealing.html#opennmt.schedules.CosineAnnealing">[docs]</a><span class="nd">@register_learning_rate_schedule</span>

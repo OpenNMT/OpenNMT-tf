@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.25.0 documentation</title>
+  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.26.1 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.25
+                2.26
               </div>
             
           
@@ -187,6 +187,7 @@
   <h1>Source code for opennmt.models.transformer</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Define the Google&#39;s Transformer model.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">ctranslate2</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
 <span class="kn">from</span> <span class="nn">opennmt</span> <span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">config_util</span>
@@ -323,21 +324,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_decoder_layers</span> <span class="o">=</span> <span class="n">num_decoder_layers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_heads</span> <span class="o">=</span> <span class="n">num_heads</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_with_relative_position</span> <span class="o">=</span> <span class="n">maximum_relative_position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position_encoder_class</span> <span class="o">=</span> <span class="n">position_encoder_class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ffn_activation</span> <span class="o">=</span> <span class="n">ffn_activation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_alignment_layer</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_alignment_heads</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">attention_reduction</span> <span class="o">==</span> <span class="n">MultiHeadAttentionReduction</span><span class="o">.</span><span class="n">AVERAGE_LAST_LAYER</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_alignment_heads</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_ct2_compatible</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">isinstance</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">SelfAttentionEncoder</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="n">ffn_activation</span> <span class="ow">is</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span>
-            <span class="ow">and</span> <span class="p">(</span>
-                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_with_relative_position</span> <span class="ow">and</span> <span class="n">position_encoder_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="ow">or</span> <span class="p">(</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_with_relative_position</span>
-                    <span class="ow">and</span> <span class="n">position_encoder_class</span> <span class="o">==</span> <span class="n">SinusoidalPositionEncoder</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">source_inputter</span><span class="p">,</span>
             <span class="n">target_inputter</span><span class="p">,</span>
@@ -348,15 +340,31 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ctranslate2_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_ct2_compatible</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">,</span> <span class="n">SelfAttentionEncoder</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_with_relative_position</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_position_encoder_class</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_position_encoder_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position_encoder_class</span> <span class="o">!=</span> <span class="n">SinusoidalPositionEncoder</span>
+            <span class="p">)</span>
+        <span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="kn">import</span> <span class="nn">ctranslate2</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ffn_activation</span> <span class="ow">is</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">:</span>
+            <span class="n">activation</span> <span class="o">=</span> <span class="n">ctranslate2</span><span class="o">.</span><span class="n">specs</span><span class="o">.</span><span class="n">Activation</span><span class="o">.</span><span class="n">RELU</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ffn_activation</span> <span class="ow">is</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">gelu</span><span class="p">:</span>
+            <span class="n">activation</span> <span class="o">=</span> <span class="n">ctranslate2</span><span class="o">.</span><span class="n">specs</span><span class="o">.</span><span class="n">Activation</span><span class="o">.</span><span class="n">GELU</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ffn_activation</span> <span class="ow">is</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">swish</span><span class="p">:</span>
+            <span class="n">activation</span> <span class="o">=</span> <span class="n">ctranslate2</span><span class="o">.</span><span class="n">specs</span><span class="o">.</span><span class="n">Activation</span><span class="o">.</span><span class="n">SWISH</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="n">model_spec</span> <span class="o">=</span> <span class="n">ctranslate2</span><span class="o">.</span><span class="n">specs</span><span class="o">.</span><span class="n">TransformerSpec</span><span class="p">(</span>
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_encoder_layers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_decoder_layers</span><span class="p">),</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_num_heads</span><span class="p">,</span>
             <span class="n">with_relative_position</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_with_relative_position</span><span class="p">,</span>
             <span class="n">pre_norm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_pre_norm</span><span class="p">,</span>
+            <span class="n">activation</span><span class="o">=</span><span class="n">activation</span><span class="p">,</span>
             <span class="n">alignment_layer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_alignment_layer</span><span class="p">,</span>
             <span class="n">alignment_heads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_alignment_heads</span><span class="p">,</span>
         <span class="p">)</span>

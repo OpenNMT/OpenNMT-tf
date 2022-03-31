@@ -10,6 +10,7 @@ Classes
 .. toctree::
 
    opennmt.schedules.CosineAnnealing
+   opennmt.schedules.InvSqrtDecay
    opennmt.schedules.NoamDecay
    opennmt.schedules.RNMTPlusDecay
    opennmt.schedules.RsqrtDecay

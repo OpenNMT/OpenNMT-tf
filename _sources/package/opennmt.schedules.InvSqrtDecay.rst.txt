@@ -1,0 +1,8 @@
+opennmt.schedules.InvSqrtDecay
+==============================
+
+.. autoclass:: opennmt.schedules.InvSqrtDecay
+    :members:
+    :undoc-members:
+
+    **Inherits from:** :class:`keras.optimizer_v2.learning_rate_schedule.LearningRateSchedule`

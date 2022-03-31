@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.inputters.create_sequence_records &mdash; OpenNMT-tf 2.26.1 documentation</title>
+  <title>opennmt.schedules.InvSqrtDecay &mdash; OpenNMT-tf 2.26.1 documentation</title>
   
 
   
@@ -42,8 +42,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.inputters.load_pretrained_embeddings" href="opennmt.inputters.load_pretrained_embeddings.html" />
-    <link rel="prev" title="opennmt.inputters.add_sequence_controls" href="opennmt.inputters.add_sequence_controls.html" /> 
+    <link rel="next" title="opennmt.schedules.NoamDecay" href="opennmt.schedules.NoamDecay.html" />
+    <link rel="prev" title="opennmt.schedules.CosineAnnealing" href="opennmt.schedules.CosineAnnealing.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -126,15 +126,15 @@
 <li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="opennmt.inputters.html#classes">Classes</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="opennmt.inputters.html#functions">Functions</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="opennmt.schedules.html#classes">Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="opennmt.schedules.html#functions">Functions</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a></li>
 </ul>
@@ -194,9 +194,9 @@
         
           <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
         
-          <li><a href="opennmt.inputters.html">opennmt.inputters module</a> &raquo;</li>
+          <li><a href="opennmt.schedules.html">opennmt.schedules module</a> &raquo;</li>
         
-      <li>opennmt.inputters.create_sequence_records</li>
+      <li>opennmt.schedules.InvSqrtDecay</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -213,36 +213,44 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="opennmt-inputters-create-sequence-records">
-<h1>opennmt.inputters.create_sequence_records<a class="headerlink" href="#opennmt-inputters-create-sequence-records" title="Permalink to this headline">¶</a></h1>
-<dl class="py function">
-<dt id="opennmt.inputters.create_sequence_records">
-<code class="sig-prename descclassname"><span class="pre">opennmt.inputters.</span></code><code class="sig-name descname"><span class="pre">create_sequence_records</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vectors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/record_inputter.html#create_sequence_records"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.create_sequence_records" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a TFRecord file of sequence vectors.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>vectors</strong> – An iterable of 2D Numpy float arrays of shape <span class="math notranslate nohighlight">\([T, D]\)</span>.</p></li>
-<li><p><strong>path</strong> – The output TFRecord file.</p></li>
-<li><p><strong>compression</strong> – Optional compression type, can be “GZIP”.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Path to the TFRecord file. In most cases this is the same as <code class="xref py py-obj docutils literal notranslate"><span class="pre">path</span></code> but
-if GZIP compression is enabled, the “.gz” extension is added if not already
-present.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">compression</span></code> is invalid.</p>
-</dd>
-</dl>
+  <div class="section" id="opennmt-schedules-invsqrtdecay">
+<h1>opennmt.schedules.InvSqrtDecay<a class="headerlink" href="#opennmt-schedules-invsqrtdecay" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="opennmt.schedules.InvSqrtDecay">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">opennmt.schedules.</span></code><code class="sig-name descname"><span class="pre">InvSqrtDecay</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmup_steps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/schedules/lr_schedules.html#InvSqrtDecay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.schedules.InvSqrtDecay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decay based on the reciprocal of the step square root.
+This corresponds to <code class="docutils literal notranslate"><span class="pre">inverse_sqrt</span></code> in Fairseq and <code class="docutils literal notranslate"><span class="pre">--lr-decay-inv-sqrt</span></code> in Marian.</p>
+<p>During warmup (linear increase of the learning rate):</p>
+<div class="math notranslate nohighlight">
+\[\text{schedule}(\text{step}) = \text{learning_rate}
+                               \times
+                               \frac{\text{step}}{\text{warmup_steps}}\]</div>
+<p>After warmup:</p>
+<div class="math notranslate nohighlight">
+\[\text{schedule}(\text{step}) = \text{learning_rate}
+                               \times
+                               \sqrt{\frac{\text{warmup_steps}}{\text{step}}}\]</div>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="opennmt.inputters.SequenceRecordInputter.html#opennmt.inputters.SequenceRecordInputter" title="opennmt.inputters.SequenceRecordInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.SequenceRecordInputter</span></code></a></p></li>
-<li><p><a class="reference internal" href="opennmt.inputters.write_sequence_record.html#opennmt.inputters.write_sequence_record" title="opennmt.inputters.write_sequence_record"><code class="xref py py-func docutils literal notranslate"><span class="pre">opennmt.inputters.write_sequence_record()</span></code></a></p></li>
+<li><p><a class="reference internal" href="opennmt.schedules.RsqrtDecay.html#opennmt.schedules.RsqrtDecay" title="opennmt.schedules.RsqrtDecay"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.schedules.RsqrtDecay</span></code></a></p></li>
 </ul>
 </div>
+<p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">keras.optimizer_v2.learning_rate_schedule.LearningRateSchedule</span></code></p>
+<dl class="py method">
+<dt id="opennmt.schedules.InvSqrtDecay.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmup_steps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/schedules/lr_schedules.html#InvSqrtDecay.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.schedules.InvSqrtDecay.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the decay function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learning_rate</strong> – The base learning rate.</p></li>
+<li><p><strong>warmup_steps</strong> – The number of warmup steps.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -253,8 +261,8 @@ present.</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="opennmt.inputters.load_pretrained_embeddings.html" class="btn btn-neutral float-right" title="opennmt.inputters.load_pretrained_embeddings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="opennmt.inputters.add_sequence_controls.html" class="btn btn-neutral float-left" title="opennmt.inputters.add_sequence_controls" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="opennmt.schedules.NoamDecay.html" class="btn btn-neutral float-right" title="opennmt.schedules.NoamDecay" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="opennmt.schedules.CosineAnnealing.html" class="btn btn-neutral float-left" title="opennmt.schedules.CosineAnnealing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

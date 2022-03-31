@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.25.0 documentation</title>
+  <title>opennmt.data.noise &mdash; OpenNMT-tf 2.26.1 documentation</title>
   
 
   
@@ -67,7 +67,7 @@
             
             
               <div class="version">
-                2.25
+                2.26
               </div>
             
           
@@ -258,6 +258,7 @@
     <span class="k">def</span> <span class="nf">_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">,</span> <span class="n">keep_shape</span><span class="p">,</span> <span class="n">probability</span><span class="p">):</span>
         <span class="n">input_rank</span> <span class="o">=</span> <span class="n">tokens</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span>
         <span class="n">input_is_ragged</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="p">)</span>
+        <span class="n">batch_shape</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">input_is_ragged</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">keep_shape</span><span class="p">:</span>
@@ -266,12 +267,15 @@
         <span class="k">elif</span> <span class="n">input_rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
             <span class="n">ragged_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">input_rank</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">input_rank</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">sequence_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sequence_length must be passed for 2D dense inputs&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sequence_length must be passed for ND dense inputs&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">input_rank</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">input_shape</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">shape_list</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+                <span class="n">batch_shape</span> <span class="o">=</span> <span class="n">input_shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+                <span class="n">sequence_length</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">ragged_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="o">.</span><span class="n">from_tensor</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">lengths</span><span class="o">=</span><span class="n">sequence_length</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unsupported rank </span><span class="si">%d</span><span class="s2"> for WordNoiser input&quot;</span> <span class="o">%</span> <span class="n">input_rank</span><span class="p">)</span>
 
         <span class="n">noisy_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">map_fn</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">tokens</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_apply_noise</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">probability</span><span class="p">),</span>
@@ -291,6 +295,9 @@
         <span class="k">if</span> <span class="n">input_rank</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">new_lengths</span> <span class="o">=</span> <span class="n">new_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">noisy_tokens</span> <span class="o">=</span> <span class="n">noisy_tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">batch_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">noisy_tokens</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">noisy_tokens</span><span class="p">,</span> <span class="n">batch_shape</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">new_lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">new_lengths</span><span class="p">,</span> <span class="n">batch_shape</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">noisy_tokens</span><span class="p">,</span> <span class="n">new_lengths</span>
 
