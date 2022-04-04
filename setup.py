@@ -10,6 +10,12 @@ tests_require = [
     "parameterized==0.8.1",
     "pytest-cov",
 ]
+docs_require = [
+    "recommonmark==0.7.*",
+    "sphinx-markdown-tables==0.0.15",
+    "sphinx-rtd-theme==1.0.*",
+    "sphinx==4.5.*",
+]
 
 
 def get_long_description():
@@ -78,6 +84,7 @@ setup(
             "tensorflow-text" + tf_version_requirement,
         ],
         "tests": tests_require,
+        "docs": docs_require,
     },
     tests_require=tests_require,
     packages=find_packages(exclude=["bin", "*.tests"]),

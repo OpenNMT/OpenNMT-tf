@@ -5,8 +5,7 @@ We currently use [Sphinx](http://www.sphinx-doc.org) to automatically build docu
 ## Install dependencies
 
 ```bash
-pip install -e .
-pip install -r docs/requirements.txt
+pip install -e .[docs]
 ```
 
 ## Build locally
