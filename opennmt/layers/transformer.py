@@ -336,12 +336,17 @@ class MultiHeadAttention(tf.keras.layers.Layer):
             )
 
             # Uses gather_nd instead of nn.embedding_lookup for TFLite exporting (TF Issue #42410)
-            relative_pos_expanded = tf.expand_dims(relative_pos, axis=-1)
-            relative_repr_keys = tf.gather_nd(
-                self.relative_position_keys, relative_pos_expanded
+            if getattr(self, "_tflite_mode", False):
+                relative_pos = tf.expand_dims(relative_pos, axis=-1)
+                embedding_lookup = tf.gather_nd
+            else:
+                embedding_lookup = tf.nn.embedding_lookup
+
+            relative_repr_keys = embedding_lookup(
+                self.relative_position_keys, relative_pos
             )
-            relative_repr_values = tf.gather_nd(
-                self.relative_position_values, relative_pos_expanded
+            relative_repr_values = embedding_lookup(
+                self.relative_position_values, relative_pos
             )
         else:
             relative_repr_keys = None
