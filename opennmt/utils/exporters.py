@@ -4,6 +4,7 @@ import abc
 import os
 import tempfile
 
+import ctranslate2
 import tensorflow as tf
 
 from opennmt.utils import misc
@@ -151,9 +152,6 @@ class CTranslate2Exporter(Exporter):
           ImportError: if the CTranslate2 package is missing.
           ValueError: if :obj:`quantization` is invalid.
         """
-        # Fail now if ctranslate2 package is missing.
-        import ctranslate2
-
         accepted_quantization = ("int8", "int16", "float16", "int8_float16")
         if quantization is not None and quantization not in accepted_quantization:
             raise ValueError(
@@ -163,26 +161,10 @@ class CTranslate2Exporter(Exporter):
         self._quantization = quantization
 
     def _export_model(self, model, export_dir):
-        model_spec = model.ctranslate2_spec
-        if model_spec is None:
-            raise ValueError(
-                "The model does not define an equivalent CTranslate2 model specification"
-            )
         if not model.built:
             model.create_variables()
-        variables = misc.get_variables_name_mapping(model, root_key="model")
-        variables = {
-            name.replace("/.ATTRIBUTES/VARIABLE_VALUE", ""): value.numpy()
-            for name, value in variables.items()
-        }
-        import ctranslate2
 
-        converter = ctranslate2.converters.OpenNMTTFConverter(
-            model_spec,
-            model.features_inputter.vocabulary_file,
-            model.labels_inputter.vocabulary_file,
-            variables=variables,
-        )
+        converter = ctranslate2.converters.OpenNMTTFConverterV2(model)
         converter.convert(export_dir, quantization=self._quantization, force=True)
 
 
