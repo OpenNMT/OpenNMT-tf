@@ -254,11 +254,7 @@ def make_cardinality_multiple_of(divisor):
 
         # Take all original batches and the number of extra batches required.
         dataset = dataset.enumerate()
-        # TODO: clean this API when TensorFlow requirement is updated to >=2.6.
-        if compat.tf_supports("data.Dataset.take_while"):
-            dataset = dataset.take_while(_continue_iter)
-        else:
-            dataset = dataset.apply(tf.data.experimental.take_while(_continue_iter))
+        dataset = dataset.take_while(_continue_iter)
         return dataset.map(_retrieve_element)  # Retrieve the element only.
 
     return _transform
@@ -463,13 +459,6 @@ def batch_sequence_dataset(
             size = size + required_multiple - size % required_multiple
         return tf.cast(tf.maximum(size, required_multiple), tf.int64)
 
-    def _group_by_window(*args, **kwargs):
-        # TODO: clean this API when TensorFlow requirement is updated to >=2.6.
-        if compat.tf_supports("data.Dataset.group_by_window"):
-            return lambda dataset: dataset.group_by_window(*args, **kwargs)
-        else:
-            return tf.data.experimental.group_by_window(*args, **kwargs)
-
     if length_bucket_width is None:
         if batch_type == "tokens":
             raise ValueError(
@@ -478,18 +467,19 @@ def batch_sequence_dataset(
             )
         return batch_dataset(batch_size, padded_shapes=padded_shapes)
 
+    kwargs = {}
     if batch_type == "examples":
-        return _group_by_window(_key_func, _reduce_func, window_size=batch_size)
+        kwargs["window_size"] = batch_size
     elif batch_type == "tokens":
-        return _group_by_window(
-            _key_func, _reduce_func, window_size_func=_window_size_func
-        )
+        kwargs["window_size_func"] = _window_size_func
     else:
         raise ValueError(
             "Invalid batch type: '{}'; should be 'examples' or 'tokens'".format(
                 batch_type
             )
         )
+
+    return lambda dataset: dataset.group_by_window(_key_func, _reduce_func, **kwargs)
 
 
 def training_pipeline(
