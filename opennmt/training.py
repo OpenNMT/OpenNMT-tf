@@ -571,7 +571,7 @@ class TrainingStats:
         Returns:
           A dictionary containing various statistics.
         """
-        elapsed_time = time.time() - self._last_logged_time
+        elapsed_time = max(time.time() - self._last_logged_time, 0.001)
         return {
             "learning_rate": self._get_learning_rate(),
             "loss": self._last_loss,
