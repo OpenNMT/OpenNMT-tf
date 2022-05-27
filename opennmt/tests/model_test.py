@@ -486,7 +486,7 @@ class ModelTest(tf.test.TestCase):
         )
         model = models.LanguageModel(decoder, embedding_size=16)
         model.initialize(data_config)
-        features = model.features_inputter.make_features(tf.constant(""))
+        features = model.features_inputter.make_features("")
         with self.assertRaises(tf.errors.InvalidArgumentError):
             model(features)
 
@@ -498,7 +498,7 @@ class ModelTest(tf.test.TestCase):
         )
         model = models.LanguageModel(decoder, embedding_size=16)
         model.initialize(data_config, params={"maximum_decoding_length": 1})
-        features = model.features_inputter.make_features(tf.constant(""))
+        features = model.features_inputter.make_features("")
         features = tf.nest.map_structure(
             lambda t: tf.expand_dims(t, 0), features
         )  # Add batch dim.
