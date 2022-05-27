@@ -325,7 +325,7 @@ class Evaluator(object):
                 loss_num += loss
                 loss_den += 1
             if metrics:
-                self._model.update_metrics(metrics, predictions, target)
+                self._model.update_metrics(metrics, predictions, labels)
             if output_file is not None:
                 predictions = {k: v.numpy() for k, v in predictions.items()}
                 for prediction in misc.extract_batches(predictions):
