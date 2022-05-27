@@ -11,8 +11,7 @@ tests_require = [
     "pytest-cov",
 ]
 docs_require = [
-    "recommonmark==0.7.*",
-    "sphinx-markdown-tables==0.0.15",
+    "myst-parser==0.17.*",
     "sphinx-rtd-theme==1.0.*",
     "sphinx==4.5.*",
 ]

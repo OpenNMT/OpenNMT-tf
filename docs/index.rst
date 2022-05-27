@@ -38,5 +38,4 @@ Index
    :caption: API
    :maxdepth: 1
 
-   api_examples.md
-   package/opennmt
+   package/overview
