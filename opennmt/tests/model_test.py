@@ -153,47 +153,16 @@ class ModelTest(tf.test.TestCase):
             data_config = {}
         model.initialize(data_config, params=params)
         model.create_variables()
+
         # Build a dataset for mode.
         if mode == tf.estimator.ModeKeys.PREDICT:
             dataset = model.examples_inputter.make_inference_dataset(
                 features_file, batch_size
             )
-        elif mode == tf.estimator.ModeKeys.EVAL:
-            dataset = model.examples_inputter.make_evaluation_dataset(
-                features_file, labels_file, batch_size
-            )
-        elif mode == tf.estimator.ModeKeys.TRAIN:
-            dataset = model.examples_inputter.make_training_dataset(
-                features_file, labels_file, batch_size
-            )
-        # Forward first batch into the model.
-        data = iter(dataset).next()
-        if mode != tf.estimator.ModeKeys.PREDICT:
-            features, labels = data
-        else:
-            features, labels = data, None
-        training = mode == tf.estimator.ModeKeys.TRAIN
-        outputs, predictions = model(features, labels=labels, training=training)
-        if mode != tf.estimator.ModeKeys.PREDICT:
-            _ = model.compute_loss(outputs, labels, training=training)
-            if mode == tf.estimator.ModeKeys.EVAL:
-                # Check that returned evaluation metrics are expected.
-                eval_metrics = model.get_metrics()
-                if eval_metrics is not None:
-                    model.update_metrics(eval_metrics, predictions, labels)
-                    for metric in metrics:
-                        self.assertIn(metric, eval_metrics)
-                try:
-                    # Check that scores can be computed and printed without errors.
-                    scores = model.score(features, labels)
-                    first_score = tf.nest.map_structure(
-                        lambda x: x.numpy(), next(misc.extract_batches(scores))
-                    )
-                    with open(os.devnull, "w") as devnull:
-                        model.print_score(first_score, stream=devnull)
-                except NotImplementedError:
-                    pass
-        else:
+
+            features = next(iter(dataset))
+            predictions = model.infer(features)
+
             # Check that all prediction heads are returned.
             self.assertIsInstance(predictions, dict)
             if prediction_heads is not None:
@@ -205,6 +174,40 @@ class ModelTest(tf.test.TestCase):
             )
             with open(os.devnull, "w") as devnull:
                 model.print_prediction(first_prediction, stream=devnull)
+
+        elif mode == tf.estimator.ModeKeys.EVAL:
+            dataset = model.examples_inputter.make_evaluation_dataset(
+                features_file, labels_file, batch_size
+            )
+
+            features, labels = model.split_features_labels(next(iter(dataset)))
+            loss, predictions = model.evaluate(features, labels)
+
+            # Check that returned evaluation metrics are expected.
+            eval_metrics = model.get_metrics()
+            if eval_metrics is not None:
+                model.update_metrics(eval_metrics, predictions, labels)
+                for metric in metrics:
+                    self.assertIn(metric, eval_metrics)
+            try:
+                # Check that scores can be computed and printed without errors.
+                scores = model.score(features, labels)
+                first_score = tf.nest.map_structure(
+                    lambda x: x.numpy(), next(misc.extract_batches(scores))
+                )
+                with open(os.devnull, "w") as devnull:
+                    model.print_score(first_score, stream=devnull)
+            except NotImplementedError:
+                pass
+
+        elif mode == tf.estimator.ModeKeys.TRAIN:
+            dataset = model.examples_inputter.make_training_dataset(
+                features_file, labels_file, batch_size
+            )
+
+            features, labels = model.split_features_labels(next(iter(dataset)))
+            outputs, _ = model(features, labels, training=True)
+            _ = model.compute_loss(outputs, labels, training=True)
 
     @parameterized.expand(
         [
@@ -456,22 +459,25 @@ class ModelTest(tf.test.TestCase):
                 "sequence_controls": {"start": True, "end": False},
             }
         )
-        features, labels = self.evaluate(inputter.make_features(tf.constant("a b c")))
+        features = inputter.make_features("a b c")
+        self.assertAllEqual(features["ids"], [1, 3, 4])
+        self.assertAllEqual(features["ids_out"], [3, 4, 5])
+        self.assertEqual(features["length"], 3)
+
+        # Inference mode.
+        inputter.inference = True
+        features = inputter.make_features("a b c")
         self.assertAllEqual(features["ids"], [1, 3, 4, 5])
         self.assertEqual(features["length"], 4)
-        self.assertAllEqual(labels["ids"], [1, 3, 4])
-        self.assertAllEqual(labels["ids_out"], [3, 4, 5])
-        self.assertEqual(labels["length"], 3)
+        inputter.inference = False
 
         # Backward compatibility mode.
         inputter = models.LanguageModelInputter(embedding_size=10)
         inputter.initialize({"vocabulary": vocabulary_path})
-        features, labels = self.evaluate(inputter.make_features(tf.constant("a b c")))
+        features = inputter.make_features("a b c")
         self.assertAllEqual(features["ids"], [3, 4, 5])
+        self.assertAllEqual(features["ids_out"], [4, 5, 2])
         self.assertEqual(features["length"], 3)
-        self.assertAllEqual(labels["ids"], [3, 4, 5])
-        self.assertAllEqual(labels["ids_out"], [4, 5, 2])
-        self.assertEqual(labels["length"], 3)
 
     def testLanguageModelWithMissingStart(self):
         _, data_config = self._makeToyLMData()

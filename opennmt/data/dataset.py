@@ -640,6 +640,10 @@ def training_pipeline(
                     labels_length_fn=labels_length_fn,
                 )
             )
+
+        length_fn = [features_length_fn]
+        if labels_length_fn is not None:
+            length_fn.append(labels_length_fn)
         dataset = dataset.apply(
             batch_sequence_dataset(
                 batch_size,
@@ -647,7 +651,7 @@ def training_pipeline(
                 batch_multiplier=batch_multiplier,
                 batch_size_multiple=batch_size_multiple,
                 length_bucket_width=length_bucket_width,
-                length_fn=[features_length_fn, labels_length_fn],
+                length_fn=length_fn,
             )
         )
         dataset = dataset.apply(filter_irregular_batches(batch_multiplier))

@@ -805,14 +805,13 @@ class ExampleInputterAdapter:
 
             # length_fn returns the maximum length instead of the actual example length so
             # that batches are built as if each example has the maximum length.
-            constant_length_fn = [
-                lambda x: maximum_features_length,
-                lambda x: (
-                    maximum_labels_length
-                    if labels_file is not None
-                    else maximum_features_length
-                ),
-            ]
+            if labels_file is not None:
+                constant_length_fn = [
+                    lambda x: maximum_features_length,
+                    lambda x: maximum_labels_length,
+                ]
+            else:
+                constant_length_fn = lambda x: maximum_features_length
 
             # The length dimension is set to the maximum length in the padded shapes.
             padded_shapes = self.get_padded_shapes(

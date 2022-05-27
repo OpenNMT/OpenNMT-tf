@@ -121,7 +121,8 @@ def score_dataset(model, dataset, print_params=None, output_file=None):
     ordered_writer = misc.OrderRestorer(index_fn, write_fn)
 
     score_fn = tf.function(model.score, input_signature=dataset.element_spec)
-    for features, labels in dataset:
+    for batch in dataset:
+        features, labels = model.split_features_labels(batch)
         results = score_fn(features, labels)
         results = tf.nest.map_structure(lambda t: t.numpy(), results)
         for batch in misc.extract_batches(results):
