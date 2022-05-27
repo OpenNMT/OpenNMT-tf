@@ -480,7 +480,7 @@ class ModelTest(tf.test.TestCase):
         )
         model = models.LanguageModel(decoder, embedding_size=16)
         model.initialize(data_config)
-        features, _ = model.features_inputter.make_features(tf.constant(""))
+        features = model.features_inputter.make_features(tf.constant(""))
         with self.assertRaises(tf.errors.InvalidArgumentError):
             model(features)
 
@@ -492,7 +492,7 @@ class ModelTest(tf.test.TestCase):
         )
         model = models.LanguageModel(decoder, embedding_size=16)
         model.initialize(data_config, params={"maximum_decoding_length": 1})
-        features, _ = model.features_inputter.make_features(tf.constant(""))
+        features = model.features_inputter.make_features(tf.constant(""))
         features = tf.nest.map_structure(
             lambda t: tf.expand_dims(t, 0), features
         )  # Add batch dim.
@@ -500,6 +500,33 @@ class ModelTest(tf.test.TestCase):
         # Predictions should not include the leading <s>.
         self.assertEqual(predictions["length"][0], 1)
         self.assertTupleEqual(predictions["tokens"].shape, (1, 1))
+
+    def testLanguageModelBucketing(self):
+        features_file, data_config = self._makeToyLMData()
+        decoder = decoders.SelfAttentionDecoder(
+            2, num_units=16, num_heads=4, ffn_inner_dim=32, num_sources=0
+        )
+        model = models.LanguageModel(decoder, embedding_size=16)
+        model.initialize(data_config)
+        model.features_inputter.make_inference_dataset(
+            features_file, batch_size=8, length_bucket_width=1
+        )
+
+    def testLanguageModelBatchAutotune(self):
+        features_file, data_config = self._makeToyLMData()
+        decoder = decoders.SelfAttentionDecoder(
+            2, num_units=16, num_heads=4, ffn_inner_dim=32, num_sources=0
+        )
+        model = models.LanguageModel(decoder, embedding_size=16)
+        model.initialize(data_config)
+        model.examples_inputter.make_training_dataset(
+            features_file,
+            None,
+            batch_size=8,
+            length_bucket_width=1,
+            maximum_features_length=50,
+            batch_autotune_mode=True,
+        )
 
     @parameterized.expand(
         [

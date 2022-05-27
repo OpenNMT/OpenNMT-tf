@@ -1,5 +1,7 @@
 """Language model."""
 
+import copy
+
 import tensorflow as tf
 
 from opennmt import config as config_util
@@ -28,6 +30,13 @@ class LanguageModel(model.SequenceGenerator):
         super().__init__(inputter)
         self.decoder = decoder
         self.reuse_embedding = reuse_embedding
+
+    @property
+    def features_inputter(self):
+        # Enable inference mode for the returned inputter.
+        features_inputter = copy.copy(super().features_inputter)
+        features_inputter.set_inference()
+        return features_inputter
 
     def auto_config(self, num_replicas=1):
         config = super().auto_config(num_replicas=num_replicas)
@@ -154,6 +163,14 @@ class LanguageModelInputter(inputters.WordEmbedder, inputters.ExampleInputterAda
     input sequence.
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.inference = False
+
+    def set_inference(self, inference=True):
+        """Enables inference mode."""
+        self.inference = inference
+
     def initialize(self, data_config):
         super().initialize(data_config)
         # Set default sequence controls for backward compatibility.
@@ -177,6 +194,9 @@ class LanguageModelInputter(inputters.WordEmbedder, inputters.ExampleInputterAda
         features = super().make_features(
             element=element, features=base_features.copy(), training=training
         )
+
+        if self.inference:
+            return features
 
         # Labels define the decoder input/output sequences during training and evaluation.
         self.set_decoder_mode(enable=True, mark_end=saved_mark_end)
