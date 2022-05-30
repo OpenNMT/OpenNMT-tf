@@ -15,6 +15,25 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.27.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.27.0) (2022-05-30)
+
+### Changes
+
+* Remove support for older TensorFlow versions 2.4 and 2.5
+* Remove support for deprecated Python version 3.6
+
+### New features
+
+* Support TensorFlow 2.9
+* Integrate the new CTranslate2 converter to export more Transformer variants, including multi-features models
+
+### Fixes and improvements
+
+* Fix error when loading the SavedModel of Transformer models with relative position representations
+* Fix dataset error in inference with language models
+* Fix batch size autotuning error with language models
+* Fix division by zero error on some systems when the time to the last training log is too small
+
 ## [2.26.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.26.1) (2022-03-31)
 
 ### Fixes and improvements

@@ -1,6 +1,6 @@
 """OpenNMT-tf version."""
 
-__version__ = "2.26.1"
+__version__ = "2.27.0"
 
 INCLUSIVE_MIN_TF_VERSION = "2.6.0"
 EXCLUSIVE_MAX_TF_VERSION = "2.10.0"
