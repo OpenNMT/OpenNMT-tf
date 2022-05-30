@@ -1,11 +1,7 @@
-opennmt.models module
-=====================
+opennmt.models
+==============
 
 .. automodule:: opennmt.models
-
-
-Classes
--------
 
 .. toctree::
 
@@ -32,11 +28,5 @@ Classes
    opennmt.models.TransformerBigRelative
    opennmt.models.TransformerBigSharedEmbeddings
    opennmt.models.TransformerTiny
-
-Functions
----------
-
-.. toctree::
-
    opennmt.models.get_model_from_catalog
    opennmt.models.register_model_in_catalog

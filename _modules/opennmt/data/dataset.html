@@ -1,78 +1,37 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.26.1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
-
-  
-  
+  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.27.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
     <link rel="shortcut icon" href="../../../_static/favicon.png"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../../../index.html" class="icon icon-home"> OpenNMT-tf
-          
-
-          
-            
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2.26
+                2.27
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -80,24 +39,13 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Parameters</a></li>
@@ -107,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p class="caption" role="heading"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../inference.html">Inference</a></li>
@@ -115,75 +63,35 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../api_examples.html">API examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../package/opennmt.html">opennmt module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../package/overview.html">Python</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">OpenNMT-tf</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
       <li>opennmt.data.dataset</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for opennmt.data.dataset</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Dataset creation and transformations.&quot;&quot;&quot;</span>
 
@@ -441,11 +349,7 @@
 
         <span class="c1"># Take all original batches and the number of extra batches required.</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">enumerate</span><span class="p">()</span>
-        <span class="c1"># TODO: clean this API when TensorFlow requirement is updated to &gt;=2.6.</span>
-        <span class="k">if</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_supports</span><span class="p">(</span><span class="s2">&quot;data.Dataset.take_while&quot;</span><span class="p">):</span>
-            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">take_while</span><span class="p">(</span><span class="n">_continue_iter</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">take_while</span><span class="p">(</span><span class="n">_continue_iter</span><span class="p">))</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">take_while</span><span class="p">(</span><span class="n">_continue_iter</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_retrieve_element</span><span class="p">)</span>  <span class="c1"># Retrieve the element only.</span>
 
     <span class="k">return</span> <span class="n">_transform</span></div>
@@ -650,13 +554,6 @@
             <span class="n">size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">+</span> <span class="n">required_multiple</span> <span class="o">-</span> <span class="n">size</span> <span class="o">%</span> <span class="n">required_multiple</span>
         <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">required_multiple</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_group_by_window</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="c1"># TODO: clean this API when TensorFlow requirement is updated to &gt;=2.6.</span>
-        <span class="k">if</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_supports</span><span class="p">(</span><span class="s2">&quot;data.Dataset.group_by_window&quot;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="k">lambda</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">group_by_window</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">group_by_window</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="n">length_bucket_width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="s2">&quot;tokens&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -665,18 +562,19 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">batch_dataset</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">padded_shapes</span><span class="o">=</span><span class="n">padded_shapes</span><span class="p">)</span>
 
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="s2">&quot;examples&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_group_by_window</span><span class="p">(</span><span class="n">_key_func</span><span class="p">,</span> <span class="n">_reduce_func</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;window_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch_size</span>
     <span class="k">elif</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="s2">&quot;tokens&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_group_by_window</span><span class="p">(</span>
-            <span class="n">_key_func</span><span class="p">,</span> <span class="n">_reduce_func</span><span class="p">,</span> <span class="n">window_size_func</span><span class="o">=</span><span class="n">_window_size_func</span>
-        <span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;window_size_func&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_window_size_func</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;Invalid batch type: &#39;</span><span class="si">{}</span><span class="s2">&#39;; should be &#39;examples&#39; or &#39;tokens&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">batch_type</span>
             <span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">group_by_window</span><span class="p">(</span><span class="n">_key_func</span><span class="p">,</span> <span class="n">_reduce_func</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="training_pipeline"><a class="viewcode-back" href="../../../package/opennmt.data.training_pipeline.html#opennmt.data.training_pipeline">[docs]</a><span class="k">def</span> <span class="nf">training_pipeline</span><span class="p">(</span>
@@ -827,6 +725,10 @@
                     <span class="n">labels_length_fn</span><span class="o">=</span><span class="n">labels_length_fn</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
+
+        <span class="n">length_fn</span> <span class="o">=</span> <span class="p">[</span><span class="n">features_length_fn</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">labels_length_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">length_fn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">labels_length_fn</span><span class="p">)</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
             <span class="n">batch_sequence_dataset</span><span class="p">(</span>
                 <span class="n">batch_size</span><span class="p">,</span>
@@ -834,7 +736,7 @@
                 <span class="n">batch_multiplier</span><span class="o">=</span><span class="n">batch_multiplier</span><span class="p">,</span>
                 <span class="n">batch_size_multiple</span><span class="o">=</span><span class="n">batch_size_multiple</span><span class="p">,</span>
                 <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">length_bucket_width</span><span class="p">,</span>
-                <span class="n">length_fn</span><span class="o">=</span><span class="p">[</span><span class="n">features_length_fn</span><span class="p">,</span> <span class="n">labels_length_fn</span><span class="p">],</span>
+                <span class="n">length_fn</span><span class="o">=</span><span class="n">length_fn</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">filter_irregular_batches</span><span class="p">(</span><span class="n">batch_multiplier</span><span class="p">))</span>
@@ -941,37 +843,27 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
+    <p></p>
+  </div>
 
-    </p>
-  </div> 
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

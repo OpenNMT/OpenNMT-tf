@@ -1,5 +1,5 @@
-opennmt.encoders.SelfAttentionEncoder
-=====================================
+SelfAttentionEncoder
+====================
 
 .. autoclass:: opennmt.encoders.SelfAttentionEncoder
     :members:

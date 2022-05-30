@@ -1,5 +1,5 @@
-opennmt.models.SequenceClassifier
-=================================
+SequenceClassifier
+==================
 
 .. autoclass:: opennmt.models.SequenceClassifier
     :members:

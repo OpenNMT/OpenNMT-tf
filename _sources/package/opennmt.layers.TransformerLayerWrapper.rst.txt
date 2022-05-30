@@ -1,5 +1,5 @@
-opennmt.layers.TransformerLayerWrapper
-======================================
+TransformerLayerWrapper
+=======================
 
 .. autoclass:: opennmt.layers.TransformerLayerWrapper
     :members:

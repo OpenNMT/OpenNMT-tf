@@ -1,5 +1,5 @@
-opennmt.decoders.Decoder
-========================
+Decoder
+=======
 
 .. autoclass:: opennmt.decoders.Decoder
     :members:

@@ -1,5 +1,5 @@
-opennmt.inputters.SequenceRecordInputter
-========================================
+SequenceRecordInputter
+======================
 
 .. autoclass:: opennmt.inputters.SequenceRecordInputter
     :members:

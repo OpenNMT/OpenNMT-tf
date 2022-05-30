@@ -1,5 +1,5 @@
-opennmt.layers.LayerNorm
-========================
+LayerNorm
+=========
 
 .. autoclass:: opennmt.layers.LayerNorm
     :members:

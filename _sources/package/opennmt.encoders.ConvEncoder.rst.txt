@@ -1,5 +1,5 @@
-opennmt.encoders.ConvEncoder
-============================
+ConvEncoder
+===========
 
 .. autoclass:: opennmt.encoders.ConvEncoder
     :members:

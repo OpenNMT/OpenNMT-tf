@@ -1,5 +1,5 @@
-opennmt.layers.FeedForwardNetwork
-=================================
+FeedForwardNetwork
+==================
 
 .. autoclass:: opennmt.layers.FeedForwardNetwork
     :members:

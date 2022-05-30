@@ -1,5 +1,5 @@
-opennmt.layers.SelfAttentionEncoderLayer
-========================================
+SelfAttentionEncoderLayer
+=========================
 
 .. autoclass:: opennmt.layers.SelfAttentionEncoderLayer
     :members:

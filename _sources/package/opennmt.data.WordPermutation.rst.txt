@@ -1,5 +1,5 @@
-opennmt.data.WordPermutation
-============================
+WordPermutation
+===============
 
 .. autoclass:: opennmt.data.WordPermutation
     :members:

@@ -1,5 +1,5 @@
-opennmt.utils.TERScorer
-=======================
+TERScorer
+=========
 
 .. autoclass:: opennmt.utils.TERScorer
     :members:

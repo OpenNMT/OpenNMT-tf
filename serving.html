@@ -1,80 +1,40 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>Serving &mdash; OpenNMT-tf 2.26.1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-
-  
-  
+  <title>Serving &mdash; OpenNMT-tf 2.27.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <link rel="shortcut icon" href="_static/favicon.png"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="2.0 Transition Guide" href="v2_transition.html" />
     <link rel="prev" title="Inference" href="inference.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> OpenNMT-tf
-          
-
-          
-            
             <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2.26
+                2.27
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -82,24 +42,13 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
@@ -109,7 +58,7 @@
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p class="caption" role="heading"><span class="caption-text">Usage</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
@@ -127,81 +76,40 @@
 <li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package/overview.html">Python</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">OpenNMT-tf</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Serving</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="serving">
-<h1>Serving<a class="headerlink" href="#serving" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="tensorflow">
-<h2>TensorFlow<a class="headerlink" href="#tensorflow" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="exporting-a-savedmodel">
-<h3>Exporting a SavedModel<a class="headerlink" href="#exporting-a-savedmodel" title="Permalink to this headline">¶</a></h3>
+             
+  <section id="serving">
+<h1>Serving<a class="headerlink" href="#serving" title="Permalink to this headline"></a></h1>
+<section id="tensorflow">
+<h2>TensorFlow<a class="headerlink" href="#tensorflow" title="Permalink to this headline"></a></h2>
+<section id="exporting-a-savedmodel">
+<h3>Exporting a SavedModel<a class="headerlink" href="#exporting-a-savedmodel" title="Permalink to this headline"></a></h3>
 <p>OpenNMT-tf can export <a class="reference external" href="https://www.tensorflow.org/guide/saved_model">SavedModel</a> packages for inference in other environments, for example with <a class="reference external" href="https://www.tensorflow.org/serving/">TensorFlow Serving</a>. A model export contains all information required for inference: the graph definition, the weights, and external assets such as vocabulary files. It typically looks like this on disk:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>toy-ende/export/
 ├── assets
@@ -217,24 +125,24 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --config my_config.yml --auto_config <span class="nb">export</span> --output_dir ~/my-models/ende
 </pre></div>
 </div>
-<p>Automatic evaluation during the training can also export models, see <a class="reference internal" href="training.html"><span class="doc">Training</span></a> to learn more.</p>
-</div>
-<div class="section" id="running-a-savedmodel">
-<h3>Running a SavedModel<a class="headerlink" href="#running-a-savedmodel" title="Permalink to this headline">¶</a></h3>
+<p>Automatic evaluation during the training can also export models, see <a class="reference internal" href="training.html"><span class="doc std std-doc">Training</span></a> to learn more.</p>
+</section>
+<section id="running-a-savedmodel">
+<h3>Running a SavedModel<a class="headerlink" href="#running-a-savedmodel" title="Permalink to this headline"></a></h3>
 <p>Once a SavedModel is exported, OpenNMT-tf is no longer needed to run it. However, you will need to know the input and output nodes of your model. You can use the <a class="reference external" href="https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel"><code class="docutils literal notranslate"><span class="pre">saved_model_cli</span></code></a> script provided by TensorFlow for inspection, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>saved_model_cli show --dir ~/my-models/ende <span class="se">\</span>
     --tag_set serve --signature_def serving_default
 </pre></div>
 </div>
 <p>Some examples using exported models are available in the <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving"><code class="docutils literal notranslate"><span class="pre">examples/serving</span></code></a> directory.</p>
-</div>
-<div class="section" id="input-preprocessing-and-tokenization">
-<h3>Input preprocessing and tokenization<a class="headerlink" href="#input-preprocessing-and-tokenization" title="Permalink to this headline">¶</a></h3>
-<p>TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is sometimes not implemented in terms of TensorFlow ops (see <a class="reference internal" href="tokenization.html"><span class="doc">Tokenization</span></a> for more details). In this case, these functions should be run outside of the TensorFlow runtime, either by the client or a proxy server.</p>
-</div>
-</div>
-<div class="section" id="ctranslate2">
-<h2>CTranslate2<a class="headerlink" href="#ctranslate2" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="input-preprocessing-and-tokenization">
+<h3>Input preprocessing and tokenization<a class="headerlink" href="#input-preprocessing-and-tokenization" title="Permalink to this headline"></a></h3>
+<p>TensorFlow Serving only runs TensorFlow operations. Preprocessing functions such as the tokenization is sometimes not implemented in terms of TensorFlow ops (see <a class="reference internal" href="tokenization.html"><span class="doc std std-doc">Tokenization</span></a> for more details). In this case, these functions should be run outside of the TensorFlow runtime, either by the client or a proxy server.</p>
+</section>
+</section>
+<section id="ctranslate2">
+<h2>CTranslate2<a class="headerlink" href="#ctranslate2" title="Permalink to this headline"></a></h2>
 <p><a class="reference external" href="https://github.com/OpenNMT/CTranslate2">CTranslate2</a> is an optimized inference engine for OpenNMT models that is typically faster, lighter, and more customizable than the TensorFlow runtime.</p>
 <p>Selected models can be exported to the CTranslate2 format directly from OpenNMT-tf by selecting the <code class="docutils literal notranslate"><span class="pre">ctranslate2</span></code> export format.</p>
 <p><strong>When using the <code class="docutils literal notranslate"><span class="pre">export</span></code> command line</strong>, the <code class="docutils literal notranslate"><span class="pre">--format</span></code> option should be set:</p>
@@ -254,9 +162,9 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">ctranslate2_int16</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ctranslate2_float16</span></code></p></li>
 </ul>
-</div>
-<div class="section" id="tensorflow-lite">
-<h2>TensorFlow Lite<a class="headerlink" href="#tensorflow-lite" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="tensorflow-lite">
+<h2>TensorFlow Lite<a class="headerlink" href="#tensorflow-lite" title="Permalink to this headline"></a></h2>
 <p><a class="reference external" href="https://www.tensorflow.org/lite">TensorFlow Lite</a> is a deep learning framework for fast inference of TensorFlow models on mobile devices.</p>
 <p>Converting to TensorFlow Lite requires <strong>TensorFlow version 2.5+</strong></p>
 <p>Example export command:</p>
@@ -279,7 +187,7 @@
 </ul>
 <p><strong>Running a TFLite Model</strong></p>
 <p>Running requires using the same vocabulary files used for training.</p>
-<ol class="simple">
+<ol class="arabic simple">
 <li><p>Convert the sentence to IDs with the vocabulary file.</p></li>
 <li><p>Run the model with the IDs to get a fixed size array. (<a class="reference external" href="https://www.tensorflow.org/lite/guide/inference">TensorFlow Guide</a>)</p></li>
 <li><p>Convert the resulting IDs to a sentence using the other vocabulary file.</p></li>
@@ -290,46 +198,35 @@
 <span class="w">  </span><span class="nt">tflite_output_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">250</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="v2_transition.html" class="btn btn-neutral float-right" title="2.0 Transition Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="inference.html" class="btn btn-neutral float-left" title="Inference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="v2_transition.html" class="btn btn-neutral float-right" title="2.0 Transition Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
+    <p></p>
+  </div>
 
-    </p>
-  </div> 
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

@@ -1,5 +1,5 @@
-opennmt.decoders.AttentionalRNNDecoder
-======================================
+AttentionalRNNDecoder
+=====================
 
 .. autoclass:: opennmt.decoders.AttentionalRNNDecoder
     :members:

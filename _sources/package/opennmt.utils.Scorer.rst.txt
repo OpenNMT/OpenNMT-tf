@@ -1,5 +1,5 @@
-opennmt.utils.Scorer
-====================
+Scorer
+======
 
 .. autoclass:: opennmt.utils.Scorer
     :members:

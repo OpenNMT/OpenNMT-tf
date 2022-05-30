@@ -1,11 +1,7 @@
-opennmt.tokenizers module
-=========================
+opennmt.tokenizers
+==================
 
 .. automodule:: opennmt.tokenizers
-
-
-Classes
--------
 
 .. toctree::
 
@@ -14,11 +10,5 @@ Classes
    opennmt.tokenizers.SentencePieceTokenizer
    opennmt.tokenizers.SpaceTokenizer
    opennmt.tokenizers.Tokenizer
-
-Functions
----------
-
-.. toctree::
-
    opennmt.tokenizers.make_tokenizer
    opennmt.tokenizers.register_tokenizer

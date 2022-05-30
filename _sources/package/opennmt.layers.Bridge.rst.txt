@@ -1,5 +1,5 @@
-opennmt.layers.Bridge
-=====================
+Bridge
+======
 
 .. autoclass:: opennmt.layers.Bridge
     :members:

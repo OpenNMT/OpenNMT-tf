@@ -1,5 +1,5 @@
-opennmt.models.ClassInputter
-============================
+ClassInputter
+=============
 
 .. autoclass:: opennmt.models.ClassInputter
     :members:

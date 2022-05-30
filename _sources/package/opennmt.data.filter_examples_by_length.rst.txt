@@ -1,4 +1,4 @@
-opennmt.data.filter_examples_by_length
-======================================
+filter_examples_by_length
+=========================
 
 .. autofunction:: opennmt.data.filter_examples_by_length

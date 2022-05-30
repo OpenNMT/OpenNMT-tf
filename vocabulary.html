@@ -1,80 +1,40 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>Vocabulary &mdash; OpenNMT-tf 2.26.1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-
-  
-  
+  <title>Vocabulary &mdash; OpenNMT-tf 2.27.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <link rel="shortcut icon" href="_static/favicon.png"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Tokenization" href="tokenization.html" />
     <link rel="prev" title="Data" href="data.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> OpenNMT-tf
-          
-
-          
-            
             <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2.26
+                2.27
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -82,24 +42,13 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
@@ -119,7 +68,7 @@
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p class="caption" role="heading"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
@@ -127,107 +76,66 @@
 <li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package/overview.html">Python</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">OpenNMT-tf</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Vocabulary</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="vocabulary">
-<h1>Vocabulary<a class="headerlink" href="#vocabulary" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="vocabulary">
+<h1>Vocabulary<a class="headerlink" href="#vocabulary" title="Permalink to this headline"></a></h1>
 <p>For text inputs, vocabulary files should be provided in the data configuration. A vocabulary file is a simple text file with <strong>one token per line</strong>. It should start with these 3 special tokens:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;blank&gt;
 &lt;s&gt;
 &lt;/s&gt;
 </pre></div>
 </div>
-<div class="section" id="building-vocabularies">
-<h2>Building vocabularies<a class="headerlink" href="#building-vocabularies" title="Permalink to this headline">¶</a></h2>
+<section id="building-vocabularies">
+<h2>Building vocabularies<a class="headerlink" href="#building-vocabularies" title="Permalink to this headline"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> script can be used to generate vocabulary files in multiple ways:</p>
-<div class="section" id="generate-a-vocabulary-from-tokenized-training-files">
-<h3>Generate a vocabulary from tokenized training files<a class="headerlink" href="#generate-a-vocabulary-from-tokenized-training-files" title="Permalink to this headline">¶</a></h3>
+<section id="generate-a-vocabulary-from-tokenized-training-files">
+<h3>Generate a vocabulary from tokenized training files<a class="headerlink" href="#generate-a-vocabulary-from-tokenized-training-files" title="Permalink to this headline"></a></h3>
 <p>If your training data is already tokenized, you can build a vocabulary with the most frequent tokens. For example, the command below extracts the 50,000 most frequent tokens from the files <code class="docutils literal notranslate"><span class="pre">train.txt.tok</span></code> and <code class="docutils literal notranslate"><span class="pre">other.txt.tok</span></code> and saves them to <code class="docutils literal notranslate"><span class="pre">vocab.txt</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --save_vocab vocab.txt --size <span class="m">50000</span> train.txt.tok other.txt.tok
 </pre></div>
 </div>
 <p>Instead of defining a fixed size, you can also prune tokens that appear below a minimum frequency. See the <code class="docutils literal notranslate"><span class="pre">--min_frequency</span></code> option.</p>
-</div>
-<div class="section" id="generate-a-vocabulary-from-raw-training-files-with-on-the-fly-tokenization">
-<h3>Generate a vocabulary from raw training files with on-the-fly tokenization<a class="headerlink" href="#generate-a-vocabulary-from-raw-training-files-with-on-the-fly-tokenization" title="Permalink to this headline">¶</a></h3>
-<p>By default, <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> splits each line on spaces. It is possible to define a custom tokenization with the <code class="docutils literal notranslate"><span class="pre">--tokenizer_config</span></code> option. See <a class="reference internal" href="tokenization.html"><span class="doc">Tokenization</span></a> for more information.</p>
-</div>
-<div class="section" id="convert-a-sentencepiece-vocabulary-to-opennmt-tf">
-<h3>Convert a SentencePiece vocabulary to OpenNMT-tf<a class="headerlink" href="#convert-a-sentencepiece-vocabulary-to-opennmt-tf" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="generate-a-vocabulary-from-raw-training-files-with-on-the-fly-tokenization">
+<h3>Generate a vocabulary from raw training files with on-the-fly tokenization<a class="headerlink" href="#generate-a-vocabulary-from-raw-training-files-with-on-the-fly-tokenization" title="Permalink to this headline"></a></h3>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> splits each line on spaces. It is possible to define a custom tokenization with the <code class="docutils literal notranslate"><span class="pre">--tokenizer_config</span></code> option. See <a class="reference internal" href="tokenization.html"><span class="doc std std-doc">Tokenization</span></a> for more information.</p>
+</section>
+<section id="convert-a-sentencepiece-vocabulary-to-opennmt-tf">
+<h3>Convert a SentencePiece vocabulary to OpenNMT-tf<a class="headerlink" href="#convert-a-sentencepiece-vocabulary-to-opennmt-tf" title="Permalink to this headline"></a></h3>
 <p>If you trained a <a class="reference external" href="https://github.com/google/sentencepiece">SentencePiece</a> model, a vocabulary file was generated in the process. You can convert this vocabulary to work with OpenNMT-tf:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --from_vocab sp.vocab --from_format sentencepiece --save_vocab vocab.txt
 </pre></div>
 </div>
-</div>
-<div class="section" id="train-a-sentencepiece-model-and-vocabulary-with-opennmt-tf">
-<h3>Train a SentencePiece model and vocabulary with OpenNMT-tf<a class="headerlink" href="#train-a-sentencepiece-model-and-vocabulary-with-opennmt-tf" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="train-a-sentencepiece-model-and-vocabulary-with-opennmt-tf">
+<h3>Train a SentencePiece model and vocabulary with OpenNMT-tf<a class="headerlink" href="#train-a-sentencepiece-model-and-vocabulary-with-opennmt-tf" title="Permalink to this headline"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> script can also train a new <a class="reference external" href="https://github.com/google/sentencepiece">SentencePiece</a> vocabulary and model from raw data. For example the command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --sentencepiece --size <span class="m">32000</span> --save_vocab sp train.txt.raw
 </pre></div>
@@ -237,10 +145,10 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-build-vocab --sentencepiece <span class="nv">character_coverage</span><span class="o">=</span><span class="m">0</span>.98 <span class="nv">num_threads</span><span class="o">=</span><span class="m">4</span> <span class="o">[</span>...<span class="o">]</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="configuring-vocabularies">
-<h2>Configuring vocabularies<a class="headerlink" href="#configuring-vocabularies" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="configuring-vocabularies">
+<h2>Configuring vocabularies<a class="headerlink" href="#configuring-vocabularies" title="Permalink to this headline"></a></h2>
 <p>In most cases, you should configure vocabularies with <code class="docutils literal notranslate"><span class="pre">source_vocabulary</span></code> and <code class="docutils literal notranslate"><span class="pre">target_vocabulary</span></code> in <code class="docutils literal notranslate"><span class="pre">data</span></code> block of the YAML configuration, for example:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">source_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_vocab.txt</span><span class="w"></span>
@@ -273,46 +181,35 @@
 </pre></div>
 </div>
 <p><strong>Note:</strong> If you train a model with shared embeddings, you should still configure all vocabulary parameters but in this case they should simply point to the same vocabulary file.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="tokenization.html" class="btn btn-neutral float-right" title="Tokenization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="data.html" class="btn btn-neutral float-left" title="Data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tokenization.html" class="btn btn-neutral float-right" title="Tokenization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
+    <p></p>
+  </div>
 
-    </p>
-  </div> 
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

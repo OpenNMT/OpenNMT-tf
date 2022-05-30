@@ -1,5 +1,5 @@
-opennmt.layers.RNN
-==================
+RNN
+===
 
 .. autoclass:: opennmt.layers.RNN
     :members:

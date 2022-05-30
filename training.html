@@ -1,80 +1,40 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>Training &mdash; OpenNMT-tf 2.26.1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-
-  
-  
+  <title>Training &mdash; OpenNMT-tf 2.27.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <link rel="shortcut icon" href="_static/favicon.png"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Inference" href="inference.html" />
     <link rel="prev" title="Alignments" href="alignments.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> OpenNMT-tf
-          
-
-          
-            
             <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2.26
+                2.27
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -82,24 +42,13 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
@@ -109,7 +58,7 @@
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p class="caption" role="heading"><span class="caption-text">Usage</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Training</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#monitoring">Monitoring</a></li>
@@ -136,77 +85,36 @@
 <li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package/overview.html">Python</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">OpenNMT-tf</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Training</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="training">
-<h1>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="training">
+<h1>Training<a class="headerlink" href="#training" title="Permalink to this headline"></a></h1>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main train -h
 </pre></div>
 </div>
@@ -214,8 +122,8 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --model_type Transformer --config data.yml --auto_config train --with_eval
 </pre></div>
 </div>
-<div class="section" id="monitoring">
-<h2>Monitoring<a class="headerlink" href="#monitoring" title="Permalink to this headline">¶</a></h2>
+<section id="monitoring">
+<h2>Monitoring<a class="headerlink" href="#monitoring" title="Permalink to this headline"></a></h2>
 <p>OpenNMT-tf uses <a class="reference external" href="https://www.tensorflow.org/tensorboard">TensorBoard</a> to log information during the training. Simply start <code class="docutils literal notranslate"><span class="pre">tensorboard</span></code> by setting the active log directory, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tensorboard --logdir<span class="o">=</span><span class="s2">&quot;.&quot;</span>
 </pre></div>
@@ -229,9 +137,9 @@
 <li><p>word embeddings</p></li>
 <li><p>decoder sampling probability</p></li>
 </ul>
-</div>
-<div class="section" id="automatic-evaluation">
-<h2>Automatic evaluation<a class="headerlink" href="#automatic-evaluation" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="automatic-evaluation">
+<h2>Automatic evaluation<a class="headerlink" href="#automatic-evaluation" title="Permalink to this headline"></a></h2>
 <p>Evaluation can be run automatically when using the <code class="docutils literal notranslate"><span class="pre">--with_eval</span></code> flag:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> train --with_eval
 </pre></div>
@@ -243,18 +151,18 @@
 </pre></div>
 </div>
 <p>By default, it will run every 5000 training steps and report evaluation results in the console output and on TensorBoard.</p>
-<div class="section" id="export-model-on-best-metric">
-<h3>Export model on best metric<a class="headerlink" href="#export-model-on-best-metric" title="Permalink to this headline">¶</a></h3>
+<section id="export-model-on-best-metric">
+<h3>Export model on best metric<a class="headerlink" href="#export-model-on-best-metric" title="Permalink to this headline"></a></h3>
 <p>Automatic evaluation can also export an inference model when a metric reaches its best value so far. For example, the following configuration will make the training exports a model each time the evaluation scores the best BLEU score so far:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">scorers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bleu</span><span class="w"></span>
 <span class="w">  </span><span class="nt">export_on_best</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bleu</span><span class="w"></span>
 </pre></div>
 </div>
-<p>These models are saved in the model directory under <code class="docutils literal notranslate"><span class="pre">export/&lt;step&gt;</span></code>. See also <a class="reference internal" href="serving.html"><span class="doc">Serving</span></a> for more information about exported models.</p>
-</div>
-<div class="section" id="early-stopping">
-<h3>Early stopping<a class="headerlink" href="#early-stopping" title="Permalink to this headline">¶</a></h3>
+<p>These models are saved in the model directory under <code class="docutils literal notranslate"><span class="pre">export/&lt;step&gt;</span></code>. See also <a class="reference internal" href="serving.html"><span class="doc std std-doc">Serving</span></a> for more information about exported models.</p>
+</section>
+<section id="early-stopping">
+<h3>Early stopping<a class="headerlink" href="#early-stopping" title="Permalink to this headline"></a></h3>
 <p>Early stopping is useful to stop the training automatically when the model performance is not improving anymore.</p>
 <p>For example, the following configuration stops the training when the BLEU score does not improve by more than 0.2 points in the last 4 evaluations:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span><span class="w"></span>
@@ -265,19 +173,19 @@
 <span class="w">    </span><span class="nt">steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="multi-gpu-training">
-<h2>Multi-GPU training<a class="headerlink" href="#multi-gpu-training" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="multi-gpu-training">
+<h2>Multi-GPU training<a class="headerlink" href="#multi-gpu-training" title="Permalink to this headline"></a></h2>
 <p>OpenNMT-tf training can run on multiple GPUs. For example if your machine has 4 GPUs, simply add <code class="docutils literal notranslate"><span class="pre">--num_gpus</span> <span class="pre">4</span></code> to the training command line:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> train --num_gpus <span class="m">4</span>
 </pre></div>
 </div>
 <p>Multi-GPU training uses data parallelism. Each GPU computes the gradients for a different batch and then gradients are reduced across all devices. The reduced gradients are used to update the model parameters. It is equivalent to train with batches <code class="docutils literal notranslate"><span class="pre">N</span></code> times larger, where <code class="docutils literal notranslate"><span class="pre">N</span></code> is the number of used GPUs.</p>
 <p>Note that evaluation and inference will run on a single device.</p>
-</div>
-<div class="section" id="distributed-training-with-horovod">
-<h2>Distributed training with Horovod<a class="headerlink" href="#distributed-training-with-horovod" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="distributed-training-with-horovod">
+<h2>Distributed training with Horovod<a class="headerlink" href="#distributed-training-with-horovod" title="Permalink to this headline"></a></h2>
 <p>Multi-GPU and multi-node trainings are also supported with <a class="reference external" href="https://github.com/horovod/horovod">Horovod</a>, a popular and generic distributed training framework. Horovod can offer better performance and customization than the TensorFlow distributed framework.</p>
 <p>For example, the command below will start a local training on 4 GPUs (note the <code class="docutils literal notranslate"><span class="pre">--horovod</span></code> training flag):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>horovodrun -np <span class="m">4</span> -H localhost:4 onmt-main <span class="o">[</span>...<span class="o">]</span> train --horovod
@@ -285,27 +193,27 @@
 </div>
 <p>Similar to multi-GPU training, this is equivalent to train with batches <code class="docutils literal notranslate"><span class="pre">N</span></code> times larger, where <code class="docutils literal notranslate"><span class="pre">N</span></code> is the total number of Horovod processes.</p>
 <p>See the <a class="reference external" href="https://horovod.readthedocs.io/en/stable/index.html">Horovod documentation</a> for more information about installation and usage.</p>
-</div>
-<div class="section" id="mixed-precision-training">
-<h2>Mixed precision training<a class="headerlink" href="#mixed-precision-training" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="mixed-precision-training">
+<h2>Mixed precision training<a class="headerlink" href="#mixed-precision-training" title="Permalink to this headline"></a></h2>
 <p>Mixed precision can be enabled with the <code class="docutils literal notranslate"><span class="pre">--mixed_precision</span></code> flag:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --model_type Transformer --auto_config --config data.yml --mixed_precision train
 </pre></div>
 </div>
 <p>This mode enables the Keras “mixed_float16” policy where layers use float16 computations and float32 variables. During training, dynamic loss scaling is used to prevent underflow in intermediate gradients. See the TensorFlow <a class="reference external" href="https://www.tensorflow.org/guide/mixed_precision">mixed precision guide</a> for more information.</p>
-<div class="section" id="maximizing-the-fp16-performance">
-<h3>Maximizing the FP16 performance<a class="headerlink" href="#maximizing-the-fp16-performance" title="Permalink to this headline">¶</a></h3>
+<section id="maximizing-the-fp16-performance">
+<h3>Maximizing the FP16 performance<a class="headerlink" href="#maximizing-the-fp16-performance" title="Permalink to this headline"></a></h3>
 <p>Some extra steps may be required to ensure good FP16 performance:</p>
 <ul class="simple">
 <li><p>Mixed precision training requires a Volta GPU or above</p></li>
 <li><p>Tensor Cores require the input dimensions to be a multiple of 8. You may need to tune your vocabulary size using <code class="docutils literal notranslate"><span class="pre">--size_multiple</span> <span class="pre">8</span></code> on <code class="docutils literal notranslate"><span class="pre">onmt-build-vocab</span></code> which will ensure that <code class="docutils literal notranslate"><span class="pre">(vocab_size</span> <span class="pre">+</span> <span class="pre">1)</span> <span class="pre">%</span> <span class="pre">8</span> <span class="pre">==</span> <span class="pre">0</span></code> (+ 1 is the <code class="docutils literal notranslate"><span class="pre">&lt;unk&gt;</span></code> token that is automatically added during the training).</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="retraining">
-<h2>Retraining<a class="headerlink" href="#retraining" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="continuing-from-a-stopped-training">
-<h3>Continuing from a stopped training<a class="headerlink" href="#continuing-from-a-stopped-training" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="retraining">
+<h2>Retraining<a class="headerlink" href="#retraining" title="Permalink to this headline"></a></h2>
+<section id="continuing-from-a-stopped-training">
+<h3>Continuing from a stopped training<a class="headerlink" href="#continuing-from-a-stopped-training" title="Permalink to this headline"></a></h3>
 <p>This is the most common case of retrainings: the training was interrupted but should run longer. In that case, simply <strong>launch the same command that you used for the initial training</strong>, e.g.:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start the training.</span>
 onmt-main --model_type Transformer --config data.yml --auto_config train
@@ -318,16 +226,16 @@ onmt-main --model_type Transformer --config data.yml --auto_config train
 </div>
 <p><strong>Note:</strong> If the train was stopped because <code class="docutils literal notranslate"><span class="pre">max_step</span></code> was reached, you should first increase this value before continuing.</p>
 <p>If you want to continue the training in another model directory, do the following:</p>
-<ol class="simple">
+<ol class="arabic simple">
 <li><p>Update <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> in the configuration to the new model directory</p></li>
 <li><p>Continue training from the previous model directory using the options <code class="docutils literal notranslate"><span class="pre">--checkpoint_path</span></code> and <code class="docutils literal notranslate"><span class="pre">--continue_from_checkpoint</span></code>:</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> --checkpoint_path /path/to/previous/model/dir train --continue_from_checkpoint
 </pre></div>
 </div>
-</div>
-<div class="section" id="fine-tune-an-existing-model">
-<h3>Fine-tune an existing model<a class="headerlink" href="#fine-tune-an-existing-model" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="fine-tune-an-existing-model">
+<h3>Fine-tune an existing model<a class="headerlink" href="#fine-tune-an-existing-model" title="Permalink to this headline"></a></h3>
 <p>Retraining can also be useful to fine-tune an existing model. For example in machine translation, it is faster to adapt a generic model to a specific domain compared to starting a training from scratch.</p>
 <p>For a basic domain adaptation, we recommend tokenizing your data with a subword segmentation model (such as <a class="reference external" href="https://github.com/google/sentencepiece">SentencePiece</a>) and simply continue the training on new data.</p>
 <p>However, OpenNMT-tf also offers some features that could be useful in more advanced workflows:</p>
@@ -336,47 +244,36 @@ onmt-main --model_type Transformer --config data.yml --auto_config train
 <li><p>The command line argument <code class="docutils literal notranslate"><span class="pre">--checkpoint_path</span></code> can be used to load the weights of an existing checkpoint while starting from a fresh training state (i.e. with new learning rate schedule and optimizer variables)</p></li>
 <li><p>The parameter <code class="docutils literal notranslate"><span class="pre">freeze_layers</span></code> in the YAML configuration can be used to prevent the adapation of specific layers in the model</p></li>
 </ul>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="inference.html" class="btn btn-neutral float-right" title="Inference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="alignments.html" class="btn btn-neutral float-left" title="Alignments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="inference.html" class="btn btn-neutral float-right" title="Inference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
+    <p></p>
+  </div>
 
-    </p>
-  </div> 
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

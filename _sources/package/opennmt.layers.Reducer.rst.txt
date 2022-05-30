@@ -1,5 +1,5 @@
-opennmt.layers.Reducer
-======================
+Reducer
+=======
 
 .. autoclass:: opennmt.layers.Reducer
     :members:

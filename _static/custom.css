@@ -19,3 +19,7 @@
 .rst-content a:visited code.literal {
     color: #9B59B6;
 }
+
+dl.py.property {
+    display: block !important;
+}

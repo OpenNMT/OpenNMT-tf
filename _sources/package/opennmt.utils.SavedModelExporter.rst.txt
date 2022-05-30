@@ -1,5 +1,5 @@
-opennmt.utils.SavedModelExporter
-================================
+SavedModelExporter
+==================
 
 .. autoclass:: opennmt.utils.SavedModelExporter
     :members:

@@ -1,5 +1,5 @@
-opennmt.inputters.CharEmbedder
-==============================
+CharEmbedder
+============
 
 .. autoclass:: opennmt.inputters.CharEmbedder
     :members:

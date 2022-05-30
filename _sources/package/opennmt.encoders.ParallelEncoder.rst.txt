@@ -1,5 +1,5 @@
-opennmt.encoders.ParallelEncoder
-================================
+ParallelEncoder
+===============
 
 .. autoclass:: opennmt.encoders.ParallelEncoder
     :members:

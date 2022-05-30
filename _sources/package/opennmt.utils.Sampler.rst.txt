@@ -1,5 +1,5 @@
-opennmt.utils.Sampler
-=====================
+Sampler
+=======
 
 .. autoclass:: opennmt.utils.Sampler
     :members:

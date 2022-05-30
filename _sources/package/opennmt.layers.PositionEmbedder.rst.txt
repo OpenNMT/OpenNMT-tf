@@ -1,5 +1,5 @@
-opennmt.layers.PositionEmbedder
-===============================
+PositionEmbedder
+================
 
 .. autoclass:: opennmt.layers.PositionEmbedder
     :members:

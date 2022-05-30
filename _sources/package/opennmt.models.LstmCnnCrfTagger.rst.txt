@@ -1,5 +1,5 @@
-opennmt.models.LstmCnnCrfTagger
-===============================
+LstmCnnCrfTagger
+================
 
 .. autoclass:: opennmt.models.LstmCnnCrfTagger
     :members:

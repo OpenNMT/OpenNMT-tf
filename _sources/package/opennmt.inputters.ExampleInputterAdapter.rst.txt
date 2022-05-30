@@ -1,5 +1,5 @@
-opennmt.inputters.ExampleInputterAdapter
-========================================
+ExampleInputterAdapter
+======================
 
 .. autoclass:: opennmt.inputters.ExampleInputterAdapter
     :members:

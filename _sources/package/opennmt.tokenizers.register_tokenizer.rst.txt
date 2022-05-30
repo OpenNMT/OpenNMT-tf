@@ -1,4 +1,4 @@
-opennmt.tokenizers.register_tokenizer
-=====================================
+register_tokenizer
+==================
 
 .. autofunction:: opennmt.tokenizers.register_tokenizer

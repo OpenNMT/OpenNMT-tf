@@ -1,5 +1,5 @@
-opennmt.encoders.LSTMEncoder
-============================
+LSTMEncoder
+===========
 
 .. autoclass:: opennmt.encoders.LSTMEncoder
     :members:

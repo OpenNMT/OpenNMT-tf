@@ -1,5 +1,5 @@
-opennmt.models.TransformerBaseRelative
-======================================
+TransformerBaseRelative
+=======================
 
 .. autoclass:: opennmt.models.TransformerBaseRelative
     :members:

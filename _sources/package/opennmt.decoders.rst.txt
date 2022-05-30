@@ -1,11 +1,7 @@
-opennmt.decoders module
-=======================
+opennmt.decoders
+================
 
 .. automodule:: opennmt.decoders
-
-
-Classes
--------
 
 .. toctree::
 
@@ -14,10 +10,4 @@ Classes
    opennmt.decoders.RNMTPlusDecoder
    opennmt.decoders.RNNDecoder
    opennmt.decoders.SelfAttentionDecoder
-
-Functions
----------
-
-.. toctree::
-
    opennmt.decoders.get_sampling_probability

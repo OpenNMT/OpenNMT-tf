@@ -1,5 +1,5 @@
-opennmt.models.SequenceGenerator
-================================
+SequenceGenerator
+=================
 
 .. autoclass:: opennmt.models.SequenceGenerator
     :members:

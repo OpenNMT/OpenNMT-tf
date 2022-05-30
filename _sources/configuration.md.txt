@@ -243,7 +243,7 @@ params:
 
 # Training options.
 train:
-  # (optional when batch_type=tokens) If not set, the training will search the largest
+  # (optional) Training batch size. If set to 0, the training will search the largest
   # possible batch size.
   batch_size: 64
   # (optional) Batch size is the number of "examples" or "tokens" (default: "examples").

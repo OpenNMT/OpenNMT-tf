@@ -1,5 +1,5 @@
-opennmt.models.EmbeddingsSharingLevel
-=====================================
+EmbeddingsSharingLevel
+======================
 
 .. autoclass:: opennmt.models.EmbeddingsSharingLevel
     :members:

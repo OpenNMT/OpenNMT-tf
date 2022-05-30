@@ -1,5 +1,5 @@
-opennmt.tokenizers.SpaceTokenizer
-=================================
+SpaceTokenizer
+==============
 
 .. autoclass:: opennmt.tokenizers.SpaceTokenizer
     :members:

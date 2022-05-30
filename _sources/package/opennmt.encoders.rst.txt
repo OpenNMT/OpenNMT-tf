@@ -1,11 +1,7 @@
-opennmt.encoders module
-=======================
+opennmt.encoders
+================
 
 .. automodule:: opennmt.encoders
-
-
-Classes
--------
 
 .. toctree::
 

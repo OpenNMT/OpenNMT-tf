@@ -1,5 +1,5 @@
-opennmt.encoders.SequentialEncoder
-==================================
+SequentialEncoder
+=================
 
 .. autoclass:: opennmt.encoders.SequentialEncoder
     :members:

@@ -1,5 +1,5 @@
-opennmt.layers.PositionEncoder
-==============================
+PositionEncoder
+===============
 
 .. autoclass:: opennmt.layers.PositionEncoder
     :members:

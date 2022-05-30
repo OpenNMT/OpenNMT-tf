@@ -1,11 +1,7 @@
-opennmt.schedules module
-========================
+opennmt.schedules
+=================
 
 .. automodule:: opennmt.schedules
-
-
-Classes
--------
 
 .. toctree::
 
@@ -15,11 +11,5 @@ Classes
    opennmt.schedules.RNMTPlusDecay
    opennmt.schedules.RsqrtDecay
    opennmt.schedules.ScheduleWrapper
-
-Functions
----------
-
-.. toctree::
-
    opennmt.schedules.make_learning_rate_schedule
    opennmt.schedules.register_learning_rate_schedule

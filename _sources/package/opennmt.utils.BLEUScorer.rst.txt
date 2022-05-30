@@ -1,5 +1,5 @@
-opennmt.utils.BLEUScorer
-========================
+BLEUScorer
+==========
 
 .. autoclass:: opennmt.utils.BLEUScorer
     :members:

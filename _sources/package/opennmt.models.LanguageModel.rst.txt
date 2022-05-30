@@ -1,5 +1,5 @@
-opennmt.models.LanguageModel
-============================
+LanguageModel
+=============
 
 .. autoclass:: opennmt.models.LanguageModel
     :members:

@@ -1,5 +1,5 @@
-opennmt.decoders.RNNDecoder
-===========================
+RNNDecoder
+==========
 
 .. autoclass:: opennmt.decoders.RNNDecoder
     :members:

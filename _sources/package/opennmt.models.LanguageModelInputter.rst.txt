@@ -1,5 +1,5 @@
-opennmt.models.LanguageModelInputter
-====================================
+LanguageModelInputter
+=====================
 
 .. autoclass:: opennmt.models.LanguageModelInputter
     :members:

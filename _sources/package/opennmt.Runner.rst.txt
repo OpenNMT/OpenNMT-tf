@@ -1,5 +1,5 @@
-opennmt.Runner
-==============
+Runner
+======
 
 .. autoclass:: opennmt.Runner
     :members:

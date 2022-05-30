@@ -1,4 +1,4 @@
-opennmt.utils.dynamic_decode
-============================
+dynamic_decode
+==============
 
 .. autofunction:: opennmt.utils.dynamic_decode

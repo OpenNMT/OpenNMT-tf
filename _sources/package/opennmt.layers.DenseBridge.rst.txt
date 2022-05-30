@@ -1,5 +1,5 @@
-opennmt.layers.DenseBridge
-==========================
+DenseBridge
+===========
 
 .. autoclass:: opennmt.layers.DenseBridge
     :members:

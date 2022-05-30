@@ -1,4 +1,4 @@
-opennmt.utils.average_checkpoints
-=================================
+average_checkpoints
+===================
 
 .. autofunction:: opennmt.utils.average_checkpoints

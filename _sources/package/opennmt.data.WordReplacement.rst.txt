@@ -1,5 +1,5 @@
-opennmt.data.WordReplacement
-============================
+WordReplacement
+===============
 
 .. autoclass:: opennmt.data.WordReplacement
     :members:

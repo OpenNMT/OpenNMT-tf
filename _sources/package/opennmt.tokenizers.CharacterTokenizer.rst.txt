@@ -1,5 +1,5 @@
-opennmt.tokenizers.CharacterTokenizer
-=====================================
+CharacterTokenizer
+==================
 
 .. autoclass:: opennmt.tokenizers.CharacterTokenizer
     :members:

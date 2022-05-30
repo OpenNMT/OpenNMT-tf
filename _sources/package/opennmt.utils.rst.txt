@@ -1,11 +1,7 @@
-opennmt.utils module
-====================
+opennmt.utils
+=============
 
 .. automodule:: opennmt.utils
-
-
-Classes
--------
 
 .. toctree::
 
@@ -32,12 +28,6 @@ Classes
    opennmt.utils.TFLiteExporter
    opennmt.utils.TFLiteFloat16Exporter
    opennmt.utils.WERScorer
-
-Functions
----------
-
-.. toctree::
-
    opennmt.utils.average_checkpoints
    opennmt.utils.average_checkpoints_into_layer
    opennmt.utils.cross_entropy_loss

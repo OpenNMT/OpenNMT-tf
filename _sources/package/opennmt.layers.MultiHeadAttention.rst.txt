@@ -1,5 +1,5 @@
-opennmt.layers.MultiHeadAttention
-=================================
+MultiHeadAttention
+==================
 
 .. autoclass:: opennmt.layers.MultiHeadAttention
     :members:

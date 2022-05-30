@@ -1,4 +1,4 @@
-opennmt.utils.average_checkpoints_into_layer
-============================================
+average_checkpoints_into_layer
+==============================
 
 .. autofunction:: opennmt.utils.average_checkpoints_into_layer

@@ -1,5 +1,5 @@
-opennmt.inputters.MultiInputter
-===============================
+MultiInputter
+=============
 
 .. autoclass:: opennmt.inputters.MultiInputter
     :members:

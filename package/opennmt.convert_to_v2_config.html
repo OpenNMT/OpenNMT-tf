@@ -1,80 +1,40 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>opennmt.convert_to_v2_config &mdash; OpenNMT-tf 2.26.1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
-
-  
-  
+  <title>convert_to_v2_config &mdash; OpenNMT-tf 2.27.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/favicon.png"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.load_config" href="opennmt.load_config.html" />
-    <link rel="prev" title="opennmt.Runner" href="opennmt.Runner.html" /> 
+    <link rel="next" title="load_config" href="opennmt.load_config.html" />
+    <link rel="prev" title="Runner" href="opennmt.Runner.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> OpenNMT-tf
-          
-
-          
-            
             <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2.26
+                2.27
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -82,24 +42,13 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
@@ -109,7 +58,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p class="caption" role="heading"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
@@ -117,94 +66,61 @@
 <li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../api_examples.html">API examples</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="opennmt.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#functions">Functions</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">opennmt.convert_to_v2_config</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.load_config.html">opennmt.load_config</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.load_model.html">opennmt.load_model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.merge_config.html">opennmt.merge_config</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="overview.html">Python</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html">opennmt</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.Runner.html">Runner</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">convert_to_v2_config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.load_config.html">load_config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.load_model.html">load_model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.merge_config.html">merge_config</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.data.html">opennmt.data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.layers.html">opennmt.layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.models.html">opennmt.models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.utils.html">opennmt.utils</a></li>
 </ul>
 </li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">OpenNMT-tf</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
-        
-      <li>opennmt.convert_to_v2_config</li>
-    
-    
+          <li><a href="overview.html">Python</a> &raquo;</li>
+          <li><a href="opennmt.html">opennmt</a> &raquo;</li>
+      <li>convert_to_v2_config</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="opennmt-convert-to-v2-config">
-<h1>opennmt.convert_to_v2_config<a class="headerlink" href="#opennmt-convert-to-v2-config" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="convert-to-v2-config">
+<h1>convert_to_v2_config<a class="headerlink" href="#convert-to-v2-config" title="Permalink to this headline"></a></h1>
 <dl class="py function">
-<dt id="opennmt.convert_to_v2_config">
-<code class="sig-prename descclassname"><span class="pre">opennmt.</span></code><code class="sig-name descname"><span class="pre">convert_to_v2_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/config.html#convert_to_v2_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.convert_to_v2_config" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="opennmt.convert_to_v2_config">
+<span class="sig-prename descclassname"><span class="pre">opennmt.</span></span><span class="sig-name descname"><span class="pre">convert_to_v2_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/config.html#convert_to_v2_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.convert_to_v2_config" title="Permalink to this definition"></a></dt>
 <dd><p>Converts a V1 configuration to its V2 equivalent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -219,45 +135,34 @@
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="opennmt.load_config.html" class="btn btn-neutral float-right" title="opennmt.load_config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="opennmt.Runner.html" class="btn btn-neutral float-left" title="opennmt.Runner" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="opennmt.Runner.html" class="btn btn-neutral float-left" title="Runner" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="opennmt.load_config.html" class="btn btn-neutral float-right" title="load_config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
+    <p></p>
+  </div>
 
-    </p>
-  </div> 
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

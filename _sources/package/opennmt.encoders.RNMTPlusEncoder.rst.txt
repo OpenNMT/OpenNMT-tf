@@ -1,5 +1,5 @@
-opennmt.encoders.RNMTPlusEncoder
-================================
+RNMTPlusEncoder
+===============
 
 .. autoclass:: opennmt.encoders.RNMTPlusEncoder
     :members:

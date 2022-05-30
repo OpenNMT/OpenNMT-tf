@@ -1,5 +1,5 @@
-opennmt.utils.CTranslate2Int16Exporter
-======================================
+CTranslate2Int16Exporter
+========================
 
 .. autoclass:: opennmt.utils.CTranslate2Int16Exporter
     :members:

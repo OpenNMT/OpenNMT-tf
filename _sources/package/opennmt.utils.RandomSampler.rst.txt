@@ -1,5 +1,5 @@
-opennmt.utils.RandomSampler
-===========================
+RandomSampler
+=============
 
 .. autoclass:: opennmt.utils.RandomSampler
     :members:

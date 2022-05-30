@@ -1,44 +1,15 @@
-opennmt module
-==============
+opennmt
+=======
 
 .. automodule:: opennmt
-
-Submodules
-----------
-
-.. toctree::
-
-   opennmt.data
-   opennmt.decoders
-   opennmt.encoders
-   opennmt.inputters
-   opennmt.layers
-   opennmt.models
-   opennmt.optimizers
-   opennmt.schedules
-   opennmt.tokenizers
-   opennmt.utils
-
-Classes
--------
 
 .. toctree::
 
    opennmt.Runner
-
-Functions
----------
-
-.. toctree::
-
    opennmt.convert_to_v2_config
    opennmt.load_config
    opennmt.load_model
    opennmt.merge_config
-
-Constants
----------
-
 * opennmt.END_OF_SENTENCE_ID
 * opennmt.END_OF_SENTENCE_TOKEN
 * opennmt.PADDING_ID

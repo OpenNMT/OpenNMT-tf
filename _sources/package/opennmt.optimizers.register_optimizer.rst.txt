@@ -1,4 +1,4 @@
-opennmt.optimizers.register_optimizer
-=====================================
+register_optimizer
+==================
 
 .. autofunction:: opennmt.optimizers.register_optimizer

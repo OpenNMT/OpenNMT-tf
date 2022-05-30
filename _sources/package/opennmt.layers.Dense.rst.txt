@@ -1,5 +1,5 @@
-opennmt.layers.Dense
-====================
+Dense
+=====
 
 .. autoclass:: opennmt.layers.Dense
     :members:

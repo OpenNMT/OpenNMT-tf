@@ -1,5 +1,5 @@
-opennmt.models.ListenAttendSpell
-================================
+ListenAttendSpell
+=================
 
 .. autoclass:: opennmt.models.ListenAttendSpell
     :members:

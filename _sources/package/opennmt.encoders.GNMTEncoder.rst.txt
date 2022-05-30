@@ -1,5 +1,5 @@
-opennmt.encoders.GNMTEncoder
-============================
+GNMTEncoder
+===========
 
 .. autoclass:: opennmt.encoders.GNMTEncoder
     :members:

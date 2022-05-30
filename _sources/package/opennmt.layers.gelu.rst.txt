@@ -1,4 +1,4 @@
-opennmt.layers.gelu
-===================
+gelu
+====
 
 .. autofunction:: opennmt.layers.gelu

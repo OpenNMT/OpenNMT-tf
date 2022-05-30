@@ -1,5 +1,5 @@
-opennmt.tokenizers.SentencePieceTokenizer
-=========================================
+SentencePieceTokenizer
+======================
 
 .. autoclass:: opennmt.tokenizers.SentencePieceTokenizer
     :members:

@@ -1,5 +1,5 @@
-opennmt.utils.TFLiteFloat16Exporter
-===================================
+TFLiteFloat16Exporter
+=====================
 
 .. autoclass:: opennmt.utils.TFLiteFloat16Exporter
     :members:

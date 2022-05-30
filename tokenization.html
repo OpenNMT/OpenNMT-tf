@@ -1,80 +1,40 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>Tokenization &mdash; OpenNMT-tf 2.26.1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-
-  
-  
+  <title>Tokenization &mdash; OpenNMT-tf 2.27.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
     <link rel="shortcut icon" href="_static/favicon.png"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Embeddings" href="embeddings.html" />
     <link rel="prev" title="Vocabulary" href="vocabulary.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> OpenNMT-tf
-          
-
-          
-            
             <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2.26
+                2.27
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -82,24 +42,13 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Parameters</a></li>
@@ -122,7 +71,7 @@
 <li class="toctree-l1"><a class="reference internal" href="embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p class="caption" role="heading"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference.html">Inference</a></li>
@@ -130,77 +79,36 @@
 <li class="toctree-l1"><a class="reference internal" href="v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api_examples.html">API examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="package/opennmt.html">opennmt module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="package/overview.html">Python</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">OpenNMT-tf</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Tokenization</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="tokenization">
-<h1>Tokenization<a class="headerlink" href="#tokenization" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="tokenization">
+<h1>Tokenization<a class="headerlink" href="#tokenization" title="Permalink to this headline"></a></h1>
 <p>By default, OpenNMT-tf <strong>expects and generates tokenized text</strong>. The users are thus responsible to tokenize the input and detokenize the output with the tool of their choice.</p>
 <p>However, OpenNMT-tf integrates several tokenizers that can be used to process the data:</p>
 <ul class="simple">
@@ -209,15 +117,15 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">OpenNMTTokenizer</span></code>: applies the OpenNMT <a class="reference external" href="https://github.com/OpenNMT/Tokenizer">Tokenizer</a></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SentencePieceTokenizer</span></code>: applies a SentencePiece tokenization using <a class="reference external" href="https://github.com/tensorflow/text">tensorflow-text</a></p></li>
 </ul>
-<div class="section" id="configuration-files">
-<h2>Configuration files<a class="headerlink" href="#configuration-files" title="Permalink to this headline">¶</a></h2>
+<section id="configuration-files">
+<h2>Configuration files<a class="headerlink" href="#configuration-files" title="Permalink to this headline"></a></h2>
 <p>YAML files are used to set the tokenizer options to ensure consistency during data preparation and training. They should contain 2 fields:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>: the name of the tokenizer to use</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">params</span></code>: the parameters to use for this tokenizer</p></li>
 </ul>
-<div class="section" id="example-bpe-tokenization">
-<h3>Example: BPE tokenization<a class="headerlink" href="#example-bpe-tokenization" title="Permalink to this headline">¶</a></h3>
+<section id="example-bpe-tokenization">
+<h3>Example: BPE tokenization<a class="headerlink" href="#example-bpe-tokenization" title="Permalink to this headline"></a></h3>
 <p>The configuration below defines a basic BPE tokenization using the OpenNMT <a class="reference external" href="https://github.com/OpenNMT/Tokenizer">Tokenizer</a>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OpenNMTTokenizer</span><span class="w"></span>
 <span class="nt">params</span><span class="p">:</span><span class="w"></span>
@@ -230,22 +138,22 @@
 </pre></div>
 </div>
 <p><em>For a complete list of available options, see the <a href="https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md">Tokenizer documentation</a>.</em></p>
-</div>
-<div class="section" id="example-sentencepiece-tokenization">
-<h3>Example: SentencePiece tokenization<a class="headerlink" href="#example-sentencepiece-tokenization" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="example-sentencepiece-tokenization">
+<h3>Example: SentencePiece tokenization<a class="headerlink" href="#example-sentencepiece-tokenization" title="Permalink to this headline"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">SentencePieceTokenizer</span></code> applies a <a class="reference external" href="https://github.com/google/sentencepiece">SentencePiece</a> tokenization using <a class="reference external" href="https://github.com/tensorflow/text">tensorflow-text</a> (make sure to install this package to use this tokenizer).</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SentencePieceTokenizer</span><span class="w"></span>
 <span class="nt">params</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/sentencepiece.model</span><span class="w"></span>
 </pre></div>
 </div>
-<p>This tokenizer is implemented as a TensorFlow op so it is included in the exported graph (see <a class="reference external" href="#exported-graph">Exported graph</a>).</p>
-</div>
-</div>
-<div class="section" id="applying-the-tokenization">
-<h2>Applying the tokenization<a class="headerlink" href="#applying-the-tokenization" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="offline">
-<h3>Offline<a class="headerlink" href="#offline" title="Permalink to this headline">¶</a></h3>
+<p>This tokenizer is implemented as a TensorFlow op so it is included in the exported graph (see <span class="xref myst">Exported graph</span>).</p>
+</section>
+</section>
+<section id="applying-the-tokenization">
+<h2>Applying the tokenization<a class="headerlink" href="#applying-the-tokenization" title="Permalink to this headline"></a></h2>
+<section id="offline">
+<h3>Offline<a class="headerlink" href="#offline" title="Permalink to this headline"></a></h3>
 <p>The tokenization can be applied before starting the training using the script <code class="docutils literal notranslate"><span class="pre">onmt-tokenize-text</span></code>. The tokenizer configuration should be passed as argument:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;Hello world!&quot;</span> <span class="p">|</span> onmt-tokenize-text --tokenizer_config config/tokenization/aggressive.yml
 Hello world ￭!
@@ -256,9 +164,9 @@ Hello world ￭!
 Hello world!
 </pre></div>
 </div>
-</div>
-<div class="section" id="online">
-<h3>Online<a class="headerlink" href="#online" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="online">
+<h3>Online<a class="headerlink" href="#online" title="Permalink to this headline"></a></h3>
 <p>A key feature is the possibility to tokenize the data on-the-fly during training and inference. This avoids the need of storing tokenized files and also increases the consistency of your preprocessing pipeline.</p>
 <p>Here is an example workflow:</p>
 <p>1. Build the vocabularies with the custom tokenizer, e.g.:</p>
@@ -273,10 +181,10 @@ onmt-build-vocab --tokenizer_config config/tokenization/aggressive.yml --size <s
 <span class="w">  </span><span class="nt">target_tokenization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config/tokenization/aggressive.yml</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="exported-graph">
-<h2>Exported graph<a class="headerlink" href="#exported-graph" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="exported-graph">
+<h2>Exported graph<a class="headerlink" href="#exported-graph" title="Permalink to this headline"></a></h2>
 <p>Only TensorFlow ops can be exported to graphs and used for serving. When a tokenizer is not implemented in terms of TensorFlow ops such as the OpenNMT tokenizer, it will not be part of the exported graph. The model will then expects tokenized inputs during serving.</p>
 <p><strong>In-graph tokenizers:</strong></p>
 <ul class="simple">
@@ -291,46 +199,35 @@ onmt-build-vocab --tokenizer_config config/tokenization/aggressive.yml --size <s
 </ul>
 <p>Model inputs: <code class="docutils literal notranslate"><span class="pre">tokens</span></code> (2D string tensor), <code class="docutils literal notranslate"><span class="pre">length</span></code> (1D int32 tensor)</p>
 <p>(*) During model export, tokenization resources used by the OpenNMT tokenizer (configuration, subword models, etc.) are registered as additional assets in the <code class="docutils literal notranslate"><span class="pre">SavedModel</span></code>’s <code class="docutils literal notranslate"><span class="pre">assets.extra</span></code> directory.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="embeddings.html" class="btn btn-neutral float-right" title="Embeddings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="vocabulary.html" class="btn btn-neutral float-left" title="Vocabulary" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="embeddings.html" class="btn btn-neutral float-right" title="Embeddings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
+    <p></p>
+  </div>
 
-    </p>
-  </div> 
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

@@ -1,5 +1,5 @@
-opennmt.layers.LayerWrapper
-===========================
+LayerWrapper
+============
 
 .. autoclass:: opennmt.layers.LayerWrapper
     :members:

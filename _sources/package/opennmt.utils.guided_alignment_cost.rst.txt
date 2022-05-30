@@ -1,4 +1,4 @@
-opennmt.utils.guided_alignment_cost
-===================================
+guided_alignment_cost
+=====================
 
 .. autofunction:: opennmt.utils.guided_alignment_cost

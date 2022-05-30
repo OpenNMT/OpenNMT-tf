@@ -1,4 +1,4 @@
-opennmt.data.inference_pipeline
-===============================
+inference_pipeline
+==================
 
 .. autofunction:: opennmt.data.inference_pipeline

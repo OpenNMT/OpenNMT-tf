@@ -1,4 +1,4 @@
-opennmt.data.batch_sequence_dataset
-===================================
+batch_sequence_dataset
+======================
 
 .. autofunction:: opennmt.data.batch_sequence_dataset

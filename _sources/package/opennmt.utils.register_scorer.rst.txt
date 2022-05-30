@@ -1,4 +1,4 @@
-opennmt.utils.register_scorer
-=============================
+register_scorer
+===============
 
 .. autofunction:: opennmt.utils.register_scorer

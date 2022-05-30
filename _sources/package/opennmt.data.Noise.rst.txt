@@ -1,5 +1,5 @@
-opennmt.data.Noise
-==================
+Noise
+=====
 
 .. autoclass:: opennmt.data.Noise
     :members:

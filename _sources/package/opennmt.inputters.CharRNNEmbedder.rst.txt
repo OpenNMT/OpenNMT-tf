@@ -1,5 +1,5 @@
-opennmt.inputters.CharRNNEmbedder
-=================================
+CharRNNEmbedder
+===============
 
 .. autoclass:: opennmt.inputters.CharRNNEmbedder
     :members:

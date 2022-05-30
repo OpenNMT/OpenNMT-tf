@@ -1,11 +1,7 @@
-opennmt.inputters module
-========================
+opennmt.inputters
+=================
 
 .. automodule:: opennmt.inputters
-
-
-Classes
--------
 
 .. toctree::
 
@@ -21,12 +17,6 @@ Classes
    opennmt.inputters.SequenceRecordInputter
    opennmt.inputters.TextInputter
    opennmt.inputters.WordEmbedder
-
-Functions
----------
-
-.. toctree::
-
    opennmt.inputters.add_sequence_controls
    opennmt.inputters.create_sequence_records
    opennmt.inputters.load_pretrained_embeddings

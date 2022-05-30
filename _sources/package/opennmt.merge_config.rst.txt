@@ -1,4 +1,4 @@
-opennmt.merge_config
-====================
+merge_config
+============
 
 .. autofunction:: opennmt.merge_config

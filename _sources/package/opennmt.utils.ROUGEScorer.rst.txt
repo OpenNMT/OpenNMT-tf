@@ -1,5 +1,5 @@
-opennmt.utils.ROUGEScorer
-=========================
+ROUGEScorer
+===========
 
 .. autoclass:: opennmt.utils.ROUGEScorer
     :members:

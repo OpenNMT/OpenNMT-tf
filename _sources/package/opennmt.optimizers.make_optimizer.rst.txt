@@ -1,4 +1,4 @@
-opennmt.optimizers.make_optimizer
-=================================
+make_optimizer
+==============
 
 .. autofunction:: opennmt.optimizers.make_optimizer

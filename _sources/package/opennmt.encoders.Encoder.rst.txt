@@ -1,5 +1,5 @@
-opennmt.encoders.Encoder
-========================
+Encoder
+=======
 
 .. autoclass:: opennmt.encoders.Encoder
     :members:

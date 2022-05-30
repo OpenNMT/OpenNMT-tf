@@ -1,5 +1,5 @@
-opennmt.encoders.PyramidalRNNEncoder
-====================================
+PyramidalRNNEncoder
+===================
 
 .. autoclass:: opennmt.encoders.PyramidalRNNEncoder
     :members:

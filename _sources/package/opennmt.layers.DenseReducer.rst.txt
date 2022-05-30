@@ -1,5 +1,5 @@
-opennmt.layers.DenseReducer
-===========================
+DenseReducer
+============
 
 .. autoclass:: opennmt.layers.DenseReducer
     :members:

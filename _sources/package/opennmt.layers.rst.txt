@@ -1,11 +1,7 @@
-opennmt.layers module
-=====================
+opennmt.layers
+==============
 
 .. automodule:: opennmt.layers
-
-
-Classes
--------
 
 .. toctree::
 
@@ -34,12 +30,6 @@ Classes
    opennmt.layers.SumReducer
    opennmt.layers.TransformerLayerWrapper
    opennmt.layers.ZeroBridge
-
-Functions
----------
-
-.. toctree::
-
    opennmt.layers.combine_heads
    opennmt.layers.dropout
    opennmt.layers.future_mask

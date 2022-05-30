@@ -1,4 +1,4 @@
-opennmt.layers.dropout
-======================
+dropout
+=======
 
 .. autofunction:: opennmt.layers.dropout

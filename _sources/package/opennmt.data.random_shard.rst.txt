@@ -1,4 +1,4 @@
-opennmt.data.random_shard
-=========================
+random_shard
+============
 
 .. autofunction:: opennmt.data.random_shard

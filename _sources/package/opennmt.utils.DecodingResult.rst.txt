@@ -1,5 +1,5 @@
-opennmt.utils.DecodingResult
-============================
+DecodingResult
+==============
 
 .. autoclass:: opennmt.utils.DecodingResult
     :members:

@@ -1,5 +1,5 @@
-opennmt.layers.RNNCellWrapper
-=============================
+RNNCellWrapper
+==============
 
 .. autoclass:: opennmt.layers.RNNCellWrapper
     :members:

@@ -1,80 +1,40 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>opennmt.inputters.ParallelInputter &mdash; OpenNMT-tf 2.26.1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
-
-  
-  
+  <title>ParallelInputter &mdash; OpenNMT-tf 2.27.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
     <link rel="shortcut icon" href="../_static/favicon.png"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="opennmt.inputters.SequenceRecordInputter" href="opennmt.inputters.SequenceRecordInputter.html" />
-    <link rel="prev" title="opennmt.inputters.MultiInputter" href="opennmt.inputters.MultiInputter.html" /> 
+    <link rel="next" title="SequenceRecordInputter" href="opennmt.inputters.SequenceRecordInputter.html" />
+    <link rel="prev" title="MultiInputter" href="opennmt.inputters.MultiInputter.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> OpenNMT-tf
-          
-
-          
-            
             <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                2.26
+                2.27
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -82,24 +42,13 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Getting started</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Configuration</span></p>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../configuration.html">Parameters</a></li>
@@ -109,7 +58,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../embeddings.html">Embeddings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../alignments.html">Alignments</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Usage</span></p>
+<p class="caption" role="heading"><span class="caption-text">Usage</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../training.html">Training</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../inference.html">Inference</a></li>
@@ -117,106 +66,72 @@
 <li class="toctree-l1"><a class="reference internal" href="../v2_transition.html">2.0 Transition Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
-<p class="caption"><span class="caption-text">API</span></p>
+<p class="caption" role="heading"><span class="caption-text">API</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../api_examples.html">API examples</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="opennmt.html">opennmt module</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="opennmt.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="opennmt.data.html">opennmt.data module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders module</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters module</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="opennmt.inputters.html#classes">Classes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="opennmt.inputters.html#functions">Functions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="overview.html">Python</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="opennmt.html">opennmt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.data.html">opennmt.data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.decoders.html">opennmt.decoders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.encoders.html">opennmt.encoders</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="opennmt.inputters.html">opennmt.inputters</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.CharConvEmbedder.html">CharConvEmbedder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.CharEmbedder.html">CharEmbedder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.CharRNNEmbedder.html">CharRNNEmbedder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.ExampleInputter.html">ExampleInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.ExampleInputterAdapter.html">ExampleInputterAdapter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.Inputter.html">Inputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.MixedInputter.html">MixedInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.MultiInputter.html">MultiInputter</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ParallelInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.SequenceRecordInputter.html">SequenceRecordInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.TextInputter.html">TextInputter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.WordEmbedder.html">WordEmbedder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.add_sequence_controls.html">add_sequence_controls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.create_sequence_records.html">create_sequence_records</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.load_pretrained_embeddings.html">load_pretrained_embeddings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opennmt.inputters.write_sequence_record.html">write_sequence_record</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.layers.html">opennmt.layers module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.models.html">opennmt.models module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="opennmt.utils.html">opennmt.utils module</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="opennmt.html#classes">Classes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="opennmt.html#functions">Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="opennmt.html#constants">Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.layers.html">opennmt.layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.models.html">opennmt.models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.optimizers.html">opennmt.optimizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.schedules.html">opennmt.schedules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.tokenizers.html">opennmt.tokenizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="opennmt.utils.html">opennmt.utils</a></li>
 </ul>
 </li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">OpenNMT-tf</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="opennmt.html">opennmt module</a> &raquo;</li>
-        
-          <li><a href="opennmt.inputters.html">opennmt.inputters module</a> &raquo;</li>
-        
-      <li>opennmt.inputters.ParallelInputter</li>
-    
-    
+          <li><a href="overview.html">Python</a> &raquo;</li>
+          <li><a href="opennmt.inputters.html">opennmt.inputters</a> &raquo;</li>
+      <li>ParallelInputter</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="opennmt-inputters-parallelinputter">
-<h1>opennmt.inputters.ParallelInputter<a class="headerlink" href="#opennmt-inputters-parallelinputter" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="parallelinputter">
+<h1>ParallelInputter<a class="headerlink" href="#parallelinputter" title="Permalink to this headline"></a></h1>
 <dl class="py class">
-<dt id="opennmt.inputters.ParallelInputter">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">opennmt.inputters.</span></code><code class="sig-name descname"><span class="pre">ParallelInputter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="opennmt.inputters.ParallelInputter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opennmt.inputters.</span></span><span class="sig-name descname"><span class="pre">ParallelInputter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter" title="Permalink to this definition"></a></dt>
 <dd><p>A multi inputter that processes parallel data.</p>
 <p><strong>Inherits from:</strong> <a class="reference internal" href="opennmt.inputters.MultiInputter.html#opennmt.inputters.MultiInputter" title="opennmt.inputters.MultiInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.MultiInputter</span></code></a></p>
 <p><strong>Extended by:</strong></p>
@@ -224,8 +139,8 @@
 <li><p><a class="reference internal" href="opennmt.inputters.ExampleInputter.html#opennmt.inputters.ExampleInputter" title="opennmt.inputters.ExampleInputter"><code class="xref py py-class docutils literal notranslate"><span class="pre">opennmt.inputters.ExampleInputter</span></code></a></p></li>
 </ul>
 <dl class="py method">
-<dt id="opennmt.inputters.ParallelInputter.__init__">
-<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reducer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.__init__" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="opennmt.inputters.ParallelInputter.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reducer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes a parallel inputter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -247,8 +162,8 @@ inputs but <code class="docutils literal notranslate"><span class="pre">False</s
 </dd></dl>
 
 <dl class="py method">
-<dt id="opennmt.inputters.ParallelInputter.make_dataset">
-<code class="sig-name descname"><span class="pre">make_dataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.make_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.make_dataset" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="opennmt.inputters.ParallelInputter.make_dataset">
+<span class="sig-name descname"><span class="pre">make_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.make_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.make_dataset" title="Permalink to this definition"></a></dt>
 <dd><p>Creates the base dataset required by this inputter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -264,8 +179,8 @@ inputs but <code class="docutils literal notranslate"><span class="pre">False</s
 </dd></dl>
 
 <dl class="py method">
-<dt id="opennmt.inputters.ParallelInputter.get_dataset_size">
-<code class="sig-name descname"><span class="pre">get_dataset_size</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.get_dataset_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.get_dataset_size" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="opennmt.inputters.ParallelInputter.get_dataset_size">
+<span class="sig-name descname"><span class="pre">get_dataset_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.get_dataset_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.get_dataset_size" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the dataset size.</p>
 <p>If the inputter can efficiently compute the dataset size from a training
 file on disk, it can optionally override this method. Otherwise, we may
@@ -282,14 +197,14 @@ the dataset instance).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="opennmt.inputters.ParallelInputter.input_signature">
-<code class="sig-name descname"><span class="pre">input_signature</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.input_signature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.input_signature" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="opennmt.inputters.ParallelInputter.input_signature">
+<span class="sig-name descname"><span class="pre">input_signature</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.input_signature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.input_signature" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the input signature of this inputter.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="opennmt.inputters.ParallelInputter.get_length">
-<code class="sig-name descname"><span class="pre">get_length</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_special_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.get_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.get_length" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="opennmt.inputters.ParallelInputter.get_length">
+<span class="sig-name descname"><span class="pre">get_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_special_tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.get_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.get_length" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the length of the input features, if defined.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -306,8 +221,8 @@ inputter (e.g. &lt;s&gt; and/or &lt;/s&gt;).</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="opennmt.inputters.ParallelInputter.get_padded_shapes">
-<code class="sig-name descname"><span class="pre">get_padded_shapes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.get_padded_shapes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.get_padded_shapes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="opennmt.inputters.ParallelInputter.get_padded_shapes">
+<span class="sig-name descname"><span class="pre">get_padded_shapes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.get_padded_shapes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.get_padded_shapes" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the padded shapes for dataset elements.</p>
 <p>For example, this is used during batch size autotuning to pad all batches
 to the maximum sequence length.</p>
@@ -325,8 +240,8 @@ to the maximum sequence length.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="opennmt.inputters.ParallelInputter.make_features">
-<code class="sig-name descname"><span class="pre">make_features</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.make_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.make_features" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="opennmt.inputters.ParallelInputter.make_features">
+<span class="sig-name descname"><span class="pre">make_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.make_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.make_features" title="Permalink to this definition"></a></dt>
 <dd><p>Creates features from data.</p>
 <p>This is typically called in a data pipeline (such as <code class="docutils literal notranslate"><span class="pre">Dataset.map</span></code>).
 Common transformation includes tokenization, parsing, vocabulary lookup,
@@ -350,8 +265,8 @@ augment.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="opennmt.inputters.ParallelInputter.keep_for_training">
-<code class="sig-name descname"><span class="pre">keep_for_training</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.keep_for_training"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.keep_for_training" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="opennmt.inputters.ParallelInputter.keep_for_training">
+<span class="sig-name descname"><span class="pre">keep_for_training</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.keep_for_training"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.keep_for_training" title="Permalink to this definition"></a></dt>
 <dd><p>Returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if this example should be kept for training.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -367,8 +282,8 @@ augment.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="opennmt.inputters.ParallelInputter.build">
-<code class="sig-name descname"><span class="pre">build</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.build" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="opennmt.inputters.ParallelInputter.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.build" title="Permalink to this definition"></a></dt>
 <dd><p>Creates the variables of the layer (optional, for subclass implementers).</p>
 <p>This is a method that implementers of subclasses of <cite>Layer</cite> or <cite>Model</cite>
 can override if they need a state-creation step in-between
@@ -386,8 +301,8 @@ the first execution of <cite>call()</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="opennmt.inputters.ParallelInputter.call">
-<code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.call" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="opennmt.inputters.ParallelInputter.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/inputters/inputter.html#ParallelInputter.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.inputters.ParallelInputter.call" title="Permalink to this definition"></a></dt>
 <dd><p>Creates the model input from the features (e.g. word embeddings).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -405,45 +320,34 @@ the first execution of <cite>call()</cite>.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="opennmt.inputters.SequenceRecordInputter.html" class="btn btn-neutral float-right" title="opennmt.inputters.SequenceRecordInputter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="opennmt.inputters.MultiInputter.html" class="btn btn-neutral float-left" title="opennmt.inputters.MultiInputter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="opennmt.inputters.MultiInputter.html" class="btn btn-neutral float-left" title="MultiInputter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="opennmt.inputters.SequenceRecordInputter.html" class="btn btn-neutral float-right" title="SequenceRecordInputter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
+    <p></p>
+  </div>
 
-    </p>
-  </div> 
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

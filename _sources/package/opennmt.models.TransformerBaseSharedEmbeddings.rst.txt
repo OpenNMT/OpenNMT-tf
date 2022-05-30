@@ -1,5 +1,5 @@
-opennmt.models.TransformerBaseSharedEmbeddings
-==============================================
+TransformerBaseSharedEmbeddings
+===============================
 
 .. autoclass:: opennmt.models.TransformerBaseSharedEmbeddings
     :members:

@@ -1,5 +1,5 @@
-opennmt.data.Vocab
-==================
+Vocab
+=====
 
 .. autoclass:: opennmt.data.Vocab
     :members:

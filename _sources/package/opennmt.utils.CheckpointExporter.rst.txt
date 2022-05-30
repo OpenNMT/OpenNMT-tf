@@ -1,5 +1,5 @@
-opennmt.utils.CheckpointExporter
-================================
+CheckpointExporter
+==================
 
 .. autoclass:: opennmt.utils.CheckpointExporter
     :members:

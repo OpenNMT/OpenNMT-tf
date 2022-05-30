@@ -1,11 +1,7 @@
-opennmt.data module
-===================
+opennmt.data
+============
 
 .. automodule:: opennmt.data
-
-
-Classes
--------
 
 .. toctree::
 
@@ -16,12 +12,6 @@ Classes
    opennmt.data.WordOmission
    opennmt.data.WordPermutation
    opennmt.data.WordReplacement
-
-Functions
----------
-
-.. toctree::
-
    opennmt.data.alignment_matrix_from_pharaoh
    opennmt.data.batch_dataset
    opennmt.data.batch_sequence_dataset

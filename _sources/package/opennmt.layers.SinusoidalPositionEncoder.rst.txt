@@ -1,5 +1,5 @@
-opennmt.layers.SinusoidalPositionEncoder
-========================================
+SinusoidalPositionEncoder
+=========================
 
 .. autoclass:: opennmt.layers.SinusoidalPositionEncoder
     :members:

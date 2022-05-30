@@ -1,5 +1,5 @@
-opennmt.layers.ConcatReducer
-============================
+ConcatReducer
+=============
 
 .. autoclass:: opennmt.layers.ConcatReducer
     :members:

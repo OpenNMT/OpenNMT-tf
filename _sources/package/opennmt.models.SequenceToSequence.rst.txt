@@ -1,5 +1,5 @@
-opennmt.models.SequenceToSequence
-=================================
+SequenceToSequence
+==================
 
 .. autoclass:: opennmt.models.SequenceToSequence
     :members:

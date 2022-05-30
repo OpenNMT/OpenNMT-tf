@@ -1,5 +1,5 @@
-opennmt.layers.SumReducer
-=========================
+SumReducer
+==========
 
 .. autoclass:: opennmt.layers.SumReducer
     :members:

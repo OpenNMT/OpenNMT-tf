@@ -1,5 +1,5 @@
-opennmt.data.WordDropout
-========================
+WordDropout
+===========
 
 .. autoclass:: opennmt.data.WordDropout
     :members:

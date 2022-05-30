@@ -1,4 +1,4 @@
-opennmt.data.make_cardinality_multiple_of
-=========================================
+make_cardinality_multiple_of
+============================
 
 .. autofunction:: opennmt.data.make_cardinality_multiple_of

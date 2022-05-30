@@ -1,5 +1,5 @@
-opennmt.inputters.TextInputter
-==============================
+TextInputter
+============
 
 .. autoclass:: opennmt.inputters.TextInputter
     :members:

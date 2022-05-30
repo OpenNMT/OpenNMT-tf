@@ -1,0 +1,16 @@
+Python
+======
+
+.. toctree::
+
+   opennmt
+   opennmt.data
+   opennmt.decoders
+   opennmt.encoders
+   opennmt.inputters
+   opennmt.layers
+   opennmt.models
+   opennmt.optimizers
+   opennmt.schedules
+   opennmt.tokenizers
+   opennmt.utils

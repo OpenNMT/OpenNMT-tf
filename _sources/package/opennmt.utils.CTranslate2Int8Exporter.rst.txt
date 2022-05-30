@@ -1,5 +1,5 @@
-opennmt.utils.CTranslate2Int8Exporter
-=====================================
+CTranslate2Int8Exporter
+=======================
 
 .. autoclass:: opennmt.utils.CTranslate2Int8Exporter
     :members:

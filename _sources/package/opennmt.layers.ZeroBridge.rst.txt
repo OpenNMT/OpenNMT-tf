@@ -1,5 +1,5 @@
-opennmt.layers.ZeroBridge
-=========================
+ZeroBridge
+==========
 
 .. autoclass:: opennmt.layers.ZeroBridge
     :members:

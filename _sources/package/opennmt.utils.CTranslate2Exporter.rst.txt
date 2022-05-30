@@ -1,5 +1,5 @@
-opennmt.utils.CTranslate2Exporter
-=================================
+CTranslate2Exporter
+===================
 
 .. autoclass:: opennmt.utils.CTranslate2Exporter
     :members:

@@ -1,4 +1,4 @@
-opennmt.models.get_model_from_catalog
-=====================================
+get_model_from_catalog
+======================
 
 .. autofunction:: opennmt.models.get_model_from_catalog

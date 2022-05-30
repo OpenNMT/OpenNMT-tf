@@ -1,5 +1,5 @@
-opennmt.utils.GreedySearch
-==========================
+GreedySearch
+============
 
 .. autoclass:: opennmt.utils.GreedySearch
     :members:

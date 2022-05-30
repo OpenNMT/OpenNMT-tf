@@ -1,5 +1,5 @@
-opennmt.inputters.WordEmbedder
-==============================
+WordEmbedder
+============
 
 .. autoclass:: opennmt.inputters.WordEmbedder
     :members:

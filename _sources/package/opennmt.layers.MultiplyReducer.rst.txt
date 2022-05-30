@@ -1,5 +1,5 @@
-opennmt.layers.MultiplyReducer
-==============================
+MultiplyReducer
+===============
 
 .. autoclass:: opennmt.layers.MultiplyReducer
     :members:

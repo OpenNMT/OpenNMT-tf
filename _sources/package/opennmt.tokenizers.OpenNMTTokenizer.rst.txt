@@ -1,5 +1,5 @@
-opennmt.tokenizers.OpenNMTTokenizer
-===================================
+OpenNMTTokenizer
+================
 
 .. autoclass:: opennmt.tokenizers.OpenNMTTokenizer
     :members:

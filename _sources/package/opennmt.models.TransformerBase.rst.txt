@@ -1,5 +1,5 @@
-opennmt.models.TransformerBase
-==============================
+TransformerBase
+===============
 
 .. autoclass:: opennmt.models.TransformerBase
     :members:

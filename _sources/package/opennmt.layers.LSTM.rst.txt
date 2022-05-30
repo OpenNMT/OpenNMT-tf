@@ -1,5 +1,5 @@
-opennmt.layers.LSTM
-===================
+LSTM
+====
 
 .. autoclass:: opennmt.layers.LSTM
     :members:

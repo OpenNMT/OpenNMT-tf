@@ -1,4 +1,4 @@
-opennmt.tokenizers.make_tokenizer
-=================================
+make_tokenizer
+==============
 
 .. autofunction:: opennmt.tokenizers.make_tokenizer
