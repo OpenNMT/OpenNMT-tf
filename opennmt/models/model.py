@@ -85,6 +85,10 @@ class Model(tf.keras.layers.Layer):
         self.examples_inputter.build(input_shape)
         self.built = True
 
+    def split_features_labels(self, batch):
+        """Splits a batch from the dataset into features and labels."""
+        return batch if not self.unsupervised else (batch, batch)
+
     def __call__(self, features, labels=None, training=None, step=None):
         """Runs the model.
 
@@ -426,9 +430,9 @@ class Model(tf.keras.layers.Layer):
         features = self.examples_inputter.make_features(features=features)
 
         # Add the batch dimension back before calling the model.
-        features, labels = tf.nest.map_structure(
-            lambda x: tf.expand_dims(x, 0), features
-        )
+        features = tf.nest.map_structure(lambda x: tf.expand_dims(x, 0), features)
+        features, labels = self.split_features_labels(features)
+
         _ = self(features, labels=labels, training=True, step=0)
 
         if optimizer is not None:
@@ -567,7 +571,7 @@ class SequenceGenerator(Model):
     @property
     def decoder_inputter(self):
         """The inputter used on the decoder side."""
-        return self.labels_inputter if not self.unsupervised else self.features_inputter
+        return self.labels_inputter if not self.unsupervised else self.examples_inputter
 
     def score(self, features, labels):
         outputs, _ = self(features, labels=labels)

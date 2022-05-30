@@ -315,8 +315,9 @@ class Evaluator(object):
         loss_num = 0
         loss_den = 0
         metrics = self._model.get_metrics()
-        for source, target in self._dataset:
-            loss, predictions = self._eval_fn(source, target)
+        for batch in self._dataset:
+            features, labels = self._model.split_features_labels(batch)
+            loss, predictions = self._eval_fn(features, labels)
             if isinstance(loss, tuple):
                 loss_num += loss[0]
                 loss_den += loss[1]
@@ -324,7 +325,7 @@ class Evaluator(object):
                 loss_num += loss
                 loss_den += 1
             if metrics:
-                self._model.update_metrics(metrics, predictions, target)
+                self._model.update_metrics(metrics, predictions, labels)
             if output_file is not None:
                 predictions = {k: v.numpy() for k, v in predictions.items()}
                 for prediction in misc.extract_batches(predictions):

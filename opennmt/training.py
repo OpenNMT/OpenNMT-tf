@@ -229,10 +229,8 @@ class Trainer:
         def _forward():
             # We get the next dataset element within the function for increased efficiency
             # and avoid dealing with tf.function input signatures.
-            source, target = next(iterator)
             return self._forward(
-                source,
-                target,
+                next(iterator),
                 accum_steps=accum_steps,
                 report_steps=report_steps,
             )
@@ -292,17 +290,18 @@ class Trainer:
             )
         return record_summaries
 
-    def _compute_gradients(self, source, target, accum_steps, report_steps):
+    def _compute_gradients(self, batch, accum_steps, report_steps):
         """Computes the gradient of a training example."""
         record_summaries = self._should_record_summaries(accum_steps, report_steps)
         with tf.summary.record_if(record_summaries):
+            features, labels = self._model.split_features_labels(batch)
             reported_loss, gradients = self._model.compute_gradients(
-                source,
-                target,
+                features,
+                labels,
                 self._optimizer,
                 loss_scale=accum_steps * self.num_replicas,
             )
-            self._training_stats.update_on_example(source, target)
+            self._training_stats.update_on_example(features, labels)
             _summarize_gradients(gradients, record_summaries)
         return reported_loss, gradients
 
@@ -312,11 +311,10 @@ class Trainer:
             list(zip(gradients, self._model.trainable_variables))
         )
 
-    def _forward(self, source, target, accum_steps=1, report_steps=None):
+    def _forward(self, batch, accum_steps=1, report_steps=None):
         """Forwards a training example and accumulates the gradients."""
         loss, gradients = self._compute_gradients(
-            source,
-            target,
+            batch,
             accum_steps,
             report_steps,
         )
@@ -420,10 +418,10 @@ class MirroredStrategyTrainer(Trainer):
         dataset_fn = dataset if callable(dataset) else lambda _: dataset
         return self._strategy.distribute_datasets_from_function(dataset_fn)
 
-    def _forward(self, source, target, accum_steps=1, report_steps=None):
+    def _forward(self, batch, accum_steps=1, report_steps=None):
         per_replica_loss = self._strategy.run(
             super()._forward,
-            args=(source, target),
+            args=(batch,),
             kwargs=dict(accum_steps=accum_steps, report_steps=report_steps),
         )
         # TODO: this reduction could be delayed until _step is called.

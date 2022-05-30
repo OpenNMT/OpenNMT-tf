@@ -1,5 +1,7 @@
 """Language model."""
 
+import copy
+
 import tensorflow as tf
 
 from opennmt import config as config_util
@@ -29,6 +31,13 @@ class LanguageModel(model.SequenceGenerator):
         self.decoder = decoder
         self.reuse_embedding = reuse_embedding
 
+    @property
+    def features_inputter(self):
+        # Enable inference mode for the returned inputter.
+        features_inputter = copy.copy(super().features_inputter)
+        features_inputter.inference = True
+        return features_inputter
+
     def auto_config(self, num_replicas=1):
         config = super().auto_config(num_replicas=num_replicas)
         return config_util.merge_config(
@@ -52,14 +61,13 @@ class LanguageModel(model.SequenceGenerator):
     def call(self, features, labels=None, training=None, step=None):
         outputs, predictions = None, None
 
-        if isinstance(features, tuple):
-            features = features[0]
-        ids, length = features["ids"], features["length"]
-        if labels is not None:
+        length = features["length"]
+        ids = features["ids"]
+        ids_out = features.get("ids_out")
+
+        if ids_out is not None:
             # For training and evaluation, forward the full sequence.
-            logits, _ = self._decode(
-                labels.get("ids", ids), labels.get("length", length), training=training
-            )
+            logits, _ = self._decode(ids, length, training=training)
             outputs = dict(logits=logits)
         else:
             assert_fixed_length = tf.debugging.Assert(
@@ -148,40 +156,36 @@ class LanguageModel(model.SequenceGenerator):
 
 
 class LanguageModelInputter(inputters.WordEmbedder, inputters.ExampleInputterAdapter):
-    """A special inputter for language modeling.
+    """A special inputter for language modeling."""
 
-    This is a single word embedder that simply produces labels by shifting the
-    input sequence.
-    """
+    @property
+    def inference(self):
+        """Inference mode."""
+        return not self.decoder_mode
+
+    @inference.setter
+    def inference(self, inference):
+        """Sets the inference mode."""
+        if self.inference == inference:
+            return
+
+        if inference:
+            self._saved_mark_end = self.mark_end
+            self.set_decoder_mode(False, mark_end=False)
+        else:
+            self.set_decoder_mode(True, mark_end=getattr(self, "_saved_mark_end", None))
 
     def initialize(self, data_config):
         super().initialize(data_config)
         # Set default sequence controls for backward compatibility.
-        if self.mark_start is None:
-            self.mark_start = False
-        if self.mark_end is None:
-            self.mark_end = True
-
-    def get_length(self, features, ignore_special_tokens=False):
-        if isinstance(features, tuple):
-            features = features[0]
-        return super().get_length(features, ignore_special_tokens=ignore_special_tokens)
-
-    def make_features(self, element=None, features=None, training=None):
-        base_features = features if features is not None else {}
-
-        # Features define the decoder context during inference. As the context is a prefix,
-        # we should disable the end sequence control token.
-        saved_mark_end = self.mark_end
-        self.set_decoder_mode(enable=False, mark_end=False)
-        features = super().make_features(
-            element=element, features=base_features.copy(), training=training
+        self.set_decoder_mode(
+            mark_start=False if self.mark_start is None else None,
+            mark_end=True if self.mark_end is None else None,
         )
 
-        # Labels define the decoder input/output sequences during training and evaluation.
-        self.set_decoder_mode(enable=True, mark_end=saved_mark_end)
-        labels = super().make_features(
-            element=element, features=base_features.copy(), training=training
-        )
-
-        return features, labels
+    def make_inference_dataset(self, *args, **kwargs):
+        saved_inference = self.inference
+        self.inference = True
+        dataset = super().make_inference_dataset(*args, **kwargs)
+        self.inference = saved_inference
+        return dataset
