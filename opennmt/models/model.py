@@ -87,7 +87,7 @@ class Model(tf.keras.layers.Layer):
 
     def split_features_labels(self, batch):
         """Splits a batch from the dataset into features and labels."""
-        return batch if not self.unsupervised else (batch, batch.copy())
+        return batch if not self.unsupervised else (batch, batch)
 
     def __call__(self, features, labels=None, training=None, step=None):
         """Runs the model.
