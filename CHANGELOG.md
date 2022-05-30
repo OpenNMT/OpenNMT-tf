@@ -5,7 +5,7 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 * command line options
 * configuration files
 * checkpoints of non experimental models
-* classes and functions documented on the [online documentation](https://opennmt.net/OpenNMT-tf/package/opennmt.html) and directly accessible from the top-level `opennmt` package
+* classes and functions documented on the [online documentation](https://opennmt.net/OpenNMT-tf/package/overview.html) and directly accessible from the top-level `opennmt` package
 
 ---
 
@@ -537,7 +537,7 @@ See the [2.0 Transition Guide](docs/v2_transition.md) for details about the foll
 * The `onmt-main` script now makes use of subparsers which require to move the run type and it specific options to the end of the command
 * Some predefined models have been renamed or changed, see the [transition guide](docs/v2_transition.md#changed-predefined-models)
 * Some parameters in the YAML configuration have been renamed or changed, see the [transition guide](docs/v2_transition.md#changed-parameters)
-* A lot of public classes and functions have changed, see the [API documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html) for details
+* A lot of public classes and functions have changed, see the [API documentation](http://opennmt.net/OpenNMT-tf/package/overview.html) for details
 * TFRecord files generated with the `opennmt.inputters.write_sequence_record` function or the `onmt-ark-to-records` script are no longer compatible and should be re-generated
 
 This version also changes the public API scope of the project:
@@ -548,7 +548,7 @@ This version also changes the public API scope of the project:
 ### New features
 
 * Object-based layers extending `tf.keras.layers.Layer`
-* Many new reusable modules and layers, see the [API documentation](http://opennmt.net/OpenNMT-tf/package/opennmt.html)
+* Many new reusable modules and layers, see the [API documentation](http://opennmt.net/OpenNMT-tf/package/overview.html)
 * Replace `tf.estimator` by custom loops for more control and clearer execution path
 * Multi-GPU training with `tf.distribute`
 * Support early stopping based on any evaluation metrics

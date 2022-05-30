@@ -15,8 +15,7 @@ release = opennmt.__version__  # The full version, including alpha/beta/rc tags.
 version = ".".join(release.split(".")[:2])  # The short X.Y version.
 
 extensions = [
-    "recommonmark",
-    "sphinx_markdown_tables",
+    "myst_parser",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.todo",

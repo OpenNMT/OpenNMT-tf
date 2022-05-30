@@ -37,7 +37,7 @@ opennmt.models.SequenceToSequence(
 )
 ```
 
-The [`opennmt`](https://opennmt.net/OpenNMT-tf/package/opennmt.html) package exposes other building blocks that can be used to design:
+The [`opennmt`](https://opennmt.net/OpenNMT-tf/package/overview.html) package exposes other building blocks that can be used to design:
 
 * [multiple input features](https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.ParallelInputter.html)
 * [mixed embedding representation](https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.MixedInputter.html)
@@ -128,7 +128,7 @@ onmt-main --model_type <model> --config <config_file.yml> --auto_config <run_typ
 
 ### Library
 
-OpenNMT-tf also exposes [well-defined and stable APIs](https://opennmt.net/OpenNMT-tf/package/opennmt.html), from high-level training utilities to low-level model layers and dataset transformations.
+OpenNMT-tf also exposes [well-defined and stable APIs](https://opennmt.net/OpenNMT-tf/package/overview.html), from high-level training utilities to low-level model layers and dataset transformations.
 
 For example, the `Runner` class can be used to train and evaluate models with few lines of code:
 
@@ -177,7 +177,7 @@ More examples using OpenNMT-tf as a library can be found online:
 * The directory [examples/library](https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/library) contains additional examples that use OpenNMT-tf as a library
 * [nmt-wizard-docker](https://github.com/OpenNMT/nmt-wizard-docker) uses the high-level `opennmt.Runner` API to wrap OpenNMT-tf with a custom interface for training, translating, and serving
 
-*For a complete overview of the APIs, see the [package documentation](https://opennmt.net/OpenNMT-tf/package/opennmt.html).*
+*For a complete overview of the APIs, see the [package documentation](https://opennmt.net/OpenNMT-tf/package/overview.html).*
 
 ## Additional resources
 
