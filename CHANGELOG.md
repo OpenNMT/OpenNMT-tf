@@ -15,6 +15,12 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.27.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.27.1) (2022-06-02)
+
+### Fixes and improvements
+
+* Fix evaluation and scoring with language models
+
 ## [2.27.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.27.0) (2022-05-30)
 
 ### Changes
