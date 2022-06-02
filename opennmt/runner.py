@@ -462,7 +462,11 @@ class Runner(object):
         model.export(export_dir, exporter=exporter)
 
     def score(
-        self, features_file, predictions_file, checkpoint_path=None, output_file=None
+        self,
+        features_file,
+        predictions_file=None,
+        checkpoint_path=None,
+        output_file=None,
     ):
         """Scores existing predictions.
 

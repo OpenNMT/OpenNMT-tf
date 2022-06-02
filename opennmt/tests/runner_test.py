@@ -203,7 +203,7 @@ class RunnerTest(tf.test.TestCase):
         self.assertTrue(os.path.exists(export_dir))
         self.assertTrue(tf.saved_model.contains_saved_model(export_dir))
 
-    def testTrainLanguageModel(self):
+    def testLanguageModel(self):
         src = test_util.make_data_file(
             os.path.join(self.get_temp_dir(), "src.txt"),
             ["1 2 3 4", "5 6 7 8 9", "3 2"],
@@ -230,6 +230,8 @@ class RunnerTest(tf.test.TestCase):
         )
         runner = Runner(model, config)
         runner.train()
+        runner.score(src)
+        runner.evaluate(src)
 
     def testEvaluate(self):
         ar_file, en_file = self._makeTransliterationData()
