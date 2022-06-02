@@ -120,7 +120,9 @@ def score_dataset(model, dataset, print_params=None, output_file=None):
     index_fn = lambda batch: batch.get("index")
     ordered_writer = misc.OrderRestorer(index_fn, write_fn)
 
-    score_fn = tf.function(model.score, input_signature=dataset.element_spec)
+    input_signature = model.split_features_labels(dataset.element_spec)
+    score_fn = tf.function(model.score, input_signature=input_signature)
+
     for batch in dataset:
         features, labels = model.split_features_labels(batch)
         results = score_fn(features, labels)

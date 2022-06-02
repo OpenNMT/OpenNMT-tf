@@ -115,9 +115,8 @@ class Evaluator(object):
             prefetch_buffer_size=1,
         )
 
-        self._eval_fn = tf.function(
-            model.evaluate, input_signature=dataset.element_spec
-        )
+        input_signature = model.split_features_labels(dataset.element_spec)
+        self._eval_fn = tf.function(model.evaluate, input_signature=input_signature)
         self._dataset = dataset
 
         self._metrics_name = {"loss", "perplexity"}
