@@ -125,7 +125,7 @@ def split_chunks(a, chunk_length, concat_3_chunks=True):
       chunk_length: The length of a chunk :math:`C`.
 
     Returns:
-      A ``tf.Tensor`` of shape :math:`[B * N, H, C (* 3), D]`, where :math:`N` is the number of chunks.
+      A ``tf.Tensor`` of shape :math:`[B * N, H, C (* 3), D]`, where :math:`N` is the chunk number.
     """
 
     batch, num_heads, timesteps, units_per_head = misc.shape_list(a)
@@ -165,7 +165,9 @@ def split_chunks(a, chunk_length, concat_3_chunks=True):
 
 
 def chunk_att_mask(mask, chunk_length):
-    """Transforms an attention mask into a chunked representation, masking everything but a sliding diagonal with a radius of chunk length.
+    """Transforms an attention mask into a chunked representation.
+
+    Chunked mask masks everything but a sliding diagonal with a radius of ``chunk_length``.
 
     Args:
       mask: A ``tf.Tensor`` of shape :math:`[B, T]` or :math:`[B, T, T]`.
@@ -199,7 +201,8 @@ def chunk_att_mask(mask, chunk_length):
     padded_len = misc.shape_list(mask_padded)[-1]
     mask_flattened = tf.reshape(mask_padded, shape=[batch, -1])
 
-    # Skew to the left by one and keep 2*chunk_length + 1 relevant locations (chunk_length radius around diagonal).
+    # Skew to the left by one and keep 2*chunk_length + 1 relevant locations.
+    # This corresponds to chunk_length radius around the diagonal.
     skewed_len = padded_len + 1
     skewed_padding_len = (
         padded_timesteps * skewed_len - misc.shape_list(mask_flattened)[-1]
@@ -343,8 +346,9 @@ class MultiHeadAttention(tf.keras.layers.Layer):
           return_attention: If ``True``, also return the attention weights.
           maximum_relative_position: Maximum relative position representation
             (from https://arxiv.org/abs/1803.02155).
-          max_length_full_attention: Maximum sequence length for full attention. If this parameter is not None, sparse attention is calculated for longer sequences.
-          local_attention_radius: Attention radius around each token for local sliding window sparse attention.
+          max_length_full_attention: Maximum sequence length for full attention.
+            If ``None``, use sparse attention for longer sequences.
+          local_attention_radius: Attention radius around each token for local sliding attention.
           kwargs: Additional layer arguments.
         """
         super().__init__(**kwargs)

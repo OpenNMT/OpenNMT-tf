@@ -162,12 +162,12 @@ class TransformerTest(tf.test.TestCase):
                 end = chunk_length + seq_length - chunk_length * ch
                 if end > 0:
                     chunk_idx = b * num_chunks + ch
-                    for l in range(chunk_length):
-                        seq_length_idx = ch * chunk_length + l
+                    for ch_l in range(chunk_length):
+                        seq_length_idx = ch * chunk_length + ch_l
                         if seq_length_idx < maximum_length:
-                            start_idx = l if ch != 0 else chunk_length
-                            end_idx = min(end, token_radius + l)
-                            expected[chunk_idx][l][start_idx:end_idx] = 1
+                            start_idx = ch_l if ch != 0 else chunk_length
+                            end_idx = min(end, token_radius + ch_l)
+                            expected[chunk_idx][ch_l][start_idx:end_idx] = 1
 
         mask_chunked = self.evaluate(mask_chunked)
         self.assertAllEqual(mask_chunked, expected)
