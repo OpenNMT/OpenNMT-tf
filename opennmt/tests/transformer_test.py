@@ -116,6 +116,62 @@ class TransformerTest(tf.test.TestCase):
             [[2, 3, 4, 4], [1, 2, 3, 4], [0, 1, 2, 3], [0, 0, 1, 2]],
         )
 
+    @parameterized.expand([[2, True], [2, False], [3, True], [3, False]])
+    def testSplitChunks(self, chunk_length, concat_3_chunks):
+        batch = 3
+        length = [5, 3, 7]
+        num_heads = 4
+        depth = 10
+
+        inputs = tf.random.normal(
+            [batch, num_heads, max(length), depth], dtype=tf.float32
+        )
+        split, num_chunks = transformer.split_chunks(
+            inputs, chunk_length=chunk_length, concat_3_chunks=concat_3_chunks
+        )
+        split_shape = split.shape
+        self.assertEqual(num_chunks, split_shape[0] / batch)
+        self.assertEqual(num_heads, split_shape[1])
+        chunk_length_eval = chunk_length * 3 if concat_3_chunks else chunk_length
+        self.assertEqual(chunk_length_eval, split_shape[2])
+        self.assertEqual(depth, split_shape[3])
+
+    @parameterized.expand(
+        [[tf.bool, 2], [tf.float32, 2], [tf.bool, 3], [tf.float32, 3]]
+    )
+    def testChunkAttentionMask(self, dtype, chunk_length):
+        length = [2, 4, 3]
+        batch = len(length)
+        maximum_length = 5
+        mask = tf.sequence_mask(lengths=length, maxlen=maximum_length, dtype=dtype)
+        mask_chunked = transformer.chunk_att_mask(mask, chunk_length=chunk_length)
+        output_shape = mask_chunked.shape
+        num_chunks = abs(-maximum_length // chunk_length)
+        self.assertEqual(num_chunks, output_shape[0] / batch)
+        self.assertEqual(chunk_length, output_shape[1])
+        self.assertEqual(chunk_length * 3, output_shape[2])
+
+        self.assertIs(mask_chunked.dtype, dtype)
+
+        expected = np.zeros(output_shape, dtype=dtype.as_numpy_dtype)
+
+        token_radius = chunk_length * 2 + 1
+        for b in range(batch):
+            seq_length = length[b]
+            for ch in range(num_chunks):
+                end = chunk_length + seq_length - chunk_length * ch
+                if end > 0:
+                    chunk_idx = b * num_chunks + ch
+                    for l in range(chunk_length):
+                        seq_length_idx = ch * chunk_length + l
+                        if seq_length_idx < maximum_length:
+                            start_idx = l if ch != 0 else chunk_length
+                            end_idx = min(end, token_radius + l)
+                            expected[chunk_idx][l][start_idx:end_idx] = 1
+
+        mask_chunked = self.evaluate(mask_chunked)
+        self.assertAllEqual(mask_chunked, expected)
+
     def testFeedForwardNetwork(self):
         ffn = transformer.FeedForwardNetwork(20, 10)
         x = tf.random.uniform([4, 5, 10])
@@ -158,6 +214,14 @@ class TransformerTest(tf.test.TestCase):
         x = tf.random.uniform([4, 1, 10])
         cache = (tf.zeros([4, 4, 0, 5]), tf.zeros([4, 4, 0, 5]))
         _, cache = attention(x, cache=cache)
+
+    def testMultiHeadSelfAttentionSparse(self):
+        attention = transformer.MultiHeadAttention(
+            4, 20, local_attention_radius=2, max_length_full_attention=3
+        )
+        x = tf.random.uniform([2, 9, 10])
+        mask = tf.sequence_mask([9, 7])
+        attention(x, mask=mask)
 
     def testMultiHeadSelfAttentionRelativeGradients(self):
         attention = transformer.MultiHeadAttention(4, 20, maximum_relative_position=6)
