@@ -163,6 +163,37 @@ def split_chunks(a, chunk_length, concat_3_chunks=True):
     return tf.reshape(a_transposed, output_shape), num_chunks
 
 
+def combine_chunks(a, num_chunks, unchunked_length):
+    # Unchunk
+    a_shape = misc.shape_list(a)
+    # batch, num_chunks, num_heads, chunk_length, self.num_units_per_head
+    a = tf.reshape(
+        a,
+        [
+            a_shape[0] // num_chunks,
+            num_chunks,
+            a_shape[1],
+            a_shape[2],
+            a_shape[3],
+        ],
+    )
+    # batch, num_heads, num_chunks, chunk_length, self.num_units_per_head
+    a = tf.transpose(a, perm=[0, 2, 1, 3, 4])
+    a_shape = misc.shape_list(a)
+    a = tf.reshape(
+        a,
+        [
+            a_shape[0],
+            a_shape[1],
+            a_shape[2] * a_shape[3],
+            a_shape[4],
+        ],
+    )
+
+    # Remove padding used for chunking.
+    return a[:, :, :unchunked_length, :]
+
+
 def chunk_att_mask(mask, chunk_length):
     """Transforms an attention mask into a chunked representation.
 
@@ -488,15 +519,12 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         # Dot product attention.
         if use_sparse_att:
             # batch x num_chunks, num_heads, chunk_length, units_per_head
-            queries_chunked, _ = split_chunks(
-                queries, chunk_length, concat_3_chunks=False
-            )
+            queries, _ = split_chunks(queries, chunk_length, concat_3_chunks=False)
             # batch x num_chunks, num_heads, chunk_length*3, units_per_head
-            keys_chunked, _ = split_chunks(keys, chunk_length)
-            # batch x num_chunks, num_heads, chunk_length, chunk_length*3
-            dot = tf.matmul(queries_chunked, keys_chunked, transpose_b=True)
-        else:
-            dot = tf.matmul(queries, keys, transpose_b=True)
+            keys, _ = split_chunks(keys, chunk_length)
+            # batch x num_chunks, num_heads, chunk_length*3, units_per_head
+            values, num_chunks = split_chunks(values, chunk_length)
+        dot = tf.matmul(queries, keys, transpose_b=True)
         if relative_repr_keys is not None:
             dot += matmul_with_relative_representations(
                 queries, relative_repr_keys, transpose_b=True
@@ -514,42 +542,9 @@ class MultiHeadAttention(tf.keras.layers.Layer):
             )
         attn = tf.cast(tf.nn.softmax(tf.cast(dot, tf.float32)), dot.dtype)
         drop_attn = common.dropout(attn, self.dropout, training=training)
+        heads = tf.matmul(drop_attn, values)
         if use_sparse_att:
-            # batch x num_chunks, num_heads, chunk_length*3, units_per_head
-            values_chunked, num_chunks = split_chunks(values, chunk_length)
-            # batch x num_chunks, num_heads, chunk_length, units_per_head
-            heads = tf.matmul(drop_attn, values_chunked)
-
-            # Unchunk
-            heads_shape = misc.shape_list(heads)
-            # batch, num_chunks, num_heads, chunk_length, self.num_units_per_head
-            heads = tf.reshape(
-                heads,
-                [
-                    heads_shape[0] // num_chunks,
-                    num_chunks,
-                    heads_shape[1],
-                    heads_shape[2],
-                    heads_shape[3],
-                ],
-            )
-            # batch, num_heads, num_chunks, chunk_length, self.num_units_per_head
-            heads = tf.transpose(heads, perm=[0, 2, 1, 3, 4])
-            heads_shape = misc.shape_list(heads)
-            heads = tf.reshape(
-                heads,
-                [
-                    heads_shape[0],
-                    heads_shape[1],
-                    heads_shape[2] * heads_shape[3],
-                    heads_shape[4],
-                ],
-            )
-
-            # Remove padding used for chunking.
-            heads = heads[:, :, :queries_length, :]
-        else:
-            heads = tf.matmul(drop_attn, values)
+            heads = combine_chunks(heads, num_chunks, queries_length)
         if relative_repr_values is not None:
             heads += matmul_with_relative_representations(
                 drop_attn, relative_repr_values
