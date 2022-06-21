@@ -131,13 +131,10 @@ def split_chunks(a, chunk_length, concat_3_chunks=True):
     batch, num_heads, timesteps, units_per_head = misc.shape_list(a)
 
     # Pad to a factor of chunk_length.
-    rank = a.shape.rank
-    timestep_axis = rank - 2
     pad_len = -timesteps % chunk_length
-    paddings = pad_len * tf.one_hot([-1, timestep_axis], rank, axis=0, dtype=tf.int32)
     # batch, num_heads, timesteps padded, units_per_head
-    a_padded = tf.pad(tensor=a, paddings=paddings)
-    padded_len = misc.shape_list(a_padded)[timestep_axis]
+    a_padded = tf.pad(tensor=a, paddings=[[0, 0], [0, 0], [0, pad_len], [0, 0]])
+    padded_len = misc.shape_list(a_padded)[2]
 
     # Chunk along timesteps axis.
     num_chunks = padded_len // chunk_length
@@ -147,9 +144,10 @@ def split_chunks(a, chunk_length, concat_3_chunks=True):
 
     # Concatenate previous and next chunk to each chunk, for overlapping.
     if concat_3_chunks:
-        paddings = tf.one_hot([2, 2], rank + 1, axis=0, dtype=tf.int32)
         # batch, num_heads, 1 + num_chunks + 1, chunk_length, units_per_head
-        a_chunked_padded = tf.pad(a_chunked, paddings)
+        a_chunked_padded = tf.pad(
+            a_chunked, paddings=[[0, 0], [0, 0], [1, 1], [0, 0], [0, 0]]
+        )
         # batch, num_heads, num_chunks, chunk_length*3, units_per_head
         a_chunked = tf.concat(
             [a_chunked_padded[:, :, i : (i + num_chunks), ...] for i in range(3)], 3
@@ -186,7 +184,6 @@ def chunk_att_mask(mask, chunk_length):
         # Broadcast on queries time dimension.
         mask = tf.expand_dims(mask, 1)
         mask = tf.broadcast_to(mask, [batch, timesteps, timesteps])
-        rank = 3
 
     # Pad to a factor of chunk_length.
     pad_len = -timesteps % chunk_length
@@ -194,10 +191,9 @@ def chunk_att_mask(mask, chunk_length):
     padded_timesteps = misc.shape_list(mask)[-1]
 
     # Append chunk_length padding to timestep axis, before and after.
-    paddings = chunk_length * tf.one_hot(
-        [rank - 1, rank - 1], rank, axis=0, dtype=tf.int32
+    mask_padded = tf.pad(
+        tensor=mask, paddings=[[0, 0], [0, 0], [chunk_length, chunk_length]]
     )
-    mask_padded = tf.pad(tensor=mask, paddings=paddings)
     padded_len = misc.shape_list(mask_padded)[-1]
     mask_flattened = tf.reshape(mask_padded, shape=[batch, -1])
 
@@ -207,10 +203,7 @@ def chunk_att_mask(mask, chunk_length):
     skewed_padding_len = (
         padded_timesteps * skewed_len - misc.shape_list(mask_flattened)[-1]
     )
-    skewed_paddings = skewed_padding_len * tf.one_hot(
-        [-1, rank - 2], rank - 1, axis=0, dtype=tf.int32
-    )
-    mask_padded = tf.pad(mask_flattened, paddings=skewed_paddings)
+    mask_padded = tf.pad(mask_flattened, paddings=[[0, 0], [0, skewed_padding_len]])
     skewed_shape = [batch, -1, skewed_len]
     mask_skewed = tf.reshape(mask_padded, shape=skewed_shape)
     mask_skewed = mask_skewed[:, :, : chunk_length * 2 + 1]
@@ -220,10 +213,9 @@ def chunk_att_mask(mask, chunk_length):
 
     # Unskew each chunk to be compatible with chunked attention shape.
     unskewed_len = chunk_length * 3
-    unskewed_paddings = chunk_length * tf.one_hot(
-        [-1, rank], rank + 1, axis=0, dtype=tf.int32
+    mask_skewed_padded = tf.pad(
+        mask_skewed_chunked, paddings=[[0, 0], [0, 0], [0, 0], [0, chunk_length]]
     )
-    mask_skewed_padded = tf.pad(mask_skewed_chunked, paddings=unskewed_paddings)
     mask_skewed_flattened = tf.reshape(mask_skewed_padded, shape=[batch, chunk_num, -1])
     mask_skewed_flattened = mask_skewed_flattened[:, :, : (chunk_length * unskewed_len)]
     mask_unskewed = tf.reshape(
