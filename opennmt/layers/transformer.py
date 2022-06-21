@@ -123,6 +123,7 @@ def split_chunks(a, chunk_length, concat_3_chunks=True):
     Args:
       a: A ``tf.Tensor`` of shape :math:`[B, H, T, D]`.
       chunk_length: The length of a chunk :math:`C`.
+      concat_3_chunks: Optional, if ``True``, append previous and following chunks to each chunk.
 
     Returns:
       A ``tf.Tensor`` of shape :math:`[B * N, H, C (* 3), D]`, where :math:`N` is the chunk number.
@@ -339,7 +340,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
           maximum_relative_position: Maximum relative position representation
             (from https://arxiv.org/abs/1803.02155).
           max_length_full_attention: Maximum sequence length for full attention.
-            If ``None``, use sparse attention for longer sequences.
+            If not ``None``, use sparse attention for longer sequences
+            (from https://arxiv.org/abs/2004.08483).
           local_attention_radius: Attention radius around each token for local sliding attention.
           kwargs: Additional layer arguments.
         """
