@@ -48,7 +48,7 @@ class SequenceRecordInputter(Inputter):
             },
         )
         tensor = feature_lists["values"]
-        features["length"] = lengths["values"]
+        features["length"] = tf.cast(lengths["values"], tf.int32)
         features["tensor"] = tf.cast(tensor, self.dtype)
         return features
 

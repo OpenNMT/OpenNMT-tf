@@ -770,6 +770,7 @@ class InputterTest(tf.test.TestCase):
         features = next(iter(dataset))
         lengths = features["length"]
         tensors = features["tensor"]
+        self.assertEqual(lengths.dtype, tf.int32)
         self.assertAllEqual(lengths, [3, 6, 1])
         for length, tensor, expected_vector in zip(lengths, tensors, vectors):
             self.assertAllClose(tensor[:length], expected_vector)
