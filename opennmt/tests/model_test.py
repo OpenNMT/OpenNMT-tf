@@ -806,6 +806,12 @@ class ModelTest(tf.test.TestCase):
         self.assertLen(model.encoder.layers, 6)
         self.assertLen(model.decoder.layers, 3)
 
+    def testTransformerNoOutputBias(self):
+        _, _, data_config = self._makeToyEnDeData()
+        model = models.Transformer(output_layer_bias=False)
+        model.initialize(data_config)
+        self.assertFalse(model.decoder.output_layer.use_bias)
+
     def testBeamSearchWithMultiSourceEncoder(self):
         shared_vocabulary = test_util.make_vocab(
             os.path.join(self.get_temp_dir(), "vocab.txt"), ["1", "2", "3"]

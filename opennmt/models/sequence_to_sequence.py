@@ -533,11 +533,12 @@ class SequenceToSequence(model.SequenceGenerator):
             self.features_inputter.embedding,
             new_model.features_inputter.embedding,
         )
-        _map_variable(
-            target_mapping,
-            self.decoder.output_layer.bias,
-            new_model.decoder.output_layer.bias,
-        )
+        if self.decoder.output_layer.bias is not None:
+            _map_variable(
+                target_mapping,
+                self.decoder.output_layer.bias,
+                new_model.decoder.output_layer.bias,
+            )
 
         if not EmbeddingsSharingLevel.share_input_embeddings(self.share_embeddings):
             _map_variable(

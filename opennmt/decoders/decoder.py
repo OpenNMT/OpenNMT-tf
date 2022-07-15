@@ -61,7 +61,14 @@ def get_sampling_probability(step, read_probability=None, schedule_type=None, k=
 class Decoder(tf.keras.layers.Layer):
     """Base class for decoders."""
 
-    def __init__(self, num_sources=1, vocab_size=None, output_layer=None, **kwargs):
+    def __init__(
+        self,
+        num_sources=1,
+        vocab_size=None,
+        output_layer=None,
+        output_layer_bias=True,
+        **kwargs
+    ):
         """Initializes the decoder parameters.
 
         If you don't set one of :obj:`vocab_size` or :obj:`output_layer` here,
@@ -72,6 +79,7 @@ class Decoder(tf.keras.layers.Layer):
           num_sources: The number of source contexts expected by this decoder.
           vocab_size: The output vocabulary size (optional if :obj:`output_layer` is set).
           output_layer: The output projection layer (optional).
+          output_layer_bias: Add bias after the output projection layer.
           **kwargs: Additional layer arguments.
 
         Raises:
@@ -87,6 +95,7 @@ class Decoder(tf.keras.layers.Layer):
         super().__init__(**kwargs)
         self.num_sources = num_sources
         self.output_layer = None
+        self.output_layer_bias = output_layer_bias
         self.memory = None
         self.memory_sequence_length = None
         if vocab_size is not None or output_layer is not None:
@@ -130,7 +139,9 @@ class Decoder(tf.keras.layers.Layer):
         else:
             if vocab_size is None:
                 raise ValueError("One of vocab_size and output_layer must be set")
-            self.output_layer = common.Dense(vocab_size)
+            self.output_layer = common.Dense(
+                vocab_size, use_bias=self.output_layer_bias
+            )
 
     def reuse_embeddings(self, embeddings):
         """Reuses embeddings in the decoder output layer.
