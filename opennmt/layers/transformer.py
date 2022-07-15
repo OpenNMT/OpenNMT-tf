@@ -211,6 +211,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         self,
         num_heads,
         num_units,
+        bias=True,
         dropout=0.1,
         return_attention=False,
         maximum_relative_position=None,
@@ -221,6 +222,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         Args:
           num_heads: The number of attention heads.
           num_units: The number of hidden units.
+          bias: Add bias after linear layers.
           dropout: The probability to drop units from the inputs.
           return_attention: If ``True``, also return the attention weights.
           maximum_relative_position: Maximum relative position representation
@@ -235,10 +237,10 @@ class MultiHeadAttention(tf.keras.layers.Layer):
             )
         self.num_heads = num_heads
         self.num_units_per_head = num_units // num_heads
-        self.linear_queries = common.Dense(num_units)
-        self.linear_keys = common.Dense(num_units)
-        self.linear_values = common.Dense(num_units)
-        self.linear_output = common.Dense(num_units)
+        self.linear_queries = common.Dense(num_units, use_bias=bias)
+        self.linear_keys = common.Dense(num_units, use_bias=bias)
+        self.linear_values = common.Dense(num_units, use_bias=bias)
+        self.linear_output = common.Dense(num_units, use_bias=bias)
         self.dropout = dropout
         self.return_attention = return_attention
         self.maximum_relative_position = maximum_relative_position
@@ -442,6 +444,7 @@ class SelfAttentionEncoderLayer(tf.keras.layers.Layer):
         attention_dropout=0.1,
         ffn_dropout=0.1,
         ffn_activation=tf.nn.relu,
+        mha_bias=True,
         maximum_relative_position=None,
         pre_norm=True,
         **kwargs
@@ -459,6 +462,7 @@ class SelfAttentionEncoderLayer(tf.keras.layers.Layer):
             the feed forward layer.
           ffn_activation: The activation function to apply between the two linear
             transformations of the feed forward layer.
+          mha_bias: Add bias after linear layers in the multi-head attention.
           maximum_relative_position: Maximum relative position representation
             (from https://arxiv.org/abs/1803.02155).
           pre_norm: If ``True``, layer normalization is applied before each
@@ -469,6 +473,7 @@ class SelfAttentionEncoderLayer(tf.keras.layers.Layer):
         self.self_attention = MultiHeadAttention(
             num_heads,
             num_units,
+            bias=mha_bias,
             dropout=attention_dropout,
             maximum_relative_position=maximum_relative_position,
         )
@@ -506,6 +511,7 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
         attention_dropout=0.1,
         ffn_dropout=0.1,
         ffn_activation=tf.nn.relu,
+        mha_bias=True,
         maximum_relative_position=None,
         pre_norm=True,
         **kwargs
@@ -524,6 +530,7 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
             the feed forward layer.
           ffn_activation: The activation function to apply between the two linear
             transformations of the feed forward layer.
+          mha_bias: Add bias after linear layers in the multi-head attention.
           maximum_relative_position: Maximum relative position representation
             (from https://arxiv.org/abs/1803.02155).
           pre_norm: If ``True``, layer normalization is applied before each
@@ -534,6 +541,7 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
         self.self_attention = MultiHeadAttention(
             num_heads,
             num_units,
+            bias=mha_bias,
             dropout=attention_dropout,
             maximum_relative_position=maximum_relative_position,
         )
@@ -543,7 +551,11 @@ class SelfAttentionDecoderLayer(tf.keras.layers.Layer):
         self.attention = []
         for _ in range(num_sources):
             attention = MultiHeadAttention(
-                num_heads, num_units, dropout=attention_dropout, return_attention=True
+                num_heads,
+                num_units,
+                bias=mha_bias,
+                dropout=attention_dropout,
+                return_attention=True,
             )
             attention = TransformerLayerWrapper(attention, dropout, pre_norm=pre_norm)
             self.attention.append(attention)
