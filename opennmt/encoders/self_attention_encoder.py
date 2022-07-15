@@ -22,6 +22,7 @@ class SelfAttentionEncoder(Encoder):
         attention_dropout=0.1,
         ffn_dropout=0.1,
         ffn_activation=tf.nn.relu,
+        mha_bias=True,
         position_encoder_class=SinusoidalPositionEncoder,
         maximum_relative_position=None,
         pre_norm=True,
@@ -41,6 +42,7 @@ class SelfAttentionEncoder(Encoder):
             the feed forward layer.
           ffn_activation: The activation function to apply between the two linear
             transformations of the feed forward layer.
+          mha_bias: Add bias after linear layers in the multi-head attention.
           position_encoder_class: The :class:`opennmt.layers.PositionEncoder`
             class to use for position encoding (or a callable that returns an
             instance).
@@ -66,6 +68,7 @@ class SelfAttentionEncoder(Encoder):
                 attention_dropout=attention_dropout,
                 ffn_dropout=ffn_dropout,
                 ffn_activation=ffn_activation,
+                mha_bias=mha_bias,
                 maximum_relative_position=maximum_relative_position,
                 pre_norm=pre_norm,
             )
