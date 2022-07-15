@@ -39,6 +39,7 @@ class Transformer(SequenceToSequence):
         maximum_relative_position=None,
         attention_reduction=MultiHeadAttentionReduction.FIRST_HEAD_LAST_LAYER,
         pre_norm=True,
+        output_layer_bias=True,
     ):
         """Initializes a Transformer model.
 
@@ -81,6 +82,7 @@ class Transformer(SequenceToSequence):
             ``pre_norm=False``, but the authors later suggested that ``pre_norm=True``
             "seems better for harder-to-learn models, so it should probably be the
             default."
+          output_layer_bias: Add bias after the output layer.
         """
         if source_inputter is None:
             source_inputter = inputters.WordEmbedder(embedding_size=num_units)
@@ -129,6 +131,7 @@ class Transformer(SequenceToSequence):
             maximum_relative_position=maximum_relative_position,
             attention_reduction=attention_reduction,
             pre_norm=pre_norm,
+            output_layer_bias=output_layer_bias,
         )
 
         self._pre_norm = pre_norm
