@@ -415,49 +415,53 @@ def batch_sequence_dataset(
     """
     batch_size = batch_size * batch_multiplier
 
-    def _get_bucket_id(features, length_fn):
-        default_id = tf.constant(0, dtype=tf.int32)
-        if length_fn is None:
-            return default_id
-        lengths = length_fn(features)
-        if lengths is None:
-            return default_id
-        if not isinstance(lengths, list):
-            lengths = [lengths]  # Fallback to the general case of parallel inputs.
-        lengths = [length // length_bucket_width for length in lengths]
-        return tf.reduce_max(lengths)
-
     def _key_func(*args):
+        default_bucket_id = tf.constant(0, dtype=tf.int64)
+        if length_fn is None:
+            return default_bucket_id
+
         length_fns = length_fn
-        if length_fns is None:
-            length_fns = [None for _ in args]
-        elif not isinstance(length_fns, (list, tuple)):
+        if not isinstance(length_fns, (list, tuple)):
             length_fns = [length_fns]
+
         if len(length_fns) != len(args):
             raise ValueError(
                 "%d length functions were passed but this dataset contains "
                 "%d parallel elements" % (len(length_fns), len(args))
             )
-        # Take the highest bucket id.
-        bucket_id = tf.reduce_max(
+
+        # Get length of all parallel inputs.
+        all_lengths = tf.nest.flatten(
             [
-                _get_bucket_id(features, length_fn)
+                length_fn(features) if length_fn is not None else None
                 for features, length_fn in zip(args, length_fns)
             ]
         )
-        return tf.cast(bucket_id, tf.int64)
+
+        # Remove undefined lengths.
+        all_lengths = [length for length in all_lengths if length is not None]
+        if not all_lengths:
+            return default_bucket_id
+
+        # Define the bucket id based on the maximum length.
+        maximum_length = tf.reduce_max(all_lengths)
+
+        bucket_id = tf.math.maximum(
+            tf.cast(tf.math.ceil(maximum_length / length_bucket_width) - 1, tf.int64),
+            default_bucket_id,
+        )
+
+        return bucket_id
 
     def _reduce_func(unused_key, dataset):
         return dataset.apply(batch_dataset(batch_size, padded_shapes=padded_shapes))
 
     def _window_size_func(key):
-        if length_bucket_width > 1:
-            key += 1  # For length_bucket_width == 1, key 0 is unassigned.
-        size = batch_size // (key * length_bucket_width)
-        required_multiple = batch_multiplier * batch_size_multiple
-        if required_multiple > 1:
-            size = size + required_multiple - size % required_multiple
-        return tf.cast(tf.maximum(size, required_multiple), tf.int64)
+        bucket_max_length = (key + 1) * length_bucket_width
+        size = batch_size // bucket_max_length
+        # Round to the closest smaller or equal multiple.
+        size = (size // batch_size_multiple) * batch_size_multiple
+        return tf.math.maximum(size, batch_size_multiple)
 
     if length_bucket_width is None:
         if batch_type == "tokens":
