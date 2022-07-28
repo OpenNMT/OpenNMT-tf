@@ -425,7 +425,9 @@ def batch_sequence_dataset(
         if not isinstance(lengths, list):
             lengths = [lengths]  # Fallback to the general case of parallel inputs.
         lengths = [
-            tf.math.maximum(tf.math.ceil(length / length_bucket_width) - 1, 0)
+            tf.math.maximum(
+                tf.cast(tf.math.ceil(length / length_bucket_width), length.dtype) - 1, 0
+            )
             for length in lengths
         ]
         return tf.reduce_max(lengths)
