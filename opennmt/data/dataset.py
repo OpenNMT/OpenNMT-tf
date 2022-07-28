@@ -416,7 +416,7 @@ def batch_sequence_dataset(
     batch_size = batch_size * batch_multiplier
 
     def _get_bucket_id(features, length_fn):
-        default_id = tf.constant(0, dtype=tf.int32)
+        default_id = tf.constant(0, dtype=tf.int64)
         if length_fn is None:
             return default_id
         lengths = length_fn(features)
@@ -424,13 +424,15 @@ def batch_sequence_dataset(
             return default_id
         if not isinstance(lengths, list):
             lengths = [lengths]  # Fallback to the general case of parallel inputs.
-        lengths = [
+        lengths = list(map(tf.convert_to_tensor, lengths))
+        bucket_ids = [
             tf.math.maximum(
-                tf.cast(tf.math.ceil(length / length_bucket_width), length.dtype) - 1, 0
+                tf.cast(tf.math.ceil(length / length_bucket_width) - 1, tf.int64),
+                default_id,
             )
             for length in lengths
         ]
-        return tf.reduce_max(lengths)
+        return tf.reduce_max(bucket_ids)
 
     def _key_func(*args):
         length_fns = length_fn
@@ -444,13 +446,12 @@ def batch_sequence_dataset(
                 "%d parallel elements" % (len(length_fns), len(args))
             )
         # Take the highest bucket id.
-        bucket_id = tf.reduce_max(
+        return tf.reduce_max(
             [
                 _get_bucket_id(features, length_fn)
                 for features, length_fn in zip(args, length_fns)
             ]
         )
-        return tf.cast(bucket_id, tf.int64)
 
     def _reduce_func(unused_key, dataset):
         return dataset.apply(batch_dataset(batch_size, padded_shapes=padded_shapes))
