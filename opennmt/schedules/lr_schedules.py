@@ -175,7 +175,9 @@ class InvSqrtDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
 
     .. math::
 
-        \text{schedule}(\text{step}) = \text{learning_rate}
+        \text{schedule}(\text{step}) = \text{init_lr}
+                                       +
+                                       (\text{lr} - \text{init_lr})
                                        \times
                                        \frac{\text{step}}{\text{warmup_steps}}
 
@@ -183,7 +185,7 @@ class InvSqrtDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
 
     .. math::
 
-        \text{schedule}(\text{step}) = \text{learning_rate}
+        \text{schedule}(\text{step}) = \text{lr}
                                        \times
                                        \sqrt{\frac{\text{warmup_steps}}{\text{step}}}
 
@@ -191,22 +193,31 @@ class InvSqrtDecay(tf.keras.optimizers.schedules.LearningRateSchedule):
       - :class:`opennmt.schedules.RsqrtDecay`
     """
 
-    def __init__(self, learning_rate, warmup_steps):
+    def __init__(self, learning_rate, warmup_steps, initial_learning_rate=0):
         """Initializes the decay function.
 
         Args:
           learning_rate: The base learning rate.
           warmup_steps: The number of warmup steps.
+          initial_learning_rate: Initial learning rate during warmup.
         """
-        self.learning_rate = tf.cast(learning_rate, tf.float32)
+        self.lr = tf.cast(learning_rate, tf.float32)
+        self.init_lr = tf.cast(initial_learning_rate, tf.float32)
         self.warmup_steps = tf.cast(warmup_steps, tf.float32)
 
     def __call__(self, step):
         step = tf.cast(step + 1, tf.float32)
-        return self.learning_rate * tf.cond(
+
+        def _warmup():
+            return self.init_lr + (self.lr - self.init_lr) * (step / self.warmup_steps)
+
+        def _after_warmup():
+            return self.lr * tf.math.sqrt(self.warmup_steps / step)
+
+        return tf.cond(
             step <= self.warmup_steps,
-            true_fn=lambda: step / self.warmup_steps,
-            false_fn=lambda: tf.math.sqrt(self.warmup_steps / step),
+            true_fn=_warmup,
+            false_fn=_after_warmup,
         )
 
 
