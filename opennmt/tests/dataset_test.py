@@ -246,11 +246,10 @@ class DatasetTest(tf.test.TestCase):
             self.assertAllEqual(element["length"], length)
             self.assertAllEqual(element["index"], index)
 
-        self.assertEqual(len(elements), 4)
-        _check_element(elements[0], [8, 6, 7], [0, 3, 4])
-        _check_element(elements[1], [2, 1], [1, 5])
-        _check_element(elements[2], [5, 3], [2, 6])
-        _check_element(elements[3], [9], [7])
+        self.assertEqual(len(elements), 3)
+        _check_element(elements[0], [2, 1, 3], [1, 5, 6])
+        _check_element(elements[1], [8, 7, 9], [0, 4, 7])
+        _check_element(elements[2], [5, 6], [2, 3])
 
 
 if __name__ == "__main__":

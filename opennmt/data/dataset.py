@@ -424,7 +424,10 @@ def batch_sequence_dataset(
             return default_id
         if not isinstance(lengths, list):
             lengths = [lengths]  # Fallback to the general case of parallel inputs.
-        lengths = [length // length_bucket_width for length in lengths]
+        lengths = [
+            tf.math.maximum(tf.math.ceil(length / length_bucket_width) - 1, 0)
+            for length in lengths
+        ]
         return tf.reduce_max(lengths)
 
     def _key_func(*args):
@@ -451,13 +454,11 @@ def batch_sequence_dataset(
         return dataset.apply(batch_dataset(batch_size, padded_shapes=padded_shapes))
 
     def _window_size_func(key):
-        if length_bucket_width > 1:
-            key += 1  # For length_bucket_width == 1, key 0 is unassigned.
-        size = batch_size // (key * length_bucket_width)
-        required_multiple = batch_multiplier * batch_size_multiple
-        if required_multiple > 1:
-            size = size + required_multiple - size % required_multiple
-        return tf.cast(tf.maximum(size, required_multiple), tf.int64)
+        bucket_max_length = (key + 1) * length_bucket_width
+        size = batch_size // bucket_max_length
+        # Round to the closest smaller or equal multiple.
+        size = (size // batch_size_multiple) * batch_size_multiple
+        return tf.math.maximum(size, batch_size_multiple)
 
     if length_bucket_width is None:
         if batch_type == "tokens":

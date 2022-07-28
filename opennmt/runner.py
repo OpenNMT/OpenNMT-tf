@@ -26,7 +26,7 @@ _CONFIG_FALLBACK = {
     "params": {},
     "train": {
         "batch_type": "examples",
-        "length_bucket_width": 1,
+        "length_bucket_width": 2,
         "sample_buffer_size": 500000,
         "save_summary_steps": 100,
     },
