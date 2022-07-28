@@ -1,5 +1,7 @@
 import tensorflow as tf
 
+from parameterized import parameterized
+
 from opennmt.schedules import lr_schedules
 
 
@@ -69,11 +71,14 @@ class LRSchedulesTest(tf.test.TestCase):
     def testRsqrtDecay(self):
         self._testNoError(lr_schedules.RsqrtDecay(2.0, 4000))
 
-    def testInvSqrtDecay(self):
+    @parameterized.expand([(0,), (1e-07,)])
+    def testInvSqrtDecay(self, initial_learning_rate):
         learning_rate = 0.0002
         warmup_steps = 4000
-        schedule = lr_schedules.InvSqrtDecay(learning_rate, warmup_steps)
-        self.assertNotEqual(schedule(0), 0)
+        schedule = lr_schedules.InvSqrtDecay(
+            learning_rate, warmup_steps, initial_learning_rate=initial_learning_rate
+        )
+        self.assertNotEqual(schedule(0), initial_learning_rate)
         self.assertEqual(schedule(warmup_steps - 1), learning_rate)
 
     def testCosineAnnealing(self):
