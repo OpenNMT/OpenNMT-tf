@@ -225,7 +225,8 @@ def average_checkpoints(
     new_checkpoint_manager = tf.train.CheckpointManager(
         checkpoint, output_dir, max_to_keep=None
     )
-    new_checkpoint_manager.save(checkpoint_number=last_step)
+    path = new_checkpoint_manager.save(checkpoint_number=last_step)
+    tf.get_logger().info("Saved averaged checkpoint to %s", path)
     return output_dir
 
 
