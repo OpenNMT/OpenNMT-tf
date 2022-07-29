@@ -15,6 +15,23 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.28.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.28.0) (2022-07-29)
+
+### New features
+
+* Add `initial_learning_rate` parameter to the `InvSqrtDecay` schedule
+* Add new arguments to the `Transformer` constructor:
+  * `mha_bias`: to disable bias terms in the multi-head attention (as presented in the original paper)
+  * `output_layer_bias`: to disable bias in the output linear layer
+
+### Fixes and improvements
+
+* Fix incorrect dtype for `SequenceRecordInputter` length vector
+* Fix rounding error when batching datasets which could make the number of tokens in a batch greater than the configured batch size
+* Fix deprecation warning when using `distutils.version.LooseVersion`, use `packaging.version.Version` instead
+* Make the length dimension unknown in the dataset used for batch size autotuning so that it matches the behavior in training
+* Update SacreBLEU requirement to include new version 2.2
+
 ## [2.27.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.27.1) (2022-06-02)
 
 ### Fixes and improvements
