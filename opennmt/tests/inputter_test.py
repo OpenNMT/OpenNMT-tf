@@ -650,6 +650,9 @@ class InputterTest(tf.test.TestCase):
             batch_autotune_mode=True,
         )
 
+        source_spec, target_spec = dataset.element_spec
+        self.assertListEqual(source_spec["ids"].shape.as_list(), [None, None])
+
         source, target = next(iter(dataset))
         self.assertListEqual(source["ids"].shape.as_list(), [8, 100])
         self.assertListEqual(target["ids"].shape.as_list(), [8, 120])
