@@ -817,6 +817,25 @@ class ExampleInputterAdapter:
             padded_shapes = self.get_padded_shapes(
                 dataset.element_spec, maximum_length=maximum_length
             )
+
+            # Dynamically pad each sequence to the maximum length.
+            def _pad_to_shape(tensor, padded_shape):
+                if tensor.shape.rank == 0:
+                    return tensor
+                tensor_shape = misc.shape_list(tensor)
+                paddings = [
+                    [0, padded_dim - tensor_dim]
+                    if tf.is_tensor(tensor_dim) and padded_dim is not None
+                    else [0, 0]
+                    for tensor_dim, padded_dim in zip(tensor_shape, padded_shape)
+                ]
+                return tf.pad(tensor, paddings)
+
+            dataset = dataset.map(
+                lambda *arg: tf.nest.map_structure(
+                    _pad_to_shape, misc.item_or_tuple(arg), padded_shapes
+                )
+            )
             dataset = dataset.apply(
                 dataset_util.batch_sequence_dataset(
                     batch_size,
@@ -824,7 +843,6 @@ class ExampleInputterAdapter:
                     batch_multiplier=batch_multiplier,
                     length_bucket_width=1,
                     length_fn=constant_length_fn,
-                    padded_shapes=padded_shapes,
                 )
             )
             return dataset
