@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.schedules.lr_schedules &mdash; OpenNMT-tf 2.27.1 documentation</title>
+  <title>opennmt.schedules.lr_schedules &mdash; OpenNMT-tf 2.28.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.27
+                2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -270,7 +270,9 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        \text{schedule}(\text{step}) = \text{learning_rate}</span>
+<span class="sd">        \text{schedule}(\text{step}) = \text{init_lr}</span>
+<span class="sd">                                       +</span>
+<span class="sd">                                       (\text{lr} - \text{init_lr})</span>
 <span class="sd">                                       \times</span>
 <span class="sd">                                       \frac{\text{step}}{\text{warmup_steps}}</span>
 
@@ -278,7 +280,7 @@
 
 <span class="sd">    .. math::</span>
 
-<span class="sd">        \text{schedule}(\text{step}) = \text{learning_rate}</span>
+<span class="sd">        \text{schedule}(\text{step}) = \text{lr}</span>
 <span class="sd">                                       \times</span>
 <span class="sd">                                       \sqrt{\frac{\text{warmup_steps}}{\text{step}}}</span>
 
@@ -286,22 +288,31 @@
 <span class="sd">      - :class:`opennmt.schedules.RsqrtDecay`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="InvSqrtDecay.__init__"><a class="viewcode-back" href="../../../package/opennmt.schedules.InvSqrtDecay.html#opennmt.schedules.InvSqrtDecay.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="n">warmup_steps</span><span class="p">):</span>
+<div class="viewcode-block" id="InvSqrtDecay.__init__"><a class="viewcode-back" href="../../../package/opennmt.schedules.InvSqrtDecay.html#opennmt.schedules.InvSqrtDecay.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="n">warmup_steps</span><span class="p">,</span> <span class="n">initial_learning_rate</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the decay function.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          learning_rate: The base learning rate.</span>
 <span class="sd">          warmup_steps: The number of warmup steps.</span>
+<span class="sd">          initial_learning_rate: Initial learning rate during warmup.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_lr</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">initial_learning_rate</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">warmup_steps</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
         <span class="n">step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
+
+        <span class="k">def</span> <span class="nf">_warmup</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_lr</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_lr</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">step</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_after_warmup</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span> <span class="o">/</span> <span class="n">step</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span>
             <span class="n">step</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">,</span>
-            <span class="n">true_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">step</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span><span class="p">,</span>
-            <span class="n">false_fn</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">warmup_steps</span> <span class="o">/</span> <span class="n">step</span><span class="p">),</span>
+            <span class="n">true_fn</span><span class="o">=</span><span class="n">_warmup</span><span class="p">,</span>
+            <span class="n">false_fn</span><span class="o">=</span><span class="n">_after_warmup</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 2.27.1 documentation</title>
+  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 2.28.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.27
+                2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -912,6 +912,25 @@
             <span class="n">padded_shapes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_padded_shapes</span><span class="p">(</span>
                 <span class="n">dataset</span><span class="o">.</span><span class="n">element_spec</span><span class="p">,</span> <span class="n">maximum_length</span><span class="o">=</span><span class="n">maximum_length</span>
             <span class="p">)</span>
+
+            <span class="c1"># Dynamically pad each sequence to the maximum length.</span>
+            <span class="k">def</span> <span class="nf">_pad_to_shape</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">padded_shape</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">tensor</span>
+                <span class="n">tensor_shape</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">shape_list</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+                <span class="n">paddings</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">padded_dim</span> <span class="o">-</span> <span class="n">tensor_dim</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">tensor_dim</span><span class="p">)</span> <span class="ow">and</span> <span class="n">padded_dim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="k">else</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">tensor_dim</span><span class="p">,</span> <span class="n">padded_dim</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tensor_shape</span><span class="p">,</span> <span class="n">padded_shape</span><span class="p">)</span>
+                <span class="p">]</span>
+                <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">paddings</span><span class="p">)</span>
+
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="o">*</span><span class="n">arg</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">nest</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span>
+                    <span class="n">_pad_to_shape</span><span class="p">,</span> <span class="n">misc</span><span class="o">.</span><span class="n">item_or_tuple</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span> <span class="n">padded_shapes</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
                 <span class="n">dataset_util</span><span class="o">.</span><span class="n">batch_sequence_dataset</span><span class="p">(</span>
                     <span class="n">batch_size</span><span class="p">,</span>
@@ -919,7 +938,6 @@
                     <span class="n">batch_multiplier</span><span class="o">=</span><span class="n">batch_multiplier</span><span class="p">,</span>
                     <span class="n">length_bucket_width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                     <span class="n">length_fn</span><span class="o">=</span><span class="n">constant_length_fn</span><span class="p">,</span>
-                    <span class="n">padded_shapes</span><span class="o">=</span><span class="n">padded_shapes</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">dataset</span>

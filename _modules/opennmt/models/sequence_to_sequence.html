@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.27.1 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.28.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.27
+                2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -628,11 +628,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
             <span class="n">new_model</span><span class="o">.</span><span class="n">features_inputter</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">_map_variable</span><span class="p">(</span>
-            <span class="n">target_mapping</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">bias</span><span class="p">,</span>
-            <span class="n">new_model</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">bias</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_map_variable</span><span class="p">(</span>
+                <span class="n">target_mapping</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">bias</span><span class="p">,</span>
+                <span class="n">new_model</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">output_layer</span><span class="o">.</span><span class="n">bias</span><span class="p">,</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">share_input_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">share_embeddings</span><span class="p">):</span>
             <span class="n">_map_variable</span><span class="p">(</span>

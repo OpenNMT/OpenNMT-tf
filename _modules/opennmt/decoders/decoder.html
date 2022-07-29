@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.27.1 documentation</title>
+  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.28.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.27
+                2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -156,7 +156,14 @@
 <div class="viewcode-block" id="Decoder"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder">[docs]</a><span class="k">class</span> <span class="nc">Decoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base class for decoders.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Decoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_sources</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">vocab_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Decoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">num_sources</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">vocab_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_layer_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
 
 <span class="sd">        If you don&#39;t set one of :obj:`vocab_size` or :obj:`output_layer` here,</span>
@@ -167,6 +174,7 @@
 <span class="sd">          num_sources: The number of source contexts expected by this decoder.</span>
 <span class="sd">          vocab_size: The output vocabulary size (optional if :obj:`output_layer` is set).</span>
 <span class="sd">          output_layer: The output projection layer (optional).</span>
+<span class="sd">          output_layer_bias: Add bias after the output projection layer.</span>
 <span class="sd">          **kwargs: Additional layer arguments.</span>
 
 <span class="sd">        Raises:</span>
@@ -182,6 +190,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_sources</span> <span class="o">=</span> <span class="n">num_sources</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_layer_bias</span> <span class="o">=</span> <span class="n">output_layer_bias</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">memory_sequence_length</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">vocab_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">output_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -225,7 +234,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">vocab_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;One of vocab_size and output_layer must be set&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span>
+                <span class="n">vocab_size</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_layer_bias</span>
+            <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Decoder.reuse_embeddings"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.reuse_embeddings">[docs]</a>    <span class="k">def</span> <span class="nf">reuse_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reuses embeddings in the decoder output layer.</span>

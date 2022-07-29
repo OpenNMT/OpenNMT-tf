@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InvSqrtDecay &mdash; OpenNMT-tf 2.27.1 documentation</title>
+  <title>InvSqrtDecay &mdash; OpenNMT-tf 2.28.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -34,7 +34,7 @@
             <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.27
+                2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -124,17 +124,19 @@
 <h1>InvSqrtDecay<a class="headerlink" href="#invsqrtdecay" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="opennmt.schedules.InvSqrtDecay">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opennmt.schedules.</span></span><span class="sig-name descname"><span class="pre">InvSqrtDecay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmup_steps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/schedules/lr_schedules.html#InvSqrtDecay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.schedules.InvSqrtDecay" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opennmt.schedules.</span></span><span class="sig-name descname"><span class="pre">InvSqrtDecay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmup_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/schedules/lr_schedules.html#InvSqrtDecay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.schedules.InvSqrtDecay" title="Permalink to this definition"></a></dt>
 <dd><p>Decay based on the reciprocal of the step square root.
 This corresponds to <code class="docutils literal notranslate"><span class="pre">inverse_sqrt</span></code> in Fairseq and <code class="docutils literal notranslate"><span class="pre">--lr-decay-inv-sqrt</span></code> in Marian.</p>
 <p>During warmup (linear increase of the learning rate):</p>
 <div class="math notranslate nohighlight">
-\[\text{schedule}(\text{step}) = \text{learning_rate}
+\[\text{schedule}(\text{step}) = \text{init_lr}
+                               +
+                               (\text{lr} - \text{init_lr})
                                \times
                                \frac{\text{step}}{\text{warmup_steps}}\]</div>
 <p>After warmup:</p>
 <div class="math notranslate nohighlight">
-\[\text{schedule}(\text{step}) = \text{learning_rate}
+\[\text{schedule}(\text{step}) = \text{lr}
                                \times
                                \sqrt{\frac{\text{warmup_steps}}{\text{step}}}\]</div>
 <div class="admonition seealso">
@@ -146,13 +148,14 @@ This corresponds to <code class="docutils literal notranslate"><span class="pre"
 <p><strong>Inherits from:</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">keras.optimizers.schedules.learning_rate_schedule.LearningRateSchedule</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="opennmt.schedules.InvSqrtDecay.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmup_steps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/schedules/lr_schedules.html#InvSqrtDecay.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.schedules.InvSqrtDecay.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warmup_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_learning_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/schedules/lr_schedules.html#InvSqrtDecay.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.schedules.InvSqrtDecay.__init__" title="Permalink to this definition"></a></dt>
 <dd><p>Initializes the decay function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>learning_rate</strong> – The base learning rate.</p></li>
 <li><p><strong>warmup_steps</strong> – The number of warmup steps.</p></li>
+<li><p><strong>initial_learning_rate</strong> – Initial learning rate during warmup.</p></li>
 </ul>
 </dd>
 </dl>

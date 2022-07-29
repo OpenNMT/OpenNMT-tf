@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.27.1 documentation</title>
+  <title>opennmt.models.transformer &mdash; OpenNMT-tf 2.28.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.27
+                2.28
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -128,12 +128,14 @@
         <span class="n">attention_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
         <span class="n">ffn_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
         <span class="n">ffn_activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">,</span>
+        <span class="n">mha_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">position_encoder_class</span><span class="o">=</span><span class="n">SinusoidalPositionEncoder</span><span class="p">,</span>
         <span class="n">share_embeddings</span><span class="o">=</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
         <span class="n">share_encoders</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">maximum_relative_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">attention_reduction</span><span class="o">=</span><span class="n">MultiHeadAttentionReduction</span><span class="o">.</span><span class="n">FIRST_HEAD_LAST_LAYER</span><span class="p">,</span>
         <span class="n">pre_norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">output_layer_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes a Transformer model.</span>
 
@@ -159,6 +161,7 @@
 <span class="sd">            the feed forward layer.</span>
 <span class="sd">          ffn_activation: The activation function to apply between the two linear</span>
 <span class="sd">            transformations of the feed forward layer.</span>
+<span class="sd">          mha_bias: Add bias after linear layers in the multi-head attention.</span>
 <span class="sd">          position_encoder_class: The :class:`opennmt.layers.PositionEncoder`</span>
 <span class="sd">            class to use for position encoding (or a callable that returns an</span>
 <span class="sd">            instance).</span>
@@ -176,6 +179,7 @@
 <span class="sd">            ``pre_norm=False``, but the authors later suggested that ``pre_norm=True``</span>
 <span class="sd">            &quot;seems better for harder-to-learn models, so it should probably be the</span>
 <span class="sd">            default.&quot;</span>
+<span class="sd">          output_layer_bias: Add bias after the output layer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">source_inputter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">source_inputter</span> <span class="o">=</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">(</span><span class="n">embedding_size</span><span class="o">=</span><span class="n">num_units</span><span class="p">)</span>
@@ -196,6 +200,7 @@
                 <span class="n">attention_dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span>
                 <span class="n">ffn_dropout</span><span class="o">=</span><span class="n">ffn_dropout</span><span class="p">,</span>
                 <span class="n">ffn_activation</span><span class="o">=</span><span class="n">ffn_activation</span><span class="p">,</span>
+                <span class="n">mha_bias</span><span class="o">=</span><span class="n">mha_bias</span><span class="p">,</span>
                 <span class="n">position_encoder_class</span><span class="o">=</span><span class="n">position_encoder_class</span><span class="p">,</span>
                 <span class="n">maximum_relative_position</span><span class="o">=</span><span class="n">maximum_relative_position</span><span class="p">,</span>
                 <span class="n">pre_norm</span><span class="o">=</span><span class="n">pre_norm</span><span class="p">,</span>
@@ -219,11 +224,13 @@
             <span class="n">attention_dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span>
             <span class="n">ffn_dropout</span><span class="o">=</span><span class="n">ffn_dropout</span><span class="p">,</span>
             <span class="n">ffn_activation</span><span class="o">=</span><span class="n">ffn_activation</span><span class="p">,</span>
+            <span class="n">mha_bias</span><span class="o">=</span><span class="n">mha_bias</span><span class="p">,</span>
             <span class="n">position_encoder_class</span><span class="o">=</span><span class="n">position_encoder_class</span><span class="p">,</span>
             <span class="n">num_sources</span><span class="o">=</span><span class="n">source_inputter</span><span class="o">.</span><span class="n">num_outputs</span><span class="p">,</span>
             <span class="n">maximum_relative_position</span><span class="o">=</span><span class="n">maximum_relative_position</span><span class="p">,</span>
             <span class="n">attention_reduction</span><span class="o">=</span><span class="n">attention_reduction</span><span class="p">,</span>
             <span class="n">pre_norm</span><span class="o">=</span><span class="n">pre_norm</span><span class="p">,</span>
+            <span class="n">output_layer_bias</span><span class="o">=</span><span class="n">output_layer_bias</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_pre_norm</span> <span class="o">=</span> <span class="n">pre_norm</span>
