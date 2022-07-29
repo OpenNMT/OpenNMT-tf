@@ -9,9 +9,9 @@ EXCLUSIVE_MAX_TF_VERSION = "2.10.0"
 def _check_tf_version():
     import warnings
 
-    from packaging.version import Version
-
     import tensorflow as tf
+
+    from packaging.version import Version
 
     if (
         Version(INCLUSIVE_MIN_TF_VERSION)
