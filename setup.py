@@ -70,6 +70,7 @@ setup(
     python_requires=">=3.7",
     install_requires=[
         "ctranslate2>=2.17.0,<3",
+        "packaging",
         "pyonmttok>=1.29.0,<2",
         "pyyaml>=5.3,<7",
         "rouge>=1.0,<2",
