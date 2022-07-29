@@ -832,7 +832,9 @@ class ExampleInputterAdapter:
                 return tf.pad(tensor, paddings)
 
             dataset = dataset.map(
-                lambda *args: tf.nest.map_structure(_pad_to_shape, args, padded_shapes)
+                lambda *arg: tf.nest.map_structure(
+                    _pad_to_shape, misc.item_or_tuple(arg), padded_shapes
+                )
             )
             dataset = dataset.apply(
                 dataset_util.batch_sequence_dataset(
