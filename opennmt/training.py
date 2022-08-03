@@ -170,7 +170,7 @@ class Trainer:
         shadow_variables = (
             moving_average.shadow_variables()
             if moving_average is not None
-            else contextlib.suppress()
+            else contextlib.nullcontext()
         )
         with shadow_variables:
             self._checkpoint.save(step)
@@ -186,7 +186,7 @@ class Trainer:
         shadow_variables = (
             moving_average.shadow_variables()
             if moving_average is not None
-            else contextlib.suppress()
+            else contextlib.nullcontext()
         )
         with shadow_variables:
             evaluator(step)
