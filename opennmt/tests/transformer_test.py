@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 import tensorflow as tf
 
@@ -116,22 +118,7 @@ class TransformerTest(tf.test.TestCase):
             [[2, 3, 4, 4], [1, 2, 3, 4], [0, 1, 2, 3], [0, 0, 1, 2]],
         )
 
-    @parameterized.expand(
-        [
-            [2, True],
-            [2, False],
-            [3, True],
-            [3, False],
-            [2, True, 1],
-            [2, False, 1],
-            [3, True, 1],
-            [3, False, 1],
-            [2, True, 2],
-            [2, False, 2],
-            [3, True, 2],
-            [3, False, 2],
-        ]
-    )
+    @parameterized.expand(itertools.product([2, 3], [True, False], [0, 1, 2]))
     def testSplitChunks(self, chunk_length, concat_3_chunks, global_length=0):
         batch = 3
         length = [5, 3, 7]
@@ -155,22 +142,7 @@ class TransformerTest(tf.test.TestCase):
         self.assertEqual(chunk_length_eval, split_shape[2])
         self.assertEqual(depth, split_shape[3])
 
-    @parameterized.expand(
-        [
-            [tf.bool, 2],
-            [tf.float32, 2],
-            [tf.bool, 3],
-            [tf.float32, 3],
-            [tf.bool, 2, 1],
-            [tf.float32, 2, 1],
-            [tf.bool, 3, 1],
-            [tf.float32, 3, 1],
-            [tf.bool, 2, 2],
-            [tf.float32, 2, 2],
-            [tf.bool, 3, 2],
-            [tf.float32, 3, 2],
-        ]
-    )
+    @parameterized.expand(itertools.product([tf.bool, tf.float32], [2, 3], [0, 1, 2]))
     def testChunkAttentionMask(self, dtype, chunk_length, global_length=0):
         length = [2, 4, 3]
         batch = len(length)
