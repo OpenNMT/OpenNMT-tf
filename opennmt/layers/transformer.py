@@ -584,7 +584,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
                 tf.cast(dot, tf.float32) * mask + ((1.0 - mask) * tf.float32.min),
                 dot.dtype,
             )
-            if self.global_attention_length:
+            if use_sparse_att and self.global_attention_length:
                 global_dot = tf.cast(
                     tf.cast(global_dot, tf.float32) * global_mask
                     + ((1.0 - global_mask) * tf.float32.min),
@@ -595,7 +595,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         drop_attn = common.dropout(attn, self.dropout, training=training)
         heads = tf.matmul(drop_attn, values)
 
-        if self.global_attention_length:
+        if use_sparse_att and self.global_attention_length:
             global_attn = tf.cast(
                 tf.nn.softmax(tf.cast(global_dot, tf.float32)), global_dot.dtype
             )
@@ -616,7 +616,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         # Concatenate all heads output.
         combined = combine_heads(heads)
         outputs = self.linear_output(combined)
-        if self.global_attention_length:
+        if use_sparse_att and self.global_attention_length:
             global_combined = combine_heads(global_heads)
             global_outputs = self.linear_output(
                 global_combined
