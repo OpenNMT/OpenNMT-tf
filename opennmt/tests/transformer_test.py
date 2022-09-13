@@ -187,10 +187,11 @@ class TransformerTest(tf.test.TestCase):
 
         mask_chunked = self.evaluate(mask_chunked)
         if global_length:
-            expanded_mask = np.repeat(mask, num_chunks, axis=0)
-            expanded_mask = np.repeat(
-                expanded_mask[:, np.newaxis, :], chunk_length, axis=1
-            )
+            expanded_mask = tf.expand_dims(mask, 1)
+            expanded_mask = tf.broadcast_to(expanded_mask, [batch, maximum_length, maximum_length + global_length])
+            pad = chunk_length*num_chunks - maximum_length
+            expanded_mask = tf.pad(tensor=expanded_mask, paddings=[[0, 0], [0, pad], [0, 0]])
+            expanded_mask = tf.reshape(expanded_mask, [batch * num_chunks, chunk_length, maximum_length + global_length])
             expected = tf.concat(
                 (expected, expanded_mask[:, :, :global_length]), axis=2
             )
