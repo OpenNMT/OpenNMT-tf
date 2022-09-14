@@ -43,7 +43,7 @@ class MiscTest(tf.test.TestCase):
         variable_name = misc.get_variable_name(variable, model)
         self.assertEqual(variable_name, expected_name)
 
-        variables = misc.get_variables_name_mapping(model, root_key="model")
+        variables = misc.get_variables_name_mapping(model, "model")
         self.assertIs(variables[expected_name], variable)
 
         if mixed_precision:
