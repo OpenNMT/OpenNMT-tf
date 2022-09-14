@@ -11,7 +11,9 @@ import sys
 import numpy as np
 import tensorflow as tf
 
-from tensorflow.python.training.tracking import graph_view
+from opennmt.utils import compat
+
+_CHECKPOINT_VARIABLE_SUFFIX = ".ATTRIBUTES/VARIABLE_VALUE"
 
 
 def get_devices(count=1, fallback_to_cpu=True):
@@ -93,39 +95,62 @@ def mixed_precision_enabled():
     return "float16" in policy.name
 
 
-def get_variables_name_mapping(root, root_key=None):
+def get_variables_name_mapping(root, root_key):
     """Returns mapping between variables and their name in the object-based
     representation.
 
     Args:
       root: The root layer.
-      root_key: Key that was used to save :obj:`root`, if any.
+      root_key: Key that was used to save :obj:`root`.
 
     Returns:
       A dict mapping names to variables.
     """
-    # TODO: find a way to implement this function using public APIs.
     names_to_variables = {}
-    _, path_to_root = graph_view.ObjectGraphView(root)._breadth_first_traversal()
-    for path in path_to_root.values():
-        if not path:
-            continue
-        variable = path[-1].ref
-        if not isinstance(variable, tf.Variable):
-            continue
-        name = "%s/%s" % (
-            "/".join(field.name for field in path),
-            ".ATTRIBUTES/VARIABLE_VALUE",
-        )
-        if root_key is not None:
-            name = "%s/%s" % (root_key, name)
-        names_to_variables[name] = variable
+
+    if compat.tf_supports("train.TrackableView"):
+        if isinstance(root, tf.Variable):
+            names_to_variables["%s/%s" % (root_key, _CHECKPOINT_VARIABLE_SUFFIX)] = root
+        elif isinstance(root, list):
+            for i, trackable in enumerate(root):
+                names_to_variables.update(
+                    get_variables_name_mapping(
+                        trackable, root_key="%s/%d" % (root_key, i)
+                    )
+                )
+        else:
+            trackable_view = tf.train.TrackableView(root)
+            for name, trackable in trackable_view.children(root).items():
+                names_to_variables.update(
+                    get_variables_name_mapping(
+                        trackable, root_key="%s/%s" % (root_key, name)
+                    )
+                )
+
+    else:
+        from tensorflow.python.training.tracking import graph_view
+
+        _, path_to_root = graph_view.ObjectGraphView(root)._breadth_first_traversal()
+        for path in path_to_root.values():
+            if not path:
+                continue
+            variable = path[-1].ref
+            if not isinstance(variable, tf.Variable):
+                continue
+            name = "%s/%s/%s" % (
+                root_key,
+                "/".join(field.name for field in path),
+                _CHECKPOINT_VARIABLE_SUFFIX,
+            )
+            names_to_variables[name] = variable
+        return names_to_variables
+
     return names_to_variables
 
 
 def get_variable_name(variable, root, model_key="model"):
     """Gets the variable name in the object-based representation."""
-    names_to_variables = get_variables_name_mapping(root, root_key=model_key)
+    names_to_variables = get_variables_name_mapping(root, model_key)
     for name, var in names_to_variables.items():
         if var is variable:
             return name
