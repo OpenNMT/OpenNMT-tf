@@ -118,7 +118,7 @@ def get_variables_name_mapping(root, root_key):
                         trackable, root_key="%s/%d" % (root_key, i)
                     )
                 )
-        else:
+        elif isinstance(root, tf.Module):
             trackable_view = tf.train.TrackableView(root)
             for name, trackable in trackable_view.children(root).items():
                 names_to_variables.update(
