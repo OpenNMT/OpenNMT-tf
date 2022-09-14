@@ -128,6 +128,7 @@ def get_variables_name_mapping(root, root_key):
                 )
 
     else:
+        # TODO: remove this block when TensorFlow requirement is updated to >=2.10.
         from tensorflow.python.training.tracking import graph_view
 
         _, path_to_root = graph_view.ObjectGraphView(root)._breadth_first_traversal()
