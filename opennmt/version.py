@@ -3,7 +3,7 @@
 __version__ = "2.28.0"
 
 INCLUSIVE_MIN_TF_VERSION = "2.6.0"
-EXCLUSIVE_MAX_TF_VERSION = "2.10.0"
+EXCLUSIVE_MAX_TF_VERSION = "2.11.0"
 
 
 def _check_tf_version():
