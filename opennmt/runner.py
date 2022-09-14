@@ -356,6 +356,10 @@ class Runner(object):
         config = self._finalize_config()
         model = self._init_model(config)
         optimizer = model.get_optimizer()
+        checkpoint = checkpoint_util.Checkpoint.from_config(
+            config, model, optimizer=optimizer
+        )
+        checkpoint.restore()
         model.create_variables(optimizer=optimizer)
         trackables = dict(model=model, optimizer=optimizer)
         output_dir = checkpoint_util.average_checkpoints(
