@@ -186,7 +186,7 @@ def average_checkpoints(
     """Averages object-based checkpoints.
 
     Args:
-      model_dir: The directory containing checkpoints.
+      model_dir: The directory containing checkpoints, or a list of checkpoint paths.
       output_dir: The directory that will contain the averaged checkpoint.
       trackables: A dictionary containing the trackable objects included in the
         checkpoint.
@@ -205,16 +205,20 @@ def average_checkpoints(
     See Also:
       :func:`opennmt.utils.average_checkpoints_into_layer`
     """
-    if model_dir == output_dir:
-        raise ValueError("Model and output directory must be different")
     model = trackables.get(model_key)
     if model is None:
         raise ValueError("%s not found in trackables %s" % (model_key, trackables))
 
-    checkpoint_state = tf.train.get_checkpoint_state(model_dir)
-    if checkpoint_state is None:
-        raise ValueError("No checkpoints found in %s" % model_dir)
-    checkpoints_path = checkpoint_state.all_model_checkpoint_paths
+    if isinstance(model_dir, list):
+        checkpoints_path = list(sorted(model_dir, key=get_step_from_checkpoint_prefix))
+    else:
+        if model_dir == output_dir:
+            raise ValueError("Model and output directory must be different")
+        checkpoint_state = tf.train.get_checkpoint_state(model_dir)
+        if checkpoint_state is None:
+            raise ValueError("No checkpoints found in %s" % model_dir)
+        checkpoints_path = checkpoint_state.all_model_checkpoint_paths
+
     if len(checkpoints_path) > max_count:
         checkpoints_path = checkpoints_path[-max_count:]
 

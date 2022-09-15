@@ -340,12 +340,15 @@ class Runner(object):
         )
         return evaluator(step)
 
-    def average_checkpoints(self, output_dir, max_count=8):
+    def average_checkpoints(self, output_dir, max_count=8, checkpoint_paths=None):
         """Averages checkpoints.
 
         Args:
           output_dir: The directory that will contain the averaged checkpoint.
           max_count: The maximum number of checkpoints to average.
+          checkpoint_paths: The list of checkpoints to average. If not set,
+            the last :obj:`max_count` checkpoints of the current model directory
+            are averaged.
 
         Returns:
           The path to the directory containing the averaged checkpoint.
@@ -360,7 +363,10 @@ class Runner(object):
         model.create_variables(optimizer=optimizer)
         trackables = dict(model=model, optimizer=optimizer)
         output_dir = checkpoint_util.average_checkpoints(
-            checkpoint.model_dir, output_dir, trackables, max_count=max_count
+            self.model_dir if checkpoint_paths is None else checkpoint_paths,
+            output_dir,
+            trackables,
+            max_count=max_count,
         )
         _forward_model_description(self.model_dir, output_dir)
         self._config["model_dir"] = output_dir
