@@ -229,22 +229,38 @@ class ModelTest(tf.test.TestCase):
             params=params,
         )
 
-    def testSequenceToSequenceWithSharedEmbedding(self):
+    @parameterized.expand(
+        [
+            (models.EmbeddingsSharingLevel.ALL, True, True, True),
+            (models.EmbeddingsSharingLevel.AUTO, True, True, True),
+            (models.EmbeddingsSharingLevel.AUTO, False, False, True),
+        ]
+    )
+    def testSequenceToSequenceWithSharedEmbedding(
+        self, share_embeddings, reuse_vocab, input_is_shared, target_is_shared
+    ):
         model = models.SequenceToSequence(
             inputters.WordEmbedder(16),
             inputters.WordEmbedder(16),
             encoders.SelfAttentionEncoder(2, 16, 4, 32),
             decoders.SelfAttentionDecoder(2, 16, 4, 32),
-            share_embeddings=models.EmbeddingsSharingLevel.ALL,
+            share_embeddings=share_embeddings,
         )
         _, _, data_config = self._makeToyEnDeData()
-        data_config["target_vocabulary"] = data_config["source_vocabulary"]
+        if reuse_vocab:
+            data_config["target_vocabulary"] = data_config["source_vocabulary"]
         model.initialize(data_config)
-        self.assertTrue(model.decoder.initialized)
-        model.build(None)
+        model.create_variables()
+
         self.assertEqual(
-            model.labels_inputter.embedding.ref(),
-            model.decoder.output_layer.weight.ref(),
+            model.features_inputter.embedding.ref()
+            == model.labels_inputter.embedding.ref(),
+            input_is_shared,
+        )
+        self.assertEqual(
+            model.labels_inputter.embedding.ref()
+            == model.decoder.output_layer.kernel.ref(),
+            target_is_shared,
         )
 
     @parameterized.expand(
