@@ -5,6 +5,8 @@ from opennmt.models.catalog import (
     ListenAttendSpell,
     LstmCnnCrfTagger,
     LuongAttention,
+    ScalingNmtEnDe,
+    ScalingNmtEnFr,
     TransformerBase,
     TransformerBaseRelative,
     TransformerBaseSharedEmbeddings,
