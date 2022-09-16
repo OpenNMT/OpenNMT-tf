@@ -243,9 +243,44 @@ class ModelTest(tf.test.TestCase):
         self.assertTrue(model.decoder.initialized)
         model.build(None)
         self.assertEqual(
+            model.features_inputter.embedding.ref(),
+            model.labels_inputter.embedding.ref(),
+        )
+        self.assertEqual(
             model.labels_inputter.embedding.ref(),
             model.decoder.output_layer.weight.ref(),
         )
+
+    @parameterized.expand([[False], [True]])
+    def testSequenceToSequenceWithSharedEmbeddingAuto(self, reuse_vocab):
+        _, _, data_config = self._makeToyEnDeData()
+        if reuse_vocab:
+            data_config["target_vocabulary"] = data_config["source_vocabulary"]
+
+        model = models.SequenceToSequence(
+            inputters.WordEmbedder(16),
+            inputters.WordEmbedder(16),
+            encoders.SelfAttentionEncoder(2, 16, 4, 32),
+            decoders.SelfAttentionDecoder(2, 16, 4, 32),
+            share_embeddings=models.EmbeddingsSharingLevel.ALL_AUTO,
+        )
+        model.initialize(data_config)
+        model.build(None)
+
+        if reuse_vocab:
+            self.assertEqual(
+                model.features_inputter.embedding.ref(),
+                model.labels_inputter.embedding.ref(),
+            )
+            self.assertEqual(
+                model.labels_inputter.embedding.ref(),
+                model.decoder.output_layer.weight.ref(),
+            )
+        else:
+            self.assertNotEqual(
+                model.features_inputter.embedding.ref(),
+                model.labels_inputter.embedding.ref(),
+            )
 
     @parameterized.expand(
         [[tf.estimator.ModeKeys.EVAL], [tf.estimator.ModeKeys.PREDICT]]

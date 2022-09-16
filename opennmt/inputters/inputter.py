@@ -355,21 +355,10 @@ class ParallelInputter(MultiInputter):
           combine_features: Combine each inputter features in a single dict or
             return them separately. This is typically ``True`` for multi source
             inputs but ``False`` for features/labels parallel data.
-
-        Raises:
-          ValueError: if :obj:`share_parameters` is set but the child inputters are
-            not of the same type.
         """
         super().__init__(inputters, reducer=reducer)
         self.combine_features = combine_features
         self.share_parameters = share_parameters
-        if self.share_parameters:
-            leaves = self.get_leaf_inputters()
-            for inputter in leaves[1:]:
-                if type(inputter) is not type(leaves[0]):  # noqa: E721
-                    raise ValueError(
-                        "Each inputter must be of the same type for parameter sharing"
-                    )
 
     def _structure(self):
         """Returns the nested structure that represents this parallel inputter."""
@@ -545,6 +534,11 @@ class ParallelInputter(MultiInputter):
             # all attributes with parameters to the other inputters.
             leaves = self.get_leaf_inputters()
             first, others = leaves[0], leaves[1:]
+            for inputter in others:
+                if type(inputter) is not type(first):  # noqa: E721
+                    raise ValueError(
+                        "Each inputter must be of the same type for parameter sharing"
+                    )
             first.build(input_shape)
             for name, attr in first.__dict__.copy().items():
                 if isinstance(attr, tf.Variable) or (
