@@ -21,15 +21,14 @@ class EmbeddingsSharingLevel(object):
      * ``SOURCE_TARGET_INPUT``: share source and target word embeddings
      * ``TARGET``: share target word embeddings and softmax weights
      * ``ALL``: share words embeddings and softmax weights
-     * ``ALL_AUTO``: automatically share words embeddings and softmax weights
-       when source and target are using the same vocabulary file.
+     * ``AUTO``: automatically share embeddings when using the same vocabulary file.
     """
 
     NONE = 0
     SOURCE_TARGET_INPUT = 1
     TARGET = 2
     ALL = 3
-    ALL_AUTO = 4
+    AUTO = 4
 
     @staticmethod
     def share_input_embeddings(level):
@@ -137,7 +136,7 @@ class SequenceToSequence(model.SequenceGenerator):
         if self.share_embeddings != EmbeddingsSharingLevel.NONE:
             all_inputters = self.examples_inputter.get_leaf_inputters()
 
-            if self.share_embeddings == EmbeddingsSharingLevel.ALL_AUTO:
+            if self.share_embeddings == EmbeddingsSharingLevel.AUTO:
                 if all(
                     isinstance(inputter, inputters.WordEmbedder)
                     and inputter.vocabulary_file == all_inputters[0].vocabulary_file

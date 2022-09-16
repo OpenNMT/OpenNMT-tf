@@ -232,8 +232,8 @@ class ModelTest(tf.test.TestCase):
     @parameterized.expand(
         [
             (models.EmbeddingsSharingLevel.ALL, True, True, True),
-            (models.EmbeddingsSharingLevel.ALL_AUTO, True, True, True),
-            (models.EmbeddingsSharingLevel.ALL_AUTO, False, False, True),
+            (models.EmbeddingsSharingLevel.AUTO, True, True, True),
+            (models.EmbeddingsSharingLevel.AUTO, False, False, True),
         ]
     )
     def testSequenceToSequenceWithSharedEmbedding(
