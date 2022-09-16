@@ -281,6 +281,10 @@ class ModelTest(tf.test.TestCase):
                 model.features_inputter.embedding.ref(),
                 model.labels_inputter.embedding.ref(),
             )
+            self.assertEqual(
+                model.labels_inputter.embedding.ref(),
+                model.decoder.output_layer.weight.ref(),
+            )
 
     @parameterized.expand(
         [[tf.estimator.ModeKeys.EVAL], [tf.estimator.ModeKeys.PREDICT]]

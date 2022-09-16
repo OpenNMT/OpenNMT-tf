@@ -145,7 +145,7 @@ class SequenceToSequence(model.SequenceGenerator):
                 ):
                     self.share_embeddings = EmbeddingsSharingLevel.ALL
                 else:
-                    self.share_embeddings = EmbeddingsSharingLevel.NONE
+                    self.share_embeddings = EmbeddingsSharingLevel.TARGET
 
             if EmbeddingsSharingLevel.share_input_embeddings(self.share_embeddings):
                 if not all(
