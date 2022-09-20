@@ -238,7 +238,9 @@ def chunk_att_mask(mask, chunk_length, global_length=0):
     pad_len = -timesteps % chunk_length
     mask = tf.pad(tensor=mask, paddings=[[0, 0], [0, pad_len], [0, pad_len]])
     if global_length:
-        global_mask = tf.pad(tensor=global_mask, paddings=[[0, 0], [0, pad_len], [0, 0]])
+        global_mask = tf.pad(
+            tensor=global_mask, paddings=[[0, 0], [0, pad_len], [0, 0]]
+        )
     padded_timesteps = misc.shape_list(mask)[-1]
 
     # Append chunk_length padding to timestep axis, before and after.
@@ -275,7 +277,9 @@ def chunk_att_mask(mask, chunk_length, global_length=0):
 
     if global_length:
         # batch, num_chunks, chunk_length, global_length
-        expanded_global_mask = tf.reshape(global_mask, shape=[batch, chunk_num, chunk_length, global_length])
+        expanded_global_mask = tf.reshape(
+            global_mask, shape=[batch, chunk_num, chunk_length, global_length]
+        )
         mask_unskewed = tf.concat([mask_unskewed, expanded_global_mask], axis=3)
 
     # Flatten the first dimension to batch * chunk_num.
@@ -580,7 +584,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
                     if mask.shape.rank == 2:
                         global_mask = mask[:, tf.newaxis, :]
                     else:
-                        global_mask = mask[:, :self.global_attention_length, :]
+                        global_mask = mask[:, : self.global_attention_length, :]
                     global_mask = global_mask[:, tf.newaxis, :, :]
                 mask = chunk_att_mask(mask, chunk_length, self.global_attention_length)
             elif mask.shape.rank == 2:
