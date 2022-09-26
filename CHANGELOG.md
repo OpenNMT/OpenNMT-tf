@@ -15,6 +15,19 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.29.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.29.0) (2022-09-26)
+
+### New features
+
+* Support TensorFlow 2.10
+* Add model configurations `ScalingNmtEnDe` and `ScalingNmtEnFr` from [Ott et al. 2018](https://aclanthology.org/W18-6301/)
+* Add embedding parameter `EmbeddingsSharingLevel.AUTO` to automatically share embeddings when the vocabulary is shared
+* Extend method `Runner.average_checkpoints` to accept a list of checkpoints to average
+
+### Fixes and improvements
+
+* Make batch size autotuning faster when using gradient accumulation
+
 ## [2.28.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.28.0) (2022-07-29)
 
 ### New features
