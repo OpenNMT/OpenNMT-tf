@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.28.0 documentation</title>
+  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.29.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.28
+                2.29
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -106,7 +106,9 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
 
-<span class="kn">from</span> <span class="nn">tensorflow.python.training.tracking</span> <span class="kn">import</span> <span class="n">graph_view</span>
+<span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">compat</span>
+
+<span class="n">_CHECKPOINT_VARIABLE_SUFFIX</span> <span class="o">=</span> <span class="s2">&quot;.ATTRIBUTES/VARIABLE_VALUE&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">get_devices</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fallback_to_cpu</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -188,39 +190,63 @@
     <span class="k">return</span> <span class="s2">&quot;float16&quot;</span> <span class="ow">in</span> <span class="n">policy</span><span class="o">.</span><span class="n">name</span>
 
 
-<span class="k">def</span> <span class="nf">get_variables_name_mapping</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_variables_name_mapping</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">root_key</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns mapping between variables and their name in the object-based</span>
 <span class="sd">    representation.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      root: The root layer.</span>
-<span class="sd">      root_key: Key that was used to save :obj:`root`, if any.</span>
+<span class="sd">      root_key: Key that was used to save :obj:`root`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">      A dict mapping names to variables.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># TODO: find a way to implement this function using public APIs.</span>
     <span class="n">names_to_variables</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">path_to_root</span> <span class="o">=</span> <span class="n">graph_view</span><span class="o">.</span><span class="n">ObjectGraphView</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">_breadth_first_traversal</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">path_to_root</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="n">variable</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ref</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">):</span>
-            <span class="k">continue</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">path</span><span class="p">),</span>
-            <span class="s2">&quot;.ATTRIBUTES/VARIABLE_VALUE&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">root_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">root_key</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="n">names_to_variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">variable</span>
+
+    <span class="k">if</span> <span class="n">compat</span><span class="o">.</span><span class="n">tf_supports</span><span class="p">(</span><span class="s2">&quot;train.TrackableView&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">):</span>
+            <span class="n">names_to_variables</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">root_key</span><span class="p">,</span> <span class="n">_CHECKPOINT_VARIABLE_SUFFIX</span><span class="p">)]</span> <span class="o">=</span> <span class="n">root</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">trackable</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+                <span class="n">names_to_variables</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="n">get_variables_name_mapping</span><span class="p">(</span>
+                        <span class="n">trackable</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">root_key</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+            <span class="n">trackable_view</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">TrackableView</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">trackable</span> <span class="ow">in</span> <span class="n">trackable_view</span><span class="o">.</span><span class="n">children</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">names_to_variables</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="n">get_variables_name_mapping</span><span class="p">(</span>
+                        <span class="n">trackable</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">root_key</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># TODO: remove this block when TensorFlow requirement is updated to &gt;=2.10.</span>
+        <span class="kn">from</span> <span class="nn">tensorflow.python.training.tracking</span> <span class="kn">import</span> <span class="n">graph_view</span>
+
+        <span class="n">_</span><span class="p">,</span> <span class="n">path_to_root</span> <span class="o">=</span> <span class="n">graph_view</span><span class="o">.</span><span class="n">ObjectGraphView</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">_breadth_first_traversal</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">path_to_root</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">variable</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ref</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">root_key</span><span class="p">,</span>
+                <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">path</span><span class="p">),</span>
+                <span class="n">_CHECKPOINT_VARIABLE_SUFFIX</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">names_to_variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">variable</span>
+        <span class="k">return</span> <span class="n">names_to_variables</span>
+
     <span class="k">return</span> <span class="n">names_to_variables</span>
 
 
 <span class="k">def</span> <span class="nf">get_variable_name</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">model_key</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Gets the variable name in the object-based representation.&quot;&quot;&quot;</span>
-    <span class="n">names_to_variables</span> <span class="o">=</span> <span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">root_key</span><span class="o">=</span><span class="n">model_key</span><span class="p">)</span>
+    <span class="n">names_to_variables</span> <span class="o">=</span> <span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">model_key</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">names_to_variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">var</span> <span class="ow">is</span> <span class="n">variable</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">name</span>
@@ -516,7 +542,7 @@
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">summaries</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 
 
-<span class="k">class</span> <span class="nc">OrderRestorer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">OrderRestorer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Helper class to restore out-of-order elements in order.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_fn</span><span class="p">,</span> <span class="n">callback_fn</span><span class="p">):</span>
@@ -564,7 +590,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_notify</span><span class="p">()</span>
 
 
-<span class="k">class</span> <span class="nc">ClassRegistry</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">ClassRegistry</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Helper class to create a registry of classes.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_class</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

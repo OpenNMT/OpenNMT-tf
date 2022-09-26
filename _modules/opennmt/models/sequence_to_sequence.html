@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.28.0 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.29.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.28
+                2.29
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -107,7 +107,7 @@
 <span class="kn">from</span> <span class="nn">opennmt.utils</span> <span class="kn">import</span> <span class="n">decoding</span><span class="p">,</span> <span class="n">losses</span><span class="p">,</span> <span class="n">misc</span>
 
 
-<div class="viewcode-block" id="EmbeddingsSharingLevel"><a class="viewcode-back" href="../../../package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel">[docs]</a><span class="k">class</span> <span class="nc">EmbeddingsSharingLevel</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="EmbeddingsSharingLevel"><a class="viewcode-back" href="../../../package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel">[docs]</a><span class="k">class</span> <span class="nc">EmbeddingsSharingLevel</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Level of embeddings sharing.</span>
 
 <span class="sd">    Possible values are:</span>
@@ -116,12 +116,14 @@
 <span class="sd">     * ``SOURCE_TARGET_INPUT``: share source and target word embeddings</span>
 <span class="sd">     * ``TARGET``: share target word embeddings and softmax weights</span>
 <span class="sd">     * ``ALL``: share words embeddings and softmax weights</span>
+<span class="sd">     * ``AUTO``: automatically share embeddings when using the same vocabulary file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">NONE</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">SOURCE_TARGET_INPUT</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">TARGET</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">ALL</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">AUTO</span> <span class="o">=</span> <span class="mi">4</span>
 
 <div class="viewcode-block" id="EmbeddingsSharingLevel.share_input_embeddings"><a class="viewcode-back" href="../../../package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel.share_input_embeddings">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">share_input_embeddings</span><span class="p">(</span><span class="n">level</span><span class="p">):</span>
@@ -164,30 +166,12 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">          TypeError: if :obj:`target_inputter` is not a</span>
-<span class="sd">            :class:`opennmt.inputters.WordEmbedder` (same for</span>
-<span class="sd">            :obj:`source_inputter` when embeddings sharing is enabled).</span>
+<span class="sd">            :class:`opennmt.inputters.WordEmbedder`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_inputter</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Target inputter must be a WordEmbedder&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">share_input_embeddings</span><span class="p">(</span><span class="n">share_embeddings</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_inputter</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">ParallelInputter</span><span class="p">):</span>
-                <span class="n">source_inputters</span> <span class="o">=</span> <span class="n">source_inputter</span><span class="o">.</span><span class="n">inputters</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">source_inputters</span> <span class="o">=</span> <span class="p">[</span><span class="n">source_inputter</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="n">source_inputters</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputter</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                        <span class="s2">&quot;Sharing embeddings requires all inputters to be a &quot;</span>
-                        <span class="s2">&quot;WordEmbedder&quot;</span>
-                    <span class="p">)</span>
 
-        <span class="n">examples_inputter</span> <span class="o">=</span> <span class="n">SequenceToSequenceInputter</span><span class="p">(</span>
-            <span class="n">source_inputter</span><span class="p">,</span>
-            <span class="n">target_inputter</span><span class="p">,</span>
-            <span class="n">share_parameters</span><span class="o">=</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">share_input_embeddings</span><span class="p">(</span>
-                <span class="n">share_embeddings</span>
-            <span class="p">),</span>
-        <span class="p">)</span>
+        <span class="n">examples_inputter</span> <span class="o">=</span> <span class="n">SequenceToSequenceInputter</span><span class="p">(</span><span class="n">source_inputter</span><span class="p">,</span> <span class="n">target_inputter</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">examples_inputter</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">encoder</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span> <span class="o">=</span> <span class="n">decoder</span>
@@ -242,7 +226,31 @@
                 <span class="n">subword_token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decoding_subword_token&quot;</span><span class="p">,</span> <span class="s2">&quot;￭&quot;</span><span class="p">),</span>
                 <span class="n">is_spacer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decoding_subword_token_is_spacer&quot;</span><span class="p">),</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">set_noise</span><span class="p">(</span><span class="n">noiser</span><span class="p">,</span> <span class="n">in_place</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">set_noise</span><span class="p">(</span><span class="n">noiser</span><span class="p">,</span> <span class="n">in_place</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">share_embeddings</span> <span class="o">!=</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+            <span class="n">all_inputters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">get_leaf_inputters</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">share_embeddings</span> <span class="o">==</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">AUTO</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
+                    <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputter</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="n">inputter</span><span class="o">.</span><span class="n">vocabulary_file</span> <span class="o">==</span> <span class="n">all_inputters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">vocabulary_file</span>
+                    <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="n">all_inputters</span>
+                <span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">share_embeddings</span> <span class="o">=</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">ALL</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">share_embeddings</span> <span class="o">=</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">TARGET</span>
+
+            <span class="k">if</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">share_input_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">share_embeddings</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
+                    <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputter</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="n">all_inputters</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                        <span class="s2">&quot;Sharing embeddings requires all inputters to be a WordEmbedder&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">share_parameters</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="SequenceToSequence.build"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>

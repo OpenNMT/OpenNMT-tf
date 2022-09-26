@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.28.0 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.29.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.28
+                2.29
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -143,7 +143,7 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="Runner"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner">[docs]</a><span class="k">class</span> <span class="nc">Runner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Runner"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner">[docs]</a><span class="k">class</span> <span class="nc">Runner</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Class for running and exporting models.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Runner.__init__"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -309,13 +309,15 @@
         <span class="n">eval_config</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;eval&quot;</span><span class="p">]</span>
 
         <span class="n">batch_type</span> <span class="o">=</span> <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;batch_type&quot;</span><span class="p">]</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">]</span>
         <span class="n">batch_size_multiple</span> <span class="o">=</span> <span class="mi">8</span> <span class="k">if</span> <span class="n">mixed_precision</span> <span class="ow">and</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="s2">&quot;tokens&quot;</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">batch_autotune_mode</span> <span class="o">=</span> <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;batch_autotune_mode&quot;</span><span class="p">)</span>
 
         <span class="n">dataset_fn</span> <span class="o">=</span> <span class="p">(</span>
             <span class="k">lambda</span> <span class="n">input_context</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">make_training_dataset</span><span class="p">(</span>
                 <span class="n">data_config</span><span class="p">[</span><span class="s2">&quot;train_features_file&quot;</span><span class="p">],</span>
                 <span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;train_labels_file&quot;</span><span class="p">),</span>
-                <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">],</span>
+                <span class="n">batch_size</span><span class="p">,</span>
                 <span class="n">batch_type</span><span class="o">=</span><span class="n">batch_type</span><span class="p">,</span>
                 <span class="n">batch_size_multiple</span><span class="o">=</span><span class="n">batch_size_multiple</span><span class="p">,</span>
                 <span class="n">shuffle_buffer_size</span><span class="o">=</span><span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;sample_buffer_size&quot;</span><span class="p">],</span>
@@ -328,7 +330,7 @@
                 <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prefetch_buffer_size&quot;</span><span class="p">),</span>
                 <span class="n">cardinality_multiple</span><span class="o">=</span><span class="n">input_context</span><span class="o">.</span><span class="n">num_replicas_in_sync</span><span class="p">,</span>
                 <span class="n">weights</span><span class="o">=</span><span class="n">data_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;train_files_weights&quot;</span><span class="p">),</span>
-                <span class="n">batch_autotune_mode</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;batch_autotune_mode&quot;</span><span class="p">),</span>
+                <span class="n">batch_autotune_mode</span><span class="o">=</span><span class="n">batch_autotune_mode</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
@@ -348,16 +350,22 @@
                 <span class="n">evaluator</span> <span class="o">=</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">Evaluator</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 
         <span class="c1"># Set gradients accumulation based on the requested effective batch size.</span>
-        <span class="k">if</span> <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;effective_batch_size&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">effective_batch_size</span> <span class="o">=</span> <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;effective_batch_size&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">effective_batch_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">accum_steps</span> <span class="o">=</span> <span class="n">_count_batch_accum</span><span class="p">(</span>
-                <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">],</span>
-                <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;effective_batch_size&quot;</span><span class="p">],</span>
+                <span class="n">batch_size</span><span class="p">,</span>
+                <span class="n">effective_batch_size</span><span class="p">,</span>
                 <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">,</span>
             <span class="p">)</span>
+            <span class="k">if</span> <span class="n">batch_autotune_mode</span> <span class="ow">and</span> <span class="n">accum_steps</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="c1"># When autotuning the batch size, the memory usage should be the same</span>
+                <span class="c1"># whether we are accumulating 2 steps or N steps.</span>
+                <span class="n">accum_steps</span> <span class="o">=</span> <span class="mi">2</span>
+                <span class="n">effective_batch_size</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">*</span> <span class="n">num_replicas</span> <span class="o">*</span> <span class="n">accum_steps</span>
             <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">&quot;Accumulate gradients of </span><span class="si">%d</span><span class="s2"> iterations to reach effective batch size of </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">accum_steps</span><span class="p">,</span>
-                <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;effective_batch_size&quot;</span><span class="p">],</span>
+                <span class="n">effective_batch_size</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">accum_steps</span> <span class="o">=</span> <span class="mi">1</span>
@@ -427,12 +435,15 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">evaluator</span><span class="p">(</span><span class="n">step</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Runner.average_checkpoints"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.average_checkpoints">[docs]</a>    <span class="k">def</span> <span class="nf">average_checkpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">max_count</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+<div class="viewcode-block" id="Runner.average_checkpoints"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.average_checkpoints">[docs]</a>    <span class="k">def</span> <span class="nf">average_checkpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">max_count</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">checkpoint_paths</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Averages checkpoints.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          output_dir: The directory that will contain the averaged checkpoint.</span>
 <span class="sd">          max_count: The maximum number of checkpoints to average.</span>
+<span class="sd">          checkpoint_paths: The list of checkpoints to average. If not set,</span>
+<span class="sd">            the last :obj:`max_count` checkpoints of the current model directory</span>
+<span class="sd">            are averaged.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">          The path to the directory containing the averaged checkpoint.</span>
@@ -447,7 +458,10 @@
         <span class="n">model</span><span class="o">.</span><span class="n">create_variables</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">)</span>
         <span class="n">trackables</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">)</span>
         <span class="n">output_dir</span> <span class="o">=</span> <span class="n">checkpoint_util</span><span class="o">.</span><span class="n">average_checkpoints</span><span class="p">(</span>
-            <span class="n">checkpoint</span><span class="o">.</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">trackables</span><span class="p">,</span> <span class="n">max_count</span><span class="o">=</span><span class="n">max_count</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="k">if</span> <span class="n">checkpoint_paths</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">checkpoint_paths</span><span class="p">,</span>
+            <span class="n">output_dir</span><span class="p">,</span>
+            <span class="n">trackables</span><span class="p">,</span>
+            <span class="n">max_count</span><span class="o">=</span><span class="n">max_count</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">_forward_model_description</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_dir</span>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Runner &mdash; OpenNMT-tf 2.28.0 documentation</title>
+  <title>Runner &mdash; OpenNMT-tf 2.29.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.28
+                2.29
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -204,13 +204,16 @@ a dictionary with various training statistics.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="opennmt.Runner.average_checkpoints">
-<span class="sig-name descname"><span class="pre">average_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.average_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.Runner.average_checkpoints" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">average_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/runner.html#Runner.average_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.Runner.average_checkpoints" title="Permalink to this definition"></a></dt>
 <dd><p>Averages checkpoints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>output_dir</strong> – The directory that will contain the averaged checkpoint.</p></li>
 <li><p><strong>max_count</strong> – The maximum number of checkpoints to average.</p></li>
+<li><p><strong>checkpoint_paths</strong> – The list of checkpoints to average. If not set,
+the last <code class="xref py py-obj docutils literal notranslate"><span class="pre">max_count</span></code> checkpoints of the current model directory
+are averaged.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

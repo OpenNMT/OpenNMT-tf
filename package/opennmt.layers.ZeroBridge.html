@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZeroBridge &mdash; OpenNMT-tf 2.28.0 documentation</title>
+  <title>ZeroBridge &mdash; OpenNMT-tf 2.29.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.28
+                2.29
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -153,10 +153,11 @@
 <dt class="sig sig-object py" id="opennmt.layers.ZeroBridge.call">
 <span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">states</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/layers/bridge.html#ZeroBridge.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.layers.ZeroBridge.call" title="Permalink to this definition"></a></dt>
 <dd><p>This is where the layer’s logic lives.</p>
-<p>The <cite>call()</cite> method may not create state (except in its first invocation,
-wrapping the creation of variables or other resources in <cite>tf.init_scope()</cite>).
-It is recommended to create state in <cite>__init__()</cite>, or the <cite>build()</cite> method
-that is called automatically before <cite>call()</cite> executes the first time.</p>
+<p>The <cite>call()</cite> method may not create state (except in its first
+invocation, wrapping the creation of variables or other resources in
+<cite>tf.init_scope()</cite>).  It is recommended to create state in <cite>__init__()</cite>,
+or the <cite>build()</cite> method that is called automatically before <cite>call()</cite>
+executes the first time.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -168,7 +169,8 @@ The first positional <cite>inputs</cite> argument is subject to special rules:
 of a keyword argument.</p>
 </div></blockquote>
 <ul>
-<li><p>NumPy array or Python scalar values in <cite>inputs</cite> get cast as tensors.</p></li>
+<li><p>NumPy array or Python scalar values in <cite>inputs</cite> get cast as
+tensors.</p></li>
 <li><p>Keras mask metadata is only collected from <cite>inputs</cite>.</p></li>
 <li><p>Layers are built (<cite>build(input_shape)</cite> method)
 using shape info from <cite>inputs</cite> only.</p></li>
@@ -176,7 +178,8 @@ using shape info from <cite>inputs</cite> only.</p></li>
 <li><p>Mixed precision input casting is only applied to <cite>inputs</cite>.
 If a layer has tensor arguments in <cite>*args</cite> or <cite>**kwargs</cite>, their
 casting behavior in mixed precision should be handled manually.</p></li>
-<li><p>The SavedModel input specification is generated using <cite>inputs</cite> only.</p></li>
+<li><p>The SavedModel input specification is generated using <cite>inputs</cite>
+only.</p></li>
 <li><p>Integration with various ecosystem packages like TFMOT, TFLite,
 TF.js, etc is only supported for <cite>inputs</cite> and not for tensors in
 positional and keyword arguments.</p></li>
@@ -193,10 +196,10 @@ The following optional keyword arguments are reserved:
 </div></blockquote>
 <ul>
 <li><p><cite>mask</cite>: Boolean input mask. If the layer’s <cite>call()</cite> method takes a
-<cite>mask</cite> argument, its default value will be set to the mask generated
-for <cite>inputs</cite> by the previous layer (if <cite>input</cite> did come from a layer
-that generated a corresponding mask, i.e. if it came from a Keras
-layer with masking support).</p></li>
+<cite>mask</cite> argument, its default value will be set to the mask
+generated for <cite>inputs</cite> by the previous layer (if <cite>input</cite> did come
+from a layer that generated a corresponding mask, i.e. if it came
+from a Keras layer with masking support).</p></li>
 </ul>
 </p></li>
 </ul>

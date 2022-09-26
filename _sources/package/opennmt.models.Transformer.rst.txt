@@ -9,6 +9,7 @@ Transformer
 
     **Extended by:**
 
+    - :class:`opennmt.models.ScalingNmtEnDe`
     - :class:`opennmt.models.TransformerBase`
     - :class:`opennmt.models.TransformerBaseRelative`
     - :class:`opennmt.models.TransformerBaseSharedEmbeddings`

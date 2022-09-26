@@ -14,6 +14,8 @@ opennmt.models
    opennmt.models.LstmCnnCrfTagger
    opennmt.models.LuongAttention
    opennmt.models.Model
+   opennmt.models.ScalingNmtEnDe
+   opennmt.models.ScalingNmtEnFr
    opennmt.models.SequenceClassifier
    opennmt.models.SequenceGenerator
    opennmt.models.SequenceTagger

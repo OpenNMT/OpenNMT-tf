@@ -1,0 +1,8 @@
+ScalingNmtEnFr
+==============
+
+.. autoclass:: opennmt.models.ScalingNmtEnFr
+    :members:
+    :undoc-members:
+
+    **Inherits from:** :class:`opennmt.models.ScalingNmtEnDe`

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.models.catalog &mdash; OpenNMT-tf 2.28.0 documentation</title>
+  <title>opennmt.models.catalog &mdash; OpenNMT-tf 2.29.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.28
+                2.29
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -466,6 +466,88 @@
             <span class="n">num_heads</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
         <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ScalingNmtEnDe"><a class="viewcode-back" href="../../../package/opennmt.models.ScalingNmtEnDe.html#opennmt.models.ScalingNmtEnDe">[docs]</a><span class="nd">@register_model_in_catalog</span>
+<span class="k">class</span> <span class="nc">ScalingNmtEnDe</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a big Transformer model using the En-De hyperparameters from</span>
+<span class="sd">    https://arxiv.org/abs/1806.00187.</span>
+
+<span class="sd">    The architecture is equivalent to transformer_wmt_en_de_big in Fairseq.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">attention_dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">num_layers</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+            <span class="n">num_units</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+            <span class="n">num_heads</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+            <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span>
+            <span class="n">pre_norm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+            <span class="n">attention_dropout</span><span class="o">=</span><span class="n">attention_dropout</span><span class="p">,</span>
+            <span class="n">ffn_dropout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">share_embeddings</span><span class="o">=</span><span class="n">sequence_to_sequence</span><span class="o">.</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">AUTO</span><span class="p">,</span>
+            <span class="n">output_layer_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ScalingNmtEnDe.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.ScalingNmtEnDe.html#opennmt.models.ScalingNmtEnDe.auto_config">[docs]</a>    <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config_util</span><span class="o">.</span><span class="n">merge_config</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="c1"># Add EOS to the source.</span>
+                    <span class="s2">&quot;source_sequence_controls&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;optimizer&quot;</span><span class="p">:</span> <span class="s2">&quot;Adam&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;optimizer_params&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;beta_1&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+                        <span class="s2">&quot;beta_2&quot;</span><span class="p">:</span> <span class="mf">0.98</span><span class="p">,</span>
+                        <span class="s2">&quot;epsilon&quot;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+                    <span class="s2">&quot;decay_type&quot;</span><span class="p">:</span> <span class="s2">&quot;InvSqrtDecay&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;decay_params&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;warmup_steps&quot;</span><span class="p">:</span> <span class="mi">4000</span><span class="p">,</span>
+                        <span class="s2">&quot;initial_learning_rate&quot;</span><span class="p">:</span> <span class="mf">1e-7</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s2">&quot;effective_batch_size&quot;</span><span class="p">:</span> <span class="mi">458752</span><span class="p">,</span>  <span class="c1"># = 3584 * 128</span>
+                    <span class="s2">&quot;maximum_features_length&quot;</span><span class="p">:</span> <span class="mi">175</span><span class="p">,</span>
+                    <span class="s2">&quot;maximum_labels_length&quot;</span><span class="p">:</span> <span class="mi">175</span><span class="p">,</span>
+                    <span class="s2">&quot;save_checkpoint_steps&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+                    <span class="s2">&quot;keep_checkpoint_max&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                    <span class="s2">&quot;average_last_checkpoints&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ScalingNmtEnFr"><a class="viewcode-back" href="../../../package/opennmt.models.ScalingNmtEnFr.html#opennmt.models.ScalingNmtEnFr">[docs]</a><span class="nd">@register_model_in_catalog</span>
+<span class="k">class</span> <span class="nc">ScalingNmtEnFr</span><span class="p">(</span><span class="n">ScalingNmtEnDe</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Defines a big Transformer model using the En-Fr hyperparameters from</span>
+<span class="sd">    https://arxiv.org/abs/1806.00187.</span>
+
+<span class="sd">    The architecture is equivalent to transformer_vaswani_wmt_en_fr_big in Fairseq.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">attention_dropout</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ScalingNmtEnFr.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.ScalingNmtEnFr.html#opennmt.models.ScalingNmtEnFr.auto_config">[docs]</a>    <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config_util</span><span class="o">.</span><span class="n">merge_config</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.0007</span><span class="p">},</span>
+                <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;effective_batch_size&quot;</span><span class="p">:</span> <span class="mi">655360</span><span class="p">,</span>  <span class="c1"># = 5120 * 128</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="GPT2Small"><a class="viewcode-back" href="../../../package/opennmt.models.GPT2Small.html#opennmt.models.GPT2Small">[docs]</a><span class="nd">@register_model_in_catalog</span>

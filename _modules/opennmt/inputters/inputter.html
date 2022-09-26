@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 2.28.0 documentation</title>
+  <title>opennmt.inputters.inputter &mdash; OpenNMT-tf 2.29.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.28
+                2.29
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -450,21 +450,10 @@
 <span class="sd">          combine_features: Combine each inputter features in a single dict or</span>
 <span class="sd">            return them separately. This is typically ``True`` for multi source</span>
 <span class="sd">            inputs but ``False`` for features/labels parallel data.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">          ValueError: if :obj:`share_parameters` is set but the child inputters are</span>
-<span class="sd">            not of the same type.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">inputters</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="n">reducer</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combine_features</span> <span class="o">=</span> <span class="n">combine_features</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">share_parameters</span> <span class="o">=</span> <span class="n">share_parameters</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">share_parameters</span><span class="p">:</span>
-            <span class="n">leaves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_leaf_inputters</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="n">leaves</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">inputter</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">leaves</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>  <span class="c1"># noqa: E721</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;Each inputter must be of the same type for parameter sharing&quot;</span>
-                    <span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">share_parameters</span> <span class="o">=</span> <span class="n">share_parameters</span></div>
 
     <span class="k">def</span> <span class="nf">_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the nested structure that represents this parallel inputter.&quot;&quot;&quot;</span>
@@ -640,6 +629,11 @@
             <span class="c1"># all attributes with parameters to the other inputters.</span>
             <span class="n">leaves</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_leaf_inputters</span><span class="p">()</span>
             <span class="n">first</span><span class="p">,</span> <span class="n">others</span> <span class="o">=</span> <span class="n">leaves</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">leaves</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">for</span> <span class="n">inputter</span> <span class="ow">in</span> <span class="n">others</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">inputter</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">first</span><span class="p">):</span>  <span class="c1"># noqa: E721</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Each inputter must be of the same type for parameter sharing&quot;</span>
+                    <span class="p">)</span>
             <span class="n">first</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
