@@ -48,7 +48,7 @@ _CONFIG_FALLBACK = {
 }
 
 
-class Runner(object):
+class Runner:
     """Class for running and exporting models."""
 
     def __init__(

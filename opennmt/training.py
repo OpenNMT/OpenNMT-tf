@@ -449,7 +449,7 @@ def _summarize_gradients(gradients, should_record):
     )
 
 
-class MovingAverage(object):
+class MovingAverage:
     """Object holding an exponential moving average of variables."""
 
     def __init__(self, variables, step, decay=0.9999):

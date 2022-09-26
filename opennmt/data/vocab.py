@@ -6,7 +6,7 @@ import tensorflow as tf
 from opennmt import constants
 
 
-class Vocab(object):
+class Vocab:
     """Vocabulary class.
 
     Example:

@@ -66,7 +66,7 @@ def make_optimizer(name, learning_rate, **kwargs):
     return optimizer
 
 
-class GradientAccumulator(object):
+class GradientAccumulator:
     """Gradient accumulation utility.
 
     When used with a distribution strategy, the accumulator should be called in a

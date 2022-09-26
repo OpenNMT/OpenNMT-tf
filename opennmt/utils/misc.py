@@ -447,7 +447,7 @@ def read_summaries(event_dir, event_file_pattern="events.out.tfevents.*"):
     return list(sorted(summaries.items(), key=lambda x: x[0]))
 
 
-class OrderRestorer(object):
+class OrderRestorer:
     """Helper class to restore out-of-order elements in order."""
 
     def __init__(self, index_fn, callback_fn):
@@ -495,7 +495,7 @@ class OrderRestorer(object):
         return self._try_notify()
 
 
-class ClassRegistry(object):
+class ClassRegistry:
     """Helper class to create a registry of classes."""
 
     def __init__(self, base_class=None):

@@ -18,7 +18,7 @@ class EarlyStopping(
     """Conditions for early stopping."""
 
 
-class Evaluator(object):
+class Evaluator:
     """Model evaluator."""
 
     def __init__(

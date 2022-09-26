@@ -9,7 +9,7 @@ import tensorflow as tf
 from opennmt.utils import misc
 
 
-class Checkpoint(object):
+class Checkpoint:
     """Wrapper around TensorFlow checkpoints utilities."""
 
     def __init__(self, model, optimizer=None, model_dir=None, keep_checkpoint_max=8):

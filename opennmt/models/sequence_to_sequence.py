@@ -12,7 +12,7 @@ from opennmt.models import model
 from opennmt.utils import decoding, losses, misc
 
 
-class EmbeddingsSharingLevel(object):
+class EmbeddingsSharingLevel:
     """Level of embeddings sharing.
 
     Possible values are:
