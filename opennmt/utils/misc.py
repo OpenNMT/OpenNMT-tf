@@ -3,6 +3,7 @@
 import collections
 import copy
 import functools
+import gzip
 import heapq
 import io
 import os
@@ -221,7 +222,8 @@ def item_or_tuple(x):
 
 def count_lines(filename, buffer_size=65536):
     """Returns the number of lines of the file :obj:`filename`."""
-    with tf.io.gfile.GFile(filename, mode="rb") as f:
+    file_class = gzip.open if is_gzip_file(filename) else tf.io.gfile.GFile
+    with file_class(filename, mode="rb") as f:
         num_lines = 0
         while True:
             data = f.read(buffer_size)
