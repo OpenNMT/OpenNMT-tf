@@ -1,4 +1,6 @@
+import gzip
 import itertools
+import os
 
 import numpy as np
 import tensorflow as tf
@@ -180,6 +182,16 @@ class MiscTest(tf.test.TestCase):
         self.assertEqual(config["2"], 3)
         with self.assertRaisesRegex(KeyError, "a_3"):
             _ = config["3"]
+
+    def testCountLinesGzip(self):
+        expected_num_lines = 42
+
+        path = os.path.join(self.get_temp_dir(), "file.gz")
+        with gzip.open(path, "wt") as f:
+            for i in range(expected_num_lines):
+                f.write("%d\n" % i)
+
+        self.assertEqual(misc.count_lines(path), expected_num_lines)
 
 
 if __name__ == "__main__":
