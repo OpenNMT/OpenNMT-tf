@@ -362,17 +362,17 @@ class MultiHeadAttention(tf.keras.layers.Layer):
             dot += matmul_with_relative_representations(
                 queries, relative_repr_keys, transpose_b=True
             )
+
         if mask is not None:
-            mask = tf.cast(mask, tf.float32)
+            mask = tf.cast(mask, dot.dtype)
             if mask.shape.rank == 2:
                 mask = tf.expand_dims(mask, 1)  # Broadcast on time dimension.
             mask = tf.expand_dims(mask, 1)  # Broadcast on head dimension.
-            dot = tf.cast(
-                tf.cast(dot, tf.float32) * mask + ((1.0 - mask) * tf.float32.min),
-                dot.dtype,
-            )
-        attn = tf.cast(tf.nn.softmax(tf.cast(dot, tf.float32)), dot.dtype)
+            dot = (dot * mask) + (1.0 - mask) * dot.dtype.min
+
+        attn = tf.nn.softmax(dot)
         drop_attn = common.dropout(attn, self.dropout, training=training)
+
         heads = tf.matmul(drop_attn, values)
         if relative_repr_values is not None:
             heads += matmul_with_relative_representations(
