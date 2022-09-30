@@ -336,6 +336,14 @@ def _convert_to_v2_step_accumulation(params, config):
                 "train/effective_batch_size"
             )
 
+        decay_step_duration = params.get("decay_step_duration")
+        if decay_step_duration is not None:
+            decay_step_duration //= accum_steps
+            if decay_step_duration <= 1:
+                _delete_opt(params, "decay_step_duration")
+            else:
+                params["decay_step_duration"] = decay_step_duration
+
 
 def _delete_opt(config, name):
     return config.pop(name, None)

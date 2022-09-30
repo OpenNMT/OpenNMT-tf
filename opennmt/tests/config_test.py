@@ -156,93 +156,111 @@ class ConfigTest(tf.test.TestCase):
             expected_config,
         )
 
-    def testConvertToV2Config(self):
-        v1_config = {
-            "data": {
-                "source_words_vocabulary": "a.txt",
-                "target_words_vocabulary": "b.txt",
-            },
-            "params": {
-                "optimizer": "LazyAdamOptimizer",
-                "optimizer_params": {
-                    "beta1": 0.9,
-                    "beta2": 0.998,
+    @parameterized.expand(
+        [
+            (
+                {
+                    "data": {
+                        "source_words_vocabulary": "a.txt",
+                        "target_words_vocabulary": "b.txt",
+                    },
+                    "params": {
+                        "optimizer": "LazyAdamOptimizer",
+                        "optimizer_params": {
+                            "beta1": 0.9,
+                            "beta2": 0.998,
+                        },
+                        "param_init": 0.1,
+                        "loss_scale": 2,
+                        "horovod": {},
+                        "maximum_learning_rate": 4,
+                        "maximum_iterations": 250,
+                        "clip_gradients": 5,
+                        "weight_decay": 0.1,
+                        "decay_step_duration": 8,
+                        "gradients_accum": 9,
+                        "decay_type": "noam_decay",
+                        "decay_rate": 512,
+                        "decay_steps": 4000,
+                    },
+                    "train": {
+                        "batch_size": 64,
+                        "num_threads": 4,
+                        "prefetch_buffer_size": 1,
+                        "bucket_width": 1,
+                        "train_steps": 500000,
+                        "save_checkpoints_secs": 600,
+                    },
+                    "eval": {
+                        "batch_size": 32,
+                        "eval_delay": 3600,
+                        "exporters": "best",
+                        "num_threads": 4,
+                        "prefetch_buffer_size": 1,
+                    },
+                    "infer": {
+                        "batch_size": 32,
+                        "num_threads": 4,
+                        "prefetch_buffer_size": 1,
+                        "bucket_width": 1,
+                    },
+                    "score": {
+                        "num_threads": 4,
+                        "prefetch_buffer_size": 1,
+                    },
                 },
-                "param_init": 0.1,
-                "loss_scale": 2,
-                "horovod": {},
-                "maximum_learning_rate": 4,
-                "maximum_iterations": 250,
-                "clip_gradients": 5,
-                "weight_decay": 0.1,
-                "decay_step_duration": 8,
-                "gradients_accum": 9,
-                "decay_type": "noam_decay",
-                "decay_rate": 512,
-                "decay_steps": 4000,
-            },
-            "train": {
-                "batch_size": 64,
-                "num_threads": 4,
-                "prefetch_buffer_size": 1,
-                "bucket_width": 1,
-                "train_steps": 500000,
-                "save_checkpoints_secs": 600,
-            },
-            "eval": {
-                "batch_size": 32,
-                "eval_delay": 3600,
-                "exporters": "best",
-                "num_threads": 4,
-                "prefetch_buffer_size": 1,
-            },
-            "infer": {
-                "batch_size": 32,
-                "num_threads": 4,
-                "prefetch_buffer_size": 1,
-                "bucket_width": 1,
-            },
-            "score": {
-                "num_threads": 4,
-                "prefetch_buffer_size": 1,
-            },
-        }
-
-        expected_v2_config = {
-            "data": {
-                "source_vocabulary": "a.txt",
-                "target_vocabulary": "b.txt",
-            },
-            "params": {
-                "optimizer": "LazyAdam",
-                "optimizer_params": {
-                    "beta_1": 0.9,
-                    "beta_2": 0.998,
-                    "clipnorm": 5,
-                    "weight_decay": 0.1,
+                {
+                    "data": {
+                        "source_vocabulary": "a.txt",
+                        "target_vocabulary": "b.txt",
+                    },
+                    "params": {
+                        "optimizer": "LazyAdam",
+                        "optimizer_params": {
+                            "beta_1": 0.9,
+                            "beta_2": 0.998,
+                            "clipnorm": 5,
+                            "weight_decay": 0.1,
+                        },
+                        "decay_type": "NoamDecay",
+                        "decay_params": {
+                            "model_dim": 512,
+                            "warmup_steps": 4000,
+                        },
+                        "maximum_decoding_length": 250,
+                    },
+                    "train": {
+                        "batch_size": 64,
+                        "effective_batch_size": 64 * max(8, 9),
+                        "length_bucket_width": 1,
+                        "max_step": 500000,
+                    },
+                    "eval": {
+                        "batch_size": 32,
+                    },
+                    "infer": {
+                        "batch_size": 32,
+                        "length_bucket_width": 1,
+                    },
                 },
-                "decay_type": "NoamDecay",
-                "decay_params": {
-                    "model_dim": 512,
-                    "warmup_steps": 4000,
+            ),
+            (
+                {"params": {"decay_step_duration": 8}},
+                {"params": {"decay_step_duration": 8}},
+            ),
+            (
+                {
+                    "params": {"decay_step_duration": 8, "gradients_accum": 4},
+                    "train": {"batch_size": 64},
                 },
-                "maximum_decoding_length": 250,
-            },
-            "train": {
-                "batch_size": 64,
-                "effective_batch_size": 64 * max(8, 9),
-                "length_bucket_width": 1,
-                "max_step": 500000,
-            },
-            "eval": {
-                "batch_size": 32,
-            },
-            "infer": {
-                "batch_size": 32,
-                "length_bucket_width": 1,
-            },
-        }
-
+                {
+                    "params": {"decay_step_duration": 2},
+                    "train": {"batch_size": 64, "effective_batch_size": 64 * 4},
+                },
+            ),
+        ]
+    )
+    def testConvertToV2Config(self, v1_config, expected_v2_config):
         original_v1_config = copy.deepcopy(v1_config)
         v2_config = config.convert_to_v2_config(v1_config)
         self.assertDictEqual(v2_config, expected_v2_config)
