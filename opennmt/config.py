@@ -324,9 +324,7 @@ def _convert_to_v2_lr_schedules(params):
 
 def _convert_to_v2_step_accumulation(params, config):
     # Try to upgrade step accumulation to train/effective_batch_size.
-    decay_step_duration = _delete_opt(params, "decay_step_duration") or 1
-    gradients_accum = _delete_opt(params, "gradients_accum") or 1
-    accum_steps = max(decay_step_duration, gradients_accum)
+    accum_steps = _delete_opt(params, "gradients_accum") or 1
     if accum_steps > 1:
         train_config = config.setdefault("train", {})
         batch_size = train_config.get("batch_size")
@@ -334,9 +332,17 @@ def _convert_to_v2_step_accumulation(params, config):
             train_config["effective_batch_size"] = batch_size * accum_steps
         else:
             raise ValueError(
-                "params/decay_step_duration and params/gradients_accum "
-                "should be manually converted to train/effective_batch_size"
+                "params/gradients_accum should be manually converted to "
+                "train/effective_batch_size"
             )
+
+        decay_step_duration = params.get("decay_step_duration")
+        if decay_step_duration is not None:
+            decay_step_duration //= accum_steps
+            if decay_step_duration <= 1:
+                _delete_opt(params, "decay_step_duration")
+            else:
+                params["decay_step_duration"] = decay_step_duration
 
 
 def _delete_opt(config, name):
