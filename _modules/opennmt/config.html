@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.config &mdash; OpenNMT-tf 2.29.0 documentation</title>
+  <title>opennmt.config &mdash; OpenNMT-tf 2.29.1 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -419,9 +419,7 @@
 
 <span class="k">def</span> <span class="nf">_convert_to_v2_step_accumulation</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
     <span class="c1"># Try to upgrade step accumulation to train/effective_batch_size.</span>
-    <span class="n">decay_step_duration</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;decay_step_duration&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">1</span>
-    <span class="n">gradients_accum</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;gradients_accum&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">1</span>
-    <span class="n">accum_steps</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">decay_step_duration</span><span class="p">,</span> <span class="n">gradients_accum</span><span class="p">)</span>
+    <span class="n">accum_steps</span> <span class="o">=</span> <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;gradients_accum&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">1</span>
     <span class="k">if</span> <span class="n">accum_steps</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">train_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="n">batch_size</span> <span class="o">=</span> <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;batch_size&quot;</span><span class="p">)</span>
@@ -429,9 +427,17 @@
             <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;effective_batch_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">*</span> <span class="n">accum_steps</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;params/decay_step_duration and params/gradients_accum &quot;</span>
-                <span class="s2">&quot;should be manually converted to train/effective_batch_size&quot;</span>
+                <span class="s2">&quot;params/gradients_accum should be manually converted to &quot;</span>
+                <span class="s2">&quot;train/effective_batch_size&quot;</span>
             <span class="p">)</span>
+
+        <span class="n">decay_step_duration</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decay_step_duration&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">decay_step_duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">decay_step_duration</span> <span class="o">//=</span> <span class="n">accum_steps</span>
+            <span class="k">if</span> <span class="n">decay_step_duration</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">_delete_opt</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;decay_step_duration&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">params</span><span class="p">[</span><span class="s2">&quot;decay_step_duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">decay_step_duration</span>
 
 
 <span class="k">def</span> <span class="nf">_delete_opt</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
