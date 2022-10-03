@@ -15,6 +15,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.29.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.29.1) (2022-10-03)
+
+### Fixes and improvements
+
+* Fix error when using gzipped training data files
+* Remove unnecessary casting in `MultiHeadAttention` for a small performance improvement
+
 ## [2.29.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.29.0) (2022-09-26)
 
 ### New features
