@@ -701,6 +701,7 @@ class ExampleInputterAdapter:
         batch_size_multiple=1,
         shuffle_buffer_size=None,
         length_bucket_width=None,
+        pad_to_bucket_boundary=False,
         maximum_features_length=None,
         maximum_labels_length=None,
         single_pass=False,
@@ -735,6 +736,7 @@ class ExampleInputterAdapter:
           length_bucket_width: The width of the length buckets to select batch
             candidates from (for efficiency). Set ``None`` to not constrain batch
             formation.
+          pad_to_bucket_boundary: Pad each batch to the length bucket boundary.
           maximum_features_length: The maximum length or list of maximum lengths of
             the features sequence(s). ``None`` to not constrain the length.
           maximum_labels_length: The maximum length of the labels sequence.
@@ -850,8 +852,11 @@ class ExampleInputterAdapter:
             batch_size_multiple=batch_size_multiple,
             transform_fns=transform_fns,
             length_bucket_width=length_bucket_width,
+            pad_to_bucket_boundary=pad_to_bucket_boundary,
             features_length_fn=features_length_fn,
             labels_length_fn=labels_length_fn,
+            maximum_features_length=maximum_features_length,
+            maximum_labels_length=maximum_labels_length,
             single_pass=single_pass,
             num_shards=num_shards,
             shard_index=shard_index,
