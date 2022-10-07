@@ -106,9 +106,7 @@ class Trainer:
 
             step = None
             moving_average = None
-            for i, loss in enumerate(
-                self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps)
-            ):
+            for i, loss in enumerate(self._steps(dataset, accum_steps=accum_steps)):
                 if i == 0:
                     self._log_model_info()
 
@@ -206,14 +204,12 @@ class Trainer:
             dataset = dataset(tf.distribute.InputContext())
         return dataset
 
-    def _steps(self, dataset, accum_steps=1, report_steps=None):
+    def _steps(self, dataset, accum_steps=1):
         """Returns a generator over training steps (i.e. parameters update).
 
         Args:
           dataset: The training dataset.
           accum_steps: Accumulate the gradients of this many steps/batches.
-          report_steps: Report summary statistics every this many steps. This should
-            typically be used in a ``tf.summary.record_if`` context.
 
         Returns:
           A generator that yields a loss value to report for this step.
@@ -232,7 +228,6 @@ class Trainer:
             return self._forward(
                 next(iterator),
                 accum_steps=accum_steps,
-                report_steps=report_steps,
             )
 
         def _step():
@@ -279,30 +274,16 @@ class Trainer:
             len(self._model.non_trainable_weights),
         )
 
-    def _should_record_summaries(self, accum_steps, report_steps):
-        """Returns a boolean tensor to be used in tf.summary.record_if."""
-        if report_steps is None or not self.is_master:
-            return False
-        record_summaries = tf.equal(self._optimizer.iterations % report_steps, 0)
-        if accum_steps > 1:
-            record_summaries = tf.logical_and(
-                record_summaries, tf.equal(self._gradient_accumulator.step, 0)
-            )
-        return record_summaries
-
-    def _compute_gradients(self, batch, accum_steps, report_steps):
+    def _compute_gradients(self, batch, accum_steps):
         """Computes the gradient of a training example."""
-        record_summaries = self._should_record_summaries(accum_steps, report_steps)
-        with tf.summary.record_if(record_summaries):
-            features, labels = self._model.split_features_labels(batch)
-            reported_loss, gradients = self._model.compute_gradients(
-                features,
-                labels,
-                self._optimizer,
-                loss_scale=accum_steps * self.num_replicas,
-            )
-            self._training_stats.update_on_example(features, labels)
-            _summarize_gradients(gradients, record_summaries)
+        features, labels = self._model.split_features_labels(batch)
+        reported_loss, gradients = self._model.compute_gradients(
+            features,
+            labels,
+            self._optimizer,
+            loss_scale=accum_steps * self.num_replicas,
+        )
+        self._training_stats.update_on_example(features, labels)
         return reported_loss, gradients
 
     def _apply_gradients(self, gradients):
@@ -311,12 +292,11 @@ class Trainer:
             list(zip(gradients, self._model.trainable_variables))
         )
 
-    def _forward(self, batch, accum_steps=1, report_steps=None):
+    def _forward(self, batch, accum_steps=1):
         """Forwards a training example and accumulates the gradients."""
         loss, gradients = self._compute_gradients(
             batch,
             accum_steps,
-            report_steps,
         )
         if accum_steps > 1:
             self._gradient_accumulator(gradients)
@@ -418,11 +398,11 @@ class MirroredStrategyTrainer(Trainer):
         dataset_fn = dataset if callable(dataset) else lambda _: dataset
         return self._strategy.distribute_datasets_from_function(dataset_fn)
 
-    def _forward(self, batch, accum_steps=1, report_steps=None):
+    def _forward(self, batch, accum_steps=1):
         per_replica_loss = self._strategy.run(
             super()._forward,
             args=(batch,),
-            kwargs=dict(accum_steps=accum_steps, report_steps=report_steps),
+            kwargs=dict(accum_steps=accum_steps),
         )
         # TODO: this reduction could be delayed until _step is called.
         return self._strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_loss, None)
@@ -433,20 +413,6 @@ class MirroredStrategyTrainer(Trainer):
     def _update_moving_average(self, moving_average):
         with self._strategy.scope():
             super()._update_moving_average(moving_average)
-
-
-def _summarize_gradients(gradients, should_record):
-    # Only compute the gradients global norm when the value is actually recorded.
-    if isinstance(should_record, bool) and not should_record:
-        return
-    tf.summary.scalar(
-        "gradients/global_norm",
-        tf.cond(
-            should_record,
-            true_fn=lambda: tf.linalg.global_norm(gradients),
-            false_fn=lambda: tf.constant(0, dtype=gradients[0].dtype),
-        ),
-    )
 
 
 class MovingAverage:
