@@ -227,6 +227,7 @@ class Runner:
                 batch_size_multiple=batch_size_multiple,
                 shuffle_buffer_size=train_config["sample_buffer_size"],
                 length_bucket_width=train_config["length_bucket_width"],
+                pad_to_bucket_boundary=train_config.get("pad_to_bucket_boundary"),
                 maximum_features_length=train_config.get("maximum_features_length"),
                 maximum_labels_length=train_config.get("maximum_labels_length"),
                 single_pass=train_config.get("single_pass", False),
