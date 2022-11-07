@@ -164,6 +164,7 @@ def guided_alignment_cost(
         sample_weight = None
         normalizer = tf.size(attention_probs)
 
+    attention_probs = tf.cast(attention_probs, tf.float32)
     cost = loss(gold_alignment, attention_probs, sample_weight=sample_weight)
     cost /= tf.cast(normalizer, cost.dtype)
     return weight * cost
