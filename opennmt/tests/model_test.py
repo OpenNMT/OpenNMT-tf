@@ -314,7 +314,7 @@ class ModelTest(tf.test.TestCase):
         )
         features, labels = next(iter(dataset))
         outputs, _ = model(features, labels=labels, training=True)
-        loss = model.compute_loss(outputs, labels, training=True)
+        model.compute_loss(outputs, labels, training=True)
 
     def testSequenceToSequenceWithGuidedAlignmentAndWeightedDataset(self):
         model, _ = _seq2seq_model()
