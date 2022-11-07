@@ -1,6 +1,5 @@
 """Define the Google's Transformer model."""
 
-import ctranslate2
 import tensorflow as tf
 
 from opennmt import config as config_util
@@ -138,18 +137,7 @@ class Transformer(SequenceToSequence):
             output_layer_bias=output_layer_bias,
         )
 
-        self._pre_norm = pre_norm
         self._num_units = num_units
-        self._num_encoder_layers = num_encoder_layers
-        self._num_decoder_layers = num_decoder_layers
-        self._num_heads = num_heads
-        self._with_relative_position = maximum_relative_position is not None
-        self._position_encoder_class = position_encoder_class
-        self._ffn_activation = ffn_activation
-        self._alignment_layer = -1
-        self._alignment_heads = 1
-        if attention_reduction == MultiHeadAttentionReduction.AVERAGE_LAST_LAYER:
-            self._alignment_heads = 0
         super().__init__(
             source_inputter,
             target_inputter,
@@ -157,40 +145,6 @@ class Transformer(SequenceToSequence):
             decoder,
             share_embeddings=share_embeddings,
         )
-
-    @property
-    def ctranslate2_spec(self):
-        if (
-            not isinstance(self.encoder, SelfAttentionEncoder)
-            or self._with_relative_position == bool(self._position_encoder_class)
-            or (
-                self._position_encoder_class is not None
-                and self._position_encoder_class != SinusoidalPositionEncoder
-            )
-        ):
-            return None
-
-        if self._ffn_activation is tf.nn.relu:
-            activation = ctranslate2.specs.Activation.RELU
-        elif self._ffn_activation is tf.nn.gelu:
-            activation = ctranslate2.specs.Activation.GELU
-        elif self._ffn_activation is tf.nn.swish:
-            activation = ctranslate2.specs.Activation.SWISH
-        else:
-            return None
-
-        model_spec = ctranslate2.specs.TransformerSpec(
-            (self._num_encoder_layers, self._num_decoder_layers),
-            self._num_heads,
-            with_relative_position=self._with_relative_position,
-            pre_norm=self._pre_norm,
-            activation=activation,
-            alignment_layer=self._alignment_layer,
-            alignment_heads=self._alignment_heads,
-        )
-        model_spec.with_source_bos = bool(self.features_inputter.mark_start)
-        model_spec.with_source_eos = bool(self.features_inputter.mark_end)
-        return model_spec
 
     def auto_config(self, num_replicas=1):
         config = super().auto_config(num_replicas=num_replicas)

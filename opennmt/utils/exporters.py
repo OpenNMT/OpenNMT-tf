@@ -164,7 +164,7 @@ class CTranslate2Exporter(Exporter):
         if not model.built:
             model.create_variables()
 
-        converter = ctranslate2.converters.OpenNMTTFConverterV2(model)
+        converter = ctranslate2.converters.OpenNMTTFConverter(model)
         converter.convert(export_dir, quantization=self._quantization, force=True)
 
 
