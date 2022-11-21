@@ -301,7 +301,7 @@ eval:
   save_eval_predictions: false
   # (optional) Scorer or list of scorers that are called on the saved evaluation
   # predictions.
-  # Available scorers: bleu, rouge, wer, ter, prf
+  # Available scorers: bleu, rouge, wer, ter, prf, chrf, chrf++
   scorers: bleu
 
   # (optional) The width of the length buckets to select batch candidates from.
