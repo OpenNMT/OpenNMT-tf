@@ -34,11 +34,6 @@ class Model(tf.keras.layers.Layer):
         """The inputter producing labels."""
         return getattr(self.examples_inputter, "labels_inputter", None)
 
-    @property
-    def ctranslate2_spec(self):
-        """The equivalent CTranslate2 model specification."""
-        return None
-
     def __repr__(self):
         """Returns a description of the model and its submodules."""
         return misc.describe_layer(self, name="model")

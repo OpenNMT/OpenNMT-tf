@@ -790,42 +790,6 @@ class ModelTest(tf.test.TestCase):
                 vocab_axis=1,
             )
 
-    @parameterized.expand(
-        [
-            [models.TransformerBase()],
-            [models.TransformerBaseRelative()],
-            [models.TransformerBig()],
-            [models.TransformerBigRelative()],
-            [
-                models.Transformer(
-                    num_layers=(6, 3),
-                    num_units=32,
-                    num_heads=8,
-                    ffn_inner_dim=64,
-                )
-            ],
-            [models.Transformer(ffn_activation=tf.nn.gelu)],
-            [models.Transformer(ffn_activation=tf.nn.silu)],
-        ]
-    )
-    def testCTranslate2Spec(self, model):
-        try:
-            spec = model.ctranslate2_spec
-            self.assertIsNotNone(spec)
-            self.assertIs(spec.with_source_bos, False)
-            self.assertIs(spec.with_source_eos, False)
-        except ImportError:
-            self.skipTest("ctranslate2 module is not available")
-
-    def testCTranslate2SpecSequenceControls(self):
-        _, _, data_config = self._makeToyEnDeData()
-        data_config["source_sequence_controls"] = {"start": False, "end": True}
-        model = models.TransformerBase()
-        model.initialize(data_config)
-        spec = model.ctranslate2_spec
-        self.assertIs(spec.with_source_bos, False)
-        self.assertIs(spec.with_source_eos, True)
-
     def testTransformerWithDifferentEncoderDecoderLayers(self):
         model = models.Transformer(
             inputters.WordEmbedder(32),
