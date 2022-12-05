@@ -346,6 +346,13 @@ class HorovodTrainer(Trainer):
     def num_replicas(self):
         return self._hvd.size()
 
+    def _evaluate(self, evaluator, step, moving_average=None):
+        should_stop = super()._evaluate(evaluator, step, moving_average)
+        # Evaluation is only performed on master, but we want all workers
+        # to be aware of the early stopping decision.
+        should_stop = self._hvd.broadcast_object(should_stop, root_rank=0, name='should_stop')
+        return should_stop
+
     def _finalize_dataset(self, dataset):
         if callable(dataset):
             dataset = dataset(
