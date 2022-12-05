@@ -350,7 +350,9 @@ class HorovodTrainer(Trainer):
         should_stop = super()._evaluate(evaluator, step, moving_average)
         # Evaluation is only performed on master, but we want all workers
         # to be aware of the early stopping decision.
-        should_stop = self._hvd.broadcast_object(should_stop, root_rank=0, name='should_stop')
+        should_stop = self._hvd.broadcast_object(
+            should_stop, root_rank=0, name="should_stop"
+        )
         return should_stop
 
     def _finalize_dataset(self, dataset):
