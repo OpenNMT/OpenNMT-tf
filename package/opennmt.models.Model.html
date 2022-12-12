@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Model &mdash; OpenNMT-tf 2.29.1 documentation</title>
+  <title>Model &mdash; OpenNMT-tf 2.30.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.29
+                2.30
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -167,12 +167,6 @@
 <dt class="sig sig-object py" id="opennmt.models.Model.labels_inputter">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">labels_inputter</span></span><a class="headerlink" href="#opennmt.models.Model.labels_inputter" title="Permalink to this definition"></a></dt>
 <dd><p>The inputter producing labels.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="opennmt.models.Model.ctranslate2_spec">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ctranslate2_spec</span></span><a class="headerlink" href="#opennmt.models.Model.ctranslate2_spec" title="Permalink to this definition"></a></dt>
-<dd><p>The equivalent CTranslate2 model specification.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -472,7 +466,7 @@ batch-normalized for training vs. token-normalized for reporting).</p>
 <dd><p>Returns the optimizer for this model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">tf.keras.optimizers.Optimizer</span></code> instance or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no optimizer
+<dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">tf.keras.optimizers.legacy.Optimizer</span></code> instance or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no optimizer
 is configured.</p>
 </dd>
 </dl>

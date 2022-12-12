@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.models.model &mdash; OpenNMT-tf 2.29.1 documentation</title>
+  <title>opennmt.models.model &mdash; OpenNMT-tf 2.30.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.29
+                2.30
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -128,11 +128,6 @@
     <span class="k">def</span> <span class="nf">labels_inputter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The inputter producing labels.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="p">,</span> <span class="s2">&quot;labels_inputter&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ctranslate2_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The equivalent CTranslate2 model specification.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Model.__repr__"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.__repr__">[docs]</a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a description of the model and its submodules.&quot;&quot;&quot;</span>
@@ -422,7 +417,7 @@
         <span class="sd">&quot;&quot;&quot;Returns the optimizer for this model.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">          A ``tf.keras.optimizers.Optimizer`` instance or ``None`` if no optimizer</span>
+<span class="sd">          A ``tf.keras.optimizers.legacy.Optimizer`` instance or ``None`` if no optimizer</span>
 <span class="sd">          is configured.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dense &mdash; OpenNMT-tf 2.29.1 documentation</title>
+  <title>Dense &mdash; OpenNMT-tf 2.30.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.29
+                2.30
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -201,10 +201,13 @@ or “non_trainable_variables” (e.g. BatchNorm mean and variance).
 Note that <cite>trainable</cite> cannot be <cite>True</cite> if <cite>synchronization</cite>
 is set to <cite>ON_READ</cite>.</p></li>
 <li><p><strong>constraint</strong> – Constraint instance (callable).</p></li>
-<li><p><strong>use_resource</strong> – Whether to use a <cite>ResourceVariable</cite> or not.
+<li><p><strong>use_resource</strong> – <p>Whether to use a <cite>ResourceVariable</cite> or not.
 See [this guide](
-<a class="reference external" href="https://www.tensorflow.org/guide/migrate/tf1_vs_tf2#resourcevariables_instead_of_referencevariables">https://www.tensorflow.org/guide/migrate/tf1_vs_tf2#resourcevariables_instead_of_referencevariables</a>)
-for more information.</p></li>
+<a class="reference external" href="https://www.tensorflow.org/guide/migrate/tf1_vs_tf2#resourcevariables_instead_of_referencevariables">https://www.tensorflow.org/guide/migrate/tf1_vs_tf2#resourcevariables_instead_of_referencevariables</a>)</p>
+<blockquote>
+<div><p>for more information.</p>
+</div></blockquote>
+</p></li>
 <li><p><strong>synchronization</strong> – Indicates when a distributed a variable will be
 aggregated. Accepted values are constants defined in the class
 <cite>tf.VariableSynchronization</cite>. By default the synchronization is set
@@ -235,9 +238,12 @@ Accepted values are constants defined in the class
 <dd><p>This is where the layer’s logic lives.</p>
 <p>The <cite>call()</cite> method may not create state (except in its first
 invocation, wrapping the creation of variables or other resources in
-<cite>tf.init_scope()</cite>).  It is recommended to create state in <cite>__init__()</cite>,
-or the <cite>build()</cite> method that is called automatically before <cite>call()</cite>
-executes the first time.</p>
+<cite>tf.init_scope()</cite>).  It is recommended to create state, including
+<cite>tf.Variable</cite> instances and nested <cite>Layer</cite> instances,</p>
+<blockquote>
+<div><p>in <cite>__init__()</cite>, or in the <cite>build()</cite> method that is</p>
+</div></blockquote>
+<p>called automatically before <cite>call()</cite> executes for the first time.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

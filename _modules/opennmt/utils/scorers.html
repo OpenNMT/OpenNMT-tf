@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.utils.scorers &mdash; OpenNMT-tf 2.29.1 documentation</title>
+  <title>opennmt.utils.scorers &mdash; OpenNMT-tf 2.30.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.29
+                2.30
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -186,6 +186,34 @@
         <span class="n">ref_stream</span> <span class="o">=</span> <span class="n">_get_lines</span><span class="p">(</span><span class="n">ref_path</span><span class="p">)</span>
         <span class="n">bleu</span> <span class="o">=</span> <span class="n">sacrebleu</span><span class="o">.</span><span class="n">corpus_bleu</span><span class="p">(</span><span class="n">sys_stream</span><span class="p">,</span> <span class="p">[</span><span class="n">ref_stream</span><span class="p">],</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">bleu</span><span class="o">.</span><span class="n">score</span></div>
+
+
+<span class="nd">@register_scorer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;chrf&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CHRFScorer</span><span class="p">(</span><span class="n">Scorer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Scorer using sacreBLEU.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;chrf&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
+        <span class="n">sys_stream</span> <span class="o">=</span> <span class="n">_get_lines</span><span class="p">(</span><span class="n">hyp_path</span><span class="p">)</span>
+        <span class="n">ref_stream</span> <span class="o">=</span> <span class="n">_get_lines</span><span class="p">(</span><span class="n">ref_path</span><span class="p">)</span>
+        <span class="n">chrf</span> <span class="o">=</span> <span class="n">sacrebleu</span><span class="o">.</span><span class="n">corpus_chrf</span><span class="p">(</span><span class="n">sys_stream</span><span class="p">,</span> <span class="p">[</span><span class="n">ref_stream</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">chrf</span><span class="o">.</span><span class="n">score</span>
+
+
+<span class="nd">@register_scorer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;chrf++&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">CHRFPPScorer</span><span class="p">(</span><span class="n">Scorer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Scorer using sacreBLEU.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;chrf++&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_path</span><span class="p">,</span> <span class="n">hyp_path</span><span class="p">):</span>
+        <span class="n">sys_stream</span> <span class="o">=</span> <span class="n">_get_lines</span><span class="p">(</span><span class="n">hyp_path</span><span class="p">)</span>
+        <span class="n">ref_stream</span> <span class="o">=</span> <span class="n">_get_lines</span><span class="p">(</span><span class="n">ref_path</span><span class="p">)</span>
+        <span class="n">chrf</span> <span class="o">=</span> <span class="n">sacrebleu</span><span class="o">.</span><span class="n">corpus_chrf</span><span class="p">(</span><span class="n">sys_stream</span><span class="p">,</span> <span class="p">[</span><span class="n">ref_stream</span><span class="p">],</span> <span class="n">word_order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">chrf</span><span class="o">.</span><span class="n">score</span>
 
 
 <div class="viewcode-block" id="WERScorer"><a class="viewcode-back" href="../../../package/opennmt.utils.WERScorer.html#opennmt.utils.WERScorer">[docs]</a><span class="nd">@register_scorer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;wer&quot;</span><span class="p">)</span>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZeroBridge &mdash; OpenNMT-tf 2.29.1 documentation</title>
+  <title>ZeroBridge &mdash; OpenNMT-tf 2.30.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.29
+                2.30
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -155,9 +155,12 @@
 <dd><p>This is where the layer’s logic lives.</p>
 <p>The <cite>call()</cite> method may not create state (except in its first
 invocation, wrapping the creation of variables or other resources in
-<cite>tf.init_scope()</cite>).  It is recommended to create state in <cite>__init__()</cite>,
-or the <cite>build()</cite> method that is called automatically before <cite>call()</cite>
-executes the first time.</p>
+<cite>tf.init_scope()</cite>).  It is recommended to create state, including
+<cite>tf.Variable</cite> instances and nested <cite>Layer</cite> instances,</p>
+<blockquote>
+<div><p>in <cite>__init__()</cite>, or in the <cite>build()</cite> method that is</p>
+</div></blockquote>
+<p>called automatically before <cite>call()</cite> executes for the first time.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

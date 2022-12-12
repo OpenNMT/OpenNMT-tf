@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.29.1 documentation</title>
+  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.30.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.29
+                2.30
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -402,7 +402,6 @@
                 <span class="n">sampling_probability</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">fused_projection</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;sampling_probability&quot;</span><span class="p">,</span> <span class="n">sampling_probability</span><span class="p">)</span>
 
         <span class="n">batch_size</span><span class="p">,</span> <span class="n">max_step</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">shape_list</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
         <span class="n">inputs_ta</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">max_step</span><span class="p">)</span>

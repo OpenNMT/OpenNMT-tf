@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>make_optimizer &mdash; OpenNMT-tf 2.29.1 documentation</title>
+  <title>make_optimizer &mdash; OpenNMT-tf 2.30.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.29
+                2.30
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -122,7 +122,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – The name of the optimizer class in <code class="docutils literal notranslate"><span class="pre">tf.keras.optimizers</span></code> or
+<li><p><strong>name</strong> – The name of the optimizer class in <code class="docutils literal notranslate"><span class="pre">tf.keras.optimizers.legacy</span></code> or
 <code class="docutils literal notranslate"><span class="pre">tfa.optimizers</span></code> as a string.</p></li>
 <li><p><strong>learning_rate</strong> – The learning rate or learning rate schedule to use.</p></li>
 <li><p><strong>**kwargs</strong> – Additional optimizer arguments. If <code class="docutils literal notranslate"><span class="pre">weight_decay</span></code> is set, the
@@ -130,7 +130,7 @@ optimizer will be extended with decoupled weight decay.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.keras.optimizers.Optimizer</span></code> instance.</p>
+<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">tf.keras.optimizers.legacy.Optimizer</span></code> instance.</p>
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><strong>ValueError</strong> – if <code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code> can not be resolved to an optimizer class.</p>

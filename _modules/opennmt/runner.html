@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.29.1 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.30.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.29
+                2.30
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -322,6 +322,7 @@
                 <span class="n">batch_size_multiple</span><span class="o">=</span><span class="n">batch_size_multiple</span><span class="p">,</span>
                 <span class="n">shuffle_buffer_size</span><span class="o">=</span><span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;sample_buffer_size&quot;</span><span class="p">],</span>
                 <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;length_bucket_width&quot;</span><span class="p">],</span>
+                <span class="n">pad_to_bucket_boundary</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pad_to_bucket_boundary&quot;</span><span class="p">),</span>
                 <span class="n">maximum_features_length</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;maximum_features_length&quot;</span><span class="p">),</span>
                 <span class="n">maximum_labels_length</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;maximum_labels_length&quot;</span><span class="p">),</span>
                 <span class="n">single_pass</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;single_pass&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>

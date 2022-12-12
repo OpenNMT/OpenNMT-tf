@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>batch_sequence_dataset &mdash; OpenNMT-tf 2.29.1 documentation</title>
+  <title>batch_sequence_dataset &mdash; OpenNMT-tf 2.30.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.29
+                2.30
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -136,7 +136,7 @@
 <h1>batch_sequence_dataset<a class="headerlink" href="#batch-sequence-dataset" title="Permalink to this headline"></a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="opennmt.data.batch_sequence_dataset">
-<span class="sig-prename descclassname"><span class="pre">opennmt.data.</span></span><span class="sig-name descname"><span class="pre">batch_sequence_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'examples'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_multiplier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size_multiple</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_bucket_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padded_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#batch_sequence_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.data.batch_sequence_dataset" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">opennmt.data.</span></span><span class="sig-name descname"><span class="pre">batch_sequence_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'examples'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_multiplier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size_multiple</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_bucket_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_to_bucket_boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padded_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opennmt/data/dataset.html#batch_sequence_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opennmt.data.batch_sequence_dataset" title="Permalink to this definition"></a></dt>
 <dd><p>Transformation that batches a dataset of sequences.</p>
 <p>This implements an example-based and a token-based batching strategy
 with optional bucketing of sequences.</p>
@@ -166,6 +166,10 @@ resulting batch size is a multiple of this value.</p></li>
 candidates from. <code class="docutils literal notranslate"><span class="pre">None</span></code> to not constrain batch formation.</p></li>
 <li><p><strong>length_fn</strong> – A function or list of functions (in case of a parallel dataset)
 that take features as argument and return the associated sequence length.</p></li>
+<li><p><strong>maximum_length</strong> – If known, the maximum length or list of maximum lengths
+(in case of a parallel dataset). This argument is required with
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">pad_to_bucket_boundary</span></code>.</p></li>
+<li><p><strong>pad_to_bucket_boundary</strong> – Pad each batch to the length bucket boundary.</p></li>
 <li><p><strong>padded_shapes</strong> – The padded shapes for this dataset. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the shapes
 are automatically inferred from the dataset output shapes.</p></li>
 </ul>
