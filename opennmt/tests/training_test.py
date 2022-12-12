@@ -4,6 +4,7 @@ import os
 import tensorflow as tf
 
 from opennmt import inputters, models, training
+from opennmt.optimizers.utils import make_optimizer
 from opennmt.tests import test_util
 
 
@@ -63,7 +64,7 @@ class TrainingTest(tf.test.TestCase):
 
     def testEmptyTrainingDataset(self):
         model = _make_seq2seq_model(self.get_temp_dir())
-        optimizer = tf.keras.optimizers.SGD(1.0)
+        optimizer = make_optimizer("SGD", 1.0)
         trainer = training.Trainer(model, optimizer)
 
         empty_file = os.path.join(self.get_temp_dir(), "train.txt")
@@ -78,7 +79,7 @@ class TrainingTest(tf.test.TestCase):
 
     def testTrainingStats(self):
         model = _make_seq2seq_model(self.get_temp_dir())
-        optimizer = tf.keras.optimizers.SGD(1.0)
+        optimizer = make_optimizer("SGD", 1.0)
         stats = training.TrainingStats(model, optimizer, warmup_steps=2)
 
         def _generate_example(length):

@@ -20,12 +20,12 @@ class OptimizerTest(tf.test.TestCase):
         adam_w = utils.make_optimizer("AdamW", 0.002, weight_decay=0.1)
         self.assertIsInstance(adam_w, tfa.optimizers.AdamW)
         adam_w = utils.make_optimizer("Adam", 0.002, weight_decay=0.1)
-        self.assertIsInstance(adam_w, tf.keras.optimizers.Adam)
+        self.assertIsInstance(adam_w, utils.get_optimizer_class("Adam"))
         self.assertIsInstance(adam_w, DecoupledWeightDecayExtension)
 
     def testCustomOptimizerRegistration(self):
         @utils.register_optimizer
-        class MyCustomAdam(tf.keras.optimizers.Adam):
+        class MyCustomAdam(utils.get_optimizer_class("Adam")):
             pass
 
         optimizer = utils.make_optimizer("MyCustomAdam", 0.002)
