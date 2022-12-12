@@ -15,6 +15,25 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.30.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.30.0) (2022-12-12)
+
+### Changes
+
+* The model attribute `ctranslate2_spec` has been removed as it is no longer relevant with the new CTranslate2 converter
+* The global gradient norm is no longer reported in TensorBoard because it was misleading: it did not take into account gradient accumulation and multi-GPU
+
+### New features
+
+* Support TensorFlow 2.11 (note that the new Keras optimizers are not yet supported, if you are creating optimizers manually please use an optimizer in `tf.keras.optimizers.legacy` for now)
+* Support CTranslate2 3.0
+* Add training parameter `pad_to_bucket_boundary` to pad the batch length to a multiple of `length_bucket_width` (this is useful to reduce the number of recompilation with XLA)
+* Integrate the scorers `chrf` and `chrf++` from SacreBLEU
+
+### Fixes and improvements
+
+* Fix error when training with Horovod and using an early stopping condition
+* Fix error when using guided alignment with mixed precision
+
 ## [2.29.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.29.1) (2022-10-03)
 
 ### Fixes and improvements
