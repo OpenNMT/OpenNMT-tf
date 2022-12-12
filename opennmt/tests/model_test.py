@@ -6,6 +6,7 @@ import tensorflow as tf
 from parameterized import parameterized
 
 from opennmt import decoders, encoders, inputters, models
+from opennmt.optimizers.utils import make_optimizer
 from opennmt.tests import test_util
 from opennmt.utils import misc
 
@@ -690,7 +691,7 @@ class ModelTest(tf.test.TestCase):
             model, _ = _seq2seq_model(
                 training=True, shared_embeddings=shared_embeddings
             )
-            optimizer = tf.keras.optimizers.Adam()
+            optimizer = make_optimizer("Adam", 0.001)
             data = {}
             data["source_vocabulary"] = test_util.make_data_file(
                 os.path.join(self.get_temp_dir(), "%s-src-vocab.txt" % name), src_vocab
@@ -835,7 +836,7 @@ class ModelTest(tf.test.TestCase):
 
     def testTrainModelOnBatch(self):
         _, _, data_config = self._makeToyEnDeData()
-        optimizer = tf.keras.optimizers.Adam()
+        optimizer = make_optimizer("Adam", 0.001)
         model = models.TransformerTiny()
         model.initialize(data_config)
         features = model.features_inputter.make_features(

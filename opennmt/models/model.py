@@ -322,7 +322,7 @@ class Model(tf.keras.layers.Layer):
         """Returns the optimizer for this model.
 
         Returns:
-          A ``tf.keras.optimizers.Optimizer`` instance or ``None`` if no optimizer
+          A ``tf.keras.optimizers.legacy.Optimizer`` instance or ``None`` if no optimizer
           is configured.
         """
         params = self.params

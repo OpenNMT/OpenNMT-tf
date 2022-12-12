@@ -4,6 +4,7 @@ import tensorflow as tf
 
 from parameterized import parameterized
 
+from opennmt.optimizers.utils import make_optimizer
 from opennmt.utils import checkpoint as checkpoint_util
 
 
@@ -44,7 +45,7 @@ class CheckpointTest(tf.test.TestCase):
     @parameterized.expand([(True,), (False,)])
     def testCheckpointAveraging(self, from_list):
         model = _DummyModel()
-        optimizer = tf.keras.optimizers.Adam()
+        optimizer = make_optimizer("Adam", 0.001)
 
         @tf.function
         def _build_model():

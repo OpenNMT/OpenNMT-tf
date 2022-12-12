@@ -25,7 +25,7 @@ class OptimizerTest(tf.test.TestCase):
 
     def testCustomOptimizerRegistration(self):
         @utils.register_optimizer
-        class MyCustomAdam(tf.keras.optimizers.Adam):
+        class MyCustomAdam(utils.get_optimizer_class("Adam")):
             pass
 
         optimizer = utils.make_optimizer("MyCustomAdam", 0.002)

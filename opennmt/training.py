@@ -20,7 +20,7 @@ class Trainer:
 
         Args:
           model: A :class:`opennmt.models.Model` instance to train.
-          optimizer: A ``tf.keras.optimizers.Optimizer`` instance.
+          optimizer: A ``tf.keras.optimizers.legacy.Optimizer`` instance.
           checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance. If
             not set, no checkpoints will be saved.
         """
@@ -330,7 +330,7 @@ class HorovodTrainer(Trainer):
 
         Args:
           model: A :class:`opennmt.models.Model` instance to train.
-          optimizer: A ``tf.keras.optimizers.Optimizer`` instance.
+          optimizer: A ``tf.keras.optimizers.legacy.Optimizer`` instance.
           hvd: The global Horovod object.
           checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance. If
             not set, no checkpoints will be saved.
@@ -376,7 +376,7 @@ class MirroredStrategyTrainer(Trainer):
 
         Args:
           model: A :class:`opennmt.models.Model` instance to train.
-          optimizer: A ``tf.keras.optimizers.Optimizer`` instance.
+          optimizer: A ``tf.keras.optimizers.legacy.Optimizer`` instance.
           checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance. If
             not set, no checkpoints will be saved.
           devices: List of device strings to use for training. If not set, all

@@ -9,9 +9,13 @@ from tensorflow_addons.optimizers.weight_decay_optimizers import (
     DecoupledWeightDecayExtension,
 )
 
-from opennmt.utils import misc
+from opennmt.utils import compat, misc
 
-_OPTIMIZERS_REGISTRY = misc.ClassRegistry(base_class=tf.keras.optimizers.Optimizer)
+tf_optimizers = compat.tf_any("keras.optimizers.legacy", "keras.optimizers")
+
+_OPTIMIZERS_REGISTRY = misc.ClassRegistry(
+    base_class=getattr(tf_optimizers, "Optimizer")
+)
 
 register_optimizer = _OPTIMIZERS_REGISTRY.register
 
@@ -23,14 +27,14 @@ def get_optimizer_class(name):
       name: The optimizer name.
 
     Returns:
-      A class extending ``tf.keras.optimizers.Optimizer``.
+      A class extending ``tf.keras.optimizers.legacy.Optimizer``.
 
     Raises:
       ValueError: if :obj:`name` can not be resolved to an optimizer class.
     """
     optimizer_class = None
     if optimizer_class is None:
-        optimizer_class = getattr(tf.keras.optimizers, name, None)
+        optimizer_class = getattr(tf_optimizers, name, None)
     if optimizer_class is None:
         optimizer_class = getattr(tfa.optimizers, name, None)
     if optimizer_class is None:
@@ -44,14 +48,14 @@ def make_optimizer(name, learning_rate, **kwargs):
     """Creates the optimizer.
 
     Args:
-      name: The name of the optimizer class in ``tf.keras.optimizers`` or
+      name: The name of the optimizer class in ``tf.keras.optimizers.legacy`` or
         ``tfa.optimizers`` as a string.
       learning_rate: The learning rate or learning rate schedule to use.
       **kwargs: Additional optimizer arguments. If ``weight_decay`` is set, the
         optimizer will be extended with decoupled weight decay.
 
     Returns:
-      A ``tf.keras.optimizers.Optimizer`` instance.
+      A ``tf.keras.optimizers.legacy.Optimizer`` instance.
 
     Raises:
       ValueError: if :obj:`name` can not be resolved to an optimizer class.
