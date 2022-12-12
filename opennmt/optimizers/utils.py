@@ -5,13 +5,17 @@ import inspect
 import tensorflow as tf
 import tensorflow_addons as tfa
 
+from packaging.version import Version
 from tensorflow_addons.optimizers.weight_decay_optimizers import (
     DecoupledWeightDecayExtension,
 )
 
-from opennmt.utils import compat, misc
+from opennmt.utils import misc
 
-tf_optimizers = compat.tf_any("keras.optimizers.legacy", "keras.optimizers")
+if Version(tf.__version__) >= Version("2.11.0"):
+    tf_optimizers = tf.keras.optimizers.legacy
+else:
+    tf_optimizers = tf.keras.optimizers
 
 _OPTIMIZERS_REGISTRY = misc.ClassRegistry(
     base_class=getattr(tf_optimizers, "Optimizer")
