@@ -375,6 +375,18 @@ def extract_batches(tensors):
             yield {key: value[b] for key, value in tensors.items()}
 
 
+def filter_features(features, condition):
+    """Only keep features matching a condition."""
+    if isinstance(features, dict):
+        return {key: value for key, value in features.items() if condition(value)}
+    elif isinstance(features, (tuple, list)):
+        return type(features)(
+            filter_features(element, condition) for element in features
+        )
+    else:
+        return features
+
+
 def extract_prefixed_keys(dictionary, prefix):
     """Returns a dictionary with all keys from :obj:`dictionary` that are prefixed
     with :obj:`prefix`.
