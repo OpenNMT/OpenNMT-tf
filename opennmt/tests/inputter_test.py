@@ -156,7 +156,7 @@ class InputterTest(tf.test.TestCase):
     def testAddSequenceControlsRagged(self):
         ids = tf.RaggedTensor.from_tensor([[4, 5, 6], [3, 4, 0]], padding=0)
         ids = inputters.add_sequence_controls(ids, start_id=1, end_id=2)
-        self.assertAllEqual(ids.to_list(), [[1, 4, 5, 6, 2], [1, 3, 4, 2]])
+        self.assertListEqual(ids.to_list(), [[1, 4, 5, 6, 2], [1, 3, 4, 2]])
 
     def _checkFeatures(self, features, expected_shapes):
         for name, expected_shape in expected_shapes.items():

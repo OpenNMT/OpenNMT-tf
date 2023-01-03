@@ -35,7 +35,7 @@ class TextTest(tf.test.TestCase):
         expected = tf.nest.map_structure(tf.compat.as_bytes, expected)
         tokens = tf.constant(tokens)
         words = text.tokens_to_words(tokens)
-        self.assertAllEqual(words.to_list(), expected)
+        self.assertListEqual(words.to_list(), expected)
 
     @parameterized.expand(
         [
@@ -55,7 +55,7 @@ class TextTest(tf.test.TestCase):
         expected = tf.nest.map_structure(tf.compat.as_bytes, expected)
         tokens = tf.constant(tokens)
         words = text.tokens_to_words(tokens, subword_token="▁", is_spacer=True)
-        self.assertAllEqual(words.to_list(), expected)
+        self.assertListEqual(words.to_list(), expected)
 
     def _testPharaohAlignments(self, line, lengths, expected_matrix):
         matrix = text.alignment_matrix_from_pharaoh(
