@@ -223,7 +223,7 @@ class Model(tf.keras.layers.Layer):
           - The sample size, if :obj:`normalize_loss` is disabled.
         """
 
-        def _compute_loss():
+        with tf.GradientTape() as tape:
             loss, sample_size = self.compute_training_loss(
                 features,
                 labels,
@@ -235,23 +235,14 @@ class Model(tf.keras.layers.Layer):
             if loss_scale is not None:
                 loss /= loss_scale
 
-            return loss, sample_size
-
-        if tf.executing_eagerly():
-            with tf.GradientTape() as tape:
-                loss, sample_size = _compute_loss()
-                if isinstance(optimizer, tf.keras.mixed_precision.LossScaleOptimizer):
-                    scaled_loss = optimizer.get_scaled_loss(loss)
-                else:
-                    scaled_loss = loss
-            gradients = tape.gradient(scaled_loss, self.trainable_weights)
             if isinstance(optimizer, tf.keras.mixed_precision.LossScaleOptimizer):
-                gradients = optimizer.get_unscaled_gradients(gradients)
+                scaled_loss = optimizer.get_scaled_loss(loss)
+            else:
+                scaled_loss = loss
 
-        else:
-            loss, sample_size = _compute_loss()
-            # LossScaleOptimizer.get_gradients takes care of loss scaling.
-            gradients = optimizer.get_gradients(loss, self.trainable_weights)
+        gradients = tape.gradient(scaled_loss, self.trainable_weights)
+        if isinstance(optimizer, tf.keras.mixed_precision.LossScaleOptimizer):
+            gradients = optimizer.get_unscaled_gradients(gradients)
 
         if normalize_loss:
             return loss, gradients
