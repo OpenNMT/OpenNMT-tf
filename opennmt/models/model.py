@@ -197,7 +197,14 @@ class Model(tf.keras.layers.Layer):
         optimizer.apply_gradients(list(zip(gradients, self.trainable_weights)))
         return loss
 
-    def compute_gradients(self, features, labels, optimizer, loss_scale=None):
+    def compute_gradients(
+        self,
+        features,
+        labels,
+        optimizer,
+        loss_scale=None,
+        normalize_loss=True,
+    ):
         """Computes the gradients for a batch of examples.
 
         Args:
@@ -206,40 +213,49 @@ class Model(tf.keras.layers.Layer):
           optimizer: The optimizer instance
             (``tf.keras.mixed_precision.LossScaleOptimizer`` is supported).
           loss_scale: An optional loss scaling factor.
+          normalize_loss: Normalize the loss by the sample size.
 
         Returns:
           A tuple containing,
 
           - The loss.
           - The gradients.
+          - The sample size, if :obj:`normalize_loss` is disabled.
         """
 
         def _compute_loss():
-            train_loss, report_loss = self.compute_training_loss(
+            loss, sample_size = self.compute_training_loss(
                 features,
                 labels,
                 step=optimizer.iterations,
             )
+
+            if normalize_loss and sample_size is not None:
+                loss /= sample_size
             if loss_scale is not None:
-                train_loss /= loss_scale
-                report_loss /= loss_scale
-            return train_loss, report_loss
+                loss /= loss_scale
+
+            return loss, sample_size
 
         if tf.executing_eagerly():
             with tf.GradientTape() as tape:
-                train_loss, report_loss = _compute_loss()
+                loss, sample_size = _compute_loss()
                 if isinstance(optimizer, tf.keras.mixed_precision.LossScaleOptimizer):
-                    train_loss = optimizer.get_scaled_loss(train_loss)
-            gradients = tape.gradient(train_loss, self.trainable_weights)
+                    scaled_loss = optimizer.get_scaled_loss(loss)
+                else:
+                    scaled_loss = loss
+            gradients = tape.gradient(scaled_loss, self.trainable_weights)
             if isinstance(optimizer, tf.keras.mixed_precision.LossScaleOptimizer):
                 gradients = optimizer.get_unscaled_gradients(gradients)
 
         else:
-            train_loss, report_loss = _compute_loss()
+            loss, sample_size = _compute_loss()
             # LossScaleOptimizer.get_gradients takes care of loss scaling.
-            gradients = optimizer.get_gradients(train_loss, self.trainable_weights)
+            gradients = optimizer.get_gradients(loss, self.trainable_weights)
 
-        return report_loss, gradients
+        if normalize_loss:
+            return loss, gradients
+        return loss, gradients, sample_size
 
     def compute_training_loss(self, features, labels, step=None):
         """Computes the training loss for a batch of examples.
@@ -252,18 +268,20 @@ class Model(tf.keras.layers.Layer):
         Returns:
           A tuple containing,
 
-          - The loss to optimize.
-          - The loss to report.
+          - The cumulated loss.
+          - The sample size (or ``None`` if not returned by the model).
         """
         outputs, _ = self(features, labels, training=True, step=step)
         loss = self.compute_loss(outputs, labels, training=True)
+
         if isinstance(loss, tuple):
-            train_loss = loss[0] / loss[1]
-            report_loss = loss[0] / loss[2] if len(loss) > 2 else train_loss
+            sample_size = loss[1]
+            loss = loss[0]
         else:
-            train_loss, report_loss = loss, loss
-        train_loss = self.regularize_loss(train_loss, variables=self.trainable_weights)
-        return train_loss, report_loss
+            sample_size = None
+
+        loss = self.regularize_loss(loss, variables=self.trainable_weights)
+        return loss, sample_size
 
     @abc.abstractmethod
     def compute_loss(self, outputs, labels, training=True):

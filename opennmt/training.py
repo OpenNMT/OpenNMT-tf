@@ -2,7 +2,6 @@
 
 import collections
 import contextlib
-import itertools
 import time
 
 import tensorflow as tf
@@ -41,6 +40,9 @@ class Trainer:
         ):
             optimizer = tf.keras.mixed_precision.LossScaleOptimizer(optimizer)
         self._optimizer = optimizer
+
+        self._total_loss = None
+        self._total_sample_size = None
 
     @property
     def is_master(self):
@@ -215,48 +217,33 @@ class Trainer:
           A generator that yields a loss value to report for this step.
         """
         dataset = self._finalize_dataset(dataset)
-        iterator = iter(dataset)
 
-        # We define 2 separate functions to support gradient accumulation:
-        #  * forward: compute and accumulate the gradients
-        #  * step: apply the gradients
-        # When gradient accumulation is disabled, the forward function also applies the gradients.
+        apply_gradients = tf.function(self._apply_gradients)
+        accumulate_gradients = tf.function(
+            self._accumulate_gradients,
+            input_signature=(dataset.element_spec,),
+        )
 
-        def _forward():
-            # We get the next dataset element within the function for increased efficiency
-            # and avoid dealing with tf.function input signatures.
-            return self._forward(
-                next(iterator),
-                accum_steps=accum_steps,
+        for i, batches in enumerate(_group_batches(dataset, accum_steps)):
+            for batch in batches:
+                accumulate_gradients(batch)
+
+            loss = self._all_reduce_sum(self._total_loss)
+            sample_size = (
+                self._all_reduce_sum(self._total_sample_size)
+                if self._total_sample_size is not None
+                else accum_steps * self.num_replicas
             )
-
-        def _step():
-            return self._step()
-
-        # Wrap forward and step with tf.function to run in graph mode.
-        forward_fn = tf.function(_forward)
-        step_fn = tf.function(_step) if accum_steps > 1 else lambda: None
-        step_loss = 0
-
-        for i in itertools.count():
-            try:
-                loss = forward_fn()
-            except (
-                StopIteration,
-                tf.errors.OutOfRangeError,
-            ):  # Dataset iterator exhausted.
-                break
 
             if tf.math.is_nan(loss):
                 raise RuntimeError("Model diverged with loss = NaN.")
 
-            step_loss += float(loss)
-            if (i + 1) % accum_steps == 0:
-                step_fn()
-                if i + 1 == accum_steps:
-                    self._broadcast_variables()
-                yield step_loss
-                step_loss = 0
+            apply_gradients(sample_size)
+
+            if i == 0:
+                self._broadcast_variables()
+
+            yield float(loss) / float(sample_size)
 
     def _log_model_info(self):
         """Logs some information about the model being trained."""
@@ -274,40 +261,57 @@ class Trainer:
             len(self._model.non_trainable_weights),
         )
 
-    def _compute_gradients(self, batch, accum_steps):
-        """Computes the gradient of a training example."""
+    def _accumulate_loss(self, loss, sample_size):
+        """Accumulates the loss and sample size on the current replica."""
+        if self._total_loss is None:
+            self._total_loss = tf.Variable(
+                tf.constant(0, tf.float32),
+                trainable=False,
+                synchronization=tf.VariableSynchronization.ON_READ,
+                aggregation=tf.VariableAggregation.SUM,
+            )
+
+        self._total_loss.assign_add(loss, read_value=False)
+
+        if sample_size is not None:
+            if self._total_sample_size is None:
+                self._total_sample_size = tf.Variable(
+                    tf.constant(0, tf.float32),
+                    trainable=False,
+                    synchronization=tf.VariableSynchronization.ON_READ,
+                    aggregation=tf.VariableAggregation.SUM,
+                )
+
+            self._total_sample_size.assign_add(sample_size, read_value=False)
+
+    def _accumulate_gradients(self, batch):
+        """Computes and accumulates the gradient of a training example."""
         features, labels = self._model.split_features_labels(batch)
-        reported_loss, gradients = self._model.compute_gradients(
+        loss, gradients, sample_size = self._model.compute_gradients(
             features,
             labels,
             self._optimizer,
-            loss_scale=accum_steps * self.num_replicas,
+            normalize_loss=False,
         )
+        self._accumulate_loss(loss, sample_size)
+        self._gradient_accumulator(gradients)
         self._training_stats.update_on_example(features, labels)
-        return reported_loss, gradients
 
-    def _apply_gradients(self, gradients):
+    def _apply_gradients(self, sample_size):
         """Applies the gradients."""
+        gradients = [
+            self._all_reduce_sum(gradient / sample_size)
+            for gradient in self._gradient_accumulator.gradients
+        ]
+
         self._optimizer.apply_gradients(
             list(zip(gradients, self._model.trainable_variables))
         )
 
-    def _forward(self, batch, accum_steps=1):
-        """Forwards a training example and accumulates the gradients."""
-        loss, gradients = self._compute_gradients(
-            batch,
-            accum_steps,
-        )
-        if accum_steps > 1:
-            self._gradient_accumulator(gradients)
-        else:
-            self._apply_gradients(gradients)
-        return loss
-
-    def _step(self):
-        """Applies gradients and resets accumulation."""
-        self._apply_gradients(self._gradient_accumulator.gradients)
         self._gradient_accumulator.reset()
+        self._total_loss.assign(0, read_value=False)
+        if self._total_sample_size is not None:
+            self._total_sample_size.assign(0, read_value=False)
 
     def _update_moving_average(self, moving_average):
         """Updates the moving average of variables."""
@@ -319,7 +323,20 @@ class Trainer:
 
     def _all_reduce_sum(self, value):
         """Reduces the value across all replicas."""
+        if isinstance(value, tf.Variable):
+            return value.read_value()
         return value
+
+
+def _group_batches(dataset, group_size):
+    group = []
+
+    for batch in dataset:
+        group.append(batch)
+
+        if len(group) == group_size:
+            yield group
+            group = []
 
 
 class HorovodTrainer(Trainer):
@@ -366,9 +383,6 @@ class HorovodTrainer(Trainer):
             )
         return dataset
 
-    def _apply_gradients(self, gradients):
-        return super()._apply_gradients(map(self._all_reduce_sum, gradients))
-
     def _broadcast_variables(self):
         self._hvd.broadcast_variables(self._model.variables, root_rank=0)
         self._hvd.broadcast_variables(self._optimizer.variables(), root_rank=0)
@@ -407,17 +421,11 @@ class MirroredStrategyTrainer(Trainer):
         dataset_fn = dataset if callable(dataset) else lambda _: dataset
         return self._strategy.distribute_datasets_from_function(dataset_fn)
 
-    def _forward(self, batch, accum_steps=1):
-        per_replica_loss = self._strategy.run(
-            super()._forward,
-            args=(batch,),
-            kwargs=dict(accum_steps=accum_steps),
-        )
-        # TODO: this reduction could be delayed until _step is called.
-        return self._strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_loss, None)
+    def _accumulate_gradients(self, batch):
+        self._strategy.run(super()._accumulate_gradients, args=(batch,))
 
-    def _step(self):
-        self._strategy.run(super()._step)
+    def _apply_gradients(self, sample_size):
+        self._strategy.run(super()._apply_gradients, args=(sample_size,))
 
     def _update_moving_average(self, moving_average):
         with self._strategy.scope():
@@ -699,7 +707,6 @@ class TrainingStats:
         """
         counters = {}
         for name, counter in self._words_counters.items():
-            counter = counter.read_value()
             if self._reduce_fn is not None:
                 counter = self._reduce_fn(counter)
             counters[name] = counter
