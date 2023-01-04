@@ -849,6 +849,32 @@ class ModelTest(tf.test.TestCase):
         loss2 = model.train(features, labels, optimizer)
         self.assertLess(loss2, loss1)
 
+    def testLossNormalization(self):
+        model = models.TransformerTiny()
+
+        _, _, data_config = self._makeToyEnDeData()
+        params = model.auto_config()["params"]
+        params["dropout"] = 0
+
+        model.initialize(data_config, params=params)
+        optimizer = model.get_optimizer()
+
+        features = model.features_inputter.make_features(
+            ["hello world !", "how are you ?"]
+        )
+        labels = model.labels_inputter.make_features(
+            ["hallo welt !", "wie geht es dir ?"]
+        )
+
+        normalized_loss, _ = model.compute_gradients(features, labels, optimizer)
+        cumulated_loss, _, sample_size = model.compute_gradients(
+            features, labels, optimizer, normalize_loss=False
+        )
+
+        # sample_size should be the sum of the target lengths including EOS.
+        self.assertEqual(sample_size, 4 + 6)
+        self.assertAllClose(cumulated_loss / sample_size, normalized_loss)
+
 
 if __name__ == "__main__":
     tf.test.main()

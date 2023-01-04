@@ -20,7 +20,12 @@ def _make_seq2seq_model(temp_dir):
         num_heads=4,
         ffn_inner_dim=40,
     )
-    model.initialize(dict(source_vocabulary=vocab, target_vocabulary=vocab))
+    config = model.auto_config()
+    params = config["params"]
+    params["dropout"] = 0
+    model.initialize(
+        dict(source_vocabulary=vocab, target_vocabulary=vocab), params=params
+    )
     return model
 
 
@@ -133,6 +138,60 @@ class TrainingTest(tf.test.TestCase):
         self.assertAllClose(summary["last_loss"], 9.4)
         self.assertAllClose(summary["average_loss"], 9.6)
         self.assertEqual(summary["num_steps"], 3)
+
+    @test_util.run_with_two_cpu_devices
+    def testTrainingDistributionStrategy(self):
+        class _TrainerTestWrapper(training.MirroredStrategyTrainer):
+            def __init__(self, test_instance, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.test_instance = test_instance
+                self.losses = []
+                self.sample_sizes = []
+
+            def _accumulate_loss(self, loss, sample_size):
+                self.losses.append(loss)
+                self.sample_sizes.append(sample_size)
+                return super()._accumulate_loss(loss, sample_size)
+
+            def _apply_gradients(self, sample_size):
+                self.test_instance.assertLen(self.losses, 4)
+                self.test_instance.assertLen(self.sample_sizes, 4)
+                self.test_instance.assertEqual(sample_size, sum(self.sample_sizes))
+                return super()._apply_gradients(sample_size)
+
+        model = _make_seq2seq_model(self.get_temp_dir())
+        optimizer = model.get_optimizer()
+        devices = tf.config.list_logical_devices(device_type="CPU")
+
+        source_path = self._makeTextFile(
+            "source.txt", ["1 2 3", "1 2 3 4 5", "1 2 3 4", "1 2 3 4 5 6 7"]
+        )
+        target_path = self._makeTextFile(
+            "target.txt", ["1 2 3 4", "1 2 3", "1 2 3 4 5 6", "1 2 3 4 5"]
+        )
+
+        dataset = model.examples_inputter.make_training_dataset(
+            source_path, target_path, batch_size=1, single_pass=True
+        )
+
+        trainer = _TrainerTestWrapper(self, model, optimizer, devices=devices)
+
+        tf.config.run_functions_eagerly(True)
+        summary = trainer(dataset, accum_steps=2)
+        tf.config.run_functions_eagerly(False)
+
+        self.assertEqual(summary["num_steps"], 1)
+        self.assertAllClose(
+            summary["last_loss"], sum(trainer.losses) / sum(trainer.sample_sizes)
+        )
+
+    def _makeTextFile(self, name, lines):
+        path = os.path.join(self.get_temp_dir(), name)
+        with open(path, "w", encoding="utf-8") as f:
+            for line in lines:
+                f.write(line)
+                f.write("\n")
+        return path
 
 
 if __name__ == "__main__":
