@@ -225,7 +225,9 @@ class Runner:
         batch_type = train_config["batch_type"]
         batch_size = train_config["batch_size"]
         batch_size_multiple = (
-            8 if mixed_precision or self._jit_compile and batch_type == "tokens" else 1
+            8
+            if batch_type == "tokens" and (mixed_precision or self._jit_compile)
+            else 1
         )
         batch_autotune_mode = train_config.get("batch_autotune_mode")
         length_bucket_width = train_config["length_bucket_width"]
