@@ -834,11 +834,13 @@ class ModelTest(tf.test.TestCase):
         model.initialize(data_config, params=params)
         model.serve_function().get_concrete_function()
 
-    def testTrainModelOnBatch(self):
+    @parameterized.expand([[True], [False]])
+    def testTrainModelOnBatch(self, jit_compile):
         _, _, data_config = self._makeToyEnDeData()
         optimizer = make_optimizer("Adam", 0.001)
         model = models.TransformerTiny()
         model.initialize(data_config)
+        model.set_jit_compile(jit_compile)
         features = model.features_inputter.make_features(
             ["hello world !", "how are you ?"]
         )

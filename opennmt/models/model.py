@@ -16,6 +16,7 @@ class Model(tf.keras.layers.Layer):
         super().__init__()
         self.examples_inputter = examples_inputter
         self.params = {}
+        self._jit_compile = False
 
     @property
     def unsupervised(self):
@@ -68,6 +69,10 @@ class Model(tf.keras.layers.Layer):
             misc.set_dropout(self, dropout)
         self.examples_inputter.initialize(data_config)
 
+    def set_jit_compile(self, enable):
+        """Allow (or not) this model to use XLA compilation."""
+        self._jit_compile = enable
+
     def build(self, input_shape):
         freeze_layers = self.params.get("freeze_layers")
         if freeze_layers:
@@ -99,11 +104,22 @@ class Model(tf.keras.layers.Layer):
           - The model outputs (usually unscaled probabilities).
           - The model predictions.
         """
-        outputs, predictions = super().__call__(
+        if training and self._jit_compile:
+            # Remove string tensors which are not supported by XLA.
+            features, labels = misc.filter_features(
+                (features, labels),
+                lambda tensor: tensor.dtype != tf.string,
+            )
+
+            call_method = self._forward_xla
+        else:
+            call_method = self._forward
+
+        outputs, predictions = call_method(
             features,
-            labels=labels,
-            training=training,
-            step=step,
+            labels,
+            training,
+            step,
         )
 
         # Include the example index vector in the outputs.
@@ -115,6 +131,13 @@ class Model(tf.keras.layers.Layer):
                 predictions["index"] = index
 
         return outputs, predictions
+
+    @tf.function(jit_compile=True)
+    def _forward_xla(self, features, labels, training, step):
+        return self._forward(features, labels, training, step)
+
+    def _forward(self, features, labels, training, step):
+        return super().__call__(features, labels=labels, training=training, step=step)
 
     @abc.abstractmethod
     def call(self, features, labels=None, training=None, step=None):

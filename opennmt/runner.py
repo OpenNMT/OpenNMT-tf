@@ -52,7 +52,13 @@ class Runner:
     """Class for running and exporting models."""
 
     def __init__(
-        self, model, config, auto_config=None, mixed_precision=False, seed=None
+        self,
+        model,
+        config,
+        auto_config=None,
+        mixed_precision=False,
+        jit_compile=False,
+        seed=None,
     ):
         """Initializes the runner parameters.
 
@@ -63,6 +69,7 @@ class Runner:
           auto_config: If ``True``, use automatic configuration values defined by
             :obj:`model`. If not set, the parameter is read from the run configuration.
           mixed_precision: Enable mixed precision.
+          jit_compile: Compile the model with XLA when possible.
           seed: The random seed to set.
 
         Raises:
@@ -90,6 +97,7 @@ class Runner:
             auto_config = self._config.get("auto_config", False)
         self._auto_config = auto_config
         self._mixed_precision = mixed_precision
+        self._jit_compile = jit_compile
         if seed is not None:
             np.random.seed(seed)
             random.seed(seed)
@@ -160,6 +168,7 @@ class Runner:
     def _init_model(self, config):
         model = self._model_fn()
         model.initialize(config["data"], params=config["params"])
+        model.set_jit_compile(self._jit_compile)
         return model
 
     def train(
@@ -215,8 +224,18 @@ class Runner:
 
         batch_type = train_config["batch_type"]
         batch_size = train_config["batch_size"]
-        batch_size_multiple = 8 if mixed_precision and batch_type == "tokens" else 1
+        batch_size_multiple = (
+            8
+            if batch_type == "tokens" and (mixed_precision or self._jit_compile)
+            else 1
+        )
         batch_autotune_mode = train_config.get("batch_autotune_mode")
+        length_bucket_width = train_config["length_bucket_width"]
+        pad_to_bucket_boundary = train_config.get("pad_to_bucket_boundary")
+
+        if self._jit_compile:
+            length_bucket_width = max(length_bucket_width, batch_size_multiple)
+            pad_to_bucket_boundary = True
 
         dataset_fn = (
             lambda input_context: model.examples_inputter.make_training_dataset(
@@ -226,8 +245,8 @@ class Runner:
                 batch_type=batch_type,
                 batch_size_multiple=batch_size_multiple,
                 shuffle_buffer_size=train_config["sample_buffer_size"],
-                length_bucket_width=train_config["length_bucket_width"],
-                pad_to_bucket_boundary=train_config.get("pad_to_bucket_boundary"),
+                length_bucket_width=length_bucket_width,
+                pad_to_bucket_boundary=pad_to_bucket_boundary,
                 maximum_features_length=train_config.get("maximum_features_length"),
                 maximum_labels_length=train_config.get("maximum_labels_length"),
                 single_pass=train_config.get("single_pass", False),
