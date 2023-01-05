@@ -86,7 +86,7 @@ setup(
         "docs": docs_require,
     },
     tests_require=tests_require,
-    packages=find_packages(exclude=["bin", "*.tests"]),
+    packages=find_packages(exclude=["*.tests"]),
     entry_points={
         "console_scripts": [
             "onmt-ark-to-records=opennmt.bin.ark_to_records:main",
