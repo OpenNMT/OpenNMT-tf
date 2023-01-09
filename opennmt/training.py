@@ -597,24 +597,27 @@ class TrainingStats:
             summary["steps_per_sec"],
             description="Training steps per second",
         )
-        steps_per_sec_fmt = "steps/s = %0.2f" % summary["steps_per_sec"]
 
-        words_per_sec_fmt = []
         for name, avg in summary["words_per_sec"].items():
             tf.summary.scalar(
                 "words_per_sec/%s" % name,
                 avg,
                 description="%s words per second" % name.capitalize(),
             )
-            words_per_sec_fmt.append("%s words/s = %d" % (name, avg))
 
         tf.get_logger().info(
-            "Step = %d ; %s ; Learning rate = %f ; Loss = %f",
+            "Step = %d ; steps/s = %0.2f, tokens/s = %d (%s) ; Learning rate = %f ; Loss = %f",
             summary["step"],
-            ", ".join([steps_per_sec_fmt] + list(sorted(words_per_sec_fmt))),
+            summary["steps_per_sec"],
+            sum(summary["words_per_sec"].values()),
+            ", ".join(
+                "%d %s" % (avg, name)
+                for name, avg in sorted(summary["words_per_sec"].items())
+            ),
             summary["learning_rate"],
             summary["loss"],
         )
+
         tf.summary.scalar("loss", summary["loss"], description="Training loss")
         tf.summary.scalar(
             "optim/learning_rate", summary["learning_rate"], description="Learning rate"
