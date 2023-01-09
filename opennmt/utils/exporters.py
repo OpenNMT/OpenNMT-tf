@@ -146,7 +146,8 @@ class CTranslate2Exporter(Exporter):
 
         Args:
           quantization: Quantize model weights to this type when exporting the model.
-            Can be "int8", "int16", or "float16". Default is no quantization.
+            Can be "int8", "int16", "float16", or "int8_float16".
+            Default is no quantization.
 
         Raises:
           ImportError: if the CTranslate2 package is missing.
