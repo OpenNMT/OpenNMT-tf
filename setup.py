@@ -74,7 +74,7 @@ setup(
         "pyonmttok>=1.29.0,<2",
         "pyyaml>=5.3,<7",
         "rouge>=1.0,<2",
-        "sacrebleu>=1.5.0,<2.3",
+        "sacrebleu>=1.5.0,<3",
         "tensorflow-addons>=0.16,<0.20",
     ],
     extras_require={
