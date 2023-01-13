@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.utils.checkpoint &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -105,10 +105,10 @@
 
 
 <span class="k">class</span> <span class="nc">Checkpoint</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Wrapper around TensorFlow checkpoints utilities.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper around TensorFlow checkpoints utilities.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_checkpoint_max</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the wrapper.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the wrapper.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          model: A :class:`opennmt.models.Model` to save.</span>
@@ -133,7 +133,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates a checkpoint wrapper from the configuration.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a checkpoint wrapper from the configuration.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          config: The user configuration.</span>
@@ -159,29 +159,29 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The managed model.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The managed model.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">optimizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The managed optimizer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The managed optimizer.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">model_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The model directory.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The model directory.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_dir</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">last_saved_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The last training step that was saved.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The last training step that was saved.&quot;&quot;&quot;</span>
         <span class="n">latest_checkpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checkpoint_manager</span><span class="o">.</span><span class="n">latest_checkpoint</span>
         <span class="k">if</span> <span class="n">latest_checkpoint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">get_step_from_checkpoint_prefix</span><span class="p">(</span><span class="n">latest_checkpoint</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Saves a checkpoint.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves a checkpoint.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          step: The step to save for. If ``None``, get the value from ``optimizer.iterations``.</span>
@@ -196,7 +196,7 @@
         <span class="k">return</span> <span class="n">path</span>
 
     <span class="k">def</span> <span class="nf">restore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Restores a checkpoint.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Restores a checkpoint.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          checkpoint_path: Path a checkpoint to restore. If not set, the latest</span>
@@ -246,12 +246,12 @@
 
 
 <span class="k">def</span> <span class="nf">get_step_from_checkpoint_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Extracts the training step from the checkpoint file prefix.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts the training step from the checkpoint file prefix.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
 
 <div class="viewcode-block" id="is_v1_checkpoint"><a class="viewcode-back" href="../../../package/opennmt.utils.is_v1_checkpoint.html#opennmt.utils.is_v1_checkpoint">[docs]</a><span class="k">def</span> <span class="nf">is_v1_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns ``True`` if the checkpoint at :obj:`checkpoint_path` has been</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns ``True`` if the checkpoint at :obj:`checkpoint_path` has been</span>
 <span class="sd">    trained with OpenNMT-tf v1.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">):</span>
@@ -260,7 +260,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_checkpoint_variables</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns variables included in a checkpoint.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns variables included in a checkpoint.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      checkpoint_path: Path to the checkpoint.</span>
@@ -278,7 +278,7 @@
 <div class="viewcode-block" id="average_checkpoints"><a class="viewcode-back" href="../../../package/opennmt.utils.average_checkpoints.html#opennmt.utils.average_checkpoints">[docs]</a><span class="k">def</span> <span class="nf">average_checkpoints</span><span class="p">(</span>
     <span class="n">model_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">trackables</span><span class="p">,</span> <span class="n">max_count</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">model_key</span><span class="o">=</span><span class="s2">&quot;model&quot;</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Averages object-based checkpoints.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Averages object-based checkpoints.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      model_dir: The directory containing checkpoints, or a list of checkpoint paths.</span>
@@ -330,7 +330,7 @@
 
 
 <div class="viewcode-block" id="average_checkpoints_into_layer"><a class="viewcode-back" href="../../../package/opennmt.utils.average_checkpoints_into_layer.html#opennmt.utils.average_checkpoints_into_layer">[docs]</a><span class="k">def</span> <span class="nf">average_checkpoints_into_layer</span><span class="p">(</span><span class="n">checkpoints</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">layer_prefix</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Updates the layer weights with their average value in the checkpoints.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Updates the layer weights with their average value in the checkpoints.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      checkpoints: A non empty list of checkpoint paths.</span>
@@ -408,7 +408,7 @@
 
 
 <span class="k">def</span> <span class="nf">_variables_to_structure</span><span class="p">(</span><span class="n">variables</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Represents variables a nested dictionary with scope names as keys.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents variables a nested dictionary with scope names as keys.&quot;&quot;&quot;</span>
     <span class="n">structure</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">fields</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
@@ -424,7 +424,7 @@
 
 
 <span class="k">def</span> <span class="nf">_merge_optimizer_slots</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">slots</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Replaces leaves in the variables structure by tuples of</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Replaces leaves in the variables structure by tuples of</span>
 <span class="sd">    (variable, dict of optimizer slots).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>

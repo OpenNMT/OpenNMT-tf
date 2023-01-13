@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2.0 Transition Guide &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>2.0 Transition Guide &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -120,8 +120,8 @@
 <h3>TensorFlow 2.0<a class="headerlink" href="#tensorflow-2-0" title="Permalink to this headline"></a></h3>
 <p>OpenNMT-tf has been completely redesigned for TensorFlow 2.0 which is now the minimal required TensorFlow version.</p>
 <p>The correct TensorFlow version is declared as a dependency of OpenNMT-tf and will be automatically installed as part of the <code class="docutils literal notranslate"><span class="pre">pip</span></code> installation:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install --upgrade pip
-pip install OpenNMT-tf
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip
+pip<span class="w"> </span>install<span class="w"> </span>OpenNMT-tf
 </pre></div>
 </div>
 </section>
@@ -163,42 +163,42 @@ pip install OpenNMT-tf
 </pre></div>
 </div>
 <p>meant that the user should configure the vocabulary like this:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># V1 vocabulary configuration.</span><span class="w"></span>
-<span class="nt">data</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">source_words_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_vocab.txt</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># V1 vocabulary configuration.</span>
+<span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">source_words_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_vocab.txt</span>
 </pre></div>
 </div>
 <p>This is no longer the case in V2 where vocabulary configuration now follows a general pattern, the same that is currently used for “embedding” and “tokenization” configurations.</p>
 <ul class="simple">
 <li><p>Single vocabulary (e.g. language model):</p></li>
 </ul>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vocab.txt</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vocab.txt</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Source and target vocabularies (e.g. sequence to sequence, tagging, etc.):</p></li>
 </ul>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">source_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_vocab.txt</span><span class="w"></span>
-<span class="w">  </span><span class="nt">target_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tgt_vocab.txt</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">source_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_vocab.txt</span>
+<span class="w">  </span><span class="nt">target_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tgt_vocab.txt</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Multi-source and target vocabularies:</p></li>
 </ul>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">source_1_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_1_vocab.txt</span><span class="w"></span>
-<span class="w">  </span><span class="nt">source_2_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_2_vocab.txt</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">source_1_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_1_vocab.txt</span>
+<span class="w">  </span><span class="nt">source_2_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_2_vocab.txt</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Nested inputs:</p></li>
 </ul>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">source_1_1_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_1_1_vocab.txt</span><span class="w"></span>
-<span class="w">  </span><span class="nt">source_1_2_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_1_2_vocab.txt</span><span class="w"></span>
-<span class="w">  </span><span class="nt">source_2_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_2_vocab.txt</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">source_1_1_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_1_1_vocab.txt</span>
+<span class="w">  </span><span class="nt">source_1_2_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_1_2_vocab.txt</span>
+<span class="w">  </span><span class="nt">source_2_vocabulary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">src_2_vocab.txt</span>
 </pre></div>
 </div>
 </section>
@@ -331,7 +331,7 @@ pip install OpenNMT-tf
 <h2>New mixed precision workflow<a class="headerlink" href="#new-mixed-precision-workflow" title="Permalink to this headline"></a></h2>
 <p>OpenNMT-tf 2.0 is using the newly introduced <a class="reference external" href="https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/train/experimental/enable_mixed_precision_graph_rewrite">graph rewriter</a> to automatically convert parts of the graph from <code class="docutils literal notranslate"><span class="pre">float32</span></code> to <code class="docutils literal notranslate"><span class="pre">float16</span></code>.</p>
 <p>Variables are casted on the fly and checkpoints no longer need to be converted for inference or to continue training in <code class="docutils literal notranslate"><span class="pre">float32</span></code>. This means mixed precision is no longer a property of the model but should be enabled on the command line instead, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --model_type Transformer --config data.yml --auto_config --mixed_precision train
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main<span class="w"> </span>--model_type<span class="w"> </span>Transformer<span class="w"> </span>--config<span class="w"> </span>data.yml<span class="w"> </span>--auto_config<span class="w"> </span>--mixed_precision<span class="w"> </span>train
 </pre></div>
 </div>
 </section>

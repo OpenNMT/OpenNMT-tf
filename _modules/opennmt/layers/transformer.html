@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.layers.transformer &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -114,7 +114,7 @@
 
 
 <div class="viewcode-block" id="future_mask"><a class="viewcode-back" href="../../../package/opennmt.layers.future_mask.html#opennmt.layers.future_mask">[docs]</a><span class="k">def</span> <span class="nf">future_mask</span><span class="p">(</span><span class="n">sequence_length</span><span class="p">,</span> <span class="n">maximum_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">bool</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Builds the dot product mask for future positions.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Builds the dot product mask for future positions.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      sequence_length: The sequence length.</span>
@@ -140,7 +140,7 @@
 
 
 <div class="viewcode-block" id="split_heads"><a class="viewcode-back" href="../../../package/opennmt.layers.split_heads.html#opennmt.layers.split_heads">[docs]</a><span class="k">def</span> <span class="nf">split_heads</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Splits a tensor in depth.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits a tensor in depth.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      inputs: A ``tf.Tensor`` of shape :math:`[B, T, D]`.</span>
@@ -156,7 +156,7 @@
 
 
 <div class="viewcode-block" id="combine_heads"><a class="viewcode-back" href="../../../package/opennmt.layers.combine_heads.html#opennmt.layers.combine_heads">[docs]</a><span class="k">def</span> <span class="nf">combine_heads</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Concatenates heads.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Concatenates heads.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      inputs: A ``tf.Tensor`` of shape :math:`[B, H, T, D]`.</span>
@@ -171,7 +171,7 @@
 
 
 <span class="k">def</span> <span class="nf">relative_positions</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">maximum_position</span><span class="p">,</span> <span class="n">with_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Builds the relative positions.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Builds the relative positions.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      length: The maximum length of the sequence.</span>
@@ -194,7 +194,7 @@
 
 
 <span class="k">def</span> <span class="nf">matmul_with_relative_representations</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">transpose_b</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Multiplies :obj:`a` with the relative representations :obj:`b`.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Multiplies :obj:`a` with the relative representations :obj:`b`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      a: Tensor with shape :math:`[B, H, T, _]`.</span>
@@ -213,7 +213,7 @@
 
 
 <div class="viewcode-block" id="FeedForwardNetwork"><a class="viewcode-back" href="../../../package/opennmt.layers.FeedForwardNetwork.html#opennmt.layers.FeedForwardNetwork">[docs]</a><span class="k">class</span> <span class="nc">FeedForwardNetwork</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements the Transformer&#39;s &quot;Feed Forward&quot; layer.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements the Transformer&#39;s &quot;Feed Forward&quot; layer.</span>
 
 <span class="sd">    .. math::</span>
 
@@ -223,7 +223,7 @@
 <div class="viewcode-block" id="FeedForwardNetwork.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.FeedForwardNetwork.html#opennmt.layers.FeedForwardNetwork.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">inner_dim</span><span class="p">,</span> <span class="n">output_dim</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes this layer.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes this layer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          inner_dim: The number of units of the inner linear transformation.</span>
@@ -239,7 +239,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span></div>
 
 <div class="viewcode-block" id="FeedForwardNetwork.call"><a class="viewcode-back" href="../../../package/opennmt.layers.FeedForwardNetwork.html#opennmt.layers.FeedForwardNetwork.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs the layer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the layer.&quot;&quot;&quot;</span>
         <span class="n">inner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
         <span class="n">inner</span> <span class="o">=</span> <span class="n">common</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span></div>
@@ -254,7 +254,7 @@
 
 
 <div class="viewcode-block" id="MultiHeadAttentionReduction"><a class="viewcode-back" href="../../../package/opennmt.layers.MultiHeadAttentionReduction.html#opennmt.layers.MultiHeadAttentionReduction">[docs]</a><span class="k">class</span> <span class="nc">MultiHeadAttentionReduction</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Enumeration defining how to reduce multi-head attention matrices into a</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration defining how to reduce multi-head attention matrices into a</span>
 <span class="sd">    single attention matrix.</span>
 
 <span class="sd">    Possible values are:</span>
@@ -272,7 +272,7 @@
 
 <div class="viewcode-block" id="MultiHeadAttentionReduction.reduce"><a class="viewcode-back" href="../../../package/opennmt.layers.MultiHeadAttentionReduction.html#opennmt.layers.MultiHeadAttentionReduction.reduce">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">policy</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Reduces a list of multi-head attention matrices into a single</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reduces a list of multi-head attention matrices into a single</span>
 <span class="sd">        attention matrix.</span>
 
 <span class="sd">        Args:</span>
@@ -298,7 +298,7 @@
 
 
 <div class="viewcode-block" id="MultiHeadAttention"><a class="viewcode-back" href="../../../package/opennmt.layers.MultiHeadAttention.html#opennmt.layers.MultiHeadAttention">[docs]</a><span class="k">class</span> <span class="nc">MultiHeadAttention</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Computes the multi-head attention as described in</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the multi-head attention as described in</span>
 <span class="sd">    https://arxiv.org/abs/1706.03762.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -312,7 +312,7 @@
         <span class="n">maximum_relative_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes this layer.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes this layer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          num_heads: The number of attention heads.</span>
@@ -377,7 +377,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MultiHeadAttention.call"><a class="viewcode-back" href="../../../package/opennmt.layers.MultiHeadAttention.html#opennmt.layers.MultiHeadAttention.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs the layer.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the layer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          inputs: The sequence of queries. A tensor of shape :math:`[B, T_1, ...]`.</span>
@@ -483,7 +483,7 @@
 
 
 <div class="viewcode-block" id="TransformerLayerWrapper"><a class="viewcode-back" href="../../../package/opennmt.layers.TransformerLayerWrapper.html#opennmt.layers.TransformerLayerWrapper">[docs]</a><span class="k">class</span> <span class="nc">TransformerLayerWrapper</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">LayerWrapper</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Layer wrapper that applies a standard Transformer preprocessing and</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Layer wrapper that applies a standard Transformer preprocessing and</span>
 <span class="sd">    postprocessing.</span>
 
 <span class="sd">    With ``pre_norm=True``:</span>
@@ -502,7 +502,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TransformerLayerWrapper.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.TransformerLayerWrapper.html#opennmt.layers.TransformerLayerWrapper.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">output_dropout</span><span class="p">,</span> <span class="n">pre_norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the wrapper.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the wrapper.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          layer: The Transformer layer to wrap.</span>
@@ -528,7 +528,7 @@
 
 
 <div class="viewcode-block" id="SelfAttentionEncoderLayer"><a class="viewcode-back" href="../../../package/opennmt.layers.SelfAttentionEncoderLayer.html#opennmt.layers.SelfAttentionEncoderLayer">[docs]</a><span class="k">class</span> <span class="nc">SelfAttentionEncoderLayer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements one self-attention encoding layer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements one self-attention encoding layer.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SelfAttentionEncoderLayer.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.SelfAttentionEncoderLayer.html#opennmt.layers.SelfAttentionEncoderLayer.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -544,7 +544,7 @@
         <span class="n">pre_norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the layer.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the layer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          num_units: The number of hidden units.</span>
@@ -581,7 +581,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span> <span class="o">=</span> <span class="n">TransformerLayerWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ffn</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">pre_norm</span><span class="o">=</span><span class="n">pre_norm</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SelfAttentionEncoderLayer.call"><a class="viewcode-back" href="../../../package/opennmt.layers.SelfAttentionEncoderLayer.html#opennmt.layers.SelfAttentionEncoderLayer.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs the encoder layer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the encoder layer.&quot;&quot;&quot;</span>
         <span class="n">y</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">self_attention</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ffn</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">y</span></div>
@@ -594,7 +594,7 @@
 
 
 <div class="viewcode-block" id="SelfAttentionDecoderLayer"><a class="viewcode-back" href="../../../package/opennmt.layers.SelfAttentionDecoderLayer.html#opennmt.layers.SelfAttentionDecoderLayer">[docs]</a><span class="k">class</span> <span class="nc">SelfAttentionDecoderLayer</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implements one self-attention decoding layer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements one self-attention decoding layer.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SelfAttentionDecoderLayer.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.SelfAttentionDecoderLayer.html#opennmt.layers.SelfAttentionDecoderLayer.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -611,7 +611,7 @@
         <span class="n">pre_norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the layer.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the layer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          num_units: The number of hidden units.</span>
@@ -675,7 +675,7 @@
         <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs the decoder layer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the decoder layer.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.config &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.config &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -112,7 +112,7 @@
 
 
 <span class="k">def</span> <span class="nf">load_model_module</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Loads a model configuration file.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Loads a model configuration file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      path: The relative path to the configuration file.</span>
@@ -139,7 +139,7 @@
 
 
 <span class="k">def</span> <span class="nf">load_model_from_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Loads a model from a configuration file.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Loads a model from a configuration file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      path: The relative path to the configuration file.</span>
@@ -159,7 +159,7 @@
 
 
 <span class="k">def</span> <span class="nf">load_model_from_catalog</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Loads a model from the catalog.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Loads a model from the catalog.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      name: The model name.</span>
@@ -178,7 +178,7 @@
 <div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../package/opennmt.load_model.html#opennmt.load_model">[docs]</a><span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span>
     <span class="n">model_dir</span><span class="p">,</span> <span class="n">model_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">serialize_model</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Loads the model from the catalog or a definition file.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Loads the model from the catalog or a definition file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      model_dir: The model directory.</span>
@@ -230,7 +230,7 @@
 
 
 <div class="viewcode-block" id="load_config"><a class="viewcode-back" href="../../package/opennmt.load_config.html#opennmt.load_config">[docs]</a><span class="k">def</span> <span class="nf">load_config</span><span class="p">(</span><span class="n">config_paths</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Loads YAML configuration files.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Loads YAML configuration files.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      config_paths: A list of configuration files that will be merged to a single</span>
@@ -253,13 +253,13 @@
 
 
 <div class="viewcode-block" id="merge_config"><a class="viewcode-back" href="../../package/opennmt.merge_config.html#opennmt.merge_config">[docs]</a><span class="k">def</span> <span class="nf">merge_config</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Merges the configuration :obj:`b` into the configuration :obj:`a`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merges the configuration :obj:`b` into the configuration :obj:`a`.&quot;&quot;&quot;</span>
     <span class="n">override_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;optimizer_params&quot;</span><span class="p">,</span> <span class="s2">&quot;decay_params&quot;</span><span class="p">}</span>
     <span class="k">return</span> <span class="n">merge_dict</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">override_keys</span><span class="o">=</span><span class="n">override_keys</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_map_config_values</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Applies the function ``fn`` on each value of the configuration.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Applies the function ``fn`` on each value of the configuration.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">_map_config_values</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -269,7 +269,7 @@
 
 
 <span class="k">def</span> <span class="nf">try_prefix_paths</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Recursively tries to prefix paths in the configuration.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recursively tries to prefix paths in the configuration.</span>
 
 <span class="sd">    The path is unchanged if the prefixed path does not exist.</span>
 
@@ -292,7 +292,7 @@
 
 
 <div class="viewcode-block" id="convert_to_v2_config"><a class="viewcode-back" href="../../package/opennmt.convert_to_v2_config.html#opennmt.convert_to_v2_config">[docs]</a><span class="k">def</span> <span class="nf">convert_to_v2_config</span><span class="p">(</span><span class="n">v1_config</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Converts a V1 configuration to its V2 equivalent.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts a V1 configuration to its V2 equivalent.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      v1_config: The V1 configuration.</span>

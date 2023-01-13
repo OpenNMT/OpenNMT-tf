@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.models.sequence_to_sequence &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -108,7 +108,7 @@
 
 
 <div class="viewcode-block" id="EmbeddingsSharingLevel"><a class="viewcode-back" href="../../../package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel">[docs]</a><span class="k">class</span> <span class="nc">EmbeddingsSharingLevel</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Level of embeddings sharing.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Level of embeddings sharing.</span>
 
 <span class="sd">    Possible values are:</span>
 
@@ -127,7 +127,7 @@
 
 <div class="viewcode-block" id="EmbeddingsSharingLevel.share_input_embeddings"><a class="viewcode-back" href="../../../package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel.share_input_embeddings">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">share_input_embeddings</span><span class="p">(</span><span class="n">level</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns ``True`` if input embeddings should be shared at :obj:`level`.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns ``True`` if input embeddings should be shared at :obj:`level`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">level</span> <span class="ow">in</span> <span class="p">(</span>
             <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">SOURCE_TARGET_INPUT</span><span class="p">,</span>
             <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">ALL</span><span class="p">,</span>
@@ -135,12 +135,12 @@
 
 <div class="viewcode-block" id="EmbeddingsSharingLevel.share_target_embeddings"><a class="viewcode-back" href="../../../package/opennmt.models.EmbeddingsSharingLevel.html#opennmt.models.EmbeddingsSharingLevel.share_target_embeddings">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">share_target_embeddings</span><span class="p">(</span><span class="n">level</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns ``True`` if target embeddings should be shared at :obj:`level`.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns ``True`` if target embeddings should be shared at :obj:`level`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">level</span> <span class="ow">in</span> <span class="p">(</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">TARGET</span><span class="p">,</span> <span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">ALL</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="SequenceToSequence"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence">[docs]</a><span class="k">class</span> <span class="nc">SequenceToSequence</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">SequenceGenerator</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A sequence to sequence model.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A sequence to sequence model.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SequenceToSequence.__init__"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequence.html#opennmt.models.SequenceToSequence.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -150,7 +150,7 @@
         <span class="n">decoder</span><span class="p">,</span>
         <span class="n">share_embeddings</span><span class="o">=</span><span class="n">EmbeddingsSharingLevel</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes a sequence-to-sequence model.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes a sequence-to-sequence model.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          source_inputter: A :class:`opennmt.inputters.Inputter` to process</span>
@@ -666,7 +666,7 @@
 
 
 <div class="viewcode-block" id="SequenceToSequenceInputter"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceToSequenceInputter.html#opennmt.models.SequenceToSequenceInputter">[docs]</a><span class="k">class</span> <span class="nc">SequenceToSequenceInputter</span><span class="p">(</span><span class="n">inputters</span><span class="o">.</span><span class="n">ExampleInputter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A custom :class:`opennmt.inputters.ExampleInputter` for sequence to</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A custom :class:`opennmt.inputters.ExampleInputter` for sequence to</span>
 <span class="sd">    sequence models.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -689,7 +689,7 @@
 
 
 <span class="k">def</span> <span class="nf">mask_attention</span><span class="p">(</span><span class="n">attention</span><span class="p">,</span> <span class="n">source_length</span><span class="p">,</span> <span class="n">source_has_bos</span><span class="p">,</span> <span class="n">source_has_eos</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Masks and possibly shifts the attention vectors to ignore the source EOS and BOS tokens.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Masks and possibly shifts the attention vectors to ignore the source EOS and BOS tokens.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      attention: The attention vector with shape :math:`[B, T_t, T_s]`.</span>
@@ -712,7 +712,7 @@
 
 
 <span class="k">def</span> <span class="nf">align_tokens_from_attention</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">attention</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns aligned tokens from the attention.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns aligned tokens from the attention.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      tokens: The tokens on which the attention is applied as a string</span>
@@ -729,7 +729,7 @@
 <span class="k">def</span> <span class="nf">replace_unknown_target</span><span class="p">(</span>
     <span class="n">target_tokens</span><span class="p">,</span> <span class="n">source_tokens</span><span class="p">,</span> <span class="n">attention</span><span class="p">,</span> <span class="n">unknown_token</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">UNKNOWN_TOKEN</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Replaces all target unknown tokens by the source token with the highest</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Replaces all target unknown tokens by the source token with the highest</span>
 <span class="sd">    attention.</span>
 
 <span class="sd">    Args:</span>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.models.catalog &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.models.catalog &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -115,12 +115,12 @@
 
 
 <span class="k">def</span> <span class="nf">list_model_names_from_catalog</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Lists the models name registered in the catalog.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Lists the models name registered in the catalog.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_CATALOG_MODELS_REGISTRY</span><span class="o">.</span><span class="n">class_names</span>
 
 
 <div class="viewcode-block" id="get_model_from_catalog"><a class="viewcode-back" href="../../../package/opennmt.models.get_model_from_catalog.html#opennmt.models.get_model_from_catalog">[docs]</a><span class="k">def</span> <span class="nf">get_model_from_catalog</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">as_builder</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Gets a model from the catalog.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets a model from the catalog.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      name: The model name in the catalog.</span>
@@ -143,7 +143,7 @@
 
 <div class="viewcode-block" id="ListenAttendSpell"><a class="viewcode-back" href="../../../package/opennmt.models.ListenAttendSpell.html#opennmt.models.ListenAttendSpell">[docs]</a><span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">ListenAttendSpell</span><span class="p">(</span><span class="n">sequence_to_sequence</span><span class="o">.</span><span class="n">SequenceToSequence</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a model similar to the &quot;Listen, Attend and Spell&quot; model described</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a model similar to the &quot;Listen, Attend and Spell&quot; model described</span>
 <span class="sd">    in https://arxiv.org/abs/1508.01211.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -191,7 +191,7 @@
 
 
 <span class="k">class</span> <span class="nc">_RNNBase</span><span class="p">(</span><span class="n">sequence_to_sequence</span><span class="o">.</span><span class="n">SequenceToSequence</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for RNN based NMT models.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for RNN based NMT models.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">auto_config</span><span class="p">(</span><span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">)</span>
@@ -213,7 +213,7 @@
 
 <div class="viewcode-block" id="LuongAttention"><a class="viewcode-back" href="../../../package/opennmt.models.LuongAttention.html#opennmt.models.LuongAttention">[docs]</a><span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">LuongAttention</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a LSTM encoder-decoder model as described in https://arxiv.org/abs/1508.04025.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a LSTM encoder-decoder model as described in https://arxiv.org/abs/1508.04025.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -240,7 +240,7 @@
 
 <span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">NMTBigV1</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a bidirectional LSTM encoder-decoder model.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a bidirectional LSTM encoder-decoder model.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">      For compatibility with OpenNMT-tf v1.</span>
@@ -274,7 +274,7 @@
 
 <span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">NMTMediumV1</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a medium-sized bidirectional LSTM encoder-decoder model.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a medium-sized bidirectional LSTM encoder-decoder model.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">      For compatibility with OpenNMT-tf v1.</span>
@@ -308,7 +308,7 @@
 
 <span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">NMTSmallV1</span><span class="p">(</span><span class="n">_RNNBase</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a small unidirectional LSTM encoder-decoder model.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a small unidirectional LSTM encoder-decoder model.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">      For compatibility with OpenNMT-tf v1.</span>
@@ -340,7 +340,7 @@
 
 <div class="viewcode-block" id="LstmCnnCrfTagger"><a class="viewcode-back" href="../../../package/opennmt.models.LstmCnnCrfTagger.html#opennmt.models.LstmCnnCrfTagger">[docs]</a><span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">LstmCnnCrfTagger</span><span class="p">(</span><span class="n">sequence_tagger</span><span class="o">.</span><span class="n">SequenceTagger</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a bidirectional LSTM-CNNs-CRF as described in https://arxiv.org/abs/1603.01354.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a bidirectional LSTM-CNNs-CRF as described in https://arxiv.org/abs/1603.01354.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -386,12 +386,12 @@
 
 <div class="viewcode-block" id="TransformerBase"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBase.html#opennmt.models.TransformerBase">[docs]</a><span class="nd">@register_model_in_catalog</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;Transformer&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TransformerBase</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a base Transformer model as described in https://arxiv.org/abs/1706.03762.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a base Transformer model as described in https://arxiv.org/abs/1706.03762.&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="TransformerBaseSharedEmbeddings"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBaseSharedEmbeddings.html#opennmt.models.TransformerBaseSharedEmbeddings">[docs]</a><span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">TransformerBaseSharedEmbeddings</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a base Transformer model with shared embeddings as described in</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a base Transformer model with shared embeddings as described in</span>
 <span class="sd">    https://arxiv.org/abs/1706.03762.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -403,7 +403,7 @@
 
 <div class="viewcode-block" id="TransformerBaseRelative"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBaseRelative.html#opennmt.models.TransformerBaseRelative">[docs]</a><span class="nd">@register_model_in_catalog</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;TransformerRelative&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TransformerBaseRelative</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a base Transformer model using relative position representations as</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a base Transformer model using relative position representations as</span>
 <span class="sd">    described in https://arxiv.org/abs/1803.02155.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -418,7 +418,7 @@
 
 <div class="viewcode-block" id="TransformerBig"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBig.html#opennmt.models.TransformerBig">[docs]</a><span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">TransformerBig</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a big Transformer model as described in https://arxiv.org/abs/1706.03762.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a big Transformer model as described in https://arxiv.org/abs/1706.03762.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_units</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">num_heads</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">ffn_inner_dim</span><span class="o">=</span><span class="mi">4096</span><span class="p">)</span></div>
@@ -426,7 +426,7 @@
 
 <div class="viewcode-block" id="TransformerBigSharedEmbeddings"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBigSharedEmbeddings.html#opennmt.models.TransformerBigSharedEmbeddings">[docs]</a><span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">TransformerBigSharedEmbeddings</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a big Transformer model with shared embeddings as described in</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a big Transformer model with shared embeddings as described in</span>
 <span class="sd">    https://arxiv.org/abs/1706.03762.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -441,7 +441,7 @@
 
 <div class="viewcode-block" id="TransformerBigRelative"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerBigRelative.html#opennmt.models.TransformerBigRelative">[docs]</a><span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">TransformerBigRelative</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a big Transformer model using relative position representations as</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a big Transformer model using relative position representations as</span>
 <span class="sd">    described in https://arxiv.org/abs/1803.02155.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -457,7 +457,7 @@
 
 <div class="viewcode-block" id="TransformerTiny"><a class="viewcode-back" href="../../../package/opennmt.models.TransformerTiny.html#opennmt.models.TransformerTiny">[docs]</a><span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">TransformerTiny</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a tiny Transformer model.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a tiny Transformer model.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -470,7 +470,7 @@
 
 <div class="viewcode-block" id="ScalingNmtEnDe"><a class="viewcode-back" href="../../../package/opennmt.models.ScalingNmtEnDe.html#opennmt.models.ScalingNmtEnDe">[docs]</a><span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">ScalingNmtEnDe</span><span class="p">(</span><span class="n">transformer</span><span class="o">.</span><span class="n">Transformer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a big Transformer model using the En-De hyperparameters from</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a big Transformer model using the En-De hyperparameters from</span>
 <span class="sd">    https://arxiv.org/abs/1806.00187.</span>
 
 <span class="sd">    The architecture is equivalent to transformer_wmt_en_de_big in Fairseq.</span>
@@ -528,7 +528,7 @@
 
 <div class="viewcode-block" id="ScalingNmtEnFr"><a class="viewcode-back" href="../../../package/opennmt.models.ScalingNmtEnFr.html#opennmt.models.ScalingNmtEnFr">[docs]</a><span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">ScalingNmtEnFr</span><span class="p">(</span><span class="n">ScalingNmtEnDe</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Defines a big Transformer model using the En-Fr hyperparameters from</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines a big Transformer model using the En-Fr hyperparameters from</span>
 <span class="sd">    https://arxiv.org/abs/1806.00187.</span>
 
 <span class="sd">    The architecture is equivalent to transformer_vaswani_wmt_en_fr_big in Fairseq.</span>
@@ -552,7 +552,7 @@
 
 <div class="viewcode-block" id="GPT2Small"><a class="viewcode-back" href="../../../package/opennmt.models.GPT2Small.html#opennmt.models.GPT2Small">[docs]</a><span class="nd">@register_model_in_catalog</span>
 <span class="k">class</span> <span class="nc">GPT2Small</span><span class="p">(</span><span class="n">language_model</span><span class="o">.</span><span class="n">LanguageModel</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;GPT-2 language model (small version) as described in:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;GPT-2 language model (small version) as described in:</span>
 
 <span class="sd">    https://d4mucfpksywv.cloudfront.net/better-language-models/language-models.pdf</span>
 <span class="sd">    &quot;&quot;&quot;</span>

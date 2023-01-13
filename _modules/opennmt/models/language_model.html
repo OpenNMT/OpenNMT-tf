@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.models.language_model &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.models.language_model &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -106,10 +106,10 @@
 
 
 <div class="viewcode-block" id="LanguageModel"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel">[docs]</a><span class="k">class</span> <span class="nc">LanguageModel</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">SequenceGenerator</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A language model.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A language model.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="LanguageModel.__init__"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModel.html#opennmt.models.LanguageModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decoder</span><span class="p">,</span> <span class="n">embedding_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reuse_embedding</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the language model.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the language model.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          decoder: A :class:`opennmt.decoders.Decoder` instance.</span>
@@ -251,16 +251,16 @@
 
 
 <div class="viewcode-block" id="LanguageModelInputter"><a class="viewcode-back" href="../../../package/opennmt.models.LanguageModelInputter.html#opennmt.models.LanguageModelInputter">[docs]</a><span class="k">class</span> <span class="nc">LanguageModelInputter</span><span class="p">(</span><span class="n">inputters</span><span class="o">.</span><span class="n">WordEmbedder</span><span class="p">,</span> <span class="n">inputters</span><span class="o">.</span><span class="n">ExampleInputterAdapter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A special inputter for language modeling.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A special inputter for language modeling.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Inference mode.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Inference mode.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder_mode</span>
 
     <span class="nd">@inference</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inference</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Sets the inference mode.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the inference mode.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference</span> <span class="o">==</span> <span class="n">inference</span><span class="p">:</span>
             <span class="k">return</span>
 

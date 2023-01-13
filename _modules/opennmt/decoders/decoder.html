@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.decoders.decoder &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -106,7 +106,7 @@
 
 
 <div class="viewcode-block" id="get_sampling_probability"><a class="viewcode-back" href="../../../package/opennmt.decoders.get_sampling_probability.html#opennmt.decoders.get_sampling_probability">[docs]</a><span class="k">def</span> <span class="nf">get_sampling_probability</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">read_probability</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">schedule_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the sampling probability as described in</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the sampling probability as described in</span>
 <span class="sd">    https://arxiv.org/abs/1506.03099.</span>
 
 <span class="sd">    Args:</span>
@@ -154,7 +154,7 @@
 
 
 <div class="viewcode-block" id="Decoder"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder">[docs]</a><span class="k">class</span> <span class="nc">Decoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for decoders.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for decoders.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Decoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -164,7 +164,7 @@
         <span class="n">output_layer_bias</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the decoder parameters.</span>
 
 <span class="sd">        If you don&#39;t set one of :obj:`vocab_size` or :obj:`output_layer` here,</span>
 <span class="sd">        you should later call the method :meth:`opennmt.decoders.Decoder.initialize`</span>
@@ -198,27 +198,27 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">minimum_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The minimum number of source contexts supported by this decoder.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The minimum number of source contexts supported by this decoder.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">1</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">maximum_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The maximum number of source contexts supported by this decoder.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The maximum number of source contexts supported by this decoder.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">1</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">support_alignment_history</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns ``True`` if this decoder can return the attention as alignment</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns ``True`` if this decoder can return the attention as alignment</span>
 <span class="sd">        history.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">False</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns ``True`` if this decoder is initialized.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns ``True`` if this decoder is initialized.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Decoder.initialize"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vocab_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_layer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the decoder configuration.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the decoder configuration.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          vocab_size: The target vocabulary size.</span>
@@ -239,7 +239,7 @@
             <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Decoder.reuse_embeddings"><a class="viewcode-back" href="../../../package/opennmt.decoders.Decoder.html#opennmt.decoders.Decoder.reuse_embeddings">[docs]</a>    <span class="k">def</span> <span class="nf">reuse_embeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Reuses embeddings in the decoder output layer.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reuses embeddings in the decoder output layer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          embeddings: The embeddings matrix to reuse.</span>
@@ -258,7 +258,7 @@
         <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the initial decoder state.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the initial decoder state.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          memory: Memory values to query.</span>
@@ -306,7 +306,7 @@
         <span class="n">sampling_probability</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs the decoder layer on either a complete sequence (e.g. for training</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the decoder layer on either a complete sequence (e.g. for training</span>
 <span class="sd">        or scoring), or a single timestep (e.g. for iterative decoding).</span>
 
 <span class="sd">        Args:</span>
@@ -374,7 +374,7 @@
         <span class="n">sampling_probability</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs the decoder on full sequences.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the decoder on full sequences.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          inputs: The 3D decoder input.</span>
@@ -479,7 +479,7 @@
         <span class="n">memory_sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs one decoding step.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs one decoding step.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          inputs: The 2D decoder input.</span>
@@ -507,7 +507,7 @@
         <span class="n">minimum_iterations</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="n">tflite_output_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Decodes dynamically from :obj:`start_ids`.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Decodes dynamically from :obj:`start_ids`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          embeddings: Target embeddings or :class:`opennmt.inputters.WordEmbedder`</span>
@@ -560,7 +560,7 @@
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">_get_initial_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">initial_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the decoder initial state.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the decoder initial state.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          batch_size: The batch size of the returned state.</span>
@@ -573,7 +573,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_get_state_reorder_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns a structure that marks states that should be reordered during beam search.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a structure that marks states that should be reordered during beam search.</span>
 <span class="sd">        By default all states are reordered.</span>
 
 <span class="sd">        Returns:</span>
@@ -582,12 +582,12 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_assert_is_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Raises an expection if the decoder was not initialized.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raises an expection if the decoder was not initialized.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The decoder was not initialized&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_assert_memory_is_compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">memory_sequence_length</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Raises an expection if the memory layout is not compatible with this decoder.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raises an expection if the memory layout is not compatible with this decoder.&quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">_num_elements</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

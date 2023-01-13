@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Alignments &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>Alignments &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -102,12 +102,12 @@
 <p>Target to source alignments are returned as part of the translation API. They are also used by some decoding features such as <code class="docutils literal notranslate"><span class="pre">replace_unknown_target</span></code>.</p>
 <p>To improve their quality, OpenNMT-tf supports <a class="reference external" href="https://arxiv.org/abs/1607.01628">guided alignment</a> training. It is a supervised approach to constrain one or more attention heads by alignments produced by external tools such as <a class="reference external" href="https://github.com/clab/fast_align">fast_align</a>.</p>
 <p>Guided alignment should be configured in the YAML configuration file:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">train_alignments</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train-alignment.txt</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">train_alignments</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">train-alignment.txt</span>
 
-<span class="nt">params</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">guided_alignment_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ce</span><span class="w"></span>
-<span class="w">  </span><span class="nt">guided_alignment_weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="nt">params</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">guided_alignment_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ce</span>
+<span class="w">  </span><span class="nt">guided_alignment_weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">train-alignment.txt</span></code> is a text file that uses the “Pharaoh” alignment format, e.g.:</p>

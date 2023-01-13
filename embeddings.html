@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Embeddings &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>Embeddings &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -103,14 +103,14 @@
 <section id="pretrained">
 <h2>Pretrained<a class="headerlink" href="#pretrained" title="Permalink to this headline"></a></h2>
 <p>Pretrained embeddings can be configured in the <code class="docutils literal notranslate"><span class="pre">data</span></code> section of the YAML configuration, e.g.:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">source_embedding</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data/glove/glove-100000.txt</span><span class="w"></span>
-<span class="w">    </span><span class="nt">with_header</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"></span>
-<span class="w">    </span><span class="nt">case_insensitive</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"></span>
-<span class="w">    </span><span class="nt">trainable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">source_embedding</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data/glove/glove-100000.txt</span>
+<span class="w">    </span><span class="nt">with_header</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">    </span><span class="nt">case_insensitive</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">    </span><span class="nt">trainable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
 
-<span class="w">  </span><span class="c1"># target_embedding: ...</span><span class="w"></span>
+<span class="w">  </span><span class="c1"># target_embedding: ...</span>
 </pre></div>
 </div>
 <p>The format of the embedding file and the options are described in the <a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.inputters.load_pretrained_embeddings.html"><code class="docutils literal notranslate"><span class="pre">opennmt.inputters.load_pretrained_embeddings</span></code></a> function.</p>

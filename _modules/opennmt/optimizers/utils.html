@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.optimizers.utils &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.optimizers.utils &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -120,7 +120,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_optimizer_class</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the optimizer class.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the optimizer class.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      name: The optimizer name.</span>
@@ -144,7 +144,7 @@
 
 
 <div class="viewcode-block" id="make_optimizer"><a class="viewcode-back" href="../../../package/opennmt.optimizers.make_optimizer.html#opennmt.optimizers.make_optimizer">[docs]</a><span class="k">def</span> <span class="nf">make_optimizer</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">learning_rate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Creates the optimizer.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates the optimizer.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      name: The name of the optimizer class in ``tf.keras.optimizers.legacy`` or</span>
@@ -170,7 +170,7 @@
 
 
 <span class="k">class</span> <span class="nc">GradientAccumulator</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Gradient accumulation utility.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gradient accumulation utility.</span>
 
 <span class="sd">    When used with a distribution strategy, the accumulator should be called in a</span>
 <span class="sd">    replica context. Gradients will be accumulated locally on each replica and</span>
@@ -183,13 +183,13 @@
     <span class="c1"># value on the current replica without synchronization.</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the accumulator.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the accumulator.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Number of accumulated steps.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of accumulated steps.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
                 <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span>
@@ -201,7 +201,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The accumulated gradients on the current replica.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The accumulated gradients on the current replica.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;The accumulator should be called first to initialize the gradients&quot;</span>
@@ -209,7 +209,7 @@
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">gradient</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="k">for</span> <span class="n">gradient</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gradients</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Accumulates :obj:`gradients` on the current replica.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Accumulates :obj:`gradients` on the current replica.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">:</span>
             <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span>  <span class="c1"># Create the step variable.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
@@ -233,14 +233,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span><span class="o">.</span><span class="n">assign_add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Resets the accumulated gradients on the current replica.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resets the accumulated gradients on the current replica.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_accum_steps</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">gradient</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gradients</span><span class="p">:</span>
-            <span class="n">gradient</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                <span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">gradient</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">gradient</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">False</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">gradient</span><span class="o">.</span><span class="n">shape</span>
+                <span class="k">if</span> <span class="n">gradient</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">is_fully_defined</span><span class="p">()</span>
+                <span class="k">else</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">gradient</span><span class="p">)</span>
             <span class="p">)</span>
+            <span class="n">gradient</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">gradient</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span> <span class="n">read_value</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 
            </div>

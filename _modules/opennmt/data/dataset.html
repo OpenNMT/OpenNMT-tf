@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.data.dataset &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -102,7 +102,7 @@
 
 
 <span class="k">def</span> <span class="nf">make_datasets</span><span class="p">(</span><span class="n">dataset_cls</span><span class="p">,</span> <span class="n">filenames</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Creates instances of :obj:`dataset_cls`.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates instances of :obj:`dataset_cls`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      dataset_cls: A class inheriting from ``tf.data.Dataset``.</span>
@@ -131,7 +131,7 @@
 
 
 <span class="k">def</span> <span class="nf">normalize_weights</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns normalized dataset weights based on datasets sizes.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns normalized dataset weights based on datasets sizes.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      datasets: A list of ``tf.data.Dataset`` instances.</span>
@@ -172,7 +172,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_output_shapes</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the outputs shapes of the dataset.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the outputs shapes of the dataset.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      dataset: A ``tf.data.Dataset``.</span>
@@ -184,7 +184,7 @@
 
 
 <div class="viewcode-block" id="get_dataset_size"><a class="viewcode-back" href="../../../package/opennmt.data.get_dataset_size.html#opennmt.data.get_dataset_size">[docs]</a><span class="k">def</span> <span class="nf">get_dataset_size</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">5000</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get the dataset size.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the dataset size.</span>
 
 <span class="sd">    Example:</span>
 
@@ -214,7 +214,7 @@
 
 
 <div class="viewcode-block" id="filter_irregular_batches"><a class="viewcode-back" href="../../../package/opennmt.data.filter_irregular_batches.html#opennmt.data.filter_irregular_batches">[docs]</a><span class="k">def</span> <span class="nf">filter_irregular_batches</span><span class="p">(</span><span class="n">multiple</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Transformation that filters out batches based on their size.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformation that filters out batches based on their size.</span>
 
 <span class="sd">    Example:</span>
 
@@ -246,7 +246,7 @@
     <span class="n">features_length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">labels_length_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Transformation that filters out examples with zero length or length that is</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformation that filters out examples with zero length or length that is</span>
 <span class="sd">    greater than the configured maximum.</span>
 
 <span class="sd">    Example:</span>
@@ -300,7 +300,7 @@
 
 
 <div class="viewcode-block" id="make_cardinality_multiple_of"><a class="viewcode-back" href="../../../package/opennmt.data.make_cardinality_multiple_of.html#opennmt.data.make_cardinality_multiple_of">[docs]</a><span class="k">def</span> <span class="nf">make_cardinality_multiple_of</span><span class="p">(</span><span class="n">divisor</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Transformation that ensures that the dataset cardinality is a multiple of</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformation that ensures that the dataset cardinality is a multiple of</span>
 <span class="sd">    :obj:`divisor`.</span>
 
 <span class="sd">    Example:</span>
@@ -356,7 +356,7 @@
 
 
 <div class="viewcode-block" id="random_shard"><a class="viewcode-back" href="../../../package/opennmt.data.random_shard.html#opennmt.data.random_shard">[docs]</a><span class="k">def</span> <span class="nf">random_shard</span><span class="p">(</span><span class="n">shard_size</span><span class="p">,</span> <span class="n">dataset_size</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Transformation that shards the dataset in a random order.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformation that shards the dataset in a random order.</span>
 
 <span class="sd">    Example:</span>
 
@@ -389,7 +389,7 @@
 
 
 <div class="viewcode-block" id="shuffle_dataset"><a class="viewcode-back" href="../../../package/opennmt.data.shuffle_dataset.html#opennmt.data.shuffle_dataset">[docs]</a><span class="k">def</span> <span class="nf">shuffle_dataset</span><span class="p">(</span><span class="n">buffer_size</span><span class="p">,</span> <span class="n">shuffle_shards</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dataset_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Transformation that shuffles the dataset based on its size.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformation that shuffles the dataset based on its size.</span>
 
 <span class="sd">    Example:</span>
 
@@ -428,7 +428,7 @@
 
 
 <div class="viewcode-block" id="batch_dataset"><a class="viewcode-back" href="../../../package/opennmt.data.batch_dataset.html#opennmt.data.batch_dataset">[docs]</a><span class="k">def</span> <span class="nf">batch_dataset</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">padded_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Transformation that batches a dataset.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformation that batches a dataset.</span>
 
 <span class="sd">    Example:</span>
 
@@ -451,7 +451,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_length_bucket_boundaries</span><span class="p">(</span><span class="n">bucket_width</span><span class="p">,</span> <span class="n">maximum_length</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the list of length bucket boundaries.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the list of length bucket boundaries.</span>
 
 <span class="sd">    The list includes at least one full bucket past the maximum length.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -470,7 +470,7 @@
     <span class="n">batch_type</span><span class="o">=</span><span class="s2">&quot;examples&quot;</span><span class="p">,</span>
     <span class="n">batch_size_multiple</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the batch size to use for each length bucket.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the batch size to use for each length bucket.&quot;&quot;&quot;</span>
     <span class="n">batch_sizes</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">boundary</span> <span class="ow">in</span> <span class="n">bucket_boundaries</span><span class="p">:</span>
@@ -496,7 +496,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_element_length_func</span><span class="p">(</span><span class="n">length_fns</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a function to get the length for a dataset element.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a function to get the length for a dataset element.</span>
 
 <span class="sd">    If the dataset contains multiple parallel elements, the maximum length is returned.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -543,7 +543,7 @@
     <span class="n">pad_to_bucket_boundary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">padded_shapes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Transformation that batches a dataset of sequences.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformation that batches a dataset of sequences.</span>
 
 <span class="sd">    This implements an example-based and a token-based batching strategy</span>
 <span class="sd">    with optional bucketing of sequences.</span>
@@ -693,7 +693,7 @@
     <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">cardinality_multiple</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Transformation that applies most of the dataset operations commonly used</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformation that applies most of the dataset operations commonly used</span>
 <span class="sd">    for training on sequence data:</span>
 
 <span class="sd">    * sharding</span>
@@ -863,7 +863,7 @@
     <span class="n">num_threads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">prefetch_buffer_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Transformation that applies dataset operations for inference.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transformation that applies dataset operations for inference.</span>
 
 <span class="sd">    Example:</span>
 

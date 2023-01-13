@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.encoders.mean_encoder &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.encoders.mean_encoder &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -101,7 +101,7 @@
 
 
 <div class="viewcode-block" id="MeanEncoder"><a class="viewcode-back" href="../../../package/opennmt.encoders.MeanEncoder.html#opennmt.encoders.MeanEncoder">[docs]</a><span class="k">class</span> <span class="nc">MeanEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A simple encoder that takes the mean of its inputs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A simple encoder that takes the mean of its inputs.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="MeanEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.encoders.MeanEncoder.html#opennmt.encoders.MeanEncoder.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">sequence_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">outputs</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>

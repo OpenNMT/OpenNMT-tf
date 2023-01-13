@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.data.vocab &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.data.vocab &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -102,7 +102,7 @@
 
 
 <div class="viewcode-block" id="Vocab"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab">[docs]</a><span class="k">class</span> <span class="nc">Vocab</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Vocabulary class.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Vocabulary class.</span>
 
 <span class="sd">    Example:</span>
 
@@ -118,7 +118,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Vocab.__init__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">special_tokens</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes a vocabulary.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes a vocabulary.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          special_tokens: A list of special tokens (e.g. start of sentence).</span>
@@ -139,7 +139,7 @@
 
 <div class="viewcode-block" id="Vocab.from_file"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.from_file">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates from a vocabulary file.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates from a vocabulary file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          path: The path to the vocabulary file.</span>
@@ -155,24 +155,24 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the number of entries of the vocabulary.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the number of entries of the vocabulary.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_id_to_token</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">words</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the list of words.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the list of words.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id_to_token</span>
 
 <div class="viewcode-block" id="Vocab.__len__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the number of entries of the vocabulary.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the number of entries of the vocabulary.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span></div>
 
 <div class="viewcode-block" id="Vocab.__contains__"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.__contains__">[docs]</a>    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns ``True`` if the vocabulary contains :obj:`token`.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns ``True`` if the vocabulary contains :obj:`token`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="Vocab.add_from_text"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.add_from_text">[docs]</a>    <span class="k">def</span> <span class="nf">add_from_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fills the vocabulary from a text file.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fills the vocabulary from a text file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          filename: The file to load from.</span>
@@ -189,7 +189,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">token</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Vocab.serialize"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Writes the vocabulary on disk.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Writes the vocabulary on disk.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          path: The path where the vocabulary will be saved.</span>
@@ -200,7 +200,7 @@
                 <span class="n">vocab</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Vocab.load"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Loads a serialized vocabulary.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads a serialized vocabulary.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          path: The path to the vocabulary to load.</span>
@@ -235,7 +235,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Vocab.add"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Adds a token or increases its frequency.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds a token or increases its frequency.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          token: The string to add.</span>
@@ -250,7 +250,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_frequency</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_token_to_id</span><span class="p">[</span><span class="n">token</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
 <div class="viewcode-block" id="Vocab.lookup"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.lookup">[docs]</a>    <span class="k">def</span> <span class="nf">lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Lookups in the vocabulary.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lookups in the vocabulary.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          identifier: A string or an index to lookup.</span>
@@ -273,7 +273,7 @@
             <span class="k">return</span> <span class="n">value</span></div>
 
 <div class="viewcode-block" id="Vocab.prune"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.prune">[docs]</a>    <span class="k">def</span> <span class="nf">prune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">min_frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates a pruned version of the vocabulary.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a pruned version of the vocabulary.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          max_size: The maximum vocabulary size.</span>
@@ -313,7 +313,7 @@
         <span class="k">return</span> <span class="n">new_vocab</span></div>
 
 <div class="viewcode-block" id="Vocab.pad_to_multiple"><a class="viewcode-back" href="../../../package/opennmt.data.Vocab.html#opennmt.data.Vocab.pad_to_multiple">[docs]</a>    <span class="k">def</span> <span class="nf">pad_to_multiple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiple</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Pads the vocabulary size to a multiple value.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pads the vocabulary size to a multiple value.</span>
 
 <span class="sd">        More specically, this method ensures that:</span>
 
@@ -333,7 +333,7 @@
 <div class="viewcode-block" id="create_lookup_tables"><a class="viewcode-back" href="../../../package/opennmt.data.create_lookup_tables.html#opennmt.data.create_lookup_tables">[docs]</a><span class="k">def</span> <span class="nf">create_lookup_tables</span><span class="p">(</span>
     <span class="n">vocabulary_path</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">as_asset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unk_token</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Creates TensorFlow lookup tables from a vocabulary file.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates TensorFlow lookup tables from a vocabulary file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      vocabulary_path: Path to the vocabulary file.</span>
@@ -386,7 +386,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_mapping</span><span class="p">(</span><span class="n">current_vocab_path</span><span class="p">,</span> <span class="n">new_vocab_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Maps vocabulary new indices to old ones. -1 means that the entry is new.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Maps vocabulary new indices to old ones. -1 means that the entry is new.&quot;&quot;&quot;</span>
     <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;merge&quot;</span><span class="p">,</span> <span class="s2">&quot;replace&quot;</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid vocab update mode: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">mode</span><span class="p">)</span>
@@ -413,7 +413,7 @@
 
 
 <span class="k">def</span> <span class="nf">update_variable</span><span class="p">(</span><span class="n">ref_variable</span><span class="p">,</span> <span class="n">new_variable</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">vocab_axis</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Update a vocabulary variable, possibly copying previous entries based on</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update a vocabulary variable, possibly copying previous entries based on</span>
 <span class="sd">    mapping.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ref</span> <span class="o">=</span> <span class="n">ref_variable</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
@@ -439,7 +439,7 @@
 <span class="k">def</span> <span class="nf">update_variable_and_slots</span><span class="p">(</span>
     <span class="n">ref_variable</span><span class="p">,</span> <span class="n">new_variable</span><span class="p">,</span> <span class="n">ref_optimizer</span><span class="p">,</span> <span class="n">new_optimizer</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">vocab_axis</span><span class="o">=</span><span class="mi">0</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Update a vocabulary variable and its associated optimizer slots (if any).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update a vocabulary variable and its associated optimizer slots (if any).&quot;&quot;&quot;</span>
     <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="n">update_variable</span><span class="p">(</span><span class="n">ref_variable</span><span class="p">,</span> <span class="n">new_variable</span><span class="p">,</span> <span class="n">mapping</span><span class="p">,</span> <span class="n">vocab_axis</span><span class="o">=</span><span class="n">vocab_axis</span><span class="p">)</span>

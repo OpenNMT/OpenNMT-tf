@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.inputters.record_inputter &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.inputters.record_inputter &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -103,7 +103,7 @@
 
 
 <div class="viewcode-block" id="SequenceRecordInputter"><a class="viewcode-back" href="../../../package/opennmt.inputters.SequenceRecordInputter.html#opennmt.inputters.SequenceRecordInputter">[docs]</a><span class="k">class</span> <span class="nc">SequenceRecordInputter</span><span class="p">(</span><span class="n">Inputter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Inputter that reads ``tf.train.SequenceExample``.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Inputter that reads ``tf.train.SequenceExample``.</span>
 
 <span class="sd">    See Also:</span>
 <span class="sd">      :func:`opennmt.inputters.create_sequence_records` to generate a compatible</span>
@@ -111,7 +111,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SequenceRecordInputter.__init__"><a class="viewcode-back" href="../../../package/opennmt.inputters.SequenceRecordInputter.html#opennmt.inputters.SequenceRecordInputter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_depth</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the parameters of the record inputter.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the parameters of the record inputter.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          input_depth: The depth dimension of the input vectors.</span>
@@ -152,7 +152,7 @@
 
 
 <div class="viewcode-block" id="write_sequence_record"><a class="viewcode-back" href="../../../package/opennmt.inputters.write_sequence_record.html#opennmt.inputters.write_sequence_record">[docs]</a><span class="k">def</span> <span class="nf">write_sequence_record</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Writes a sequence vector as a TFRecord.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Writes a sequence vector as a TFRecord.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      vector: A 2D Numpy float array of shape :math:`[T, D]`.</span>
@@ -174,7 +174,7 @@
 
 
 <div class="viewcode-block" id="create_sequence_records"><a class="viewcode-back" href="../../../package/opennmt.inputters.create_sequence_records.html#opennmt.inputters.create_sequence_records">[docs]</a><span class="k">def</span> <span class="nf">create_sequence_records</span><span class="p">(</span><span class="n">vectors</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Creates a TFRecord file of sequence vectors.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates a TFRecord file of sequence vectors.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      vectors: An iterable of 2D Numpy float arrays of shape :math:`[T, D]`.</span>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.inputters.text_inputter &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -116,7 +116,7 @@
 <span class="k">def</span> <span class="nf">save_embeddings_metadata</span><span class="p">(</span>
     <span class="n">log_dir</span><span class="p">,</span> <span class="n">variable_name</span><span class="p">,</span> <span class="n">vocabulary_file</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">1</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Registers an embedding variable for visualization in TensorBoard.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Registers an embedding variable for visualization in TensorBoard.</span>
 
 <span class="sd">    This function registers :obj:`variable_name` in the ``projector_config.pbtxt``</span>
 <span class="sd">    file and generates metadata from :obj:`vocabulary_file` to attach a label</span>
@@ -182,7 +182,7 @@
     <span class="n">with_header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">case_insensitive_embeddings</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns pretrained embeddings relative to the vocabulary.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns pretrained embeddings relative to the vocabulary.</span>
 
 <span class="sd">    The :obj:`embedding_file` must have the following format:</span>
 
@@ -269,7 +269,7 @@
     <span class="n">end_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">pad_id</span><span class="o">=</span><span class="n">constants</span><span class="o">.</span><span class="n">PADDING_ID</span><span class="p">,</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Adds sequence control tokens.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds sequence control tokens.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      ids: Sequence of token ids as a 1D ``tf.Tensor``, a 2D ``tf.Tensor``, or a</span>
@@ -331,7 +331,7 @@
 
 
 <div class="viewcode-block" id="TextInputter"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter">[docs]</a><span class="k">class</span> <span class="nc">TextInputter</span><span class="p">(</span><span class="n">Inputter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An abstract inputter that processes text.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An abstract inputter that processes text.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_oov_buckets</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -360,7 +360,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizers</span><span class="o">.</span><span class="n">make_tokenizer</span><span class="p">(</span><span class="n">tokenizer_config</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TextInputter.set_noise"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.set_noise">[docs]</a>    <span class="k">def</span> <span class="nf">set_noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noiser</span><span class="p">,</span> <span class="n">in_place</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">probability</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Enables noise to be applied to the input features.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Enables noise to be applied to the input features.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          noiser: A :class:`opennmt.data.WordNoiser` instance.</span>
@@ -402,7 +402,7 @@
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;tokens&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">)}</span></div>
 
 <div class="viewcode-block" id="TextInputter.make_features"><a class="viewcode-back" href="../../../package/opennmt.inputters.TextInputter.html#opennmt.inputters.TextInputter.make_features">[docs]</a>    <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Tokenizes raw text.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tokenizes raw text.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assert_is_initialized</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">features</span> <span class="o">=</span> <span class="p">{}</span>
@@ -465,10 +465,10 @@
 
 
 <div class="viewcode-block" id="WordEmbedder"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder">[docs]</a><span class="k">class</span> <span class="nc">WordEmbedder</span><span class="p">(</span><span class="n">TextInputter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Simple word embedder.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple word embedder.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="WordEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the parameters of the word embedder.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the parameters of the word embedder.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          embedding_size: The size of the resulting embedding.</span>
@@ -485,7 +485,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mark_end</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="WordEmbedder.set_decoder_mode"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.set_decoder_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_decoder_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mark_start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mark_end</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Make this inputter produce sequences for a decoder.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make this inputter produce sequences for a decoder.</span>
 
 <span class="sd">        In this mode, the returned &quot;ids_out&quot; feature is the decoder output sequence</span>
 <span class="sd">        and &quot;ids&quot; is the decoder input sequence.</span>
@@ -546,7 +546,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="WordEmbedder.make_features"><a class="viewcode-back" href="../../../package/opennmt.inputters.WordEmbedder.html#opennmt.inputters.WordEmbedder.make_features">[docs]</a>    <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Converts words tokens to ids.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts words tokens to ids.&quot;&quot;&quot;</span>
         <span class="n">features</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">make_features</span><span class="p">(</span>
             <span class="n">element</span><span class="o">=</span><span class="n">element</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span>
         <span class="p">)</span>
@@ -622,10 +622,10 @@
 
 
 <div class="viewcode-block" id="CharEmbedder"><a class="viewcode-back" href="../../../package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder">[docs]</a><span class="k">class</span> <span class="nc">CharEmbedder</span><span class="p">(</span><span class="n">TextInputter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for character-aware inputters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for character-aware inputters.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="CharEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the parameters of the character embedder.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the parameters of the character embedder.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          embedding_size: The size of the character embedding.</span>
@@ -638,7 +638,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span></div>
 
 <div class="viewcode-block" id="CharEmbedder.make_features"><a class="viewcode-back" href="../../../package/opennmt.inputters.CharEmbedder.html#opennmt.inputters.CharEmbedder.make_features">[docs]</a>    <span class="k">def</span> <span class="nf">make_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Converts words to characters.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts words to characters.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">features</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="s2">&quot;char_ids&quot;</span> <span class="ow">in</span> <span class="n">features</span><span class="p">:</span>
@@ -680,7 +680,7 @@
 
 
 <div class="viewcode-block" id="CharConvEmbedder"><a class="viewcode-back" href="../../../package/opennmt.inputters.CharConvEmbedder.html#opennmt.inputters.CharConvEmbedder">[docs]</a><span class="k">class</span> <span class="nc">CharConvEmbedder</span><span class="p">(</span><span class="n">CharEmbedder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An inputter that applies a convolution on characters embeddings.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An inputter that applies a convolution on characters embeddings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="CharConvEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.inputters.CharConvEmbedder.html#opennmt.inputters.CharConvEmbedder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -691,7 +691,7 @@
         <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the parameters of the character convolution embedder.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the parameters of the character convolution embedder.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          embedding_size: The size of the character embedding.</span>
@@ -718,12 +718,12 @@
 
 
 <div class="viewcode-block" id="CharRNNEmbedder"><a class="viewcode-back" href="../../../package/opennmt.inputters.CharRNNEmbedder.html#opennmt.inputters.CharRNNEmbedder">[docs]</a><span class="k">class</span> <span class="nc">CharRNNEmbedder</span><span class="p">(</span><span class="n">CharEmbedder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An inputter that runs a single RNN layer over character embeddings.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An inputter that runs a single RNN layer over character embeddings.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="CharRNNEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.inputters.CharRNNEmbedder.html#opennmt.inputters.CharRNNEmbedder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">,</span> <span class="n">num_units</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">cell_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the parameters of the character RNN embedder.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the parameters of the character RNN embedder.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          embedding_size: The size of the character embedding.</span>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inference &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>Inference &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -103,37 +103,37 @@
              
   <section id="inference">
 <h1>Inference<a class="headerlink" href="#inference" title="Permalink to this headline"></a></h1>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main infer -h
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main<span class="w"> </span>infer<span class="w"> </span>-h
 </pre></div>
 </div>
 <p><strong>Example:</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --config data.yml --auto_config infer --features_file src-test.txt
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main<span class="w"> </span>--config<span class="w"> </span>data.yml<span class="w"> </span>--auto_config<span class="w"> </span>infer<span class="w"> </span>--features_file<span class="w"> </span>src-test.txt
 </pre></div>
 </div>
 <section id="checkpoints-averaging">
 <h2>Checkpoints averaging<a class="headerlink" href="#checkpoints-averaging" title="Permalink to this headline"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">average_checkpoints</span></code> run type can be used to average the parameters of several checkpoints, usually increasing the model performance. For example:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="se">\</span>
-    --config config/my_config.yml --auto_config <span class="se">\</span>
-    average_checkpoints <span class="se">\</span>
-    --output_dir run/baseline-enfr/avg <span class="se">\</span>
-    --max_count <span class="m">5</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--config<span class="w"> </span>config/my_config.yml<span class="w"> </span>--auto_config<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>average_checkpoints<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>run/baseline-enfr/avg<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_count<span class="w"> </span><span class="m">5</span>
 </pre></div>
 </div>
 <p>will average the parameters of the 5 latest checkpoints from the model directory configured in <code class="docutils literal notranslate"><span class="pre">config/my_config.yml</span></code> and save a new checkpoint in the directory <code class="docutils literal notranslate"><span class="pre">run/baseline-enfr/avg</span></code>.</p>
 <p>Then, execute the inference by setting the <code class="docutils literal notranslate"><span class="pre">--checkpoint_path</span></code> option, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="se">\</span>
-    --config config/my_config.yml --auto_config <span class="se">\</span>
-    --checkpoint_path run/baseline-enfr/avg/ckpt-200000 <span class="se">\</span>
-    infer --features_file newstest2014.en.tok --predictions_file newstest2014.en.tok.out
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--config<span class="w"> </span>config/my_config.yml<span class="w"> </span>--auto_config<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--checkpoint_path<span class="w"> </span>run/baseline-enfr/avg/ckpt-200000<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>infer<span class="w"> </span>--features_file<span class="w"> </span>newstest2014.en.tok<span class="w"> </span>--predictions_file<span class="w"> </span>newstest2014.en.tok.out
 </pre></div>
 </div>
 <p>To control the saving of checkpoints during the training, configure the following options in your configuration file:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">train</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="c1"># (optional) Save a checkpoint every this many steps.</span><span class="w"></span>
-<span class="w">  </span><span class="nt">save_checkpoints_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span><span class="w"></span>
-<span class="w">  </span><span class="c1"># (optional) How many checkpoints to keep on disk.</span><span class="w"></span>
-<span class="w">  </span><span class="nt">keep_checkpoint_max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">train</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># (optional) Save a checkpoint every this many steps.</span>
+<span class="w">  </span><span class="nt">save_checkpoints_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span>
+<span class="w">  </span><span class="c1"># (optional) How many checkpoints to keep on disk.</span>
+<span class="w">  </span><span class="nt">keep_checkpoint_max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
 </pre></div>
 </div>
 </section>
@@ -146,10 +146,10 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>, no sampling (default)</p></li>
 </ul>
 <p>For example:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">beam_width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
-<span class="w">  </span><span class="nt">sampling_topk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
-<span class="w">  </span><span class="nt">sampling_temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">beam_width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">sampling_topk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">  </span><span class="nt">sampling_temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </pre></div>
 </div>
 </section>
@@ -162,12 +162,12 @@
 <li><p><a class="reference external" href="https://opennmt.net/OpenNMT-tf/package/opennmt.data.WordPermutation"><code class="docutils literal notranslate"><span class="pre">permutation</span></code></a>: randomly permute words with a maximum distance</p></li>
 </ul>
 <p>which can be combined in sequence, e.g.:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">decoding_subword_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">▁</span><span class="w"></span>
-<span class="w">  </span><span class="nt">decoding_noise</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">dropout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">replacement</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">｟unk｠</span><span class="p p-Indicator">]</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">permutation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">decoding_subword_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">▁</span>
+<span class="w">  </span><span class="nt">decoding_noise</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">dropout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">replacement</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0.1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">｟unk｠</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">permutation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 </pre></div>
 </div>
 <p>The parameter <code class="docutils literal notranslate"><span class="pre">decoding_subword_token</span></code> (here set to the SentencePiece spacer) is useful to apply noise at the word level instead of the subword level.</p>
@@ -175,8 +175,8 @@
 <section id="n-best-list">
 <h2>N-best list<a class="headerlink" href="#n-best-list" title="Permalink to this headline"></a></h2>
 <p>A n-best list can be generated for models using beam search. You can configure it in your configuration file:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">infer</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">n_best</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">infer</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">n_best</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
 </pre></div>
 </div>
 <p>With this option, each input line will simply generate N consecutive lines in the output, ordered from best to worst.</p>
@@ -190,11 +190,11 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">--predictions_file</span></code>, the translations to score.</p></li>
 </ul>
 <p>e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="se">\</span>
-    --config config/my_config.yml --auto_config <span class="se">\</span>
-    score
-    --features_file newstest2014.en.tok <span class="se">\</span>
-    --predictions_file newstest2014.en.tok.out
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--config<span class="w"> </span>config/my_config.yml<span class="w"> </span>--auto_config<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>score
+<span class="w">    </span>--features_file<span class="w"> </span>newstest2014.en.tok<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--predictions_file<span class="w"> </span>newstest2014.en.tok.out
 </pre></div>
 </div>
 <p>The command will write on the standard output the score generated for each line in the following format:</p>

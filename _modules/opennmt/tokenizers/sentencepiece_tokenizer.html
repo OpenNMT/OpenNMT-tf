@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.tokenizers.sentencepiece_tokenizer &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.tokenizers.sentencepiece_tokenizer &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -103,12 +103,12 @@
 
 <div class="viewcode-block" id="SentencePieceTokenizer"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.SentencePieceTokenizer.html#opennmt.tokenizers.SentencePieceTokenizer">[docs]</a><span class="nd">@tokenizer</span><span class="o">.</span><span class="n">register_tokenizer</span>
 <span class="k">class</span> <span class="nc">SentencePieceTokenizer</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">TensorFlowTokenizer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;In-graph SentencePiece tokenizer using</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;In-graph SentencePiece tokenizer using</span>
 <span class="sd">    ``tensorflow_text.SentencepieceTokenizer``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SentencePieceTokenizer.__init__"><a class="viewcode-back" href="../../../package/opennmt.tokenizers.SentencePieceTokenizer.html#opennmt.tokenizers.SentencePieceTokenizer.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">nbest_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the tokenizer.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the tokenizer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          model: Path to the SentencePiece model.</span>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Model &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>Model &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -132,7 +132,7 @@
 <section id="catalog">
 <h2>Catalog<a class="headerlink" href="#catalog" title="Permalink to this headline"></a></h2>
 <p>OpenNMT-tf comes with a set of standard models that are defined in the <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/blob/master/opennmt/models/catalog.py">catalog</a>. These models can be directly selected with the <code class="docutils literal notranslate"><span class="pre">--model_type</span></code> command line option, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --model_type Transformer <span class="o">[</span>...<span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main<span class="w"> </span>--model_type<span class="w"> </span>Transformer<span class="w"> </span><span class="o">[</span>...<span class="o">]</span>
 </pre></div>
 </div>
 <p>You can also get the list of predefined models by running <code class="docutils literal notranslate"><span class="pre">onmt-main</span> <span class="pre">-h</span></code>.</p>
@@ -163,7 +163,7 @@
 </pre></div>
 </div>
 <p>The custom model file should then be selected with the <code class="docutils literal notranslate"><span class="pre">--model</span></code> command line option, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --model config/models/custom_model.py <span class="o">[</span>...<span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main<span class="w"> </span>--model<span class="w"> </span>config/models/custom_model.py<span class="w"> </span><span class="o">[</span>...<span class="o">]</span>
 </pre></div>
 </div>
 <p>This approach offers a high level of modeling freedom without changing the core implementation. Additionally, some public modules are defined to contain other modules and can be used to design complex architectures:</p>

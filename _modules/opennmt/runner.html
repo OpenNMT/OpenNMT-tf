@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.runner &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.runner &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -144,12 +144,18 @@
 
 
 <div class="viewcode-block" id="Runner"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner">[docs]</a><span class="k">class</span> <span class="nc">Runner</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Class for running and exporting models.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for running and exporting models.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Runner.__init__"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">auto_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">auto_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">jit_compile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the runner parameters.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the runner parameters.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          model: A :class:`opennmt.models.Model` instance to run or a callable that</span>
@@ -158,6 +164,7 @@
 <span class="sd">          auto_config: If ``True``, use automatic configuration values defined by</span>
 <span class="sd">            :obj:`model`. If not set, the parameter is read from the run configuration.</span>
 <span class="sd">          mixed_precision: Enable mixed precision.</span>
+<span class="sd">          jit_compile: Compile the model with XLA when possible.</span>
 <span class="sd">          seed: The random seed to set.</span>
 
 <span class="sd">        Raises:</span>
@@ -185,6 +192,7 @@
             <span class="n">auto_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;auto_config&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_config</span> <span class="o">=</span> <span class="n">auto_config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mixed_precision</span> <span class="o">=</span> <span class="n">mixed_precision</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jit_compile</span> <span class="o">=</span> <span class="n">jit_compile</span>
         <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
             <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
@@ -192,12 +200,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The :class:`opennmt.models.Model` executed by this runner.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The :class:`opennmt.models.Model` executed by this runner.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">model_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The active model directory.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The active model directory.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s2">&quot;model_dir&quot;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_finalize_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_devices</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -255,6 +263,7 @@
     <span class="k">def</span> <span class="nf">_init_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_fn</span><span class="p">()</span>
         <span class="n">model</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">params</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">])</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">set_jit_compile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jit_compile</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">model</span>
 
 <div class="viewcode-block" id="Runner.train"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span>
@@ -267,7 +276,7 @@
         <span class="n">fallback_to_cpu</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">continue_from_checkpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs the training loop.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the training loop.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          num_devices: Number of devices to use for training.</span>
@@ -310,8 +319,18 @@
 
         <span class="n">batch_type</span> <span class="o">=</span> <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;batch_type&quot;</span><span class="p">]</span>
         <span class="n">batch_size</span> <span class="o">=</span> <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">]</span>
-        <span class="n">batch_size_multiple</span> <span class="o">=</span> <span class="mi">8</span> <span class="k">if</span> <span class="n">mixed_precision</span> <span class="ow">and</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="s2">&quot;tokens&quot;</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">batch_size_multiple</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mi">8</span>
+            <span class="k">if</span> <span class="n">batch_type</span> <span class="o">==</span> <span class="s2">&quot;tokens&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">mixed_precision</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jit_compile</span><span class="p">)</span>
+            <span class="k">else</span> <span class="mi">1</span>
+        <span class="p">)</span>
         <span class="n">batch_autotune_mode</span> <span class="o">=</span> <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;batch_autotune_mode&quot;</span><span class="p">)</span>
+        <span class="n">length_bucket_width</span> <span class="o">=</span> <span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;length_bucket_width&quot;</span><span class="p">]</span>
+        <span class="n">pad_to_bucket_boundary</span> <span class="o">=</span> <span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pad_to_bucket_boundary&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jit_compile</span><span class="p">:</span>
+            <span class="n">length_bucket_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">length_bucket_width</span><span class="p">,</span> <span class="n">batch_size_multiple</span><span class="p">)</span>
+            <span class="n">pad_to_bucket_boundary</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="n">dataset_fn</span> <span class="o">=</span> <span class="p">(</span>
             <span class="k">lambda</span> <span class="n">input_context</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">make_training_dataset</span><span class="p">(</span>
@@ -321,8 +340,8 @@
                 <span class="n">batch_type</span><span class="o">=</span><span class="n">batch_type</span><span class="p">,</span>
                 <span class="n">batch_size_multiple</span><span class="o">=</span><span class="n">batch_size_multiple</span><span class="p">,</span>
                 <span class="n">shuffle_buffer_size</span><span class="o">=</span><span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;sample_buffer_size&quot;</span><span class="p">],</span>
-                <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">train_config</span><span class="p">[</span><span class="s2">&quot;length_bucket_width&quot;</span><span class="p">],</span>
-                <span class="n">pad_to_bucket_boundary</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pad_to_bucket_boundary&quot;</span><span class="p">),</span>
+                <span class="n">length_bucket_width</span><span class="o">=</span><span class="n">length_bucket_width</span><span class="p">,</span>
+                <span class="n">pad_to_bucket_boundary</span><span class="o">=</span><span class="n">pad_to_bucket_boundary</span><span class="p">,</span>
                 <span class="n">maximum_features_length</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;maximum_features_length&quot;</span><span class="p">),</span>
                 <span class="n">maximum_labels_length</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;maximum_labels_length&quot;</span><span class="p">),</span>
                 <span class="n">single_pass</span><span class="o">=</span><span class="n">train_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;single_pass&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
@@ -412,7 +431,7 @@
         <span class="k">return</span> <span class="n">output_dir</span></div>
 
 <div class="viewcode-block" id="Runner.evaluate"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">labels_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs evaluation.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs evaluation.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          features_file: The input features file to evaluate. If not set, will load</span>
@@ -437,7 +456,7 @@
         <span class="k">return</span> <span class="n">evaluator</span><span class="p">(</span><span class="n">step</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Runner.average_checkpoints"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.average_checkpoints">[docs]</a>    <span class="k">def</span> <span class="nf">average_checkpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">max_count</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">checkpoint_paths</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Averages checkpoints.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Averages checkpoints.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          output_dir: The directory that will contain the averaged checkpoint.</span>
@@ -469,7 +488,7 @@
         <span class="k">return</span> <span class="n">output_dir</span></div>
 
 <div class="viewcode-block" id="Runner.update_vocab"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.update_vocab">[docs]</a>    <span class="k">def</span> <span class="nf">update_vocab</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">src_vocab</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tgt_vocab</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Updates model vocabularies.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates model vocabularies.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          output_dir: Directory where the update checkpoint will be saved.</span>
@@ -520,7 +539,7 @@
 <div class="viewcode-block" id="Runner.infer"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.infer">[docs]</a>    <span class="k">def</span> <span class="nf">infer</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">features_file</span><span class="p">,</span> <span class="n">predictions_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log_time</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs inference.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs inference.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          features_file: The file(s) to infer from.</span>
@@ -552,7 +571,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Runner.export"><a class="viewcode-back" href="../../package/opennmt.Runner.html#opennmt.Runner.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exporter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Exports a model.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exports a model.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          export_dir: The export directory.</span>
@@ -578,7 +597,7 @@
         <span class="n">checkpoint_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">output_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Scores existing predictions.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Scores existing predictions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          features_file: The input file.</span>
@@ -616,7 +635,7 @@
 
 
 <span class="k">def</span> <span class="nf">_count_batch_accum</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">target_batch_size</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Given the current batch size, the number of replicas, and the requested</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given the current batch size, the number of replicas, and the requested</span>
 <span class="sd">    effective batch size, returns the number of gradients to accumulate.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">target_batch_size</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">batch_size</span> <span class="o">*</span> <span class="n">num_replicas</span><span class="p">)))</span>
@@ -633,7 +652,7 @@
     <span class="n">mixed_precision</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">timeout</span><span class="o">=</span><span class="mi">15</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Find the largest token-based batch size that can be used with this</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the largest token-based batch size that can be used with this</span>
 <span class="sd">    configuration.</span>
 
 <span class="sd">    This function runs some training iterations and uses out-of-memory errors as</span>

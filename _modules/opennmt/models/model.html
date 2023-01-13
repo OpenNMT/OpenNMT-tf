@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.models.model &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.models.model &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -105,36 +105,37 @@
 
 
 <div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for models.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for models.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">examples_inputter</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span> <span class="o">=</span> <span class="n">examples_inputter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jit_compile</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">unsupervised</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Unsupervised model.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Unsupervised model.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span> <span class="ow">is</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">features_inputter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The inputter producing features.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The inputter producing features.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="p">,</span> <span class="s2">&quot;features_inputter&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span>
         <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">labels_inputter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The inputter producing labels.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The inputter producing labels.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="p">,</span> <span class="s2">&quot;labels_inputter&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Model.__repr__"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.__repr__">[docs]</a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns a description of the model and its submodules.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a description of the model and its submodules.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">misc</span><span class="o">.</span><span class="n">describe_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.auto_config"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.auto_config">[docs]</a>    <span class="k">def</span> <span class="nf">auto_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns automatic configuration values specific to this model.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns automatic configuration values specific to this model.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          num_replicas: The number of synchronous model replicas used for the</span>
@@ -147,7 +148,7 @@
         <span class="k">return</span> <span class="p">{}</span></div>
 
 <div class="viewcode-block" id="Model.initialize"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_config</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the model from the data configuration.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the model from the data configuration.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          data_config: A dictionary containing the data configuration set</span>
@@ -163,6 +164,10 @@
             <span class="n">misc</span><span class="o">.</span><span class="n">set_dropout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dropout</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">data_config</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="Model.set_jit_compile"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.set_jit_compile">[docs]</a>    <span class="k">def</span> <span class="nf">set_jit_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enable</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Allow (or not) this model to use XLA compilation.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jit_compile</span> <span class="o">=</span> <span class="n">enable</span></div>
+
 <div class="viewcode-block" id="Model.build"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
         <span class="n">freeze_layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;freeze_layers&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">freeze_layers</span><span class="p">:</span>
@@ -176,11 +181,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="Model.split_features_labels"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.split_features_labels">[docs]</a>    <span class="k">def</span> <span class="nf">split_features_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Splits a batch from the dataset into features and labels.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Splits a batch from the dataset into features and labels.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">batch</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">unsupervised</span> <span class="k">else</span> <span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">batch</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.__call__"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs the model.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the model.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          features: A nested structure of features ``tf.Tensor``.</span>
@@ -194,11 +199,22 @@
 <span class="sd">          - The model outputs (usually unscaled probabilities).</span>
 <span class="sd">          - The model predictions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">outputs</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="k">if</span> <span class="n">training</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jit_compile</span><span class="p">:</span>
+            <span class="c1"># Remove string tensors which are not supported by XLA.</span>
+            <span class="n">features</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">misc</span><span class="o">.</span><span class="n">filter_features</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">),</span>
+                <span class="k">lambda</span> <span class="n">tensor</span><span class="p">:</span> <span class="n">tensor</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">tf</span><span class="o">.</span><span class="n">string</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">call_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forward_xla</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">call_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forward</span>
+
+        <span class="n">outputs</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="n">call_method</span><span class="p">(</span>
             <span class="n">features</span><span class="p">,</span>
-            <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
-            <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">,</span>
-            <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+            <span class="n">labels</span><span class="p">,</span>
+            <span class="n">training</span><span class="p">,</span>
+            <span class="n">step</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Include the example index vector in the outputs.</span>
@@ -211,9 +227,16 @@
 
         <span class="k">return</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">predictions</span></div>
 
+    <span class="nd">@tf</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">jit_compile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_forward_xla</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forward</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
+
 <div class="viewcode-block" id="Model.call"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.call">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs the model.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the model.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          features: A nested structure of features ``tf.Tensor``.</span>
@@ -230,7 +253,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Model.infer"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.infer">[docs]</a>    <span class="k">def</span> <span class="nf">infer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs inference on :obj:`features`.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs inference on :obj:`features`.</span>
 
 <span class="sd">        This is a small convenience wrapper around</span>
 <span class="sd">        :meth:`opennmt.models.Model.call`.</span>
@@ -245,7 +268,7 @@
         <span class="k">return</span> <span class="n">predictions</span></div>
 
 <div class="viewcode-block" id="Model.evaluate"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Evaluates :obj:`features` predictions against `labels`.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluates :obj:`features` predictions against `labels`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          features: A nested structure of features ``tf.Tensor``.</span>
@@ -259,7 +282,7 @@
         <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">predictions</span></div>
 
 <div class="viewcode-block" id="Model.score"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.score">[docs]</a>    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Scores labels.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Scores labels.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          features: A nested structure of features ``tf.Tensor``.</span>
@@ -271,7 +294,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;This model does not define a score function&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.train"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss_scale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Computes and applies the gradients for a batch of examples.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes and applies the gradients for a batch of examples.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          features: A nested structure of features ``tf.Tensor``.</span>
@@ -292,8 +315,15 @@
         <span class="n">optimizer</span><span class="o">.</span><span class="n">apply_gradients</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainable_weights</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">loss</span></div>
 
-<div class="viewcode-block" id="Model.compute_gradients"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.compute_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">compute_gradients</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">loss_scale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Computes the gradients for a batch of examples.</span>
+<div class="viewcode-block" id="Model.compute_gradients"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.compute_gradients">[docs]</a>    <span class="k">def</span> <span class="nf">compute_gradients</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">,</span>
+        <span class="n">labels</span><span class="p">,</span>
+        <span class="n">optimizer</span><span class="p">,</span>
+        <span class="n">loss_scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">normalize_loss</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the gradients for a batch of examples.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          features: A nested structure of features ``tf.Tensor``.</span>
@@ -301,43 +331,43 @@
 <span class="sd">          optimizer: The optimizer instance</span>
 <span class="sd">            (``tf.keras.mixed_precision.LossScaleOptimizer`` is supported).</span>
 <span class="sd">          loss_scale: An optional loss scaling factor.</span>
+<span class="sd">          normalize_loss: Normalize the loss by the sample size.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">          A tuple containing,</span>
 
 <span class="sd">          - The loss.</span>
 <span class="sd">          - The gradients.</span>
+<span class="sd">          - The sample size, if :obj:`normalize_loss` is disabled.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">_compute_loss</span><span class="p">():</span>
-            <span class="n">train_loss</span><span class="p">,</span> <span class="n">report_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_training_loss</span><span class="p">(</span>
+        <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
+            <span class="n">loss</span><span class="p">,</span> <span class="n">sample_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_training_loss</span><span class="p">(</span>
                 <span class="n">features</span><span class="p">,</span>
                 <span class="n">labels</span><span class="p">,</span>
                 <span class="n">step</span><span class="o">=</span><span class="n">optimizer</span><span class="o">.</span><span class="n">iterations</span><span class="p">,</span>
             <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">normalize_loss</span> <span class="ow">and</span> <span class="n">sample_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">loss</span> <span class="o">/=</span> <span class="n">sample_size</span>
             <span class="k">if</span> <span class="n">loss_scale</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">train_loss</span> <span class="o">/=</span> <span class="n">loss_scale</span>
-                <span class="n">report_loss</span> <span class="o">/=</span> <span class="n">loss_scale</span>
-            <span class="k">return</span> <span class="n">train_loss</span><span class="p">,</span> <span class="n">report_loss</span>
+                <span class="n">loss</span> <span class="o">/=</span> <span class="n">loss_scale</span>
 
-        <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">():</span>
-            <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">GradientTape</span><span class="p">()</span> <span class="k">as</span> <span class="n">tape</span><span class="p">:</span>
-                <span class="n">train_loss</span><span class="p">,</span> <span class="n">report_loss</span> <span class="o">=</span> <span class="n">_compute_loss</span><span class="p">()</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">mixed_precision</span><span class="o">.</span><span class="n">LossScaleOptimizer</span><span class="p">):</span>
-                    <span class="n">train_loss</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">get_scaled_loss</span><span class="p">(</span><span class="n">train_loss</span><span class="p">)</span>
-            <span class="n">gradients</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">train_loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainable_weights</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">mixed_precision</span><span class="o">.</span><span class="n">LossScaleOptimizer</span><span class="p">):</span>
-                <span class="n">gradients</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">get_unscaled_gradients</span><span class="p">(</span><span class="n">gradients</span><span class="p">)</span>
+                <span class="n">scaled_loss</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">get_scaled_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">scaled_loss</span> <span class="o">=</span> <span class="n">loss</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">train_loss</span><span class="p">,</span> <span class="n">report_loss</span> <span class="o">=</span> <span class="n">_compute_loss</span><span class="p">()</span>
-            <span class="c1"># LossScaleOptimizer.get_gradients takes care of loss scaling.</span>
-            <span class="n">gradients</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">get_gradients</span><span class="p">(</span><span class="n">train_loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainable_weights</span><span class="p">)</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">tape</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">scaled_loss</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainable_weights</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">mixed_precision</span><span class="o">.</span><span class="n">LossScaleOptimizer</span><span class="p">):</span>
+            <span class="n">gradients</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">get_unscaled_gradients</span><span class="p">(</span><span class="n">gradients</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">report_loss</span><span class="p">,</span> <span class="n">gradients</span></div>
+        <span class="k">if</span> <span class="n">normalize_loss</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">gradients</span>
+        <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">gradients</span><span class="p">,</span> <span class="n">sample_size</span></div>
 
 <div class="viewcode-block" id="Model.compute_training_loss"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.compute_training_loss">[docs]</a>    <span class="k">def</span> <span class="nf">compute_training_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Computes the training loss for a batch of examples.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the training loss for a batch of examples.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          features: A nested structure of features ``tf.Tensor``.</span>
@@ -347,22 +377,24 @@
 <span class="sd">        Returns:</span>
 <span class="sd">          A tuple containing,</span>
 
-<span class="sd">          - The loss to optimize.</span>
-<span class="sd">          - The loss to report.</span>
+<span class="sd">          - The cumulated loss.</span>
+<span class="sd">          - The sample size (or ``None`` if not returned by the model).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">outputs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
         <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_loss</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
-            <span class="n">train_loss</span> <span class="o">=</span> <span class="n">loss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">loss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">report_loss</span> <span class="o">=</span> <span class="n">loss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">loss</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">train_loss</span>
+            <span class="n">sample_size</span> <span class="o">=</span> <span class="n">loss</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">train_loss</span><span class="p">,</span> <span class="n">report_loss</span> <span class="o">=</span> <span class="n">loss</span><span class="p">,</span> <span class="n">loss</span>
-        <span class="n">train_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">regularize_loss</span><span class="p">(</span><span class="n">train_loss</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trainable_weights</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">train_loss</span><span class="p">,</span> <span class="n">report_loss</span></div>
+            <span class="n">sample_size</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">regularize_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trainable_weights</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">sample_size</span></div>
 
 <div class="viewcode-block" id="Model.compute_loss"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.compute_loss">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">compute_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Computes the loss.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the loss.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          outputs: The model outputs (usually unscaled probabilities).</span>
@@ -377,7 +409,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Model.regularize_loss"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.regularize_loss">[docs]</a>    <span class="k">def</span> <span class="nf">regularize_loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Regularizes the loss.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Regularizes the loss.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          loss: The loss.</span>
@@ -396,7 +428,7 @@
         <span class="k">return</span> <span class="n">loss</span></div>
 
 <div class="viewcode-block" id="Model.get_metrics"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.get_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the metrics for this model.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the metrics for this model.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">          A dictionary of ``tf.keras.metrics.Metric`` metrics.</span>
@@ -404,7 +436,7 @@
         <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="Model.update_metrics"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.update_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">update_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Computes additional metrics on the predictions.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes additional metrics on the predictions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          metrics: A dictionary of metrics to update.</span>
@@ -414,7 +446,7 @@
         <span class="k">return</span></div>
 
 <div class="viewcode-block" id="Model.get_optimizer"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.get_optimizer">[docs]</a>    <span class="k">def</span> <span class="nf">get_optimizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the optimizer for this model.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the optimizer for this model.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">          A ``tf.keras.optimizers.legacy.Optimizer`` instance or ``None`` if no optimizer</span>
@@ -446,7 +478,7 @@
         <span class="k">return</span> <span class="n">optimizer</span></div>
 
 <div class="viewcode-block" id="Model.serve_function"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.serve_function">[docs]</a>    <span class="k">def</span> <span class="nf">serve_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns a function for serving this model.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a function for serving this model.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">          A ``tf.function``.</span>
@@ -467,12 +499,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">tflite_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns ``True`` if the model is being traced for TensorFlow Lite.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns ``True`` if the model is being traced for TensorFlow Lite.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_tflite_mode&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Model.enable_tflite_mode"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.enable_tflite_mode">[docs]</a>    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
     <span class="k">def</span> <span class="nf">enable_tflite_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Enable TensorFlow Lite mode for this model.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Enable TensorFlow Lite mode for this model.&quot;&quot;&quot;</span>
         <span class="n">layers</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">submodules</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">:</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s2">&quot;_tflite_mode&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
@@ -481,7 +513,7 @@
             <span class="nb">delattr</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s2">&quot;_tflite_mode&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.tflite_function"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.tflite_function">[docs]</a>    <span class="k">def</span> <span class="nf">tflite_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the inference function that should be used for TensorFlow Lite.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the inference function that should be used for TensorFlow Lite.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">          A ``tf.function``.</span>
@@ -490,7 +522,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">serve_function</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Model.export"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">,</span> <span class="n">exporter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Exports the model for serving.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exports the model for serving.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          export_dir: The output directory.</span>
@@ -502,7 +534,7 @@
         <span class="n">exporter</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_dir</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.create_variables"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.create_variables">[docs]</a>    <span class="k">def</span> <span class="nf">create_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates the model variables by running it once.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates the model variables by running it once.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          optimizer: If set, also create the optimizer variables.</span>
@@ -531,7 +563,7 @@
 <div class="viewcode-block" id="Model.transfer_weights"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.transfer_weights">[docs]</a>    <span class="k">def</span> <span class="nf">transfer_weights</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">new_model</span><span class="p">,</span> <span class="n">new_optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_weights</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Transfers weights (and optionally optimizer slots) from this model to</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transfers weights (and optionally optimizer slots) from this model to</span>
 <span class="sd">        another.</span>
 
 <span class="sd">        This default implementation assumes that :obj:`self` and :obj:`new_model`</span>
@@ -569,7 +601,7 @@
                         <span class="n">new_slot</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">slot</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.map_v1_weights"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.map_v1_weights">[docs]</a>    <span class="k">def</span> <span class="nf">map_v1_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Maps current weights to V1 weights.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Maps current weights to V1 weights.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          weights: A nested dictionary following the scope names used in V1. The</span>
@@ -582,7 +614,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;This model can not restore V1 checkpoints&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.export_assets"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.export_assets">[docs]</a>    <span class="k">def</span> <span class="nf">export_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset_dir</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Exports additional assets used by this model.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exports additional assets used by this model.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          asset_dir: The directory where assets can be written.</span>
@@ -593,7 +625,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span><span class="o">.</span><span class="n">export_assets</span><span class="p">(</span><span class="n">asset_dir</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.visualize"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.visualize">[docs]</a>    <span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Setups model visualization (e.g. word embedding projections).</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setups model visualization (e.g. word embedding projections).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          log_dir: The log directory.</span>
@@ -603,7 +635,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span><span class="o">.</span><span class="n">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_dir</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.format_prediction"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.format_prediction">[docs]</a>    <span class="k">def</span> <span class="nf">format_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Formats the model prediction for file saving.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Formats the model prediction for file saving.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          prediction: The model prediction (same structure as the second output of</span>
@@ -616,7 +648,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.format_score"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.format_score">[docs]</a>    <span class="k">def</span> <span class="nf">format_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Formats the score result for file saving.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Formats the score result for file saving.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          score: The score result (same structure as the output of</span>
@@ -626,7 +658,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.print_prediction"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.print_prediction">[docs]</a>    <span class="k">def</span> <span class="nf">print_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Prints the model prediction.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prints the model prediction.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          prediction: The model prediction (same structure as the second output of</span>
@@ -637,7 +669,7 @@
         <span class="n">_write_lines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_prediction</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">),</span> <span class="n">stream</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.print_score"><a class="viewcode-back" href="../../../package/opennmt.models.Model.html#opennmt.models.Model.print_score">[docs]</a>    <span class="k">def</span> <span class="nf">print_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Prints the score result.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prints the score result.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          score: The score result (same structure as the output of</span>
@@ -656,11 +688,11 @@
 
 
 <div class="viewcode-block" id="SequenceGenerator"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator">[docs]</a><span class="k">class</span> <span class="nc">SequenceGenerator</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for models generating sequences.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for models generating sequences.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">decoder_inputter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The inputter used on the decoder side.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The inputter used on the decoder side.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels_inputter</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">unsupervised</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">examples_inputter</span>
 
 <div class="viewcode-block" id="SequenceGenerator.score"><a class="viewcode-back" href="../../../package/opennmt.models.SequenceGenerator.html#opennmt.models.SequenceGenerator.score">[docs]</a>    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>

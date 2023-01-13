@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Serving &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>Serving &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -122,7 +122,7 @@
 </pre></div>
 </div>
 <p>Models can be manually exported using the <code class="docutils literal notranslate"><span class="pre">export</span></code> run type:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main --config my_config.yml --auto_config <span class="nb">export</span> --output_dir ~/my-models/ende
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main<span class="w"> </span>--config<span class="w"> </span>my_config.yml<span class="w"> </span>--auto_config<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--output_dir<span class="w"> </span>~/my-models/ende
 </pre></div>
 </div>
 <p>Automatic evaluation during the training can also export models, see <a class="reference internal" href="training.html"><span class="doc std std-doc">Training</span></a> to learn more.</p>
@@ -130,8 +130,8 @@
 <section id="running-a-savedmodel">
 <h3>Running a SavedModel<a class="headerlink" href="#running-a-savedmodel" title="Permalink to this headline"></a></h3>
 <p>Once a SavedModel is exported, OpenNMT-tf is no longer needed to run it. However, you will need to know the input and output nodes of your model. You can use the <a class="reference external" href="https://www.tensorflow.org/programmers_guide/saved_model#cli_to_inspect_and_execute_savedmodel"><code class="docutils literal notranslate"><span class="pre">saved_model_cli</span></code></a> script provided by TensorFlow for inspection, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>saved_model_cli show --dir ~/my-models/ende <span class="se">\</span>
-    --tag_set serve --signature_def serving_default
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>saved_model_cli<span class="w"> </span>show<span class="w"> </span>--dir<span class="w"> </span>~/my-models/ende<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tag_set<span class="w"> </span>serve<span class="w"> </span>--signature_def<span class="w"> </span>serving_default
 </pre></div>
 </div>
 <p>Some examples using exported models are available in the <a class="reference external" href="https://github.com/OpenNMT/OpenNMT-tf/tree/master/examples/serving"><code class="docutils literal notranslate"><span class="pre">examples/serving</span></code></a> directory.</p>
@@ -146,14 +146,14 @@
 <p><a class="reference external" href="https://github.com/OpenNMT/CTranslate2">CTranslate2</a> is an optimized inference engine for OpenNMT models that is typically faster, lighter, and more customizable than the TensorFlow runtime.</p>
 <p>Selected models can be exported to the CTranslate2 format directly from OpenNMT-tf by selecting the <code class="docutils literal notranslate"><span class="pre">ctranslate2</span></code> export format.</p>
 <p><strong>When using the <code class="docutils literal notranslate"><span class="pre">export</span></code> command line</strong>, the <code class="docutils literal notranslate"><span class="pre">--format</span></code> option should be set:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> <span class="nb">export</span> --output_dir ~/my-models/ende --format ctranslate2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main<span class="w"> </span><span class="o">[</span>...<span class="o">]</span><span class="w"> </span><span class="nb">export</span><span class="w"> </span>--output_dir<span class="w"> </span>~/my-models/ende<span class="w"> </span>--format<span class="w"> </span>ctranslate2
 </pre></div>
 </div>
 <p><strong>When using the automatic model evaluation and export during the training</strong>, the <code class="docutils literal notranslate"><span class="pre">export_format</span></code> option should be configured in the <code class="docutils literal notranslate"><span class="pre">eval</span></code> block of the YAML configuration:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">scorers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bleu</span><span class="w"></span>
-<span class="w">  </span><span class="nt">export_on_best</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bleu</span><span class="w"></span>
-<span class="w">  </span><span class="nt">export_format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ctranslate2</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">eval</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">scorers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bleu</span>
+<span class="w">  </span><span class="nt">export_on_best</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bleu</span>
+<span class="w">  </span><span class="nt">export_format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ctranslate2</span>
 </pre></div>
 </div>
 <p><a class="reference external" href="https://github.com/OpenNMT/CTranslate2#quantization-and-reduced-precision">Model quantization</a> can also be enabled by replacing <code class="docutils literal notranslate"><span class="pre">ctranslate2</span></code> by one of the following export types:</p>
@@ -168,7 +168,7 @@
 <p><a class="reference external" href="https://www.tensorflow.org/lite">TensorFlow Lite</a> is a deep learning framework for fast inference of TensorFlow models on mobile devices.</p>
 <p>Converting to TensorFlow Lite requires <strong>TensorFlow version 2.5+</strong></p>
 <p>Example export command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main <span class="o">[</span>...<span class="o">]</span> <span class="nb">export</span> --export_dir ~/output --export_format tflite 
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>onmt-main<span class="w"> </span><span class="o">[</span>...<span class="o">]</span><span class="w"> </span><span class="nb">export</span><span class="w"> </span>--export_dir<span class="w"> </span>~/output<span class="w"> </span>--export_format<span class="w"> </span>tflite<span class="w"> </span>
 </pre></div>
 </div>
 <p>Exporting will create an <code class="docutils literal notranslate"><span class="pre">opennmt.tflite</span></code> model file in the export directory.</p>
@@ -194,8 +194,8 @@
 </ol>
 <p><strong>Model Output</strong></p>
 <p>The model outputs a fixed size array, this can be specified in the data configuration file.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">tflite_output_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">250</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">params</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">tflite_output_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">250</span>
 </pre></div>
 </div>
 </section>

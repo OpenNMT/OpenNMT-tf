@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.layers.bridge &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.layers.bridge &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -101,7 +101,7 @@
 
 
 <span class="k">def</span> <span class="nf">assert_state_is_compatible</span><span class="p">(</span><span class="n">expected_state</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Asserts that states are compatible.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Asserts that states are compatible.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      expected_state: The reference state.</span>
@@ -129,10 +129,10 @@
 
 
 <div class="viewcode-block" id="Bridge"><a class="viewcode-back" href="../../../package/opennmt.layers.Bridge.html#opennmt.layers.Bridge">[docs]</a><span class="k">class</span> <span class="nc">Bridge</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for bridges.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for bridges.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Bridge.__call__"><a class="viewcode-back" href="../../../package/opennmt.layers.Bridge.html#opennmt.layers.Bridge.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_zero_state</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the initial decoder state.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the initial decoder state.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          encoder_state: The encoder state.</span>
@@ -149,7 +149,7 @@
 
 
 <div class="viewcode-block" id="CopyBridge"><a class="viewcode-back" href="../../../package/opennmt.layers.CopyBridge.html#opennmt.layers.CopyBridge">[docs]</a><span class="k">class</span> <span class="nc">CopyBridge</span><span class="p">(</span><span class="n">Bridge</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A bridge that passes the encoder state as is.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A bridge that passes the encoder state as is.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="CopyBridge.call"><a class="viewcode-back" href="../../../package/opennmt.layers.CopyBridge.html#opennmt.layers.CopyBridge.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
         <span class="n">encoder_state</span><span class="p">,</span> <span class="n">decoder_state</span> <span class="o">=</span> <span class="n">states</span>
@@ -159,7 +159,7 @@
 
 
 <div class="viewcode-block" id="ZeroBridge"><a class="viewcode-back" href="../../../package/opennmt.layers.ZeroBridge.html#opennmt.layers.ZeroBridge">[docs]</a><span class="k">class</span> <span class="nc">ZeroBridge</span><span class="p">(</span><span class="n">Bridge</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A bridge that does not pass information from the encoder.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A bridge that does not pass information from the encoder.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ZeroBridge.call"><a class="viewcode-back" href="../../../package/opennmt.layers.ZeroBridge.html#opennmt.layers.ZeroBridge.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
         <span class="c1"># Simply return the default decoder state.</span>
@@ -167,12 +167,12 @@
 
 
 <div class="viewcode-block" id="DenseBridge"><a class="viewcode-back" href="../../../package/opennmt.layers.DenseBridge.html#opennmt.layers.DenseBridge">[docs]</a><span class="k">class</span> <span class="nc">DenseBridge</span><span class="p">(</span><span class="n">Bridge</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A bridge that applies a parameterized linear transformation from the</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A bridge that applies a parameterized linear transformation from the</span>
 <span class="sd">    encoder state to the decoder state size.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="DenseBridge.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.DenseBridge.html#opennmt.layers.DenseBridge.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the bridge.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the bridge.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          activation: Activation function (a callable).</span>

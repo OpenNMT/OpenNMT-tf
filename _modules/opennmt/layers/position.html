@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.layers.position &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.layers.position &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -104,10 +104,10 @@
 
 
 <div class="viewcode-block" id="PositionEncoder"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder">[docs]</a><span class="k">class</span> <span class="nc">PositionEncoder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for position encoders.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for position encoders.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="PositionEncoder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the position encoder.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the position encoder.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          reducer: A :class:`opennmt.layers.Reducer` to merge inputs and position</span>
@@ -120,7 +120,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">reducer</span> <span class="o">=</span> <span class="n">reducer</span></div>
 
 <div class="viewcode-block" id="PositionEncoder.call"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEncoder.html#opennmt.layers.PositionEncoder.call">[docs]</a>    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add position encodings to :obj:`inputs`.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add position encodings to :obj:`inputs`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          inputs: The inputs to encode.</span>
@@ -140,7 +140,7 @@
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates position encodings.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates position encodings.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          positions: The positions to encode of shape :math:`[B, ...]`.</span>
@@ -153,10 +153,10 @@
 
 
 <div class="viewcode-block" id="PositionEmbedder"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder">[docs]</a><span class="k">class</span> <span class="nc">PositionEmbedder</span><span class="p">(</span><span class="n">PositionEncoder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Encodes position with a lookup table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Encodes position with a lookup table.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="PositionEmbedder.__init__"><a class="viewcode-back" href="../../../package/opennmt.layers.PositionEmbedder.html#opennmt.layers.PositionEmbedder.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maximum_position</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the position encoder.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the position encoder.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          maximum_position: The maximum position to embed. Positions greater</span>
@@ -186,7 +186,7 @@
 
 
 <div class="viewcode-block" id="SinusoidalPositionEncoder"><a class="viewcode-back" href="../../../package/opennmt.layers.SinusoidalPositionEncoder.html#opennmt.layers.SinusoidalPositionEncoder">[docs]</a><span class="k">class</span> <span class="nc">SinusoidalPositionEncoder</span><span class="p">(</span><span class="n">PositionEncoder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Encodes positions with sine waves as described in</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Encodes positions with sine waves as described in</span>
 <span class="sd">    https://arxiv.org/abs/1706.03762.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.utils.decoding &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -106,11 +106,11 @@
 
 
 <div class="viewcode-block" id="Sampler"><a class="viewcode-back" href="../../../package/opennmt.utils.Sampler.html#opennmt.utils.Sampler">[docs]</a><span class="k">class</span> <span class="nc">Sampler</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for samplers.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for samplers.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Sampler.__call__"><a class="viewcode-back" href="../../../package/opennmt.utils.Sampler.html#opennmt.utils.Sampler.__call__">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Samples predictions.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Samples predictions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          scores: The scores to sample from, a tensor of shape</span>
@@ -124,7 +124,7 @@
 
 <div class="viewcode-block" id="Sampler.from_params"><a class="viewcode-back" href="../../../package/opennmt.utils.Sampler.html#opennmt.utils.Sampler.from_params">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_params</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Constructs a sampler based on user parameters.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs a sampler based on user parameters.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          params: A dictionary of user parameters.</span>
@@ -142,10 +142,10 @@
 
 
 <div class="viewcode-block" id="RandomSampler"><a class="viewcode-back" href="../../../package/opennmt.utils.RandomSampler.html#opennmt.utils.RandomSampler">[docs]</a><span class="k">class</span> <span class="nc">RandomSampler</span><span class="p">(</span><span class="n">Sampler</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Randomly samples from model outputs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Randomly samples from model outputs.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="RandomSampler.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.RandomSampler.html#opennmt.utils.RandomSampler.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_top_k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the random sampler.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the random sampler.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          from_top_k: Sample from the top K predictions instead of the full</span>
@@ -172,7 +172,7 @@
 
 
 <div class="viewcode-block" id="BestSampler"><a class="viewcode-back" href="../../../package/opennmt.utils.BestSampler.html#opennmt.utils.BestSampler">[docs]</a><span class="k">class</span> <span class="nc">BestSampler</span><span class="p">(</span><span class="n">Sampler</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Sample the best predictions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample the best predictions.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">sample_scores</span><span class="p">,</span> <span class="n">sample_ids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">top_k</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
@@ -180,16 +180,16 @@
 
 
 <div class="viewcode-block" id="DecodingStrategy"><a class="viewcode-back" href="../../../package/opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy">[docs]</a><span class="k">class</span> <span class="nc">DecodingStrategy</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for decoding strategies.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for decoding strategies.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">num_hypotheses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The number of hypotheses returned by this strategy.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The number of hypotheses returned by this strategy.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">1</span>
 
 <div class="viewcode-block" id="DecodingStrategy.from_params"><a class="viewcode-back" href="../../../package/opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy.from_params">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_params</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">tflite_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Constructs a decoding strategy based on user parameters.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs a decoding strategy based on user parameters.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          params: A dictionary of user parameters.</span>
@@ -213,7 +213,7 @@
 
 <div class="viewcode-block" id="DecodingStrategy.initialize"><a class="viewcode-back" href="../../../package/opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy.initialize">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">attention_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the strategy.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the strategy.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          start_ids: The start decoding ids.</span>
@@ -242,7 +242,7 @@
         <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Updates the strategy state.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the strategy state.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          step: The current decoding step.</span>
@@ -267,7 +267,7 @@
 
 <div class="viewcode-block" id="DecodingStrategy.finalize"><a class="viewcode-back" href="../../../package/opennmt.utils.DecodingStrategy.html#opennmt.utils.DecodingStrategy.finalize">[docs]</a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
     <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">end_id</span><span class="p">,</span> <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Finalize the predictions.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Finalize the predictions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          outputs: The array of sampled ids.</span>
@@ -286,7 +286,7 @@
 
 
 <div class="viewcode-block" id="GreedySearch"><a class="viewcode-back" href="../../../package/opennmt.utils.GreedySearch.html#opennmt.utils.GreedySearch">[docs]</a><span class="k">class</span> <span class="nc">GreedySearch</span><span class="p">(</span><span class="n">DecodingStrategy</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A basic greedy search strategy.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A basic greedy search strategy.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="GreedySearch.initialize"><a class="viewcode-back" href="../../../package/opennmt.utils.GreedySearch.html#opennmt.utils.GreedySearch.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_ids</span><span class="p">,</span> <span class="n">attention_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">batch_size</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">start_ids</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -322,12 +322,12 @@
 
 
 <div class="viewcode-block" id="BeamSearch"><a class="viewcode-back" href="../../../package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch">[docs]</a><span class="k">class</span> <span class="nc">BeamSearch</span><span class="p">(</span><span class="n">DecodingStrategy</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A beam search strategy.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A beam search strategy.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="BeamSearch.__init__"><a class="viewcode-back" href="../../../package/opennmt.utils.BeamSearch.html#opennmt.utils.BeamSearch.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">beam_size</span><span class="p">,</span> <span class="n">length_penalty</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">coverage_penalty</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tflite_output_size</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the decoding strategy.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the decoding strategy.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          beam_size: The number of paths to consider per batch.</span>
@@ -346,7 +346,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">beam_size</span>
 
     <span class="k">def</span> <span class="nf">_set_state_reorder_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_reorder_flags</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Sets state reorder flags, a structure matching the decoder state that</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets state reorder flags, a structure matching the decoder state that</span>
 <span class="sd">        indicates which tensor should be reorded during beam search.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_state_reorder_flags</span> <span class="o">=</span> <span class="n">state_reorder_flags</span>
@@ -512,7 +512,7 @@
         <span class="s2">&quot;DecodingResult&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;ids&quot;</span><span class="p">,</span> <span class="s2">&quot;lengths&quot;</span><span class="p">,</span> <span class="s2">&quot;log_probs&quot;</span><span class="p">,</span> <span class="s2">&quot;attention&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">)</span>
     <span class="p">)</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Final decoding result.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Final decoding result.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      ids: The predicted ids of shape :math:`[B, H, T_t]`.</span>
@@ -536,7 +536,7 @@
     <span class="n">attention_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">tflite_output_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Dynamic decoding.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dynamic decoding.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      symbols_to_logits_fn: A callable taking ``(symbols, step, state)`` and</span>
@@ -714,7 +714,7 @@
 
 
 <span class="k">def</span> <span class="nf">_reorder_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">reorder_flags</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Gather batch indices from the state tensors.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gather batch indices from the state tensors.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_reorder_one</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">reorder</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">reorder</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">ndims</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -729,7 +729,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_shape_invariants</span><span class="p">(</span><span class="n">tensor</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the shape of the tensor but sets middle dims to None.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the shape of the tensor but sets middle dims to None.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">TensorArray</span><span class="p">):</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
@@ -740,26 +740,26 @@
 
 
 <span class="k">def</span> <span class="nf">_penalize_token</span><span class="p">(</span><span class="n">log_probs</span><span class="p">,</span> <span class="n">token_id</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=-</span><span class="mf">1e7</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Penalize token probabilities.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Penalize token probabilities.&quot;&quot;&quot;</span>
     <span class="n">depth</span> <span class="o">=</span> <span class="n">log_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">penalty</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">one_hot</span><span class="p">([</span><span class="n">token_id</span><span class="p">],</span> <span class="n">depth</span><span class="p">,</span> <span class="n">on_value</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">penalty</span><span class="p">,</span> <span class="n">log_probs</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">log_probs</span> <span class="o">+</span> <span class="n">penalty</span>
 
 
 <span class="k">def</span> <span class="nf">_sample_from</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Sample N values from the unscaled probability distribution.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample N values from the unscaled probability distribution.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">temperature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">logits</span> <span class="o">/=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">logits</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">categorical</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_gather_from_word_indices</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Index the depth dim of a 2D tensor.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Index the depth dim of a 2D tensor.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">batch_dims</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_lengths_from_ids</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">end_id</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compute sequence lengths from word ids.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute sequence lengths from word ids.&quot;&quot;&quot;</span>
     <span class="n">lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">not_equal</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">end_id</span><span class="p">)</span>
     <span class="n">lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
     <span class="n">lengths</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
@@ -775,7 +775,7 @@
 
 
 <span class="k">def</span> <span class="nf">_gather_tree</span><span class="p">(</span><span class="n">step_ids</span><span class="p">,</span> <span class="n">parent_ids</span><span class="p">,</span> <span class="n">max_sequence_lengths</span><span class="p">,</span> <span class="n">end_token</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Calculates the full beams from the per-step ids and parent beam ids.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates the full beams from the per-step ids and parent beam ids.</span>
 
 <span class="sd">    For a given beam, past the time step containing the first decoded</span>
 <span class="sd">    ``end_token`` all values are filled in with ``end_token``.</span>
@@ -847,7 +847,7 @@
 
 
 <span class="k">def</span> <span class="nf">_gather_tree_from_array</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">parent_ids</span><span class="p">,</span> <span class="n">sequence_length</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Calculates the full beams for a ``TensorArray``.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates the full beams for a ``TensorArray``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      t: A stacked ``TensorArray`` of size ``max_time`` that contains Tensors of</span>

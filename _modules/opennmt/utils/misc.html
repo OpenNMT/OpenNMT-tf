@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.30.0 documentation</title>
+  <title>opennmt.utils.misc &mdash; OpenNMT-tf 2.31.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -30,7 +30,7 @@
             <img src="../../../_static/logo-alpha.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                2.30
+                2.31
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -113,7 +113,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_devices</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fallback_to_cpu</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Gets devices.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets devices.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      count: The number of devices to get.</span>
@@ -146,7 +146,7 @@
 
 
 <span class="k">def</span> <span class="nf">enable_mixed_precision</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Globally enables mixed precision if the detected hardware supports it.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Globally enables mixed precision if the detected hardware supports it.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      force: Set ``True`` to force mixed precision mode even if the hardware</span>
@@ -181,18 +181,18 @@
 
 
 <span class="k">def</span> <span class="nf">disable_mixed_precision</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Globally disables mixed precision.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Globally disables mixed precision.&quot;&quot;&quot;</span>
     <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">mixed_precision</span><span class="o">.</span><span class="n">set_global_policy</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">mixed_precision_enabled</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Returns ``True`` if mixed precision is enabled.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns ``True`` if mixed precision is enabled.&quot;&quot;&quot;</span>
     <span class="n">policy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">mixed_precision</span><span class="o">.</span><span class="n">global_policy</span><span class="p">()</span>
     <span class="k">return</span> <span class="s2">&quot;float16&quot;</span> <span class="ow">in</span> <span class="n">policy</span><span class="o">.</span><span class="n">name</span>
 
 
 <span class="k">def</span> <span class="nf">get_variables_name_mapping</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">root_key</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns mapping between variables and their name in the object-based</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns mapping between variables and their name in the object-based</span>
 <span class="sd">    representation.</span>
 
 <span class="sd">    Args:</span>
@@ -246,7 +246,7 @@
 
 
 <span class="k">def</span> <span class="nf">get_variable_name</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">model_key</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Gets the variable name in the object-based representation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets the variable name in the object-based representation.&quot;&quot;&quot;</span>
     <span class="n">names_to_variables</span> <span class="o">=</span> <span class="n">get_variables_name_mapping</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">model_key</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">names_to_variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">var</span> <span class="ow">is</span> <span class="n">variable</span><span class="p">:</span>
@@ -255,7 +255,7 @@
 
 
 <span class="k">def</span> <span class="nf">print_as_bytes</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Prints a string as bytes to not rely on :obj:`stream` default encoding.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prints a string as bytes to not rely on :obj:`stream` default encoding.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      text: The text to print.</span>
@@ -272,7 +272,7 @@
 <div class="viewcode-block" id="format_translation_output"><a class="viewcode-back" href="../../../package/opennmt.utils.format_translation_output.html#opennmt.utils.format_translation_output">[docs]</a><span class="k">def</span> <span class="nf">format_translation_output</span><span class="p">(</span>
     <span class="n">sentence</span><span class="p">,</span> <span class="n">score</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">token_level_scores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alignment_type</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Formats a translation output with possibly scores, alignments, etc., e.g:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Formats a translation output with possibly scores, alignments, etc., e.g:</span>
 
 <span class="sd">    1.123214 ||| Hello world ||| 0.30907777 0.030488174 ||| 0-0 1-1</span>
 
@@ -307,7 +307,7 @@
 
 
 <span class="k">def</span> <span class="nf">item_or_tuple</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns :obj:`x` as a tuple or its single element.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns :obj:`x` as a tuple or its single element.&quot;&quot;&quot;</span>
     <span class="n">x</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -316,7 +316,7 @@
 
 
 <span class="k">def</span> <span class="nf">count_lines</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">buffer_size</span><span class="o">=</span><span class="mi">65536</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the number of lines of the file :obj:`filename`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the number of lines of the file :obj:`filename`.&quot;&quot;&quot;</span>
     <span class="n">file_class</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span> <span class="k">if</span> <span class="n">is_gzip_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">else</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">gfile</span><span class="o">.</span><span class="n">GFile</span>
     <span class="k">with</span> <span class="n">file_class</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">num_lines</span> <span class="o">=</span> <span class="mi">0</span>
@@ -328,12 +328,12 @@
 
 
 <span class="k">def</span> <span class="nf">is_gzip_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns ``True`` if :obj:`filename` is a GZIP file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns ``True`` if :obj:`filename` is a GZIP file.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.gz&quot;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">shape_list</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return list of dims, statically where possible.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return list of dims, statically where possible.&quot;&quot;&quot;</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">tf</span><span class="o">.</span><span class="n">executing_eagerly</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
@@ -355,7 +355,7 @@
 
 
 <span class="k">def</span> <span class="nf">index_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">path_separator</span><span class="o">=</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Follows :obj:`path` in a nested structure of objects, lists, and dicts.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Follows :obj:`path` in a nested structure of objects, lists, and dicts.&quot;&quot;&quot;</span>
     <span class="n">keys</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">path_separator</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">keys</span><span class="p">):</span>
         <span class="n">current_path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">path_separator</span><span class="p">,</span> <span class="n">path_separator</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">keys</span><span class="p">[:</span><span class="n">i</span><span class="p">]))</span>
@@ -391,12 +391,12 @@
 
 
 <span class="k">def</span> <span class="nf">clone_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Clones a layer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clones a layer.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">set_dropout</span><span class="p">(</span><span class="n">root_layer</span><span class="p">,</span> <span class="n">dropout</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Overrides all dropout values in :obj:`root_layer` and its descendants.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Overrides all dropout values in :obj:`root_layer` and its descendants.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      dropout: The dropout value to set.</span>
@@ -415,7 +415,7 @@
 
 
 <span class="k">def</span> <span class="nf">describe_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a PyTorch-style description of the layer, for information or debug.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a PyTorch-style description of the layer, for information or debug.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span> <span class="k">as</span> <span class="n">output</span><span class="p">:</span>
         <span class="n">_describe_layer</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">output</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
@@ -457,7 +457,7 @@
 
 
 <span class="k">def</span> <span class="nf">extract_batches</span><span class="p">(</span><span class="n">tensors</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a generator to iterate on each batch of a Numpy array or dict of</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a generator to iterate on each batch of a Numpy array or dict of</span>
 <span class="sd">    Numpy arrays.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tensors</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">tensors</span><span class="p">:</span>
@@ -470,8 +470,20 @@
             <span class="k">yield</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">tensors</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
 
+<span class="k">def</span> <span class="nf">filter_features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">condition</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Only keep features matching a condition.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">features</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">condition</span><span class="p">(</span><span class="n">value</span><span class="p">)}</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">features</span><span class="p">)(</span>
+            <span class="n">filter_features</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">condition</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">features</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">features</span>
+
+
 <span class="k">def</span> <span class="nf">extract_prefixed_keys</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="n">prefix</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a dictionary with all keys from :obj:`dictionary` that are prefixed</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a dictionary with all keys from :obj:`dictionary` that are prefixed</span>
 <span class="sd">    with :obj:`prefix`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sub_dict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -483,7 +495,7 @@
 
 
 <span class="k">def</span> <span class="nf">extract_suffixed_keys</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns a dictionary with all keys from :obj:`dictionary` that are suffixed</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a dictionary with all keys from :obj:`dictionary` that are suffixed</span>
 <span class="sd">    with :obj:`suffix`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sub_dict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -495,7 +507,7 @@
 
 
 <span class="k">def</span> <span class="nf">merge_dict</span><span class="p">(</span><span class="n">dict1</span><span class="p">,</span> <span class="n">dict2</span><span class="p">,</span> <span class="n">override_keys</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Merges :obj:`dict2` into :obj:`dict1`.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merges :obj:`dict2` into :obj:`dict1`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      dict1: The base dictionary.</span>
@@ -519,7 +531,7 @@
 
 
 <span class="k">def</span> <span class="nf">read_summaries</span><span class="p">(</span><span class="n">event_dir</span><span class="p">,</span> <span class="n">event_file_pattern</span><span class="o">=</span><span class="s2">&quot;events.out.tfevents.*&quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Reads summaries from TensorFlow event files.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reads summaries from TensorFlow event files.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      event_dir: Directory containing event files.</span>
@@ -545,10 +557,10 @@
 
 
 <span class="k">class</span> <span class="nc">OrderRestorer</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Helper class to restore out-of-order elements in order.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper class to restore out-of-order elements in order.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_fn</span><span class="p">,</span> <span class="n">callback_fn</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes this object.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes this object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          index_fn: A callable mapping an element to a unique index.</span>
@@ -562,12 +574,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">buffer_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Number of elements waiting to be notified.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of elements waiting to be notified.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">next_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The next index to be notified.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The next index to be notified.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span>
 
     <span class="k">def</span> <span class="nf">_try_notify</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -580,7 +592,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_index</span> <span class="o">!=</span> <span class="n">old_index</span>
 
     <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Push event :obj:`x`.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Push event :obj:`x`.&quot;&quot;&quot;</span>
         <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index_fn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_callback_fn</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -593,10 +605,10 @@
 
 
 <span class="k">class</span> <span class="nc">ClassRegistry</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Helper class to create a registry of classes.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper class to create a registry of classes.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_class</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the class registry.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the class registry.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          base_class: Ensure that classes added to this registry are a subclass of</span>
@@ -607,11 +619,11 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">class_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Class names registered in this registry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Class names registered in this registry.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Registers a class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Registers a class.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          cls: The class to register. If not set, this method returns a decorator for</span>
@@ -649,17 +661,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span>
 
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the class with name :obj:`name` or ``None`` if it does not exist</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the class with name :obj:`name` or ``None`` if it does not exist</span>
 <span class="sd">        in the registry.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_registry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">RelativeConfig</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Helper class to lookup keys relative to a prefix.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper class to lookup keys relative to a prefix.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initializes the relative configuration.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the relative configuration.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          config: The configuration.</span>
