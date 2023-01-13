@@ -15,6 +15,18 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.31.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.31.0) (2023-01-13)
+
+### New features
+
+* Add option `--jit_compile` to compile the model with XLA (only applied in training at the moment)
+
+### Fixes and improvements
+
+* Improve correctness of gradient accumulation and multi-GPU training by normalizing the gradients with the true global batch size instead of using an approximation
+* Report the total number of tokens per second in the training logs, in addition to the source and target numbers
+* Relax the sacreBLEU version requirement to include any 2.x versions
+
 ## [2.30.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.30.0) (2022-12-12)
 
 ### Changes
