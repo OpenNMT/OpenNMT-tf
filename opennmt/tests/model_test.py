@@ -427,7 +427,7 @@ class ModelTest(tf.test.TestCase):
         params["beam_width"] = 4
         model.initialize(data_config, params=params)
         function = model.serve_function()
-        concrete_function = function.get_concrete_function()
+        function.get_concrete_function()
 
     @test_util.run_with_mixed_precision
     def testRNNWithMixedPrecision(self):
