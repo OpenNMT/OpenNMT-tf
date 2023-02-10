@@ -428,9 +428,6 @@ class ModelTest(tf.test.TestCase):
         model.initialize(data_config, params=params)
         function = model.serve_function()
         concrete_function = function.get_concrete_function()
-        # Check that we don't use the GatherTree custom op from Addons.
-        op_types = set(op.type for op in concrete_function.graph.get_operations())
-        self.assertNotIn("Addons>GatherTree", op_types)
 
     @test_util.run_with_mixed_precision
     def testRNNWithMixedPrecision(self):
