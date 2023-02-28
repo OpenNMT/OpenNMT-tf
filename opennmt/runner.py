@@ -157,6 +157,7 @@ class Runner:
                     num_devices=num_devices,
                     scaling_factor=train_config.get("batch_size_autotune_scale", 0.7),
                     mixed_precision=self._mixed_precision,
+                    timeout=train_config.get("batch_size_autotune_timeout", 15 * 60),
                 )
 
         tf.get_logger().info(
