@@ -175,6 +175,20 @@ def split_chunks(a, chunk_length, concat_3_chunks=True, global_length=0):
     return tf.reshape(a_transposed, output_shape), num_chunks
 
 
+def split_qkv(queries, keys, values, chunk_length, global_attention_length):
+
+    # batch x num_chunks, num_heads, chunk_length, units_per_head
+    queries, _ = split_chunks(queries, chunk_length, concat_3_chunks=False)
+    # batch x num_chunks, num_heads, chunk_length*3 + global_length, units_per_head
+    keys, _ = split_chunks(keys, chunk_length, global_length=global_attention_length)
+    # batch x num_chunks, num_heads, chunk_length*3 + global_length, units_per_head
+    values, num_chunks = split_chunks(
+        values, chunk_length, global_length=global_attention_length
+    )
+
+    return queries, keys, values, num_chunks
+
+
 def combine_chunks(a, num_chunks, unchunked_length):
     # Unchunk
     a_shape = misc.shape_list(a)
@@ -289,6 +303,13 @@ def chunk_att_mask(mask, chunk_length, global_length=0):
     )
 
 
+def calculate_attn(dot, values, dropout, training):
+    attn = tf.cast(tf.nn.softmax(tf.cast(dot, tf.float32)), dot.dtype)
+    drop_attn = common.dropout(attn, dropout, training=training)
+    heads = tf.matmul(drop_attn, values)
+    return heads, attn, drop_attn
+
+
 class FeedForwardNetwork(tf.keras.layers.Layer):
     """Implements the Transformer's "Feed Forward" layer.
 
@@ -387,7 +408,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         return_attention=False,
         maximum_relative_position=None,
         max_length_full_attention=None,
-        local_attention_radius=None,
+        local_attention_radius=0,
         global_attention_length=0,
         **kwargs
     ):
@@ -539,7 +560,6 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
         queries_length = misc.shape_list(queries)[2]
 
-        use_sparse_att = False
         if self.max_length_full_attention is not None:
             if memory is not None:
                 raise ValueError("Sparse attention only supports self-attention.")
@@ -550,73 +570,88 @@ class MultiHeadAttention(tf.keras.layers.Layer):
                     "Cannot return attention weights when using sparse attention."
                 )
 
-            use_sparse_att = queries_length > self.max_length_full_attention
-
-        chunk_length = self.local_attention_radius
-        # Dot product attention.
-        if use_sparse_att:
-            if self.global_attention_length:
-                global_queries = queries[:, :, : self.global_attention_length, :]
-                queries = queries[:, :, self.global_attention_length :, :]
+        if self.max_length_full_attention is not None:
+            use_sparse_att = tf.less(self.max_length_full_attention, queries_length)
+            if self.global_attention_length > 0:
                 global_keys = keys
                 global_values = values
-                global_dot = tf.matmul(global_queries, global_keys, transpose_b=True)
-
-            # batch x num_chunks, num_heads, chunk_length, units_per_head
-            queries, _ = split_chunks(queries, chunk_length, concat_3_chunks=False)
-            # batch x num_chunks, num_heads, chunk_length*3 + global_length, units_per_head
-            keys, _ = split_chunks(
-                keys, chunk_length, global_length=self.global_attention_length
+                global_queries = queries
+                if use_sparse_att:
+                    queries = queries[:, :, self.global_attention_length :, :]
+                    global_queries = queries[:, :, : self.global_attention_length, :]
+            queries, keys, values, num_chunks = tf.cond(
+                use_sparse_att,
+                lambda: split_qkv(
+                    queries,
+                    keys,
+                    values,
+                    self.local_attention_radius,
+                    self.global_attention_length,
+                ),
+                lambda: (queries, keys, values, 0),
             )
-            # batch x num_chunks, num_heads, chunk_length*3 + global_length, units_per_head
-            values, num_chunks = split_chunks(
-                values, chunk_length, global_length=self.global_attention_length
-            )
+        # Dot product attention.
         dot = tf.matmul(queries, keys, transpose_b=True)
         if relative_repr_keys is not None:
             dot += matmul_with_relative_representations(
                 queries, relative_repr_keys, transpose_b=True
             )
+        if (
+            self.max_length_full_attention is not None
+            and self.global_attention_length > 0
+        ):
+            global_dot = global_queries
+            if use_sparse_att:
+                global_dot = tf.matmul(global_queries, global_keys, transpose_b=True)
+
         if mask is not None:
             mask = tf.cast(mask, tf.float32)
-            if use_sparse_att:
-                if self.global_attention_length:
-                    if mask.shape.rank == 2:
-                        global_mask = mask[:, tf.newaxis, :]
-                    else:
-                        global_mask = mask[:, : self.global_attention_length, :]
-                    global_mask = global_mask[:, tf.newaxis, :, :]
-                mask = chunk_att_mask(mask, chunk_length, self.global_attention_length)
+            if self.max_length_full_attention is not None:
+                if self.global_attention_length > 0:
+                    global_mask = mask
+                    if use_sparse_att:
+                        if mask.shape.rank == 2:
+                            global_mask = mask[:, tf.newaxis, :]
+                        else:
+                            global_mask = mask[:, : self.global_attention_length, :]
+                        global_mask = global_mask[:, tf.newaxis, :, :]
+                        global_dot = tf.cast(
+                            tf.cast(global_dot, tf.float32) * global_mask
+                            + ((1.0 - global_mask) * tf.float32.min),
+                            global_dot.dtype,
+                        )
+                mask = tf.cond(
+                    use_sparse_att,
+                    lambda: chunk_att_mask(
+                        mask, self.local_attention_radius, self.global_attention_length
+                    ),
+                    lambda: tf.expand_dims(mask, 1) if mask.shape.rank == 2 else mask,
+                )
             elif mask.shape.rank == 2:
-                mask = tf.expand_dims(mask, 1)  # Broadcast on time dimension.
+                mask = tf.expand_dims(mask, 1)
             mask = tf.expand_dims(mask, 1)  # Broadcast on head dimension.
             dot = tf.cast(
                 tf.cast(dot, tf.float32) * mask + ((1.0 - mask) * tf.float32.min),
                 dot.dtype,
             )
-            if use_sparse_att and self.global_attention_length > 0:
-                global_dot = tf.cast(
-                    tf.cast(global_dot, tf.float32) * global_mask
-                    + ((1.0 - global_mask) * tf.float32.min),
-                    global_dot.dtype,
-                )
 
-        attn = tf.cast(tf.nn.softmax(tf.cast(dot, tf.float32)), dot.dtype)
-        drop_attn = common.dropout(attn, self.dropout, training=training)
-        heads = tf.matmul(drop_attn, values)
+        heads, attn, drop_attn = calculate_attn(dot, values, self.dropout, training)
 
-        if use_sparse_att and self.global_attention_length > 0:
-            global_attn = tf.cast(
-                tf.nn.softmax(tf.cast(global_dot, tf.float32)), global_dot.dtype
-            )
-            global_drop_attn = common.dropout(
-                global_attn, self.dropout, training=training
-            )
-            global_heads = tf.matmul(global_drop_attn, global_values)
+        if self.max_length_full_attention is not None:
+            if self.global_attention_length > 0:
+                global_heads = heads
+                global_attn = attn
+                if use_sparse_att:
+                    global_heads, global_attn, _ = calculate_attn(
+                        global_dot, global_values, self.dropout, training
+                    )
 
-        if use_sparse_att:
-            heads = combine_chunks(
-                heads, num_chunks, queries_length - self.global_attention_length
+            heads = tf.cond(
+                use_sparse_att,
+                lambda: combine_chunks(
+                    heads, num_chunks, queries_length - self.global_attention_length
+                ),
+                lambda: heads,
             )
         if relative_repr_values is not None:
             heads += matmul_with_relative_representations(
@@ -626,12 +661,19 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         # Concatenate all heads output.
         combined = combine_heads(heads)
         outputs = self.linear_output(combined)
-        if use_sparse_att and self.global_attention_length > 0:
-            global_combined = combine_heads(global_heads)
-            global_outputs = self.linear_output(
-                global_combined
-            )  # TODO : a separate global linear input and output layers ?
-            outputs = tf.concat((global_outputs, outputs), axis=1)
+
+        if (
+            self.max_length_full_attention is not None
+            and self.global_attention_length > 0
+        ):
+            global_combined = combined
+            global_outputs = outputs
+            if use_sparse_att:
+                global_combined = combine_heads(global_heads)
+                global_outputs = self.linear_output(
+                    global_combined
+                )  # TODO : a separate global linear input and output layers ?
+                outputs = tf.concat((global_outputs, outputs), axis=1)
 
         if self.return_attention:
             return outputs, cache, attn
