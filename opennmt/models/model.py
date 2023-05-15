@@ -16,6 +16,7 @@ class Model(tf.keras.layers.Layer):
         super().__init__()
         self.examples_inputter = examples_inputter
         self.params = {}
+        self._jit_compile = False
 
     @property
     def unsupervised(self):
@@ -33,11 +34,6 @@ class Model(tf.keras.layers.Layer):
     def labels_inputter(self):
         """The inputter producing labels."""
         return getattr(self.examples_inputter, "labels_inputter", None)
-
-    @property
-    def ctranslate2_spec(self):
-        """The equivalent CTranslate2 model specification."""
-        return None
 
     def __repr__(self):
         """Returns a description of the model and its submodules."""
@@ -73,6 +69,10 @@ class Model(tf.keras.layers.Layer):
             misc.set_dropout(self, dropout)
         self.examples_inputter.initialize(data_config)
 
+    def set_jit_compile(self, enable):
+        """Allow (or not) this model to use XLA compilation."""
+        self._jit_compile = enable
+
     def build(self, input_shape):
         freeze_layers = self.params.get("freeze_layers")
         if freeze_layers:
@@ -104,11 +104,22 @@ class Model(tf.keras.layers.Layer):
           - The model outputs (usually unscaled probabilities).
           - The model predictions.
         """
-        outputs, predictions = super().__call__(
+        if training and self._jit_compile:
+            # Remove string tensors which are not supported by XLA.
+            features, labels = misc.filter_features(
+                (features, labels),
+                lambda tensor: tensor.dtype != tf.string,
+            )
+
+            call_method = self._forward_xla
+        else:
+            call_method = self._forward
+
+        outputs, predictions = call_method(
             features,
-            labels=labels,
-            training=training,
-            step=step,
+            labels,
+            training,
+            step,
         )
 
         # Include the example index vector in the outputs.
@@ -120,6 +131,13 @@ class Model(tf.keras.layers.Layer):
                 predictions["index"] = index
 
         return outputs, predictions
+
+    @tf.function(jit_compile=True)
+    def _forward_xla(self, features, labels, training, step):
+        return self._forward(features, labels, training, step)
+
+    def _forward(self, features, labels, training, step):
+        return super().__call__(features, labels=labels, training=training, step=step)
 
     @abc.abstractmethod
     def call(self, features, labels=None, training=None, step=None):
@@ -202,7 +220,14 @@ class Model(tf.keras.layers.Layer):
         optimizer.apply_gradients(list(zip(gradients, self.trainable_weights)))
         return loss
 
-    def compute_gradients(self, features, labels, optimizer, loss_scale=None):
+    def compute_gradients(
+        self,
+        features,
+        labels,
+        optimizer,
+        loss_scale=None,
+        normalize_loss=True,
+    ):
         """Computes the gradients for a batch of examples.
 
         Args:
@@ -211,40 +236,40 @@ class Model(tf.keras.layers.Layer):
           optimizer: The optimizer instance
             (``tf.keras.mixed_precision.LossScaleOptimizer`` is supported).
           loss_scale: An optional loss scaling factor.
+          normalize_loss: Normalize the loss by the sample size.
 
         Returns:
           A tuple containing,
 
           - The loss.
           - The gradients.
+          - The sample size, if :obj:`normalize_loss` is disabled.
         """
 
-        def _compute_loss():
-            train_loss, report_loss = self.compute_training_loss(
+        with tf.GradientTape() as tape:
+            loss, sample_size = self.compute_training_loss(
                 features,
                 labels,
                 step=optimizer.iterations,
             )
+
+            if normalize_loss and sample_size is not None:
+                loss /= sample_size
             if loss_scale is not None:
-                train_loss /= loss_scale
-                report_loss /= loss_scale
-            return train_loss, report_loss
+                loss /= loss_scale
 
-        if tf.executing_eagerly():
-            with tf.GradientTape() as tape:
-                train_loss, report_loss = _compute_loss()
-                if isinstance(optimizer, tf.keras.mixed_precision.LossScaleOptimizer):
-                    train_loss = optimizer.get_scaled_loss(train_loss)
-            gradients = tape.gradient(train_loss, self.trainable_weights)
             if isinstance(optimizer, tf.keras.mixed_precision.LossScaleOptimizer):
-                gradients = optimizer.get_unscaled_gradients(gradients)
+                scaled_loss = optimizer.get_scaled_loss(loss)
+            else:
+                scaled_loss = loss
 
-        else:
-            train_loss, report_loss = _compute_loss()
-            # LossScaleOptimizer.get_gradients takes care of loss scaling.
-            gradients = optimizer.get_gradients(train_loss, self.trainable_weights)
+        gradients = tape.gradient(scaled_loss, self.trainable_weights)
+        if isinstance(optimizer, tf.keras.mixed_precision.LossScaleOptimizer):
+            gradients = optimizer.get_unscaled_gradients(gradients)
 
-        return report_loss, gradients
+        if normalize_loss:
+            return loss, gradients
+        return loss, gradients, sample_size
 
     def compute_training_loss(self, features, labels, step=None):
         """Computes the training loss for a batch of examples.
@@ -257,18 +282,20 @@ class Model(tf.keras.layers.Layer):
         Returns:
           A tuple containing,
 
-          - The loss to optimize.
-          - The loss to report.
+          - The cumulated loss.
+          - The sample size (or ``None`` if not returned by the model).
         """
         outputs, _ = self(features, labels, training=True, step=step)
         loss = self.compute_loss(outputs, labels, training=True)
+
         if isinstance(loss, tuple):
-            train_loss = loss[0] / loss[1]
-            report_loss = loss[0] / loss[2] if len(loss) > 2 else train_loss
+            sample_size = loss[1]
+            loss = loss[0]
         else:
-            train_loss, report_loss = loss, loss
-        train_loss = self.regularize_loss(train_loss, variables=self.trainable_weights)
-        return train_loss, report_loss
+            sample_size = None
+
+        loss = self.regularize_loss(loss, variables=self.trainable_weights)
+        return loss, sample_size
 
     @abc.abstractmethod
     def compute_loss(self, outputs, labels, training=True):
@@ -327,7 +354,7 @@ class Model(tf.keras.layers.Layer):
         """Returns the optimizer for this model.
 
         Returns:
-          A ``tf.keras.optimizers.Optimizer`` instance or ``None`` if no optimizer
+          A ``tf.keras.optimizers.legacy.Optimizer`` instance or ``None`` if no optimizer
           is configured.
         """
         params = self.params

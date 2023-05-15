@@ -93,6 +93,34 @@ class BLEUScorer(Scorer):
         return bleu.score
 
 
+@register_scorer(name="chrf")
+class CHRFScorer(Scorer):
+    """Scorer using sacreBLEU."""
+
+    def __init__(self):
+        super().__init__("chrf")
+
+    def __call__(self, ref_path, hyp_path):
+        sys_stream = _get_lines(hyp_path)
+        ref_stream = _get_lines(ref_path)
+        chrf = sacrebleu.corpus_chrf(sys_stream, [ref_stream])
+        return chrf.score
+
+
+@register_scorer(name="chrf++")
+class CHRFPPScorer(Scorer):
+    """Scorer using sacreBLEU."""
+
+    def __init__(self):
+        super().__init__("chrf++")
+
+    def __call__(self, ref_path, hyp_path):
+        sys_stream = _get_lines(hyp_path)
+        ref_stream = _get_lines(ref_path)
+        chrf = sacrebleu.corpus_chrf(sys_stream, [ref_stream], word_order=2)
+        return chrf.score
+
+
 @register_scorer(name="wer")
 class WERScorer(Scorer):
     """WER scorer."""

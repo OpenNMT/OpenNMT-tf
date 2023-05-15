@@ -3,6 +3,7 @@
 import collections
 import copy
 import functools
+import gzip
 import heapq
 import io
 import os
@@ -11,7 +12,9 @@ import sys
 import numpy as np
 import tensorflow as tf
 
-from tensorflow.python.training.tracking import graph_view
+from opennmt.utils import compat
+
+_CHECKPOINT_VARIABLE_SUFFIX = ".ATTRIBUTES/VARIABLE_VALUE"
 
 
 def get_devices(count=1, fallback_to_cpu=True):
@@ -93,39 +96,63 @@ def mixed_precision_enabled():
     return "float16" in policy.name
 
 
-def get_variables_name_mapping(root, root_key=None):
+def get_variables_name_mapping(root, root_key):
     """Returns mapping between variables and their name in the object-based
     representation.
 
     Args:
       root: The root layer.
-      root_key: Key that was used to save :obj:`root`, if any.
+      root_key: Key that was used to save :obj:`root`.
 
     Returns:
       A dict mapping names to variables.
     """
-    # TODO: find a way to implement this function using public APIs.
     names_to_variables = {}
-    _, path_to_root = graph_view.ObjectGraphView(root)._breadth_first_traversal()
-    for path in path_to_root.values():
-        if not path:
-            continue
-        variable = path[-1].ref
-        if not isinstance(variable, tf.Variable):
-            continue
-        name = "%s/%s" % (
-            "/".join(field.name for field in path),
-            ".ATTRIBUTES/VARIABLE_VALUE",
-        )
-        if root_key is not None:
-            name = "%s/%s" % (root_key, name)
-        names_to_variables[name] = variable
+
+    if compat.tf_supports("train.TrackableView"):
+        if isinstance(root, tf.Variable):
+            names_to_variables["%s/%s" % (root_key, _CHECKPOINT_VARIABLE_SUFFIX)] = root
+        elif isinstance(root, list):
+            for i, trackable in enumerate(root):
+                names_to_variables.update(
+                    get_variables_name_mapping(
+                        trackable, root_key="%s/%d" % (root_key, i)
+                    )
+                )
+        elif isinstance(root, tf.Module):
+            trackable_view = tf.train.TrackableView(root)
+            for name, trackable in trackable_view.children(root).items():
+                names_to_variables.update(
+                    get_variables_name_mapping(
+                        trackable, root_key="%s/%s" % (root_key, name)
+                    )
+                )
+
+    else:
+        # TODO: remove this block when TensorFlow requirement is updated to >=2.10.
+        from tensorflow.python.training.tracking import graph_view
+
+        _, path_to_root = graph_view.ObjectGraphView(root)._breadth_first_traversal()
+        for path in path_to_root.values():
+            if not path:
+                continue
+            variable = path[-1].ref
+            if not isinstance(variable, tf.Variable):
+                continue
+            name = "%s/%s/%s" % (
+                root_key,
+                "/".join(field.name for field in path),
+                _CHECKPOINT_VARIABLE_SUFFIX,
+            )
+            names_to_variables[name] = variable
+        return names_to_variables
+
     return names_to_variables
 
 
 def get_variable_name(variable, root, model_key="model"):
     """Gets the variable name in the object-based representation."""
-    names_to_variables = get_variables_name_mapping(root, root_key=model_key)
+    names_to_variables = get_variables_name_mapping(root, model_key)
     for name, var in names_to_variables.items():
         if var is variable:
             return name
@@ -195,7 +222,8 @@ def item_or_tuple(x):
 
 def count_lines(filename, buffer_size=65536):
     """Returns the number of lines of the file :obj:`filename`."""
-    with tf.io.gfile.GFile(filename, mode="rb") as f:
+    file_class = gzip.open if is_gzip_file(filename) else tf.io.gfile.GFile
+    with file_class(filename, mode="rb") as f:
         num_lines = 0
         while True:
             data = f.read(buffer_size)
@@ -347,6 +375,18 @@ def extract_batches(tensors):
             yield {key: value[b] for key, value in tensors.items()}
 
 
+def filter_features(features, condition):
+    """Only keep features matching a condition."""
+    if isinstance(features, dict):
+        return {key: value for key, value in features.items() if condition(value)}
+    elif isinstance(features, (tuple, list)):
+        return type(features)(
+            filter_features(element, condition) for element in features
+        )
+    else:
+        return features
+
+
 def extract_prefixed_keys(dictionary, prefix):
     """Returns a dictionary with all keys from :obj:`dictionary` that are prefixed
     with :obj:`prefix`.
@@ -421,7 +461,7 @@ def read_summaries(event_dir, event_file_pattern="events.out.tfevents.*"):
     return list(sorted(summaries.items(), key=lambda x: x[0]))
 
 
-class OrderRestorer(object):
+class OrderRestorer:
     """Helper class to restore out-of-order elements in order."""
 
     def __init__(self, index_fn, callback_fn):
@@ -469,7 +509,7 @@ class OrderRestorer(object):
         return self._try_notify()
 
 
-class ClassRegistry(object):
+class ClassRegistry:
     """Helper class to create a registry of classes."""
 
     def __init__(self, base_class=None):

@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 
 from opennmt.data import vocab as vocab_lib
+from opennmt.optimizers.utils import make_optimizer
 from opennmt.tests import test_util
 
 
@@ -155,7 +156,7 @@ class VocabTest(tf.test.TestCase):
 
 def _create_variable_and_slots(values):
     variable = tf.Variable(tf.constant(values, dtype=tf.float32))
-    optimizer = tf.keras.optimizers.Adam()
+    optimizer = make_optimizer("Adam", 0.001)
     optimizer._create_slots([variable])
     for slot in ("m", "v"):
         optimizer.get_slot(variable, slot).assign(variable)

@@ -115,6 +115,8 @@ Some extra steps may be required to ensure good FP16 performance:
 * Mixed precision training requires a Volta GPU or above
 * Tensor Cores require the input dimensions to be a multiple of 8. You may need to tune your vocabulary size using `--size_multiple 8` on `onmt-build-vocab` which will ensure that `(vocab_size + 1) % 8 == 0` (+ 1 is the `<unk>` token that is automatically added during the training).
 
+Performance may be further increased with [XLA compilation](https://www.tensorflow.org/xla) which can be enabled with `--jit_compile`. In this mode, the first few training steps will appear slower as the model will be compiled for multiple input shapes. You should wait a few minutes for the training speed to stabilize.
+
 ## Retraining
 
 ### Continuing from a stopped training

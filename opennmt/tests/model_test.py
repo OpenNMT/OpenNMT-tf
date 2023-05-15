@@ -6,6 +6,7 @@ import tensorflow as tf
 from parameterized import parameterized
 
 from opennmt import decoders, encoders, inputters, models
+from opennmt.optimizers.utils import make_optimizer
 from opennmt.tests import test_util
 from opennmt.utils import misc
 
@@ -229,22 +230,38 @@ class ModelTest(tf.test.TestCase):
             params=params,
         )
 
-    def testSequenceToSequenceWithSharedEmbedding(self):
+    @parameterized.expand(
+        [
+            (models.EmbeddingsSharingLevel.ALL, True, True, True),
+            (models.EmbeddingsSharingLevel.AUTO, True, True, True),
+            (models.EmbeddingsSharingLevel.AUTO, False, False, True),
+        ]
+    )
+    def testSequenceToSequenceWithSharedEmbedding(
+        self, share_embeddings, reuse_vocab, input_is_shared, target_is_shared
+    ):
         model = models.SequenceToSequence(
             inputters.WordEmbedder(16),
             inputters.WordEmbedder(16),
             encoders.SelfAttentionEncoder(2, 16, 4, 32),
             decoders.SelfAttentionDecoder(2, 16, 4, 32),
-            share_embeddings=models.EmbeddingsSharingLevel.ALL,
+            share_embeddings=share_embeddings,
         )
         _, _, data_config = self._makeToyEnDeData()
-        data_config["target_vocabulary"] = data_config["source_vocabulary"]
+        if reuse_vocab:
+            data_config["target_vocabulary"] = data_config["source_vocabulary"]
         model.initialize(data_config)
-        self.assertTrue(model.decoder.initialized)
-        model.build(None)
+        model.create_variables()
+
         self.assertEqual(
-            model.labels_inputter.embedding.ref(),
-            model.decoder.output_layer.weight.ref(),
+            model.features_inputter.embedding.ref()
+            == model.labels_inputter.embedding.ref(),
+            input_is_shared,
+        )
+        self.assertEqual(
+            model.labels_inputter.embedding.ref()
+            == model.decoder.output_layer.kernel.ref(),
+            target_is_shared,
         )
 
     @parameterized.expand(
@@ -283,6 +300,22 @@ class ModelTest(tf.test.TestCase):
         outputs, _ = model(features, labels=labels, training=True)
         loss = model.compute_loss(outputs, labels, training=True)
         loss = loss[0] / loss[1]
+
+    @test_util.run_with_mixed_precision
+    def testSequenceToSequenceWithGuidedAlignmentMixedPrecision(self):
+        model, params = _seq2seq_model(training=True)
+        params["guided_alignment_type"] = "ce"
+        features_file, labels_file, data_config = self._makeToyEnDeData(
+            with_alignments=True
+        )
+        model.initialize(data_config, params=params)
+        model.create_variables()
+        dataset = model.examples_inputter.make_training_dataset(
+            features_file, labels_file, 16
+        )
+        features, labels = next(iter(dataset))
+        outputs, _ = model(features, labels=labels, training=True)
+        model.compute_loss(outputs, labels, training=True)
 
     def testSequenceToSequenceWithGuidedAlignmentAndWeightedDataset(self):
         model, _ = _seq2seq_model()
@@ -394,10 +427,7 @@ class ModelTest(tf.test.TestCase):
         params["beam_width"] = 4
         model.initialize(data_config, params=params)
         function = model.serve_function()
-        concrete_function = function.get_concrete_function()
-        # Check that we don't use the GatherTree custom op from Addons.
-        op_types = set(op.type for op in concrete_function.graph.get_operations())
-        self.assertNotIn("Addons>GatherTree", op_types)
+        function.get_concrete_function()
 
     @test_util.run_with_mixed_precision
     def testRNNWithMixedPrecision(self):
@@ -658,7 +688,7 @@ class ModelTest(tf.test.TestCase):
             model, _ = _seq2seq_model(
                 training=True, shared_embeddings=shared_embeddings
             )
-            optimizer = tf.keras.optimizers.Adam()
+            optimizer = make_optimizer("Adam", 0.001)
             data = {}
             data["source_vocabulary"] = test_util.make_data_file(
                 os.path.join(self.get_temp_dir(), "%s-src-vocab.txt" % name), src_vocab
@@ -758,42 +788,6 @@ class ModelTest(tf.test.TestCase):
                 vocab_axis=1,
             )
 
-    @parameterized.expand(
-        [
-            [models.TransformerBase()],
-            [models.TransformerBaseRelative()],
-            [models.TransformerBig()],
-            [models.TransformerBigRelative()],
-            [
-                models.Transformer(
-                    num_layers=(6, 3),
-                    num_units=32,
-                    num_heads=8,
-                    ffn_inner_dim=64,
-                )
-            ],
-            [models.Transformer(ffn_activation=tf.nn.gelu)],
-            [models.Transformer(ffn_activation=tf.nn.silu)],
-        ]
-    )
-    def testCTranslate2Spec(self, model):
-        try:
-            spec = model.ctranslate2_spec
-            self.assertIsNotNone(spec)
-            self.assertIs(spec.with_source_bos, False)
-            self.assertIs(spec.with_source_eos, False)
-        except ImportError:
-            self.skipTest("ctranslate2 module is not available")
-
-    def testCTranslate2SpecSequenceControls(self):
-        _, _, data_config = self._makeToyEnDeData()
-        data_config["source_sequence_controls"] = {"start": False, "end": True}
-        model = models.TransformerBase()
-        model.initialize(data_config)
-        spec = model.ctranslate2_spec
-        self.assertIs(spec.with_source_bos, False)
-        self.assertIs(spec.with_source_eos, True)
-
     def testTransformerWithDifferentEncoderDecoderLayers(self):
         model = models.Transformer(
             inputters.WordEmbedder(32),
@@ -805,6 +799,12 @@ class ModelTest(tf.test.TestCase):
         )
         self.assertLen(model.encoder.layers, 6)
         self.assertLen(model.decoder.layers, 3)
+
+    def testTransformerNoOutputBias(self):
+        _, _, data_config = self._makeToyEnDeData()
+        model = models.Transformer(output_layer_bias=False)
+        model.initialize(data_config)
+        self.assertFalse(model.decoder.output_layer.use_bias)
 
     def testBeamSearchWithMultiSourceEncoder(self):
         shared_vocabulary = test_util.make_vocab(
@@ -831,11 +831,13 @@ class ModelTest(tf.test.TestCase):
         model.initialize(data_config, params=params)
         model.serve_function().get_concrete_function()
 
-    def testTrainModelOnBatch(self):
+    @parameterized.expand([[True], [False]])
+    def testTrainModelOnBatch(self, jit_compile):
         _, _, data_config = self._makeToyEnDeData()
-        optimizer = tf.keras.optimizers.Adam()
+        optimizer = make_optimizer("Adam", 0.001)
         model = models.TransformerTiny()
         model.initialize(data_config)
+        model.set_jit_compile(jit_compile)
         features = model.features_inputter.make_features(
             ["hello world !", "how are you ?"]
         )
@@ -845,6 +847,32 @@ class ModelTest(tf.test.TestCase):
         loss1 = model.train(features, labels, optimizer)
         loss2 = model.train(features, labels, optimizer)
         self.assertLess(loss2, loss1)
+
+    def testLossNormalization(self):
+        model = models.TransformerTiny()
+
+        _, _, data_config = self._makeToyEnDeData()
+        params = model.auto_config()["params"]
+        params["dropout"] = 0
+
+        model.initialize(data_config, params=params)
+        optimizer = model.get_optimizer()
+
+        features = model.features_inputter.make_features(
+            ["hello world !", "how are you ?"]
+        )
+        labels = model.labels_inputter.make_features(
+            ["hallo welt !", "wie geht es dir ?"]
+        )
+
+        normalized_loss, _ = model.compute_gradients(features, labels, optimizer)
+        cumulated_loss, _, sample_size = model.compute_gradients(
+            features, labels, optimizer, normalize_loss=False
+        )
+
+        # sample_size should be the sum of the target lengths including EOS.
+        self.assertEqual(sample_size, 4 + 6)
+        self.assertAllClose(cumulated_loss / sample_size, normalized_loss)
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ from opennmt.models import model
 from opennmt.utils import decoding, losses, misc
 
 
-class EmbeddingsSharingLevel(object):
+class EmbeddingsSharingLevel:
     """Level of embeddings sharing.
 
     Possible values are:
@@ -21,12 +21,14 @@ class EmbeddingsSharingLevel(object):
      * ``SOURCE_TARGET_INPUT``: share source and target word embeddings
      * ``TARGET``: share target word embeddings and softmax weights
      * ``ALL``: share words embeddings and softmax weights
+     * ``AUTO``: automatically share embeddings when using the same vocabulary file.
     """
 
     NONE = 0
     SOURCE_TARGET_INPUT = 1
     TARGET = 2
     ALL = 3
+    AUTO = 4
 
     @staticmethod
     def share_input_embeddings(level):
@@ -69,30 +71,12 @@ class SequenceToSequence(model.SequenceGenerator):
 
         Raises:
           TypeError: if :obj:`target_inputter` is not a
-            :class:`opennmt.inputters.WordEmbedder` (same for
-            :obj:`source_inputter` when embeddings sharing is enabled).
+            :class:`opennmt.inputters.WordEmbedder`.
         """
         if not isinstance(target_inputter, inputters.WordEmbedder):
             raise TypeError("Target inputter must be a WordEmbedder")
-        if EmbeddingsSharingLevel.share_input_embeddings(share_embeddings):
-            if isinstance(source_inputter, inputters.ParallelInputter):
-                source_inputters = source_inputter.inputters
-            else:
-                source_inputters = [source_inputter]
-            for inputter in source_inputters:
-                if not isinstance(inputter, inputters.WordEmbedder):
-                    raise TypeError(
-                        "Sharing embeddings requires all inputters to be a "
-                        "WordEmbedder"
-                    )
 
-        examples_inputter = SequenceToSequenceInputter(
-            source_inputter,
-            target_inputter,
-            share_parameters=EmbeddingsSharingLevel.share_input_embeddings(
-                share_embeddings
-            ),
-        )
+        examples_inputter = SequenceToSequenceInputter(source_inputter, target_inputter)
         super().__init__(examples_inputter)
         self.encoder = encoder
         self.decoder = decoder
@@ -148,6 +132,30 @@ class SequenceToSequence(model.SequenceGenerator):
                 is_spacer=self.params.get("decoding_subword_token_is_spacer"),
             )
             self.labels_inputter.set_noise(noiser, in_place=False)
+
+        if self.share_embeddings != EmbeddingsSharingLevel.NONE:
+            all_inputters = self.examples_inputter.get_leaf_inputters()
+
+            if self.share_embeddings == EmbeddingsSharingLevel.AUTO:
+                if all(
+                    isinstance(inputter, inputters.WordEmbedder)
+                    and inputter.vocabulary_file == all_inputters[0].vocabulary_file
+                    for inputter in all_inputters
+                ):
+                    self.share_embeddings = EmbeddingsSharingLevel.ALL
+                else:
+                    self.share_embeddings = EmbeddingsSharingLevel.TARGET
+
+            if EmbeddingsSharingLevel.share_input_embeddings(self.share_embeddings):
+                if not all(
+                    isinstance(inputter, inputters.WordEmbedder)
+                    for inputter in all_inputters
+                ):
+                    raise TypeError(
+                        "Sharing embeddings requires all inputters to be a WordEmbedder"
+                    )
+
+                self.examples_inputter.share_parameters = True
 
     def build(self, input_shape):
         super().build(input_shape)
@@ -533,11 +541,12 @@ class SequenceToSequence(model.SequenceGenerator):
             self.features_inputter.embedding,
             new_model.features_inputter.embedding,
         )
-        _map_variable(
-            target_mapping,
-            self.decoder.output_layer.bias,
-            new_model.decoder.output_layer.bias,
-        )
+        if self.decoder.output_layer.bias is not None:
+            _map_variable(
+                target_mapping,
+                self.decoder.output_layer.bias,
+                new_model.decoder.output_layer.bias,
+            )
 
         if not EmbeddingsSharingLevel.share_input_embeddings(self.share_embeddings):
             _map_variable(

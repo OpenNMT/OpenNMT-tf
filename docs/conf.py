@@ -40,6 +40,8 @@ autodoc_member_order = "bysource"
 napoleon_include_init_with_doc = True
 napoleon_include_special_with_doc = True
 
+myst_heading_anchors = 2
+
 
 def setup(app):
     app.add_css_file("custom.css")

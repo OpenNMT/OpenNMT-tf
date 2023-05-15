@@ -355,6 +355,88 @@ def batch_dataset(batch_size, padded_shapes=None):
     )
 
 
+def get_length_bucket_boundaries(bucket_width, maximum_length):
+    """Returns the list of length bucket boundaries.
+
+    The list includes at least one full bucket past the maximum length.
+    """
+
+    if maximum_length % bucket_width != 0:
+        maximum_length += bucket_width - maximum_length % bucket_width
+
+    last_boundary = maximum_length + bucket_width + 1
+
+    return list(range(bucket_width + 1, last_boundary + 1, bucket_width))
+
+
+def get_bucket_batch_sizes(
+    bucket_boundaries,
+    batch_size,
+    batch_type="examples",
+    batch_size_multiple=1,
+):
+    """Returns the batch size to use for each length bucket."""
+    batch_sizes = []
+
+    for boundary in bucket_boundaries:
+        if batch_type == "examples":
+            bucket_batch_size = batch_size
+        elif batch_type == "tokens":
+            maximum_length = boundary - 1
+            bucket_batch_size = max(batch_size // maximum_length, 1)
+
+        if batch_size_multiple > 1:
+            # Reduce the batch size to the previous multiple to avoid increasing the memory usage.
+            bucket_batch_size = max(
+                bucket_batch_size - bucket_batch_size % batch_size_multiple,
+                batch_size_multiple,
+            )
+
+        batch_sizes.append(bucket_batch_size)
+
+    # Batch size of 1 past the last bucket boundary.
+    batch_sizes.append(1)
+
+    return batch_sizes
+
+
+def get_element_length_func(length_fns):
+    """Returns a function to get the length for a dataset element.
+
+    If the dataset contains multiple parallel elements, the maximum length is returned.
+    """
+
+    if not isinstance(length_fns, (list, tuple)):
+        length_fns = [length_fns]
+
+    def _func(*elements):
+        if len(length_fns) != len(elements):
+            raise ValueError(
+                "%d length functions were passed but this dataset contains "
+                "%d parallel elements" % (len(length_fns), len(elements))
+            )
+
+        # Get length of all parallel inputs.
+        all_lengths = tf.nest.flatten(
+            [
+                length_fn(features) if length_fn is not None else None
+                for features, length_fn in zip(elements, length_fns)
+            ]
+        )
+
+        # Remove undefined lengths.
+        all_lengths = [length for length in all_lengths if length is not None]
+        if not all_lengths:
+            raise ValueError(
+                "The length should be defined for at least one dataset element"
+            )
+
+        # Return the maximum length of all parallel elements.
+        return tf.reduce_max(all_lengths)
+
+    return _func
+
+
 def batch_sequence_dataset(
     batch_size,
     batch_type="examples",
@@ -362,6 +444,8 @@ def batch_sequence_dataset(
     batch_size_multiple=1,
     length_bucket_width=None,
     length_fn=None,
+    maximum_length=None,
+    pad_to_bucket_boundary=False,
     padded_shapes=None,
 ):
     """Transformation that batches a dataset of sequences.
@@ -397,6 +481,10 @@ def batch_sequence_dataset(
         candidates from. ``None`` to not constrain batch formation.
       length_fn: A function or list of functions (in case of a parallel dataset)
         that take features as argument and return the associated sequence length.
+      maximum_length: If known, the maximum length or list of maximum lengths
+        (in case of a parallel dataset). This argument is required with
+        :obj:`pad_to_bucket_boundary`.
+      pad_to_bucket_boundary: Pad each batch to the length bucket boundary.
       padded_shapes: The padded shapes for this dataset. If ``None``, the shapes
         are automatically inferred from the dataset output shapes.
 
@@ -413,51 +501,14 @@ def batch_sequence_dataset(
     See Also:
       :func:`opennmt.data.batch_dataset`
     """
-    batch_size = batch_size * batch_multiplier
-
-    def _get_bucket_id(features, length_fn):
-        default_id = tf.constant(0, dtype=tf.int32)
-        if length_fn is None:
-            return default_id
-        lengths = length_fn(features)
-        if lengths is None:
-            return default_id
-        if not isinstance(lengths, list):
-            lengths = [lengths]  # Fallback to the general case of parallel inputs.
-        lengths = [length // length_bucket_width for length in lengths]
-        return tf.reduce_max(lengths)
-
-    def _key_func(*args):
-        length_fns = length_fn
-        if length_fns is None:
-            length_fns = [None for _ in args]
-        elif not isinstance(length_fns, (list, tuple)):
-            length_fns = [length_fns]
-        if len(length_fns) != len(args):
-            raise ValueError(
-                "%d length functions were passed but this dataset contains "
-                "%d parallel elements" % (len(length_fns), len(args))
+    if batch_type not in ("examples", "tokens"):
+        raise ValueError(
+            "Invalid batch type: '{}'; should be 'examples' or 'tokens'".format(
+                batch_type
             )
-        # Take the highest bucket id.
-        bucket_id = tf.reduce_max(
-            [
-                _get_bucket_id(features, length_fn)
-                for features, length_fn in zip(args, length_fns)
-            ]
         )
-        return tf.cast(bucket_id, tf.int64)
 
-    def _reduce_func(unused_key, dataset):
-        return dataset.apply(batch_dataset(batch_size, padded_shapes=padded_shapes))
-
-    def _window_size_func(key):
-        if length_bucket_width > 1:
-            key += 1  # For length_bucket_width == 1, key 0 is unassigned.
-        size = batch_size // (key * length_bucket_width)
-        required_multiple = batch_multiplier * batch_size_multiple
-        if required_multiple > 1:
-            size = size + required_multiple - size % required_multiple
-        return tf.cast(tf.maximum(size, required_multiple), tf.int64)
+    batch_size = batch_size * batch_multiplier
 
     if length_bucket_width is None:
         if batch_type == "tokens":
@@ -467,17 +518,60 @@ def batch_sequence_dataset(
             )
         return batch_dataset(batch_size, padded_shapes=padded_shapes)
 
+    element_length_func = get_element_length_func(length_fn)
+
+    if pad_to_bucket_boundary:
+        maximum_lengths = tf.nest.flatten(maximum_length)
+        maximum_lengths = [length for length in maximum_lengths if length is not None]
+        if not maximum_lengths:
+            raise ValueError(
+                "The maximum lengths should be known when padding batches to the length "
+                "bucket boundaries"
+            )
+
+        bucket_boundaries = get_length_bucket_boundaries(
+            length_bucket_width, max(maximum_lengths)
+        )
+
+        batch_sizes = get_bucket_batch_sizes(
+            bucket_boundaries,
+            batch_size,
+            batch_type=batch_type,
+            batch_size_multiple=batch_size_multiple,
+        )
+
+        return lambda dataset: dataset.bucket_by_sequence_length(
+            element_length_func,
+            bucket_boundaries,
+            batch_sizes,
+            padded_shapes=padded_shapes,
+            pad_to_bucket_boundary=pad_to_bucket_boundary,
+            drop_remainder=True,
+        )
+
+    def _key_func(*args):
+        length = element_length_func(*args)
+        bucket_id = tf.math.maximum(
+            tf.cast(tf.math.ceil(length / length_bucket_width) - 1, tf.int64),
+            tf.constant(0, dtype=tf.int64),
+        )
+        return bucket_id
+
+    def _reduce_func(unused_key, dataset):
+        return dataset.apply(batch_dataset(batch_size, padded_shapes=padded_shapes))
+
+    def _window_size_func(key):
+        bucket_max_length = (key + 1) * length_bucket_width
+        size = batch_size // bucket_max_length
+        # Round to the closest smaller or equal multiple.
+        size = (size // batch_size_multiple) * batch_size_multiple
+        return tf.math.maximum(size, batch_size_multiple)
+
     kwargs = {}
     if batch_type == "examples":
         kwargs["window_size"] = batch_size
     elif batch_type == "tokens":
         kwargs["window_size_func"] = _window_size_func
-    else:
-        raise ValueError(
-            "Invalid batch type: '{}'; should be 'examples' or 'tokens'".format(
-                batch_type
-            )
-        )
 
     return lambda dataset: dataset.group_by_window(_key_func, _reduce_func, **kwargs)
 
@@ -490,6 +584,7 @@ def training_pipeline(
     process_fn=None,
     transform_fns=None,
     length_bucket_width=None,
+    pad_to_bucket_boundary=False,
     features_length_fn=None,
     labels_length_fn=None,
     maximum_features_length=None,
@@ -634,6 +729,11 @@ def training_pipeline(
         length_fn = [features_length_fn]
         if labels_length_fn is not None:
             length_fn.append(labels_length_fn)
+
+        maximum_length = [maximum_features_length]
+        if maximum_labels_length is not None:
+            maximum_length.append(maximum_labels_length)
+
         dataset = dataset.apply(
             batch_sequence_dataset(
                 batch_size,
@@ -642,6 +742,8 @@ def training_pipeline(
                 batch_size_multiple=batch_size_multiple,
                 length_bucket_width=length_bucket_width,
                 length_fn=length_fn,
+                maximum_length=maximum_length,
+                pad_to_bucket_boundary=pad_to_bucket_boundary,
             )
         )
         dataset = dataset.apply(filter_irregular_batches(batch_multiplier))

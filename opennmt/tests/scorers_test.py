@@ -22,6 +22,18 @@ class ScorersTest(tf.test.TestCase):
         score = self._run_scorer(scorer, refs, refs)
         self.assertEqual(100, int(score))
 
+    def testCHRFScorer(self):
+        refs = ["Hello world !", "How is it going ?"]
+        scorer = scorers.CHRFScorer()
+        score = self._run_scorer(scorer, refs, refs)
+        self.assertEqual(100, int(score))
+
+    def testCHRFPPScorer(self):
+        refs = ["Hello world !", "How is it going ?"]
+        scorer = scorers.CHRFPPScorer()
+        score = self._run_scorer(scorer, refs, refs)
+        self.assertEqual(100, int(score))
+
     def testROUGEScorer(self):
         refs = ["Hello world !", "How is it going ?"]
         scorer = scorers.ROUGEScorer()

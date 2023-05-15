@@ -2,7 +2,6 @@
 
 import collections
 import contextlib
-import itertools
 import time
 
 import tensorflow as tf
@@ -20,7 +19,7 @@ class Trainer:
 
         Args:
           model: A :class:`opennmt.models.Model` instance to train.
-          optimizer: A ``tf.keras.optimizers.Optimizer`` instance.
+          optimizer: A ``tf.keras.optimizers.legacy.Optimizer`` instance.
           checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance. If
             not set, no checkpoints will be saved.
         """
@@ -41,6 +40,9 @@ class Trainer:
         ):
             optimizer = tf.keras.mixed_precision.LossScaleOptimizer(optimizer)
         self._optimizer = optimizer
+
+        self._total_loss = None
+        self._total_sample_size = None
 
     @property
     def is_master(self):
@@ -106,9 +108,7 @@ class Trainer:
 
             step = None
             moving_average = None
-            for i, loss in enumerate(
-                self._steps(dataset, accum_steps=accum_steps, report_steps=report_steps)
-            ):
+            for i, loss in enumerate(self._steps(dataset, accum_steps=accum_steps)):
                 if i == 0:
                     self._log_model_info()
 
@@ -170,7 +170,7 @@ class Trainer:
         shadow_variables = (
             moving_average.shadow_variables()
             if moving_average is not None
-            else contextlib.suppress()
+            else contextlib.nullcontext()
         )
         with shadow_variables:
             self._checkpoint.save(step)
@@ -186,7 +186,7 @@ class Trainer:
         shadow_variables = (
             moving_average.shadow_variables()
             if moving_average is not None
-            else contextlib.suppress()
+            else contextlib.nullcontext()
         )
         with shadow_variables:
             evaluator(step)
@@ -206,62 +206,44 @@ class Trainer:
             dataset = dataset(tf.distribute.InputContext())
         return dataset
 
-    def _steps(self, dataset, accum_steps=1, report_steps=None):
+    def _steps(self, dataset, accum_steps=1):
         """Returns a generator over training steps (i.e. parameters update).
 
         Args:
           dataset: The training dataset.
           accum_steps: Accumulate the gradients of this many steps/batches.
-          report_steps: Report summary statistics every this many steps. This should
-            typically be used in a ``tf.summary.record_if`` context.
 
         Returns:
           A generator that yields a loss value to report for this step.
         """
         dataset = self._finalize_dataset(dataset)
-        iterator = iter(dataset)
 
-        # We define 2 separate functions to support gradient accumulation:
-        #  * forward: compute and accumulate the gradients
-        #  * step: apply the gradients
-        # When gradient accumulation is disabled, the forward function also applies the gradients.
+        apply_gradients = tf.function(self._apply_gradients)
+        accumulate_gradients = tf.function(
+            self._accumulate_gradients,
+            input_signature=(dataset.element_spec,),
+        )
 
-        def _forward():
-            # We get the next dataset element within the function for increased efficiency
-            # and avoid dealing with tf.function input signatures.
-            return self._forward(
-                next(iterator),
-                accum_steps=accum_steps,
-                report_steps=report_steps,
+        for i, batches in enumerate(_group_batches(dataset, accum_steps)):
+            for batch in batches:
+                accumulate_gradients(batch)
+
+            loss = self._all_reduce_sum(self._total_loss)
+            sample_size = (
+                self._all_reduce_sum(self._total_sample_size)
+                if self._total_sample_size is not None
+                else accum_steps * self.num_replicas
             )
-
-        def _step():
-            return self._step()
-
-        # Wrap forward and step with tf.function to run in graph mode.
-        forward_fn = tf.function(_forward)
-        step_fn = tf.function(_step) if accum_steps > 1 else lambda: None
-        step_loss = 0
-
-        for i in itertools.count():
-            try:
-                loss = forward_fn()
-            except (
-                StopIteration,
-                tf.errors.OutOfRangeError,
-            ):  # Dataset iterator exhausted.
-                break
 
             if tf.math.is_nan(loss):
                 raise RuntimeError("Model diverged with loss = NaN.")
 
-            step_loss += float(loss)
-            if (i + 1) % accum_steps == 0:
-                step_fn()
-                if i + 1 == accum_steps:
-                    self._broadcast_variables()
-                yield step_loss
-                step_loss = 0
+            apply_gradients(sample_size)
+
+            if i == 0:
+                self._broadcast_variables()
+
+            yield float(loss) / float(sample_size)
 
     def _log_model_info(self):
         """Logs some information about the model being trained."""
@@ -279,55 +261,57 @@ class Trainer:
             len(self._model.non_trainable_weights),
         )
 
-    def _should_record_summaries(self, accum_steps, report_steps):
-        """Returns a boolean tensor to be used in tf.summary.record_if."""
-        if report_steps is None or not self.is_master:
-            return False
-        record_summaries = tf.equal(self._optimizer.iterations % report_steps, 0)
-        if accum_steps > 1:
-            record_summaries = tf.logical_and(
-                record_summaries, tf.equal(self._gradient_accumulator.step, 0)
+    def _accumulate_loss(self, loss, sample_size):
+        """Accumulates the loss and sample size on the current replica."""
+        if self._total_loss is None:
+            self._total_loss = tf.Variable(
+                tf.constant(0, tf.float32),
+                trainable=False,
+                synchronization=tf.VariableSynchronization.ON_READ,
+                aggregation=tf.VariableAggregation.SUM,
             )
-        return record_summaries
 
-    def _compute_gradients(self, batch, accum_steps, report_steps):
-        """Computes the gradient of a training example."""
-        record_summaries = self._should_record_summaries(accum_steps, report_steps)
-        with tf.summary.record_if(record_summaries):
-            features, labels = self._model.split_features_labels(batch)
-            reported_loss, gradients = self._model.compute_gradients(
-                features,
-                labels,
-                self._optimizer,
-                loss_scale=accum_steps * self.num_replicas,
-            )
-            self._training_stats.update_on_example(features, labels)
-            _summarize_gradients(gradients, record_summaries)
-        return reported_loss, gradients
+        self._total_loss.assign_add(loss, read_value=False)
 
-    def _apply_gradients(self, gradients):
+        if sample_size is not None:
+            if self._total_sample_size is None:
+                self._total_sample_size = tf.Variable(
+                    tf.constant(0, tf.float32),
+                    trainable=False,
+                    synchronization=tf.VariableSynchronization.ON_READ,
+                    aggregation=tf.VariableAggregation.SUM,
+                )
+
+            self._total_sample_size.assign_add(sample_size, read_value=False)
+
+    def _accumulate_gradients(self, batch):
+        """Computes and accumulates the gradient of a training example."""
+        features, labels = self._model.split_features_labels(batch)
+        loss, gradients, sample_size = self._model.compute_gradients(
+            features,
+            labels,
+            self._optimizer,
+            normalize_loss=False,
+        )
+        self._accumulate_loss(loss, sample_size)
+        self._gradient_accumulator(gradients)
+        self._training_stats.update_on_example(features, labels)
+
+    def _apply_gradients(self, sample_size):
         """Applies the gradients."""
+        gradients = [
+            self._all_reduce_sum(gradient / sample_size)
+            for gradient in self._gradient_accumulator.gradients
+        ]
+
         self._optimizer.apply_gradients(
             list(zip(gradients, self._model.trainable_variables))
         )
 
-    def _forward(self, batch, accum_steps=1, report_steps=None):
-        """Forwards a training example and accumulates the gradients."""
-        loss, gradients = self._compute_gradients(
-            batch,
-            accum_steps,
-            report_steps,
-        )
-        if accum_steps > 1:
-            self._gradient_accumulator(gradients)
-        else:
-            self._apply_gradients(gradients)
-        return loss
-
-    def _step(self):
-        """Applies gradients and resets accumulation."""
-        self._apply_gradients(self._gradient_accumulator.gradients)
         self._gradient_accumulator.reset()
+        self._total_loss.assign(0, read_value=False)
+        if self._total_sample_size is not None:
+            self._total_sample_size.assign(0, read_value=False)
 
     def _update_moving_average(self, moving_average):
         """Updates the moving average of variables."""
@@ -339,7 +323,20 @@ class Trainer:
 
     def _all_reduce_sum(self, value):
         """Reduces the value across all replicas."""
+        if isinstance(value, tf.Variable):
+            return value.read_value()
         return value
+
+
+def _group_batches(dataset, group_size):
+    group = []
+
+    for batch in dataset:
+        group.append(batch)
+
+        if len(group) == group_size:
+            yield group
+            group = []
 
 
 class HorovodTrainer(Trainer):
@@ -350,7 +347,7 @@ class HorovodTrainer(Trainer):
 
         Args:
           model: A :class:`opennmt.models.Model` instance to train.
-          optimizer: A ``tf.keras.optimizers.Optimizer`` instance.
+          optimizer: A ``tf.keras.optimizers.legacy.Optimizer`` instance.
           hvd: The global Horovod object.
           checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance. If
             not set, no checkpoints will be saved.
@@ -366,6 +363,15 @@ class HorovodTrainer(Trainer):
     def num_replicas(self):
         return self._hvd.size()
 
+    def _evaluate(self, evaluator, step, moving_average=None):
+        should_stop = super()._evaluate(evaluator, step, moving_average)
+        # Evaluation is only performed on master, but we want all workers
+        # to be aware of the early stopping decision.
+        should_stop = self._hvd.broadcast_object(
+            should_stop, root_rank=0, name="should_stop"
+        )
+        return should_stop
+
     def _finalize_dataset(self, dataset):
         if callable(dataset):
             dataset = dataset(
@@ -376,9 +382,6 @@ class HorovodTrainer(Trainer):
                 )
             )
         return dataset
-
-    def _apply_gradients(self, gradients):
-        return super()._apply_gradients(map(self._all_reduce_sum, gradients))
 
     def _broadcast_variables(self):
         self._hvd.broadcast_variables(self._model.variables, root_rank=0)
@@ -396,7 +399,7 @@ class MirroredStrategyTrainer(Trainer):
 
         Args:
           model: A :class:`opennmt.models.Model` instance to train.
-          optimizer: A ``tf.keras.optimizers.Optimizer`` instance.
+          optimizer: A ``tf.keras.optimizers.legacy.Optimizer`` instance.
           checkpoint: A :class:`opennmt.utils.checkpoint.Checkpoint` instance. If
             not set, no checkpoints will be saved.
           devices: List of device strings to use for training. If not set, all
@@ -418,38 +421,18 @@ class MirroredStrategyTrainer(Trainer):
         dataset_fn = dataset if callable(dataset) else lambda _: dataset
         return self._strategy.distribute_datasets_from_function(dataset_fn)
 
-    def _forward(self, batch, accum_steps=1, report_steps=None):
-        per_replica_loss = self._strategy.run(
-            super()._forward,
-            args=(batch,),
-            kwargs=dict(accum_steps=accum_steps, report_steps=report_steps),
-        )
-        # TODO: this reduction could be delayed until _step is called.
-        return self._strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_loss, None)
+    def _accumulate_gradients(self, batch):
+        self._strategy.run(super()._accumulate_gradients, args=(batch,))
 
-    def _step(self):
-        self._strategy.run(super()._step)
+    def _apply_gradients(self, sample_size):
+        self._strategy.run(super()._apply_gradients, args=(sample_size,))
 
     def _update_moving_average(self, moving_average):
         with self._strategy.scope():
             super()._update_moving_average(moving_average)
 
 
-def _summarize_gradients(gradients, should_record):
-    # Only compute the gradients global norm when the value is actually recorded.
-    if isinstance(should_record, bool) and not should_record:
-        return
-    tf.summary.scalar(
-        "gradients/global_norm",
-        tf.cond(
-            should_record,
-            true_fn=lambda: tf.linalg.global_norm(gradients),
-            false_fn=lambda: tf.constant(0, dtype=gradients[0].dtype),
-        ),
-    )
-
-
-class MovingAverage(object):
+class MovingAverage:
     """Object holding an exponential moving average of variables."""
 
     def __init__(self, variables, step, decay=0.9999):
@@ -614,24 +597,27 @@ class TrainingStats:
             summary["steps_per_sec"],
             description="Training steps per second",
         )
-        steps_per_sec_fmt = "steps/s = %0.2f" % summary["steps_per_sec"]
 
-        words_per_sec_fmt = []
         for name, avg in summary["words_per_sec"].items():
             tf.summary.scalar(
                 "words_per_sec/%s" % name,
                 avg,
                 description="%s words per second" % name.capitalize(),
             )
-            words_per_sec_fmt.append("%s words/s = %d" % (name, avg))
 
         tf.get_logger().info(
-            "Step = %d ; %s ; Learning rate = %f ; Loss = %f",
+            "Step = %d ; steps/s = %0.2f, tokens/s = %d (%s) ; Learning rate = %f ; Loss = %f",
             summary["step"],
-            ", ".join([steps_per_sec_fmt] + list(sorted(words_per_sec_fmt))),
+            summary["steps_per_sec"],
+            sum(summary["words_per_sec"].values()),
+            ", ".join(
+                "%d %s" % (avg, name)
+                for name, avg in sorted(summary["words_per_sec"].items())
+            ),
             summary["learning_rate"],
             summary["loss"],
         )
+
         tf.summary.scalar("loss", summary["loss"], description="Training loss")
         tf.summary.scalar(
             "optim/learning_rate", summary["learning_rate"], description="Learning rate"
@@ -724,7 +710,6 @@ class TrainingStats:
         """
         counters = {}
         for name, counter in self._words_counters.items():
-            counter = counter.read_value()
             if self._reduce_fn is not None:
                 counter = self._reduce_fn(counter)
             counters[name] = counter

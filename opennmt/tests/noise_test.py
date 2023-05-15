@@ -101,7 +101,7 @@ class NoiseTest(tf.test.TestCase):
         noiser = noise.WordNoiser()
         noiser.add(noise.WordReplacement(1, filler="f"))
         tokens = noiser(tokens)
-        self.assertAllEqual(tokens.to_list(), [[b"f", b"f", b"f"], [b"f"]])
+        self.assertListEqual(tokens.to_list(), [[b"f", b"f", b"f"], [b"f"]])
 
 
 if __name__ == "__main__":

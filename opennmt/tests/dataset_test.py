@@ -1,4 +1,5 @@
 import os
+import random
 
 import tensorflow as tf
 
@@ -246,11 +247,100 @@ class DatasetTest(tf.test.TestCase):
             self.assertAllEqual(element["length"], length)
             self.assertAllEqual(element["index"], index)
 
-        self.assertEqual(len(elements), 4)
-        _check_element(elements[0], [8, 6, 7], [0, 3, 4])
-        _check_element(elements[1], [2, 1], [1, 5])
-        _check_element(elements[2], [5, 3], [2, 6])
-        _check_element(elements[3], [9], [7])
+        self.assertEqual(len(elements), 3)
+        _check_element(elements[0], [2, 1, 3], [1, 5, 6])
+        _check_element(elements[1], [8, 7, 9], [0, 4, 7])
+        _check_element(elements[2], [5, 6], [2, 3])
+
+    @parameterized.expand(
+        [
+            (3, 18, [4, 7, 10, 13, 16, 19, 22]),
+            (3, 19, [4, 7, 10, 13, 16, 19, 22, 25]),
+            (1, 9, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
+        ]
+    )
+    def testBucketBoundaries(
+        self,
+        bucket_width,
+        maximum_length,
+        expected_boundaries,
+    ):
+        boundaries = dataset_util.get_length_bucket_boundaries(
+            bucket_width, maximum_length
+        )
+        self.assertListEqual(boundaries, expected_boundaries)
+
+    @parameterized.expand(
+        [
+            ([4, 7, 10, 13], 15, "examples", 1, [15, 15, 15, 15, 1]),
+            ([4, 7, 10, 13], 15, "examples", 8, [8, 8, 8, 8, 1]),
+            ([4, 7, 10, 13], 6, "examples", 8, [8, 8, 8, 8, 1]),
+            ([4, 7, 10, 13], 512, "tokens", 1, [170, 85, 56, 42, 1]),
+            ([4, 7, 10, 13], 512, "tokens", 8, [168, 80, 56, 40, 1]),
+        ]
+    )
+    def testBucketBatchSizes(
+        self,
+        bucket_boundaries,
+        batch_size,
+        batch_type,
+        batch_size_multiple,
+        expected_batch_sizes,
+    ):
+        batch_sizes = dataset_util.get_bucket_batch_sizes(
+            bucket_boundaries,
+            batch_size,
+            batch_type=batch_type,
+            batch_size_multiple=batch_size_multiple,
+        )
+
+        self.assertListEqual(batch_sizes, expected_batch_sizes)
+
+    def testPadToBucketBoundary(self):
+        num_examples = 1000
+        maximum_length = 100
+
+        def _random_sequence():
+            length = random.randint(1, maximum_length)
+            sequence = [1 for _ in range(length)]
+            return sequence
+
+        def _sequence_generator():
+            for _ in range(num_examples):
+                source = _random_sequence()
+                target = _random_sequence()
+                yield source, target
+
+        length_fn = lambda sequence: tf.size(sequence)
+
+        dataset = tf.data.Dataset.from_generator(
+            _sequence_generator,
+            output_signature=(
+                tf.TensorSpec([None], dtype=tf.int64),
+                tf.TensorSpec([None], dtype=tf.int64),
+            ),
+        )
+
+        dataset = dataset.apply(
+            dataset_util.batch_sequence_dataset(
+                1024,
+                "tokens",
+                batch_size_multiple=8,
+                length_bucket_width=8,
+                length_fn=[length_fn, length_fn],
+                maximum_length=[maximum_length, maximum_length],
+                pad_to_bucket_boundary=True,
+            )
+        )
+
+        elements = list(dataset)
+        self.assertNotEmpty(elements)
+
+        for source, target in elements:
+            self.assertEqual(source.shape[0] % 8, 0)
+            self.assertEqual(source.shape[1] % 8, 0)
+            self.assertEqual(target.shape[0] % 8, 0)
+            self.assertEqual(target.shape[1] % 8, 0)
 
 
 if __name__ == "__main__":

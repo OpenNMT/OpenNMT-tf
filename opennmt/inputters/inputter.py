@@ -355,21 +355,10 @@ class ParallelInputter(MultiInputter):
           combine_features: Combine each inputter features in a single dict or
             return them separately. This is typically ``True`` for multi source
             inputs but ``False`` for features/labels parallel data.
-
-        Raises:
-          ValueError: if :obj:`share_parameters` is set but the child inputters are
-            not of the same type.
         """
         super().__init__(inputters, reducer=reducer)
         self.combine_features = combine_features
         self.share_parameters = share_parameters
-        if self.share_parameters:
-            leaves = self.get_leaf_inputters()
-            for inputter in leaves[1:]:
-                if type(inputter) is not type(leaves[0]):  # noqa: E721
-                    raise ValueError(
-                        "Each inputter must be of the same type for parameter sharing"
-                    )
 
     def _structure(self):
         """Returns the nested structure that represents this parallel inputter."""
@@ -545,6 +534,11 @@ class ParallelInputter(MultiInputter):
             # all attributes with parameters to the other inputters.
             leaves = self.get_leaf_inputters()
             first, others = leaves[0], leaves[1:]
+            for inputter in others:
+                if type(inputter) is not type(first):  # noqa: E721
+                    raise ValueError(
+                        "Each inputter must be of the same type for parameter sharing"
+                    )
             first.build(input_shape)
             for name, attr in first.__dict__.copy().items():
                 if isinstance(attr, tf.Variable) or (
@@ -707,6 +701,7 @@ class ExampleInputterAdapter:
         batch_size_multiple=1,
         shuffle_buffer_size=None,
         length_bucket_width=None,
+        pad_to_bucket_boundary=False,
         maximum_features_length=None,
         maximum_labels_length=None,
         single_pass=False,
@@ -741,6 +736,7 @@ class ExampleInputterAdapter:
           length_bucket_width: The width of the length buckets to select batch
             candidates from (for efficiency). Set ``None`` to not constrain batch
             formation.
+          pad_to_bucket_boundary: Pad each batch to the length bucket boundary.
           maximum_features_length: The maximum length or list of maximum lengths of
             the features sequence(s). ``None`` to not constrain the length.
           maximum_labels_length: The maximum length of the labels sequence.
@@ -817,6 +813,25 @@ class ExampleInputterAdapter:
             padded_shapes = self.get_padded_shapes(
                 dataset.element_spec, maximum_length=maximum_length
             )
+
+            # Dynamically pad each sequence to the maximum length.
+            def _pad_to_shape(tensor, padded_shape):
+                if tensor.shape.rank == 0:
+                    return tensor
+                tensor_shape = misc.shape_list(tensor)
+                paddings = [
+                    [0, padded_dim - tensor_dim]
+                    if tf.is_tensor(tensor_dim) and padded_dim is not None
+                    else [0, 0]
+                    for tensor_dim, padded_dim in zip(tensor_shape, padded_shape)
+                ]
+                return tf.pad(tensor, paddings)
+
+            dataset = dataset.map(
+                lambda *arg: tf.nest.map_structure(
+                    _pad_to_shape, misc.item_or_tuple(arg), padded_shapes
+                )
+            )
             dataset = dataset.apply(
                 dataset_util.batch_sequence_dataset(
                     batch_size,
@@ -824,7 +839,6 @@ class ExampleInputterAdapter:
                     batch_multiplier=batch_multiplier,
                     length_bucket_width=1,
                     length_fn=constant_length_fn,
-                    padded_shapes=padded_shapes,
                 )
             )
             return dataset
@@ -838,8 +852,11 @@ class ExampleInputterAdapter:
             batch_size_multiple=batch_size_multiple,
             transform_fns=transform_fns,
             length_bucket_width=length_bucket_width,
+            pad_to_bucket_boundary=pad_to_bucket_boundary,
             features_length_fn=features_length_fn,
             labels_length_fn=labels_length_fn,
+            maximum_features_length=maximum_features_length,
+            maximum_labels_length=maximum_labels_length,
             single_pass=single_pass,
             num_shards=num_shards,
             shard_index=shard_index,

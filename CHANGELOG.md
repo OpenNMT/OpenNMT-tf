@@ -15,6 +15,74 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.31.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.31.0) (2023-01-13)
+
+### New features
+
+* Add option `--jit_compile` to compile the model with XLA (only applied in training at the moment)
+
+### Fixes and improvements
+
+* Improve correctness of gradient accumulation and multi-GPU training by normalizing the gradients with the true global batch size instead of using an approximation
+* Report the total number of tokens per second in the training logs, in addition to the source and target numbers
+* Relax the sacreBLEU version requirement to include any 2.x versions
+
+## [2.30.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.30.0) (2022-12-12)
+
+### Changes
+
+* The model attribute `ctranslate2_spec` has been removed as it is no longer relevant with the new CTranslate2 converter
+* The global gradient norm is no longer reported in TensorBoard because it was misleading: it did not take into account gradient accumulation and multi-GPU
+
+### New features
+
+* Support TensorFlow 2.11 (note that the new Keras optimizers are not yet supported, if you are creating optimizers manually please use an optimizer in `tf.keras.optimizers.legacy` for now)
+* Support CTranslate2 3.0
+* Add training parameter `pad_to_bucket_boundary` to pad the batch length to a multiple of `length_bucket_width` (this is useful to reduce the number of recompilation with XLA)
+* Integrate the scorers `chrf` and `chrf++` from SacreBLEU
+
+### Fixes and improvements
+
+* Fix error when training with Horovod and using an early stopping condition
+* Fix error when using guided alignment with mixed precision
+
+## [2.29.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.29.1) (2022-10-03)
+
+### Fixes and improvements
+
+* Fix error when using gzipped training data files
+* Remove unnecessary casting in `MultiHeadAttention` for a small performance improvement
+
+## [2.29.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.29.0) (2022-09-26)
+
+### New features
+
+* Support TensorFlow 2.10
+* Add model configurations `ScalingNmtEnDe` and `ScalingNmtEnFr` from [Ott et al. 2018](https://aclanthology.org/W18-6301/)
+* Add embedding parameter `EmbeddingsSharingLevel.AUTO` to automatically share embeddings when the vocabulary is shared
+* Extend method `Runner.average_checkpoints` to accept a list of checkpoints to average
+
+### Fixes and improvements
+
+* Make batch size autotuning faster when using gradient accumulation
+
+## [2.28.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.28.0) (2022-07-29)
+
+### New features
+
+* Add `initial_learning_rate` parameter to the `InvSqrtDecay` schedule
+* Add new arguments to the `Transformer` constructor:
+  * `mha_bias`: to disable bias terms in the multi-head attention (as presented in the original paper)
+  * `output_layer_bias`: to disable bias in the output linear layer
+
+### Fixes and improvements
+
+* Fix incorrect dtype for `SequenceRecordInputter` length vector
+* Fix rounding error when batching datasets which could make the number of tokens in a batch greater than the configured batch size
+* Fix deprecation warning when using `distutils.version.LooseVersion`, use `packaging.version.Version` instead
+* Make the length dimension unknown in the dataset used for batch size autotuning so that it matches the behavior in training
+* Update SacreBLEU requirement to include new version 2.2
+
 ## [2.27.1](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.27.1) (2022-06-02)
 
 ### Fixes and improvements

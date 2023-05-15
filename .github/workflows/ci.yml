@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
 
@@ -44,13 +44,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tensorflow: [2.6, 2.7, 2.8, 2.9]
+        tensorflow: [2.6, 2.7, 2.8, 2.9, '2.10', '2.11', '2.12']
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
 
@@ -71,8 +71,8 @@ jobs:
           pytest --cov=opennmt --cov-report xml opennmt/tests
 
       - name: Upload coverage report
-        if: matrix.tensorflow == '2.9'
-        uses: codecov/codecov-action@v2
+        if: matrix.tensorflow == '2.12'
+        uses: codecov/codecov-action@v3
 
 
   build-and-deploy-package:
@@ -80,10 +80,10 @@ jobs:
     needs: [lint-check, test]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
 
@@ -97,7 +97,7 @@ jobs:
 
       - name: Push package on PyPI
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
@@ -108,12 +108,12 @@ jobs:
     needs: [lint-check, test]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           persist-credentials: false
 
       - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
 
@@ -128,9 +128,7 @@ jobs:
 
       - name: Deploy docs
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-        uses: JamesIves/github-pages-deploy-action@3.7.1
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: docs/build
-          CLEAN: true
+          folder: docs/build
+          clean: true

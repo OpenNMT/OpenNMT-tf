@@ -116,6 +116,12 @@ def main():
         help="Enable mixed precision.",
     )
     parser.add_argument(
+        "--jit_compile",
+        default=False,
+        action="store_true",
+        help="Compile the model with XLA when possible.",
+    )
+    parser.add_argument(
         "--eager_execution",
         default=False,
         action="store_true",
@@ -311,6 +317,7 @@ def main():
         config,
         auto_config=args.auto_config,
         mixed_precision=args.mixed_precision,
+        jit_compile=args.jit_compile,
         seed=args.seed,
     )
 

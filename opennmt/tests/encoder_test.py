@@ -33,7 +33,7 @@ class EncoderTest(tf.test.TestCase):
 
         ragged_output, _ = _Encoder()(ragged_tensor, training=True)
         self.assertIsInstance(ragged_output, tf.RaggedTensor)
-        self.assertAllEqual(ragged_output, [[2, 3, 4], [5], [6, 7]])
+        self.assertListEqual(ragged_output.to_list(), [[2, 3, 4], [5], [6, 7]])
 
     def testMeanEncoder(self):
         inputs = tf.concat([tf.ones([1, 5, 1]), 2 * tf.ones([1, 5, 1])], 0)

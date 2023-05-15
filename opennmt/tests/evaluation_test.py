@@ -9,7 +9,7 @@ from opennmt.utils import exporters, scorers
 # Define some dummy components to simply return the loss and metrics we want to test.
 
 
-class _TestMetric(object):
+class _TestMetric:
     def __init__(self, result_history):
         self.result_history = result_history
 

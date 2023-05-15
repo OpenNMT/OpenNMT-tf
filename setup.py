@@ -58,6 +58,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
     project_urls={
@@ -69,12 +70,13 @@ setup(
     keywords="tensorflow opennmt nmt neural machine translation",
     python_requires=">=3.7",
     install_requires=[
-        "ctranslate2>=2.17.0,<3",
+        "ctranslate2>=3.0,<4",
+        "packaging",
         "pyonmttok>=1.29.0,<2",
         "pyyaml>=5.3,<7",
         "rouge>=1.0,<2",
-        "sacrebleu>=1.5.0,<2.1",
-        "tensorflow-addons>=0.16,<0.18",
+        "sacrebleu>=1.5.0,<3",
+        "tensorflow-addons>=0.16,<0.21",
     ],
     extras_require={
         "tensorflow": [
@@ -85,7 +87,7 @@ setup(
         "docs": docs_require,
     },
     tests_require=tests_require,
-    packages=find_packages(exclude=["bin", "*.tests"]),
+    packages=find_packages(exclude=["*.tests"]),
     entry_points={
         "console_scripts": [
             "onmt-ark-to-records=opennmt.bin.ark_to_records:main",

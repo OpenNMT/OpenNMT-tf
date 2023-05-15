@@ -1,22 +1,22 @@
 """OpenNMT-tf version."""
 
-__version__ = "2.27.1"
+__version__ = "2.31.0"
 
 INCLUSIVE_MIN_TF_VERSION = "2.6.0"
-EXCLUSIVE_MAX_TF_VERSION = "2.10.0"
+EXCLUSIVE_MAX_TF_VERSION = "2.13.0"
 
 
 def _check_tf_version():
     import warnings
 
-    from distutils.version import LooseVersion
-
     import tensorflow as tf
 
+    from packaging.version import Version
+
     if (
-        LooseVersion(INCLUSIVE_MIN_TF_VERSION)
-        <= LooseVersion(tf.__version__)
-        < LooseVersion(EXCLUSIVE_MAX_TF_VERSION)
+        Version(INCLUSIVE_MIN_TF_VERSION)
+        <= Version(tf.__version__)
+        < Version(EXCLUSIVE_MAX_TF_VERSION)
     ):
         return
 

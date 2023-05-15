@@ -9,7 +9,7 @@ from opennmt.data import text
 from opennmt.utils import misc
 
 
-class WordNoiser(object):
+class WordNoiser:
     """Applies noise to words sequences."""
 
     def __init__(self, noises=None, subword_token="￭", is_spacer=None):

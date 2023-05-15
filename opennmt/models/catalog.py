@@ -374,6 +374,88 @@ class TransformerTiny(transformer.Transformer):
 
 
 @register_model_in_catalog
+class ScalingNmtEnDe(transformer.Transformer):
+    """Defines a big Transformer model using the En-De hyperparameters from
+    https://arxiv.org/abs/1806.00187.
+
+    The architecture is equivalent to transformer_wmt_en_de_big in Fairseq.
+    """
+
+    def __init__(self, dropout=0.3, attention_dropout=0.1):
+        super().__init__(
+            num_layers=6,
+            num_units=1024,
+            num_heads=16,
+            ffn_inner_dim=4096,
+            pre_norm=False,
+            dropout=dropout,
+            attention_dropout=attention_dropout,
+            ffn_dropout=0,
+            share_embeddings=sequence_to_sequence.EmbeddingsSharingLevel.AUTO,
+            output_layer_bias=False,
+        )
+
+    def auto_config(self, num_replicas=1):
+        config = super().auto_config(num_replicas=num_replicas)
+        return config_util.merge_config(
+            config,
+            {
+                "data": {
+                    # Add EOS to the source.
+                    "source_sequence_controls": {"end": True},
+                },
+                "params": {
+                    "optimizer": "Adam",
+                    "optimizer_params": {
+                        "beta_1": 0.9,
+                        "beta_2": 0.98,
+                        "epsilon": 1e-8,
+                    },
+                    "learning_rate": 0.001,
+                    "decay_type": "InvSqrtDecay",
+                    "decay_params": {
+                        "warmup_steps": 4000,
+                        "initial_learning_rate": 1e-7,
+                    },
+                },
+                "train": {
+                    "batch_size": 0,
+                    "effective_batch_size": 458752,  # = 3584 * 128
+                    "maximum_features_length": 175,
+                    "maximum_labels_length": 175,
+                    "save_checkpoint_steps": 1000,
+                    "keep_checkpoint_max": 10,
+                    "average_last_checkpoints": 10,
+                },
+            },
+        )
+
+
+@register_model_in_catalog
+class ScalingNmtEnFr(ScalingNmtEnDe):
+    """Defines a big Transformer model using the En-Fr hyperparameters from
+    https://arxiv.org/abs/1806.00187.
+
+    The architecture is equivalent to transformer_vaswani_wmt_en_fr_big in Fairseq.
+    """
+
+    def __init__(self):
+        super().__init__(dropout=0.1, attention_dropout=0)
+
+    def auto_config(self, num_replicas=1):
+        config = super().auto_config(num_replicas=num_replicas)
+        return config_util.merge_config(
+            config,
+            {
+                "params": {"learning_rate": 0.0007},
+                "train": {
+                    "effective_batch_size": 655360,  # = 5120 * 128
+                },
+            },
+        )
+
+
+@register_model_in_catalog
 class GPT2Small(language_model.LanguageModel):
     """GPT-2 language model (small version) as described in:
 

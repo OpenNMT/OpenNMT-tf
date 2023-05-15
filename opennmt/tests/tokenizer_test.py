@@ -26,7 +26,7 @@ class TokenizerTest(tf.test.TestCase):
         text = tf.constant(text)
         tokens = tokenizer.tokenize(text, training=training)
         self.assertIsInstance(tokens, tf.RaggedTensor)
-        self.assertAllEqual(
+        self.assertListEqual(
             tokens.to_list(), tf.nest.map_structure(tf.compat.as_bytes, ref_tokens)
         )
 
@@ -48,7 +48,7 @@ class TokenizerTest(tf.test.TestCase):
         self.assertAllEqual(ref_tokens, tokens)
 
     def _testTokenizer(self, tokenizer, text, ref_tokens, training=True):
-        self.assertAllEqual(tokenizer.tokenize(text, training), ref_tokens)
+        self.assertListEqual(tokenizer.tokenize(text, training), ref_tokens)
         self._testTokenizerOnBatchTensor(tokenizer, text, ref_tokens, training)
         self._testTokenizerOnStream(tokenizer, text, ref_tokens, training)
         for txt, ref in zip(text, ref_tokens):
@@ -167,7 +167,7 @@ class TokenizerTest(tf.test.TestCase):
         func = imported.signatures["serving_default"]
         outputs = func(tf.constant(text))["output_0"]
         outputs = tf.RaggedTensor.from_tensor(outputs, padding="").to_list()
-        self.assertAllEqual(outputs, tf.nest.map_structure(tf.compat.as_bytes, tokens))
+        self.assertListEqual(outputs, tf.nest.map_structure(tf.compat.as_bytes, tokens))
 
     def testOpenNMTTokenizer(self):
         self._testTokenizer(

@@ -2,6 +2,9 @@ import os
 
 import tensorflow as tf
 
+from parameterized import parameterized
+
+from opennmt.optimizers.utils import make_optimizer
 from opennmt.utils import checkpoint as checkpoint_util
 
 
@@ -39,9 +42,10 @@ class CheckpointTest(tf.test.TestCase):
         checkpoint = checkpoint_util.Checkpoint(model, model_dir=model_dir)
         self.assertEqual(checkpoint.last_saved_step, 20)
 
-    def testCheckpointAveraging(self):
+    @parameterized.expand([(True,), (False,)])
+    def testCheckpointAveraging(self, from_list):
         model = _DummyModel()
-        optimizer = tf.keras.optimizers.Adam()
+        optimizer = make_optimizer("Adam", 0.001)
 
         @tf.function
         def _build_model():
@@ -76,9 +80,11 @@ class CheckpointTest(tf.test.TestCase):
             _assign_var(model.layers[0].bias, step)
             checkpoint_manager.save(checkpoint_number=step)
 
+        paths = tf.train.get_checkpoint_state(directory).all_model_checkpoint_paths
+        model_dir = list(reversed(paths)) if from_list else directory
         output_dir = os.path.join(self.get_temp_dir(), "dst")
         checkpoint_util.average_checkpoints(
-            directory, output_dir, dict(model=model, optimizer=optimizer)
+            model_dir, output_dir, dict(model=model, optimizer=optimizer)
         )
         avg_checkpoint = tf.train.latest_checkpoint(output_dir)
         self.assertIsNotNone(avg_checkpoint)
