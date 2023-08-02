@@ -45,7 +45,6 @@ setup(
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
     author="OpenNMT",
-    author_email="guillaume.klein@systrangroup.com",
     url="https://opennmt.net",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
