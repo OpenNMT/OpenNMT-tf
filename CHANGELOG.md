@@ -15,6 +15,13 @@ OpenNMT-tf follows [semantic versioning 2.0.0](https://semver.org/). The API cov
 
 ### Fixes and improvements
 
+## [2.32.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.32.0) (2023-08-04)
+
+### New features
+
+* Support TensorFlow 2.12 and 2.13
+* Make timeout value configurable while searching for an optimal batch size
+
 ## [2.31.0](https://github.com/OpenNMT/OpenNMT-tf/releases/tag/v2.31.0) (2023-01-13)
 
 ### New features
