@@ -5,4 +5,4 @@ LayerNorm
     :members:
     :undoc-members:
 
-    **Inherits from:** :class:`keras.layers.normalization.layer_normalization.LayerNormalization`
+    **Inherits from:** :class:`keras.src.layers.normalization.layer_normalization.LayerNormalization`

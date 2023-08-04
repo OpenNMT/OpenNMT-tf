@@ -5,7 +5,7 @@ Bridge
     :members:
     :undoc-members:
 
-    **Inherits from:** :class:`keras.engine.base_layer.Layer`
+    **Inherits from:** :class:`keras.src.engine.base_layer.Layer`
 
     **Extended by:**
 

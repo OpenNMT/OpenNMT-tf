@@ -5,4 +5,4 @@ NoamDecay
     :members:
     :undoc-members:
 
-    **Inherits from:** :class:`keras.optimizers.schedules.learning_rate_schedule.LearningRateSchedule`
+    **Inherits from:** :class:`keras.src.optimizers.schedules.learning_rate_schedule.LearningRateSchedule`
