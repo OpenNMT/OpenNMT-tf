@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 import tensorflow as tf
 
@@ -116,6 +118,92 @@ class TransformerTest(tf.test.TestCase):
             [[2, 3, 4, 4], [1, 2, 3, 4], [0, 1, 2, 3], [0, 0, 1, 2]],
         )
 
+    @parameterized.expand(itertools.product([2, 3], [True, False], [0, 1, 2]))
+    def testSplitChunks(self, chunk_length, concat_3_chunks, global_length=0):
+        batch = 3
+        length = [5, 3, 7]
+        num_heads = 4
+        depth = 10
+
+        inputs = tf.random.normal(
+            [batch, num_heads, max(length), depth], dtype=tf.float32
+        )
+        split, num_chunks = transformer.split_chunks(
+            inputs,
+            chunk_length=chunk_length,
+            concat_3_chunks=concat_3_chunks,
+            global_length=global_length,
+        )
+        split_shape = split.shape
+        self.assertEqual(num_chunks, split_shape[0] / batch)
+        self.assertEqual(num_heads, split_shape[1])
+        chunk_length_eval = chunk_length * 3 if concat_3_chunks else chunk_length
+        chunk_length_eval += global_length
+        self.assertEqual(chunk_length_eval, split_shape[2])
+        self.assertEqual(depth, split_shape[3])
+
+    @parameterized.expand(itertools.product([tf.bool, tf.float32], [2, 3], [0, 1, 2]))
+    def testChunkAttentionMask(self, dtype, chunk_length, global_length=0):
+        length = [2, 4, 3]
+        batch = len(length)
+        maximum_length = 5
+        mask = tf.sequence_mask(lengths=length, maxlen=maximum_length, dtype=dtype)
+        mask_chunked = transformer.chunk_att_mask(
+            mask, chunk_length=chunk_length, global_length=global_length
+        )
+        (
+            output_batch_times_chunks,
+            output_chunk_length,
+            output_expanded_chunk_length,
+        ) = mask_chunked.shape
+        if global_length:
+            maximum_length = maximum_length - global_length
+            length = [el - global_length for el in length]
+        num_chunks = abs(-(maximum_length) // chunk_length)
+        self.assertEqual(num_chunks * batch, output_batch_times_chunks)
+        self.assertEqual(chunk_length, output_chunk_length)
+        self.assertEqual(chunk_length * 3 + global_length, output_expanded_chunk_length)
+
+        self.assertIs(mask_chunked.dtype, dtype)
+
+        expected = np.zeros(
+            (output_batch_times_chunks, output_chunk_length, chunk_length * 3),
+            dtype=dtype.as_numpy_dtype,
+        )
+
+        token_radius = chunk_length * 2 + 1
+        for b in range(batch):
+            seq_length = length[b]
+            for ch in range(num_chunks):
+                end = chunk_length + seq_length - chunk_length * ch
+                if end > 0:
+                    chunk_idx = b * num_chunks + ch
+                    for ch_l in range(chunk_length):
+                        seq_length_idx = ch * chunk_length + ch_l
+                        if seq_length_idx < maximum_length:
+                            start_idx = ch_l if ch != 0 else chunk_length
+                            end_idx = min(end, token_radius + ch_l)
+                            expected[chunk_idx][ch_l][start_idx:end_idx] = 1
+
+        mask_chunked = self.evaluate(mask_chunked)
+        if global_length:
+            expanded_mask = tf.expand_dims(mask, 1)
+            expanded_mask = tf.broadcast_to(
+                expanded_mask, [batch, maximum_length, maximum_length + global_length]
+            )
+            pad = chunk_length * num_chunks - maximum_length
+            expanded_mask = tf.pad(
+                tensor=expanded_mask, paddings=[[0, 0], [0, pad], [0, 0]]
+            )
+            expanded_mask = tf.reshape(
+                expanded_mask,
+                [batch * num_chunks, chunk_length, maximum_length + global_length],
+            )
+            expected = tf.concat(
+                (expected, expanded_mask[:, :, :global_length]), axis=2
+            )
+        self.assertAllEqual(mask_chunked, expected)
+
     def testFeedForwardNetwork(self):
         ffn = transformer.FeedForwardNetwork(20, 10)
         x = tf.random.uniform([4, 5, 10])
@@ -158,6 +246,18 @@ class TransformerTest(tf.test.TestCase):
         x = tf.random.uniform([4, 1, 10])
         cache = (tf.zeros([4, 4, 0, 5]), tf.zeros([4, 4, 0, 5]))
         _, cache = attention(x, cache=cache)
+
+    def testMultiHeadSelfAttentionSparse(self):
+        attention = transformer.MultiHeadAttention(
+            4,
+            20,
+            local_attention_radius=2,
+            max_length_full_attention=3,
+            global_attention_length=2,
+        )
+        x = tf.random.uniform([2, 9, 10])
+        mask = tf.sequence_mask([9, 7])
+        attention(x, mask=mask)
 
     def testMultiHeadSelfAttentionRelativeGradients(self):
         attention = transformer.MultiHeadAttention(4, 20, maximum_relative_position=6)
